@@ -1,0 +1,757 @@
+/**
+ * Seven Dimension Calculation Functions
+ * Each function calculates a specific dimension score (1-5) with confidence rating
+ */
+
+import type { Answers } from '@/data';
+import type { DimensionScore, SevenDimensions } from './types';
+
+// ==========================================
+// HELPER FUNCTIONS
+// ==========================================
+
+function getStringAnswer(answers: Answers, key: string): string {
+  const value = answers[key];
+  return typeof value === 'string' ? value : '';
+}
+
+function getNumberAnswer(answers: Answers, key: string): number | null {
+  const value = answers[key];
+  return typeof value === 'number' ? value : null;
+}
+
+function getArrayAnswer(answers: Answers, key: string): string[] {
+  const value = answers[key];
+  return Array.isArray(value) ? value : [];
+}
+
+function isClergy(answers: Answers): boolean {
+  const statut = getStringAnswer(answers, 'profil_statut');
+  return ['clerge', 'religieux'].includes(statut);
+}
+
+function isLayperson(answers: Answers): boolean {
+  const statut = getStringAnswer(answers, 'profil_statut');
+  return ['laic_engagé', 'laic_pratiquant', 'curieux'].includes(statut);
+}
+
+// Calculate percentile using normal distribution approximation
+function calculatePercentile(score: number, mean: number, stdDev: number): number {
+  const zScore = (score - mean) / stdDev;
+  const percentile = Math.round(50 * (1 + Math.tanh(zScore * 0.8)));
+  return Math.max(1, Math.min(99, percentile));
+}
+
+// Population distribution parameters (can be refined with real data)
+const POPULATION_PARAMS = {
+  religiosity: { mean: 3.5, stdDev: 0.9 },
+  aiOpenness: { mean: 2.6, stdDev: 1.0 },
+  sacredBoundary: { mean: 3.2, stdDev: 0.9 },
+  ethicalConcern: { mean: 3.4, stdDev: 0.8 },
+  psychologicalPerception: { mean: 3.0, stdDev: 0.9 },
+  communityInfluence: { mean: 2.8, stdDev: 0.8 },
+  futureOrientation: { mean: 3.0, stdDev: 1.0 },
+};
+
+// ==========================================
+// DIMENSION 1: RELIGIOSITY (CRS-5)
+// ==========================================
+
+const CRS_SCORE_MAP: Record<string, number> = {
+  'jamais': 1, 'pas_du_tout': 1,
+  'rarement': 2, 'peu': 2,
+  'occasionnellement': 3, 'moderement': 3,
+  'souvent': 4, 'beaucoup': 4,
+  'tres_souvent': 5, 'totalement': 5,
+  'quelques_fois_an': 2,
+  'mensuel': 3,
+  'hebdo': 4,
+  'pluri_hebdo': 5,
+  'quotidien': 4,
+  'pluri_quotidien': 5,
+};
+
+export function calculateReligiosityDimension(answers: Answers): DimensionScore {
+  const crsQuestions = [
+    'crs_intellect',
+    'crs_ideology',
+    'crs_public_practice',
+    'crs_private_practice',
+    'crs_experience'
+  ];
+
+  let total = 0;
+  let count = 0;
+
+  for (const qId of crsQuestions) {
+    const answer = getStringAnswer(answers, qId);
+    if (answer && CRS_SCORE_MAP[answer] !== undefined) {
+      total += CRS_SCORE_MAP[answer];
+      count++;
+    }
+  }
+
+  const value = count > 0 ? Math.round((total / count) * 10) / 10 : 3;
+  const confidence = count / crsQuestions.length;
+  const params = POPULATION_PARAMS.religiosity;
+
+  return {
+    value,
+    confidence,
+    percentile: calculatePercentile(value, params.mean, params.stdDev),
+  };
+}
+
+// ==========================================
+// DIMENSION 2: AI OPENNESS
+// ==========================================
+
+const AI_FREQUENCY_SCORES: Record<string, number> = {
+  'jamais': 1,
+  'essaye': 2,
+  'occasionnel': 3,
+  'regulier': 4,
+  'quotidien': 5,
+};
+
+const MINISTRY_USAGE_SCORES: Record<string, number> = {
+  'jamais': 1,
+  'rare': 2,
+  'regulier': 4,
+  'systematique': 5,
+};
+
+const CARE_EMAIL_SCORES: Record<string, number> = {
+  'non_jamais': 1,
+  'oui_brouillon': 3.5,
+  'oui_souvent': 5,
+};
+
+const LAIC_PRIERE_SCORES: Record<string, number> = {
+  'non': 1,
+  'oui_positif': 5,
+  'oui_neutre': 3.5,
+  'oui_negatif': 2.5,
+};
+
+const LAIC_CONSEIL_SCORES: Record<string, number> = {
+  'jamais': 1,
+  'complement': 3,
+  'oui_possible': 4,
+  'deja_fait': 5,
+  'ne_sait_pas': 2.5,
+};
+
+export function calculateAIOpennessDimension(answers: Answers): DimensionScore {
+  const scores: number[] = [];
+  const weights: number[] = [];
+
+  // General AI frequency (high weight)
+  const freq = getStringAnswer(answers, 'ctrl_ia_frequence');
+  if (freq && AI_FREQUENCY_SCORES[freq]) {
+    scores.push(AI_FREQUENCY_SCORES[freq]);
+    weights.push(2);
+  }
+
+  // AI comfort level (high weight)
+  const comfort = getNumberAnswer(answers, 'ctrl_ia_confort');
+  if (comfort !== null) {
+    scores.push(comfort);
+    weights.push(2);
+  }
+
+  // Number of AI contexts (medium weight)
+  const contextes = getArrayAnswer(answers, 'ctrl_ia_contextes');
+  if (contextes.length > 0 || freq === 'jamais') {
+    const contextScore = freq === 'jamais' ? 1 : Math.min(5, 1 + contextes.length * 0.7);
+    scores.push(contextScore);
+    weights.push(1.5);
+  }
+
+  // Digital attitude (low weight - captures general tech attitude)
+  const digitalAttitude = getStringAnswer(answers, 'digital_attitude_generale');
+  const attitudeMap: Record<string, number> = {
+    'tres_positif': 5, 'positif': 4, 'neutre': 3, 'negatif': 2, 'tres_negatif': 1
+  };
+  if (digitalAttitude && attitudeMap[digitalAttitude]) {
+    scores.push(attitudeMap[digitalAttitude]);
+    weights.push(0.8);
+  }
+
+  // Ministry-specific usage (for clergy)
+  if (isClergy(answers)) {
+    const predUsage = getStringAnswer(answers, 'min_pred_usage');
+    if (predUsage && MINISTRY_USAGE_SCORES[predUsage]) {
+      scores.push(MINISTRY_USAGE_SCORES[predUsage]);
+      weights.push(1.5);
+    }
+
+    const careEmail = getStringAnswer(answers, 'min_care_email');
+    if (careEmail && CARE_EMAIL_SCORES[careEmail]) {
+      scores.push(CARE_EMAIL_SCORES[careEmail]);
+      weights.push(1);
+    }
+
+    const adminBurden = getNumberAnswer(answers, 'min_admin_burden');
+    if (adminBurden !== null) {
+      scores.push(adminBurden);
+      weights.push(0.8);
+    }
+  }
+
+  // Lay-specific usage
+  if (isLayperson(answers)) {
+    const laicPriere = getStringAnswer(answers, 'laic_substitution_priere');
+    if (laicPriere && LAIC_PRIERE_SCORES[laicPriere]) {
+      scores.push(LAIC_PRIERE_SCORES[laicPriere]);
+      weights.push(1.2);
+    }
+
+    const laicConseil = getStringAnswer(answers, 'laic_conseil_spirituel');
+    if (laicConseil && LAIC_CONSEIL_SCORES[laicConseil]) {
+      scores.push(LAIC_CONSEIL_SCORES[laicConseil]);
+      weights.push(1.2);
+    }
+  }
+
+  // Calculate weighted average
+  let totalWeight = 0;
+  let weightedSum = 0;
+  for (let i = 0; i < scores.length; i++) {
+    weightedSum += scores[i] * weights[i];
+    totalWeight += weights[i];
+  }
+
+  const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 2.5;
+  const confidence = Math.min(1, scores.length / 5);
+  const params = POPULATION_PARAMS.aiOpenness;
+
+  return {
+    value,
+    confidence,
+    percentile: calculatePercentile(value, params.mean, params.stdDev),
+  };
+}
+
+// ==========================================
+// DIMENSION 3: SACRED BOUNDARY
+// Measures resistance to AI in sacred/spiritual contexts specifically
+// ==========================================
+
+export function calculateSacredBoundaryDimension(answers: Answers): DimensionScore {
+  const scores: number[] = [];
+  const weights: number[] = [];
+
+  // General AI use vs spiritual AI use difference
+  const freq = getStringAnswer(answers, 'ctrl_ia_frequence');
+  const contextes = getArrayAnswer(answers, 'ctrl_ia_contextes');
+  const usesAIGenerally = freq && freq !== 'jamais';
+  const usesAISpiritual = contextes.includes('spirituel');
+
+  // Key indicator: uses AI but NOT for spiritual = high boundary
+  if (usesAIGenerally && !usesAISpiritual) {
+    scores.push(4.5);
+    weights.push(2);
+  } else if (usesAISpiritual) {
+    scores.push(2);
+    weights.push(2);
+  } else if (!usesAIGenerally) {
+    // Doesn't use AI at all - boundary is less relevant
+    scores.push(3);
+    weights.push(1);
+  }
+
+  // Theo inspiration question: can AI transmit grace?
+  const theoInspiration = getStringAnswer(answers, 'theo_inspiration');
+  const inspirationMap: Record<string, number> = {
+    'impossible': 5,
+    'peu_probable': 4,
+    'possible_indirect': 3,
+    'possible': 1.5,
+    'ne_sait_pas': 3,
+  };
+  if (theoInspiration && inspirationMap[theoInspiration]) {
+    scores.push(inspirationMap[theoInspiration]);
+    weights.push(2);
+  }
+
+  // Clergy: sentiment when using AI for preaching (guilt = high boundary)
+  if (isClergy(answers)) {
+    const sentiment = getNumberAnswer(answers, 'min_pred_sentiment');
+    if (sentiment !== null) {
+      // High sentiment = uncomfortable = high boundary
+      scores.push(sentiment);
+      weights.push(1.8);
+    }
+
+    const predUsage = getStringAnswer(answers, 'min_pred_usage');
+    if (predUsage === 'jamais') {
+      scores.push(5);
+      weights.push(1.5);
+    } else if (predUsage === 'systematique') {
+      scores.push(1.5);
+      weights.push(1.5);
+    }
+
+    const careEmail = getStringAnswer(answers, 'min_care_email');
+    if (careEmail === 'non_jamais') {
+      scores.push(5);
+      weights.push(1.2);
+    }
+  }
+
+  // Lay: attitude toward AI-generated prayer and spiritual advice
+  if (isLayperson(answers)) {
+    const laicPriere = getStringAnswer(answers, 'laic_substitution_priere');
+    if (laicPriere === 'non') {
+      scores.push(4.5);
+      weights.push(1.5);
+    } else if (laicPriere) {
+      scores.push(2);
+      weights.push(1.5);
+    }
+
+    const laicConseil = getStringAnswer(answers, 'laic_conseil_spirituel');
+    if (laicConseil === 'jamais') {
+      scores.push(5);
+      weights.push(1.5);
+    } else if (laicConseil === 'deja_fait') {
+      scores.push(1);
+      weights.push(1.5);
+    }
+  }
+
+  // Calculate weighted average
+  let totalWeight = 0;
+  let weightedSum = 0;
+  for (let i = 0; i < scores.length; i++) {
+    weightedSum += scores[i] * weights[i];
+    totalWeight += weights[i];
+  }
+
+  const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+  const confidence = Math.min(1, scores.length / 4);
+  const params = POPULATION_PARAMS.sacredBoundary;
+
+  return {
+    value,
+    confidence,
+    percentile: calculatePercentile(value, params.mean, params.stdDev),
+  };
+}
+
+// ==========================================
+// DIMENSION 4: ETHICAL CONCERN
+// ==========================================
+
+export function calculateEthicalConcernDimension(answers: Answers): DimensionScore {
+  const scores: number[] = [];
+  const weights: number[] = [];
+
+  // Primary concern about AI in Church
+  const risqueFutur = getStringAnswer(answers, 'theo_risque_futur');
+  const risqueMap: Record<string, number> = {
+    'paresse': 4,
+    'deshumanisation': 4.5,
+    'heresie': 4.5,
+    'autre': 3.5,
+    'aucune': 1,
+    'ne_sait_pas': 2.5,
+  };
+  if (risqueFutur && risqueMap[risqueFutur]) {
+    scores.push(risqueMap[risqueFutur]);
+    weights.push(2);
+  }
+
+  // Overall perceived utility (inverse = concern)
+  const utilitePercue = getStringAnswer(answers, 'theo_utilite_percue');
+  const utiliteMap: Record<string, number> = {
+    'tres_negatif': 5,
+    'negatif': 4,
+    'neutre': 3,
+    'positif': 2,
+    'tres_positif': 1,
+    'ne_sait_pas': 3,
+  };
+  if (utilitePercue && utiliteMap[utilitePercue]) {
+    scores.push(utiliteMap[utilitePercue]);
+    weights.push(1.5);
+  }
+
+  // Fear of replacement
+  const anxieteRemplacement = getStringAnswer(answers, 'psych_anxiete_remplacement');
+  const anxieteMap: Record<string, number> = {
+    'non_impossible': 1.5,
+    'non_peu_probable': 2,
+    'possible_partiel': 3.5,
+    'oui_probable': 4.5,
+    'oui_certain': 5,
+    'ne_sait_pas': 3,
+  };
+  if (anxieteRemplacement && anxieteMap[anxieteRemplacement]) {
+    scores.push(anxieteMap[anxieteRemplacement]);
+    weights.push(1.5);
+  }
+
+  // Clergy: guilt/discomfort when using AI
+  if (isClergy(answers)) {
+    const sentiment = getNumberAnswer(answers, 'min_pred_sentiment');
+    if (sentiment !== null) {
+      scores.push(sentiment);
+      weights.push(1.2);
+    }
+  }
+
+  // Imago Dei concern (theological anthropology worry)
+  const imagoDei = getStringAnswer(answers, 'psych_imago_dei');
+  const imagoMap: Record<string, number> = {
+    'pas_du_tout': 1,
+    'peu': 2,
+    'moderement': 3,
+    'beaucoup': 4,
+    'totalement': 5,
+    'ne_sait_pas': 2.5,
+  };
+  if (imagoDei && imagoMap[imagoDei]) {
+    scores.push(imagoMap[imagoDei]);
+    weights.push(1.3);
+  }
+
+  // Calculate weighted average
+  let totalWeight = 0;
+  let weightedSum = 0;
+  for (let i = 0; i < scores.length; i++) {
+    weightedSum += scores[i] * weights[i];
+    totalWeight += weights[i];
+  }
+
+  const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+  const confidence = Math.min(1, scores.length / 4);
+  const params = POPULATION_PARAMS.ethicalConcern;
+
+  return {
+    value,
+    confidence,
+    percentile: calculatePercentile(value, params.mean, params.stdDev),
+  };
+}
+
+// ==========================================
+// DIMENSION 5: PSYCHOLOGICAL PERCEPTION
+// How they perceive AI's nature and its relationship to humanity
+// ==========================================
+
+export function calculatePsychologicalPerceptionDimension(answers: Answers): DimensionScore {
+  const scores: number[] = [];
+  const weights: number[] = [];
+
+  // Anthropomorphism: can AI have consciousness?
+  const anthropo = getStringAnswer(answers, 'psych_anthropomorphisme');
+  const anthropoMap: Record<string, number> = {
+    'impossible': 1,
+    'peu_probable': 2,
+    'incertain': 3,
+    'possible': 4,
+    'probable': 5,
+    'ne_sait_pas': 3,
+  };
+  if (anthropo && anthropoMap[anthropo]) {
+    scores.push(anthropoMap[anthropo]);
+    weights.push(2);
+  }
+
+  // Imago Dei: does AI challenge human uniqueness?
+  const imagoDei = getStringAnswer(answers, 'psych_imago_dei');
+  const imagoMap: Record<string, number> = {
+    'pas_du_tout': 1,
+    'peu': 2,
+    'moderement': 3,
+    'beaucoup': 4,
+    'totalement': 5,
+    'ne_sait_pas': 3,
+  };
+  if (imagoDei && imagoMap[imagoDei]) {
+    scores.push(imagoMap[imagoDei]);
+    weights.push(1.8);
+  }
+
+  // Anxiety about replacement
+  const anxiete = getStringAnswer(answers, 'psych_anxiete_remplacement');
+  const anxieteMap: Record<string, number> = {
+    'non_impossible': 1,
+    'non_peu_probable': 2,
+    'possible_partiel': 3,
+    'oui_probable': 4,
+    'oui_certain': 5,
+    'ne_sait_pas': 3,
+  };
+  if (anxiete && anxieteMap[anxiete]) {
+    scores.push(anxieteMap[anxiete]);
+    weights.push(1.5);
+  }
+
+  // Theo inspiration: can AI text transmit grace?
+  const theoInspiration = getStringAnswer(answers, 'theo_inspiration');
+  const inspirationMap: Record<string, number> = {
+    'impossible': 1,
+    'peu_probable': 2,
+    'possible_indirect': 3.5,
+    'possible': 4.5,
+    'ne_sait_pas': 3,
+  };
+  if (theoInspiration && inspirationMap[theoInspiration]) {
+    scores.push(inspirationMap[theoInspiration]);
+    weights.push(1.3);
+  }
+
+  // Calculate weighted average
+  let totalWeight = 0;
+  let weightedSum = 0;
+  for (let i = 0; i < scores.length; i++) {
+    weightedSum += scores[i] * weights[i];
+    totalWeight += weights[i];
+  }
+
+  const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+  const confidence = Math.min(1, scores.length / 3);
+  const params = POPULATION_PARAMS.psychologicalPerception;
+
+  return {
+    value,
+    confidence,
+    percentile: calculatePercentile(value, params.mean, params.stdDev),
+  };
+}
+
+// ==========================================
+// DIMENSION 6: COMMUNITY INFLUENCE
+// How much community context shapes their views
+// ==========================================
+
+export function calculateCommunityInfluenceDimension(answers: Answers): DimensionScore {
+  const scores: number[] = [];
+  const weights: number[] = [];
+
+  // Church official position awareness
+  const positionOfficielle = getStringAnswer(answers, 'communaute_position_officielle');
+  const positionMap: Record<string, number> = {
+    'oui_favorable': 4,
+    'oui_prudent': 4,
+    'oui_defavorable': 4,
+    'non': 2,
+    'ne_sait_pas': 2,
+  };
+  if (positionOfficielle && positionMap[positionOfficielle]) {
+    scores.push(positionMap[positionOfficielle]);
+    weights.push(1.5);
+  }
+
+  // Frequency of AI discussions in community
+  const discussions = getStringAnswer(answers, 'communaute_discussions');
+  const discussionsMap: Record<string, number> = {
+    'jamais': 1,
+    'rarement': 2,
+    'parfois': 3,
+    'souvent': 4,
+    'organise': 5,
+  };
+  if (discussions && discussionsMap[discussions]) {
+    scores.push(discussionsMap[discussions]);
+    weights.push(2);
+  }
+
+  // Perception of community attitude
+  const perceptionPairs = getStringAnswer(answers, 'communaute_perception_pairs');
+  // If they know how their community feels, they're more community-influenced
+  const perceptionEngagement: Record<string, number> = {
+    'tres_favorable': 4,
+    'favorable': 3.5,
+    'neutre': 3,
+    'mefiant': 3.5,
+    'hostile': 4,
+    'ne_sait_pas': 1.5,
+  };
+  if (perceptionPairs && perceptionEngagement[perceptionPairs]) {
+    scores.push(perceptionEngagement[perceptionPairs]);
+    weights.push(1.5);
+  }
+
+  // Theological orientation - those who identify strongly may be more community-tied
+  const theoOrientation = getStringAnswer(answers, 'theo_orientation');
+  if (theoOrientation === 'traditionaliste' || theoOrientation === 'progressiste') {
+    scores.push(3.5);
+    weights.push(0.8);
+  } else if (theoOrientation === 'ne_sait_pas') {
+    scores.push(2);
+    weights.push(0.8);
+  }
+
+  // Engaged laypeople may be more community-connected
+  const statut = getStringAnswer(answers, 'profil_statut');
+  if (statut === 'laic_engagé' || statut === 'clerge' || statut === 'religieux') {
+    scores.push(4);
+    weights.push(1);
+  } else if (statut === 'curieux') {
+    scores.push(2);
+    weights.push(1);
+  }
+
+  // Community size (larger = potentially more influence)
+  const tailleCommunaute = getStringAnswer(answers, 'profil_taille_communaute');
+  const tailleMap: Record<string, number> = {
+    'tres_petite': 2.5,
+    'petite': 3,
+    'moyenne': 3.5,
+    'grande': 4,
+    'tres_grande': 4,
+    'ne_sait_pas': 2.5,
+  };
+  if (tailleCommunaute && tailleMap[tailleCommunaute]) {
+    scores.push(tailleMap[tailleCommunaute]);
+    weights.push(0.7);
+  }
+
+  // Calculate weighted average
+  let totalWeight = 0;
+  let weightedSum = 0;
+  for (let i = 0; i < scores.length; i++) {
+    weightedSum += scores[i] * weights[i];
+    totalWeight += weights[i];
+  }
+
+  const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 2.5;
+  const confidence = Math.min(1, scores.length / 4);
+  const params = POPULATION_PARAMS.communityInfluence;
+
+  return {
+    value,
+    confidence,
+    percentile: calculatePercentile(value, params.mean, params.stdDev),
+  };
+}
+
+// ==========================================
+// DIMENSION 7: FUTURE ORIENTATION
+// Openness to evolving relationship with AI
+// ==========================================
+
+export function calculateFutureOrientationDimension(answers: Answers): DimensionScore {
+  const scores: number[] = [];
+  const weights: number[] = [];
+
+  // Intention to increase AI usage
+  const intentionUsage = getStringAnswer(answers, 'futur_intention_usage');
+  const intentionMap: Record<string, number> = {
+    'oui_certain': 5,
+    'oui_probable': 4,
+    'peut_etre': 3,
+    'non_probable': 2,
+    'non_certain': 1,
+    'ne_sait_pas': 2.5,
+  };
+  if (intentionUsage && intentionMap[intentionUsage]) {
+    scores.push(intentionMap[intentionUsage]);
+    weights.push(2);
+  }
+
+  // Interest in training
+  const formationSouhait = getStringAnswer(answers, 'futur_formation_souhait');
+  const formationMap: Record<string, number> = {
+    'oui_tres': 5,
+    'oui_assez': 4,
+    'peut_etre': 3,
+    'non_pas_vraiment': 2,
+    'non_pas_du_tout': 1,
+  };
+  if (formationSouhait && formationMap[formationSouhait]) {
+    scores.push(formationMap[formationSouhait]);
+    weights.push(2);
+  }
+
+  // Number of domains of interest
+  const domainesInteret = getArrayAnswer(answers, 'futur_domaines_interet');
+  if (domainesInteret.length > 0) {
+    if (domainesInteret.includes('aucun')) {
+      scores.push(1);
+    } else {
+      const domainScore = Math.min(5, 1 + domainesInteret.length * 0.6);
+      scores.push(domainScore);
+    }
+    weights.push(1.5);
+  }
+
+  // Current AI frequency indicates trajectory
+  const freq = getStringAnswer(answers, 'ctrl_ia_frequence');
+  const freqMap: Record<string, number> = {
+    'jamais': 2,
+    'essaye': 3,
+    'occasionnel': 3.5,
+    'regulier': 4,
+    'quotidien': 4.5,
+  };
+  if (freq && freqMap[freq]) {
+    scores.push(freqMap[freq]);
+    weights.push(1);
+  }
+
+  // Age can influence future orientation (younger may be more forward-looking)
+  const age = getStringAnswer(answers, 'profil_age');
+  const ageMap: Record<string, number> = {
+    '18-35': 3.8,
+    '36-50': 3.5,
+    '51-65': 3,
+    '66+': 2.5,
+  };
+  if (age && ageMap[age]) {
+    scores.push(ageMap[age]);
+    weights.push(0.6);
+  }
+
+  // Digital attitude
+  const digitalAttitude = getStringAnswer(answers, 'digital_attitude_generale');
+  const attitudeMap: Record<string, number> = {
+    'tres_positif': 4.5,
+    'positif': 4,
+    'neutre': 3,
+    'negatif': 2,
+    'tres_negatif': 1,
+  };
+  if (digitalAttitude && attitudeMap[digitalAttitude]) {
+    scores.push(attitudeMap[digitalAttitude]);
+    weights.push(0.8);
+  }
+
+  // Calculate weighted average
+  let totalWeight = 0;
+  let weightedSum = 0;
+  for (let i = 0; i < scores.length; i++) {
+    weightedSum += scores[i] * weights[i];
+    totalWeight += weights[i];
+  }
+
+  const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+  const confidence = Math.min(1, scores.length / 4);
+  const params = POPULATION_PARAMS.futureOrientation;
+
+  return {
+    value,
+    confidence,
+    percentile: calculatePercentile(value, params.mean, params.stdDev),
+  };
+}
+
+// ==========================================
+// MAIN FUNCTION: Calculate All 7 Dimensions
+// ==========================================
+
+export function calculateAllDimensions(answers: Answers): SevenDimensions {
+  return {
+    religiosity: calculateReligiosityDimension(answers),
+    aiOpenness: calculateAIOpennessDimension(answers),
+    sacredBoundary: calculateSacredBoundaryDimension(answers),
+    ethicalConcern: calculateEthicalConcernDimension(answers),
+    psychologicalPerception: calculatePsychologicalPerceptionDimension(answers),
+    communityInfluence: calculateCommunityInfluenceDimension(answers),
+    futureOrientation: calculateFutureOrientationDimension(answers),
+  };
+}
