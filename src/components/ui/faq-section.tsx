@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLanguage } from "@/lib";
 
 interface FAQItem {
   q: string;
@@ -9,15 +10,10 @@ interface FAQItem {
 
 interface FAQSectionProps {
   faqs?: FAQItem[];
-  title?: string;
-  subtitle?: string;
 }
 
-export default function FAQSection({
-  faqs: customFaqs,
-  title = "Questions Frequentes",
-  subtitle = "Tout ce que vous devez savoir sur cette etude",
-}: FAQSectionProps) {
+export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
+  const { t, language } = useLanguage();
   const spiralRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
 
@@ -127,43 +123,90 @@ export default function FAQSection({
     spiralRef.current.appendChild(svg);
   }, [cfg, gradients]);
 
-  // Default FAQ content for the survey
-  const defaultFaqs: FAQItem[] = [
-    {
-      q: "Pourquoi cette etude ?",
-      a: "L'intelligence artificielle transforme silencieusement les pratiques religieuses, de la redaction de sermons a la priere assistee. Cette recherche academique vise a cartographier ces usages et comprendre les enjeux ethiques qu'ils soulevent pour les communautes chretiennes.",
-    },
-    {
-      q: "Mes reponses sont-elles anonymes ?",
-      a: "Oui, totalement. Aucune donnee personnelle identifiante (nom, email, adresse IP) n'est enregistree. Les reponses sont agregees uniquement a des fins statistiques, dans le respect du RGPD.",
-    },
-    {
-      q: "Combien de temps dure le sondage ?",
-      a: "Entre 3 et 5 minutes selon votre profil. Le nombre de questions varie : les membres du clerge repondent a des questions supplementaires sur leur ministere.",
-    },
-    {
-      q: "Qui peut participer ?",
-      a: "Toute personne se reconnaissant dans la foi chretienne, quelle que soit sa denomination (catholique, protestant, orthodoxe, evangelique) et son niveau d'engagement (clerge, laic engage, pratiquant occasionnel).",
-    },
-    {
-      q: "Comment mes donnees seront-elles utilisees ?",
-      a: "Les resultats seront publies sous forme agregee dans des publications academiques et presentes lors de conferences. Aucune reponse individuelle ne sera jamais divulguee.",
-    },
-    {
-      q: "Qu'est-ce que le score CRS-5 ?",
-      a: "Le CRS-5 (Centrality of Religiosity Scale) est une echelle scientifique validee par Huber & Huber (2012) qui mesure 5 dimensions de la religiosite : intellect, ideologie, pratique publique, pratique privee et experience spirituelle.",
-    },
-    {
-      q: "Qu'est-ce que l'indice de resistance spirituelle ?",
-      a: "C'est un indicateur original de cette etude qui mesure la difference entre votre usage general de l'IA et votre usage spirituel. Un indice positif suggere une reticence specifique a utiliser l'IA pour des taches spirituelles.",
-    },
-    {
-      q: "Puis-je voir les resultats ?",
-      a: "Oui ! A la fin du sondage, vous recevez un profil personnalise avec vos scores et votre typologie. Vous pouvez ensuite consulter les resultats agreges de l'ensemble des participants.",
-    },
-  ];
+  // FAQ content with translations
+  const faqContent: Record<string, FAQItem[]> = {
+    fr: [
+      {
+        q: "Pourquoi cette étude ?",
+        a: "L'intelligence artificielle transforme silencieusement les pratiques religieuses, de la rédaction de sermons à la prière assistée. Cette recherche académique vise à cartographier ces usages et comprendre les enjeux éthiques qu'ils soulèvent pour les communautés chrétiennes.",
+      },
+      {
+        q: "Mes réponses sont-elles anonymes ?",
+        a: "Oui, totalement. Aucune donnée personnelle identifiante (nom, email, adresse IP) n'est enregistrée. Les réponses sont agrégées uniquement à des fins statistiques, dans le respect du RGPD.",
+      },
+      {
+        q: "Combien de temps dure le sondage ?",
+        a: "Entre 3 et 5 minutes selon votre profil. Le nombre de questions varie : les membres du clergé répondent à des questions supplémentaires sur leur ministère.",
+      },
+      {
+        q: "Qui peut participer ?",
+        a: "Toute personne se reconnaissant dans la foi chrétienne, quelle que soit sa dénomination (catholique, protestant, orthodoxe, évangélique) et son niveau d'engagement (clergé, laïc engagé, pratiquant occasionnel).",
+      },
+      {
+        q: "Comment mes données seront-elles utilisées ?",
+        a: "Les résultats seront publiés sous forme agrégée dans des publications académiques et présentés lors de conférences. Aucune réponse individuelle ne sera jamais divulguée.",
+      },
+      {
+        q: "Qu'est-ce que le score CRS-5 ?",
+        a: "Le CRS-5 (Centrality of Religiosity Scale) est une échelle scientifique validée par Huber & Huber (2012) qui mesure 5 dimensions de la religiosité : intellect, idéologie, pratique publique, pratique privée et expérience spirituelle.",
+      },
+      {
+        q: "Qu'est-ce que l'indice de résistance spirituelle ?",
+        a: "C'est un indicateur original de cette étude qui mesure la différence entre votre usage général de l'IA et votre usage spirituel. Un indice positif suggère une réticence spécifique à utiliser l'IA pour des tâches spirituelles.",
+      },
+      {
+        q: "Puis-je voir les résultats ?",
+        a: "Oui ! À la fin du sondage, vous recevez un profil personnalisé avec vos scores et votre typologie. Vous pouvez ensuite consulter les résultats agrégés de l'ensemble des participants.",
+      },
+    ],
+    en: [
+      {
+        q: "Why this study?",
+        a: "Artificial intelligence is silently transforming religious practices, from sermon writing to AI-assisted prayer. This academic research aims to map these uses and understand the ethical issues they raise for Christian communities.",
+      },
+      {
+        q: "Are my responses anonymous?",
+        a: "Yes, completely. No personally identifiable data (name, email, IP address) is recorded. Responses are aggregated solely for statistical purposes, in compliance with GDPR.",
+      },
+      {
+        q: "How long does the survey take?",
+        a: "Between 3 and 5 minutes depending on your profile. The number of questions varies: clergy members answer additional questions about their ministry.",
+      },
+      {
+        q: "Who can participate?",
+        a: "Anyone who identifies with the Christian faith, regardless of denomination (Catholic, Protestant, Orthodox, Evangelical) and level of engagement (clergy, committed layperson, occasional practitioner).",
+      },
+      {
+        q: "How will my data be used?",
+        a: "Results will be published in aggregated form in academic publications and presented at conferences. No individual responses will ever be disclosed.",
+      },
+      {
+        q: "What is the CRS-5 score?",
+        a: "The CRS-5 (Centrality of Religiosity Scale) is a scientifically validated scale by Huber & Huber (2012) that measures 5 dimensions of religiosity: intellect, ideology, public practice, private practice, and spiritual experience.",
+      },
+      {
+        q: "What is the spiritual resistance index?",
+        a: "It's an original indicator from this study that measures the difference between your general AI usage and your spiritual usage. A positive index suggests a specific reluctance to use AI for spiritual tasks.",
+      },
+      {
+        q: "Can I see the results?",
+        a: "Yes! At the end of the survey, you receive a personalized profile with your scores and typology. You can then view the aggregated results from all participants.",
+      },
+    ],
+  };
 
-  const faqs = customFaqs || defaultFaqs;
+  const faqs = customFaqs || faqContent[language];
+  const title = t("faq.title");
+  const subtitle = language === "fr"
+    ? "Tout ce que vous devez savoir sur cette étude"
+    : "Everything you need to know about this study";
+  const searchPlaceholder = language === "fr" ? "Rechercher..." : "Search...";
+  const noResults = language === "fr"
+    ? "Aucune question ne correspond à votre recherche."
+    : "No questions match your search.";
+  const footerText = language === "fr"
+    ? "Étude académique sur l'IA et la vie spirituelle"
+    : "Academic study on AI and spiritual life";
 
   const filtered = query
     ? faqs.filter(({ q, a }) => (q + a).toLowerCase().includes(query.toLowerCase()))
@@ -195,7 +238,7 @@ export default function FAQSection({
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Rechercher..."
+              placeholder={searchPlaceholder}
               className="h-10 w-full md:w-56 rounded-xl border border-white/20 bg-white/5 px-4 text-sm outline-none transition focus:border-blue-500/60 focus:bg-white/10 placeholder:text-muted-foreground"
             />
           </div>
@@ -210,14 +253,14 @@ export default function FAQSection({
           </div>
           {filtered.length === 0 && (
             <p className="text-center text-muted-foreground py-8">
-              Aucune question ne correspond a votre recherche.
+              {noResults}
             </p>
           )}
         </section>
 
         {/* Footer */}
         <footer className="mt-16 border-t border-white/10 pt-6 text-xs text-muted-foreground/50 text-center">
-          Etude academique sur l&apos;IA et la vie spirituelle - {new Date().getFullYear()}
+          {footerText} - {new Date().getFullYear()}
         </footer>
       </div>
     </div>

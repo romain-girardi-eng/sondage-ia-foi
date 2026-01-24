@@ -2,16 +2,19 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, Database, Clock, Lock, Sparkles } from "lucide-react";
-import { cn } from "@/lib";
-import { AnimatedBackground, Spotlight } from "@/components/ui";
+import { cn, useLanguage } from "@/lib";
+import { AnimatedBackground, Spotlight, LanguageSwitcher } from "@/components/ui";
 
 interface SurveyIntroProps {
   onStart: () => void;
 }
 
 export function SurveyIntro({ onStart }: SurveyIntroProps) {
+  const { t } = useLanguage();
+
   return (
     <AnimatedBackground variant="default" showGrid showOrbs>
+      <LanguageSwitcher />
       <div className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 max-w-4xl mx-auto space-y-10 md:space-y-12 py-12">
         {/* Spotlight effect */}
         <Spotlight
@@ -33,17 +36,17 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card-refined text-blue-300 text-xs font-medium uppercase tracking-wider"
           >
             <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Étude Scientifique 2026</span>
+            <span>{t("intro.badge")}</span>
           </motion.div>
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
             <span className="text-gradient-animated">
-              Intelligence Artificielle
+              {t("intro.title1")}
             </span>
             <br />
             <span className="text-blue-400">&</span>{" "}
             <span className="text-gradient-animated">
-              Vie Spirituelle
+              {t("intro.title2")}
             </span>
           </h1>
 
@@ -53,10 +56,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
             transition={{ delay: 0.4, duration: 0.8 }}
             className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-balance"
           >
-            De la rédaction de sermons à la prière assistée, l&apos;IA transforme
-            silencieusement les pratiques religieuses. Cette enquête académique
-            vise à cartographier ces usages et à comprendre les enjeux éthiques
-            qu&apos;ils soulèvent.
+            {t("intro.description")}
           </motion.p>
         </motion.header>
 
@@ -83,11 +83,10 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
                 id="privacy-heading"
                 className="font-semibold text-white text-lg"
               >
-                Protocole de Confidentialité
+                {t("intro.privacyTitle")}
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Votre participation est essentielle pour la recherche. Nous
-                garantissons la protection de vos droits :
+                {t("intro.privacyDescription")}
               </p>
               <ul className="text-sm text-muted-foreground space-y-3">
                 <li className="flex items-start gap-3">
@@ -96,9 +95,8 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
                     aria-hidden="true"
                   />
                   <span>
-                    <strong className="text-white">Anonymat total :</strong>{" "}
-                    Aucune donnée personnelle identifiante (nom, email, IP) n&apos;est
-                    enregistrée.
+                    <strong className="text-white">{t("intro.anonymity")}</strong>{" "}
+                    {t("intro.anonymityDesc")}
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
@@ -107,8 +105,8 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
                     aria-hidden="true"
                   />
                   <span>
-                    <strong className="text-white">Usage académique :</strong> Les
-                    réponses sont agrégées uniquement à des fins statistiques.
+                    <strong className="text-white">{t("intro.academic")}</strong>{" "}
+                    {t("intro.academicDesc")}
                   </span>
                 </li>
               </ul>
@@ -133,7 +131,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
               "btn-glow"
             )}
           >
-            <span>J&apos;accepte et je commence</span>
+            <span>{t("intro.cta")}</span>
             <ArrowRight
               className="w-5 h-5 group-hover:translate-x-1 transition-transform"
               aria-hidden="true"
@@ -144,7 +142,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
 
           <p className="text-xs text-muted-foreground/50 flex items-center justify-center gap-1.5">
             <Clock className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Temps estimé : 3 à 5 minutes</span>
+            <span>{t("intro.time")}</span>
           </p>
         </motion.div>
 
@@ -155,15 +153,12 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
           transition={{ delay: 0.8 }}
           className="text-center text-xs text-muted-foreground/30 max-w-md space-y-2"
         >
-          <p>
-            En cliquant sur &quot;J&apos;accepte&quot;, vous consentez à participer à cette étude
-            dans le respect du RGPD.
-          </p>
+          <p>{t("intro.consent")}</p>
           <a
             href="/faq"
             className="inline-block text-blue-400/60 hover:text-blue-400 transition-colors underline underline-offset-2"
           >
-            Consulter la FAQ
+            {t("intro.faqLink")}
           </a>
         </motion.footer>
       </div>

@@ -30,6 +30,8 @@ export interface Question {
   options?: Option[];
   minLabel?: string;
   maxLabel?: string;
+  minLabelKey?: string;
+  maxLabelKey?: string;
   condition?: (answers: Answers) => boolean;
 }
 

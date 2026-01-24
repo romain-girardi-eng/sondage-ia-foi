@@ -1,4 +1,5 @@
 export { cn } from "./utils";
+export { LanguageProvider, useLanguage } from "./i18n";
 export { getMockResults, type AggregatedResult } from "./dataService";
 export {
   calculateCRS5Score,

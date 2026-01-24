@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { SURVEY_QUESTIONS } from "@/data";
+import { useLanguage } from "@/lib";
 import { ResultsDashboard } from "@/components/dashboard";
-import { AnimatedBackground } from "@/components/ui";
+import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { SurveyIntro } from "./SurveyIntro";
 import { QuestionCard } from "./QuestionCard";
 import { FeedbackScreen } from "./FeedbackScreen";
@@ -14,6 +15,7 @@ import { ChevronLeft } from "lucide-react";
 type SurveyStep = "intro" | "questions" | "feedback" | "thanks" | "results";
 
 export function SurveyContainer() {
+  const { t } = useLanguage();
   const [step, setStep] = useState<SurveyStep>("intro");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | number | string[]>>({});
@@ -117,6 +119,7 @@ export function SurveyContainer() {
 
   return (
     <AnimatedBackground variant="subtle" showGrid showOrbs>
+      <LanguageSwitcher />
       <div
         ref={containerRef}
         className="w-full min-h-[100dvh] flex flex-col max-w-4xl mx-auto px-4 py-6 md:py-12 relative"
@@ -125,7 +128,7 @@ export function SurveyContainer() {
       <header className="w-full shrink-0 mb-8 md:mb-12">
         <div className="flex items-center justify-between mb-3 px-1">
           <span className="text-xs text-muted-foreground font-medium">
-            Question {currentIndex + 1} sur {totalQuestions}
+            {t("survey.questionOf", { current: currentIndex + 1, total: totalQuestions })}
           </span>
           <span className="text-xs text-muted-foreground">
             {Math.round(progress)}%
@@ -137,7 +140,7 @@ export function SurveyContainer() {
           aria-valuenow={progress}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label="Progression du sondage"
+          aria-label={t("survey.questionOf", { current: currentIndex + 1, total: totalQuestions })}
         >
           <motion.div
             className="h-full bg-gradient-to-r from-blue-500 to-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
@@ -175,11 +178,11 @@ export function SurveyContainer() {
           <button
             onClick={handlePrevious}
             disabled={currentIndex === 0}
-            aria-label="Question precedente"
+            aria-label={t("survey.previous")}
             className="flex items-center gap-1.5 px-3 py-2 -ml-3 text-sm text-muted-foreground hover:text-white disabled:opacity-0 disabled:pointer-events-none transition-all duration-200 rounded-lg hover:bg-white/5"
           >
             <ChevronLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Precedent</span>
+            <span className="hidden sm:inline">{t("survey.previous")}</span>
           </button>
 
           <div

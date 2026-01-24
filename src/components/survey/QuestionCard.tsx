@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { type Question } from "@/data";
-import { cn } from "@/lib";
+import { cn, useLanguage } from "@/lib";
 import { Check, ChevronRight } from "lucide-react";
 
 interface QuestionCardProps {
@@ -19,9 +19,28 @@ export function QuestionCard({
   onChange,
   onNext,
 }: QuestionCardProps) {
+  const { t, tQuestion, tOption, tScale, language } = useLanguage();
   const [multipleSelected, setMultipleSelected] = useState<string[]>(
     Array.isArray(value) ? value : []
   );
+
+  // Get translated question text (fall back to original if not found)
+  const questionText = tQuestion(question.id) !== question.id
+    ? tQuestion(question.id)
+    : question.text;
+
+  // Get translated option label
+  const getOptionLabel = (opt: { value: string; label: string }) => {
+    const translated = tOption(opt.value);
+    return translated !== opt.value ? translated : opt.label;
+  };
+
+  // Get translated scale labels
+  const getScaleLabel = (key: string | undefined, fallback: string | undefined) => {
+    if (!key) return fallback;
+    const translated = tScale(key);
+    return translated !== key ? translated : fallback;
+  };
 
   const handleChoiceClick = useCallback(
     (optionValue: string) => {
@@ -62,6 +81,14 @@ export function QuestionCard({
     }
   }, [multipleSelected, onNext]);
 
+  // Get min/max labels for scale questions
+  const minLabel = question.minLabelKey
+    ? getScaleLabel(question.minLabelKey, question.minLabel)
+    : question.minLabel;
+  const maxLabel = question.maxLabelKey
+    ? getScaleLabel(question.maxLabelKey, question.maxLabel)
+    : question.maxLabel;
+
   return (
     <article
       className="w-full max-w-2xl mx-auto space-y-8 md:space-y-10"
@@ -75,7 +102,7 @@ export function QuestionCard({
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="text-2xl md:text-4xl font-light text-center leading-snug px-2 text-balance text-gradient-animated"
       >
-        {question.text}
+        {questionText}
       </motion.h2>
 
       <motion.div
@@ -87,7 +114,7 @@ export function QuestionCard({
         {/* TYPE: SINGLE CHOICE */}
         {question.type === "choice" && question.options && (
           <fieldset className="border-0">
-            <legend className="sr-only">{question.text}</legend>
+            <legend className="sr-only">{questionText}</legend>
             <div className="grid grid-cols-1 gap-3 pb-8" role="radiogroup">
               {question.options.map((opt, idx) => {
                 const isSelected = value === opt.value;
@@ -117,7 +144,7 @@ export function QuestionCard({
 
                     <div className="relative flex items-center justify-between gap-4">
                       <span className="text-base md:text-lg leading-snug">
-                        {opt.label}
+                        {getOptionLabel(opt)}
                       </span>
                       {isSelected ? (
                         <motion.div
@@ -142,7 +169,7 @@ export function QuestionCard({
         {/* TYPE: MULTIPLE CHOICE */}
         {question.type === "multiple" && question.options && (
           <fieldset className="border-0">
-            <legend className="sr-only">{question.text}</legend>
+            <legend className="sr-only">{questionText}</legend>
             <div className="space-y-3 pb-4">
               {question.options.map((opt, idx) => {
                 const isSelected = multipleSelected.includes(opt.value);
@@ -183,7 +210,7 @@ export function QuestionCard({
                         </motion.div>
                       </div>
                       <span className="text-base md:text-lg leading-snug">
-                        {opt.label}
+                        {getOptionLabel(opt)}
                       </span>
                     </div>
                   </motion.button>
@@ -210,11 +237,12 @@ export function QuestionCard({
                 )}
               >
                 <span className="relative z-10">
-                  Continuer
+                  {t("survey.continue")}
                   {multipleSelected.length > 0 && (
                     <span className="ml-2 text-sm opacity-60">
-                      ({multipleSelected.length} selection
-                      {multipleSelected.length > 1 ? "s" : ""})
+                      ({multipleSelected.length > 1
+                        ? t("survey.selectionsPlural", { count: multipleSelected.length })
+                        : t("survey.selections", { count: multipleSelected.length })})
                     </span>
                   )}
                 </span>
@@ -230,7 +258,7 @@ export function QuestionCard({
         {question.type === "scale" && (
           <fieldset className="border-0">
             <legend className="sr-only">
-              {question.text} - Echelle de 1 a 5
+              {questionText} - {t("survey.scaleFrom", { min: minLabel || "1", max: maxLabel || "5" })}
             </legend>
             <div className="space-y-8 py-4 md:py-8">
               {/* Scale Labels */}
@@ -238,15 +266,15 @@ export function QuestionCard({
                 className="flex justify-between text-xs md:text-sm text-muted-foreground px-1 font-medium"
                 aria-hidden="true"
               >
-                <span className="max-w-[40%] text-left opacity-70">{question.minLabel}</span>
-                <span className="max-w-[40%] text-right opacity-70">{question.maxLabel}</span>
+                <span className="max-w-[40%] text-left opacity-70">{minLabel}</span>
+                <span className="max-w-[40%] text-right opacity-70">{maxLabel}</span>
               </div>
 
               {/* Scale Buttons */}
               <div
                 className="flex justify-between items-center gap-3 md:gap-4 px-1"
                 role="radiogroup"
-                aria-label={`Echelle de 1 (${question.minLabel}) a 5 (${question.maxLabel})`}
+                aria-label={t("survey.scaleFrom", { min: minLabel || "1", max: maxLabel || "5" })}
               >
                 {[1, 2, 3, 4, 5].map((num, idx) => {
                   const isSelected = value === num;
@@ -259,7 +287,7 @@ export function QuestionCard({
                       onClick={() => handleScaleClick(num)}
                       role="radio"
                       aria-checked={isSelected}
-                      aria-label={`${num} sur 5${num === 1 ? ` - ${question.minLabel}` : ""}${num === 5 ? ` - ${question.maxLabel}` : ""}`}
+                      aria-label={`${num} ${language === 'fr' ? 'sur' : 'of'} 5${num === 1 ? ` - ${minLabel}` : ""}${num === 5 ? ` - ${maxLabel}` : ""}`}
                       tabIndex={0}
                       className={cn(
                         "flex-1 aspect-square max-w-[56px] md:max-w-[72px] rounded-2xl flex items-center justify-center",
@@ -284,7 +312,7 @@ export function QuestionCard({
                 className="text-center text-[10px] md:text-xs text-muted-foreground/40 uppercase tracking-widest"
                 aria-hidden="true"
               >
-                Selectionnez une valeur
+                {t("survey.selectValue")}
               </motion.p>
             </div>
           </fieldset>
