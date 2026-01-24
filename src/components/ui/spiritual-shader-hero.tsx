@@ -382,7 +382,7 @@ export default function SpiritualShaderHero({
   );
 
   return (
-    <section ref={sectionRef} className="relative min-h-[100dvh] w-full overflow-hidden">
+    <section ref={sectionRef} className="relative min-h-[100dvh] w-screen max-w-full overflow-hidden">
       <ShaderBackground />
 
       <div className="relative mx-auto flex min-h-[100dvh] max-w-4xl flex-col items-center justify-center gap-6 px-6 py-24 text-center">

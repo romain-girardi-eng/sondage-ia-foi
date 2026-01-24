@@ -35,7 +35,7 @@ export default async function LocalizedHome({ params }: Props) {
 
       <main
         id="main-content"
-        className="min-h-[100dvh] w-full relative overflow-hidden bg-background text-foreground"
+        className="min-h-[100dvh] w-screen max-w-full relative overflow-x-hidden bg-background text-foreground"
       >
         <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
           <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-900/20 blur-[150px]" />
