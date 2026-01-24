@@ -132,10 +132,18 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className="text-center text-xs text-muted-foreground/30 max-w-md"
+        className="text-center text-xs text-muted-foreground/30 max-w-md space-y-2"
       >
-        En cliquant sur &quot;J&apos;accepte&quot;, vous consentez a participer a cette etude
-        dans le respect du RGPD.
+        <p>
+          En cliquant sur &quot;J&apos;accepte&quot;, vous consentez a participer a cette etude
+          dans le respect du RGPD.
+        </p>
+        <a
+          href="/faq"
+          className="inline-block text-blue-400/60 hover:text-blue-400 transition-colors underline underline-offset-2"
+        >
+          Consulter la FAQ
+        </a>
       </motion.footer>
     </div>
   );
