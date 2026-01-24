@@ -3,6 +3,9 @@
  * Uses Web Crypto API for SHA-256 hashing and AES-256-GCM encryption
  */
 
+// Check if encryption is configured
+export const isEncryptionConfigured = Boolean(process.env.EMAIL_ENCRYPTION_KEY);
+
 /**
  * Hash an email address using SHA-256
  * Normalizes email (lowercase, trimmed) before hashing

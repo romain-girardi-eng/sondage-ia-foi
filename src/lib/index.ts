@@ -1,12 +1,11 @@
 export { cn } from "./utils";
 export { LanguageProvider, useLanguage } from "./i18n";
 export { getMockResults, type AggregatedResult } from "./dataService";
+// Legacy exports for backward compatibility
 export {
   calculateCRS5Score,
   getReligiosityLevel,
   RELIGIOSITY_LABELS,
-  calculateGeneralAIScore,
-  calculateSpiritualAIScore,
   calculateSpiritualResistanceIndex,
   getResistanceLevel,
   RESISTANCE_LABELS,
@@ -23,4 +22,26 @@ export {
   type TheologicalOrientation,
   type SpiritualAIProfile,
   type PersonalizedInsight,
-} from "./scoring";
+} from "./scoring/index";
+
+// New advanced profiling system
+export {
+  calculateProfileSpectrum,
+  getEnhancedProfileData,
+  calculateAllDimensions,
+  PROFILE_DEFINITIONS,
+  SUB_PROFILE_DEFINITIONS,
+  DIMENSION_LABELS,
+  PROFILE_COLORS,
+  DIMENSION_COLORS,
+  type ProfileSpectrum,
+  type SevenDimensions,
+  type PrimaryProfile,
+  type SubProfileType,
+  type DimensionScore,
+  type ProfileMatch,
+  type SubProfileMatch,
+  type AdvancedInsight,
+  type TensionPoint,
+  type GrowthArea,
+} from "./scoring/index";

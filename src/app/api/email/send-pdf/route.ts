@@ -8,7 +8,7 @@ import {
   calculateAIAdoptionScore,
   getSpiritualAIProfile,
   PROFILE_DATA,
-} from '@/lib/scoring';
+} from '@/lib/scoring/index';
 import type { Answers } from '@/data';
 
 const sendPdfSchema = z.object({

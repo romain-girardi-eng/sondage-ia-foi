@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { emailSubmissionSchema } from '@/lib/validation';
-import { hashEmail, encryptEmail } from '@/lib/crypto';
+import { hashEmail, encryptEmail, isEncryptionConfigured } from '@/lib/crypto';
 import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
@@ -21,10 +21,13 @@ export async function POST(request: NextRequest) {
     // Hash email for duplicate detection
     const emailHash = await hashEmail(email);
 
-    // Check if Supabase is configured
-    if (!isServiceRoleConfigured) {
+    // Check if Supabase and encryption are configured
+    if (!isServiceRoleConfigured || !isEncryptionConfigured) {
       // Demo mode - simulate success
-      console.log('Demo mode: Email submission received', { emailHash: emailHash.slice(0, 8) });
+      console.log('Demo mode: Email submission received', {
+        emailHash: emailHash.slice(0, 8),
+        reason: !isServiceRoleConfigured ? 'no supabase' : 'no encryption key'
+      });
       return NextResponse.json({
         success: true,
         submissionId: 'demo-' + Date.now(),

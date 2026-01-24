@@ -29,7 +29,8 @@ import { PROFILE_DEFINITIONS, SUB_PROFILE_DEFINITIONS } from './constants';
  */
 function calculateProfileDistance(
   dimensions: SevenDimensions,
-  profileId: PrimaryProfile
+  profileId: PrimaryProfile,
+  answers: Answers
 ): number {
   const profile = PROFILE_DEFINITIONS[profileId];
   let totalDistance = 0;
@@ -55,7 +56,199 @@ function calculateProfileDistance(
     totalWeight += weight;
   }
 
-  return totalWeight > 0 ? totalDistance / totalWeight : 10;
+  // Apply theological orientation bonus/penalty
+  const theoBonus = getTheologicalOrientationBonus(profileId, answers);
+  totalDistance -= theoBonus;
+
+  // Apply special profile adjustments based on answer patterns
+  const specialBonus = getSpecialProfileBonus(profileId, dimensions, answers);
+  totalDistance -= specialBonus;
+
+  return Math.max(0, totalWeight > 0 ? totalDistance / totalWeight : 10);
+}
+
+/**
+ * Bonus based on explicit theological orientation answer
+ * This ensures self-identification has strong influence
+ */
+function getTheologicalOrientationBonus(profileId: PrimaryProfile, answers: Answers): number {
+  const orientation = typeof answers['theo_orientation'] === 'string' ? answers['theo_orientation'] : '';
+
+  // Strong bonuses for matching orientation
+  if (orientation === 'traditionaliste') {
+    if (profileId === 'gardien_tradition') return 1.5;
+    if (profileId === 'prudent_eclaire') return 0.8;
+    if (profileId === 'innovateur_ancre') return 0.5;
+    if (profileId === 'progressiste_critique') return -0.5;
+    if (profileId === 'pionnier_spirituel') return -0.3;
+  }
+
+  if (orientation === 'progressiste') {
+    if (profileId === 'progressiste_critique') return 1.5;
+    if (profileId === 'pionnier_spirituel') return 1.2;
+    if (profileId === 'gardien_tradition') return -1.0;
+    if (profileId === 'prudent_eclaire') return -0.3;
+  }
+
+  if (orientation === 'modere') {
+    if (profileId === 'equilibriste') return 1.2;
+    if (profileId === 'pragmatique_moderne') return 0.8;
+    if (profileId === 'prudent_eclaire') return 0.3;
+  }
+
+  if (orientation === 'ne_sait_pas') {
+    if (profileId === 'explorateur') return 1.5;
+    if (profileId === 'equilibriste') return 0.3;
+  }
+
+  return 0;
+}
+
+/**
+ * Special bonuses for specific profile patterns that the dimension-based
+ * matching might miss
+ */
+function getSpecialProfileBonus(
+  profileId: PrimaryProfile,
+  dimensions: SevenDimensions,
+  answers: Answers
+): number {
+  let bonus = 0;
+  const orientation = typeof answers['theo_orientation'] === 'string' ? answers['theo_orientation'] : '';
+
+  // Progressiste Critique: High ethical concern is THE key signal
+  if (profileId === 'progressiste_critique') {
+    if (dimensions.ethicalConcern.value >= 4) bonus += 1.2;
+    if (dimensions.ethicalConcern.value >= 4.5) bonus += 0.8;
+    // Progressiste theology + ethical concern = strong fit
+    if (orientation === 'progressiste' && dimensions.ethicalConcern.value >= 3.5) bonus += 0.8;
+    // High ethical concern + moderate AI openness (not enthusiast) = critical mindset
+    if (dimensions.ethicalConcern.value >= 3.5 && dimensions.aiOpenness.value >= 2 && dimensions.aiOpenness.value <= 4) {
+      bonus += 0.6;
+    }
+  }
+
+  // Equilibriste: ONLY when dimensions are truly centered AND theology is moderate
+  // Reduce bonus to avoid over-assignment
+  if (profileId === 'equilibriste') {
+    let centeredCount = 0;
+    const dims = [dimensions.aiOpenness, dimensions.sacredBoundary, dimensions.ethicalConcern,
+                  dimensions.psychologicalPerception, dimensions.futureOrientation];
+    for (const dim of dims) {
+      // Tighter range for "centered"
+      if (dim.value >= 2.5 && dim.value <= 3.5) centeredCount++;
+    }
+    // Only bonus if MOST dimensions are truly centered
+    if (centeredCount >= 4) bonus += 0.7;
+    else if (centeredCount >= 3 && orientation === 'modere') bonus += 0.4;
+    // Penalty if not really centered
+    if (centeredCount <= 2) bonus -= 0.3;
+  }
+
+  // Pionnier Spirituel: Progressive + high AI + low sacred boundary + VISION
+  if (profileId === 'pionnier_spirituel') {
+    // Progressiste theology is a strong signal for pioneer (vs pragmatic)
+    if (orientation === 'progressiste') {
+      bonus += 1.5;
+      if (dimensions.aiOpenness.value >= 4) bonus += 1.0;
+    }
+    // Key combination: very permeable boundary + high AI
+    if (dimensions.sacredBoundary.value <= 2.5 && dimensions.aiOpenness.value >= 4) {
+      bonus += 1.2;
+    }
+    // Very high future orientation = visionary
+    if (dimensions.futureOrientation.value >= 4.5) bonus += 0.8;
+    if (dimensions.aiOpenness.value >= 4.5) bonus += 0.5;
+    // Very low sacred boundary = truly pioneering
+    if (dimensions.sacredBoundary.value <= 2) bonus += 0.5;
+    // Interested in spiritual domains with AI
+    const domainesInteret = Array.isArray(answers['futur_domaines_interet']) ? answers['futur_domaines_interet'] : [];
+    if (domainesInteret.includes('priere_meditation') && dimensions.aiOpenness.value >= 4) bonus += 0.5;
+  }
+
+  // Innovateur Ancré: MUST be traditionaliste + high religiosity + high AI
+  if (profileId === 'innovateur_ancre') {
+    if (orientation === 'traditionaliste') {
+      if (dimensions.religiosity.value >= 4.5 && dimensions.aiOpenness.value >= 4) bonus += 1.5;
+      if (dimensions.religiosity.value >= 4 && dimensions.aiOpenness.value >= 4.5) bonus += 1.2;
+    } else {
+      // Penalty if not traditionaliste
+      bonus -= 0.5;
+    }
+  }
+
+  // Pragmatique Moderne: Action-oriented, low ethical fuss, high AI adoption
+  // BUT should NOT win over pionnier when theology is progressiste
+  if (profileId === 'pragmatique_moderne') {
+    // Penalty for progressiste or ne_sait_pas theology - these belong to pionnier/explorateur
+    if (orientation === 'progressiste') bonus -= 0.8;
+    if (orientation === 'ne_sait_pas') bonus -= 0.5;
+
+    // Core: Low ethical concern + high AI = pragmatic approach
+    if (dimensions.ethicalConcern.value <= 2 && dimensions.aiOpenness.value >= 4) bonus += 0.8;
+    else if (dimensions.ethicalConcern.value <= 2.5 && dimensions.aiOpenness.value >= 3.5) bonus += 0.5;
+
+    // Moderate theology is the sweet spot for pragmatique
+    if (orientation === 'modere') {
+      bonus += 0.8;
+      if (dimensions.aiOpenness.value >= 3.5) bonus += 0.4;
+    }
+
+    // High future orientation + moderate on other things = pragmatic modern
+    if (dimensions.futureOrientation.value >= 4 && dimensions.aiOpenness.value >= 3.5 && orientation === 'modere') {
+      bonus += 0.3;
+    }
+
+    // Interested in administrative/communication domains = pragmatic
+    const domainesInteret = Array.isArray(answers['futur_domaines_interet']) ? answers['futur_domaines_interet'] : [];
+    if (domainesInteret.includes('administration') || domainesInteret.includes('communication')) {
+      bonus += 0.3;
+    }
+  }
+
+  // Explorateur: Uncertainty markers, recent faith, or seeking mode
+  if (profileId === 'explorateur') {
+    // Theological uncertainty is a STRONG signal for explorer
+    if (orientation === 'ne_sait_pas') {
+      bonus += 2.0; // Very strong bonus for explicit theological uncertainty
+    }
+
+    // Many "ne_sait_pas" answers indicate exploration
+    let uncertaintyCount = 0;
+    const uncertaintyAnswers = ['psych_anthropomorphisme', 'psych_imago_dei', 'psych_anxiete_remplacement',
+                                'theo_inspiration', 'theo_risque_futur', 'theo_utilite_percue'];
+    for (const key of uncertaintyAnswers) {
+      if (answers[key] === 'ne_sait_pas') uncertaintyCount++;
+    }
+    if (uncertaintyCount >= 3) bonus += 1.5;
+    else if (uncertaintyCount >= 2) bonus += 0.8;
+    else if (uncertaintyCount >= 1) bonus += 0.3;
+
+    // Lower religiosity + exploration mode
+    if (dimensions.religiosity.value <= 3) bonus += 0.5;
+
+    // Low community influence = more independent exploration
+    if (dimensions.communityInfluence.value <= 2.5) bonus += 0.4;
+
+    // Recent faith (shorter faith history) suggests exploration
+    const anciennete = typeof answers['profil_anciennete_foi'] === 'string' ? answers['profil_anciennete_foi'] : '';
+    if (anciennete === 'moins_1_an' || anciennete === '1_5_ans') bonus += 0.8;
+    if (anciennete === '5_10_ans') bonus += 0.3;
+
+    // "Curieux" status = explicit explorer
+    const statut = typeof answers['profil_statut'] === 'string' ? answers['profil_statut'] : '';
+    if (statut === 'curieux') bonus += 1.0;
+  }
+
+  // Prudent Éclairé: traditionalist-leaning but moderate AI approach
+  if (profileId === 'prudent_eclaire') {
+    // Penalty to avoid over-assignment
+    if (orientation === 'progressiste') bonus -= 0.5;
+    // Only strong fit if truly cautious approach
+    if (dimensions.sacredBoundary.value >= 4 && dimensions.aiOpenness.value <= 3) bonus += 0.4;
+  }
+
+  return bonus;
 }
 
 /**
@@ -73,11 +266,11 @@ function distanceToMatchScore(distance: number): number {
 /**
  * Calculate match scores for all profiles
  */
-function calculateAllProfileMatches(dimensions: SevenDimensions): ProfileMatch[] {
+function calculateAllProfileMatches(dimensions: SevenDimensions, answers: Answers): ProfileMatch[] {
   const profiles = Object.keys(PROFILE_DEFINITIONS) as PrimaryProfile[];
 
   const matches: ProfileMatch[] = profiles.map(profileId => {
-    const distance = calculateProfileDistance(dimensions, profileId);
+    const distance = calculateProfileDistance(dimensions, profileId, answers);
     const matchScore = distanceToMatchScore(distance);
     return { profile: profileId, matchScore, distance };
   });
@@ -576,7 +769,7 @@ export function calculateProfileSpectrum(answers: Answers): ProfileSpectrum {
   const dimensions = calculateAllDimensions(answers);
 
   // Step 2: Calculate matches for all profiles
-  const allMatches = calculateAllProfileMatches(dimensions);
+  const allMatches = calculateAllProfileMatches(dimensions, answers);
 
   // Step 3: Extract top 3 profiles
   const primary = allMatches[0];
