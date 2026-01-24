@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, TrendingUp, Users, Brain, Shield } from "lucide-react";
 import { cn, useLanguage } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
+import { PDFDownloadButton } from "@/components/sharing";
 import type { Answers } from "@/data";
 import {
   calculateCRS5Score,
@@ -25,10 +26,11 @@ import {
 interface FeedbackScreenProps {
   answers: Answers;
   onContinue: () => void;
+  anonymousId?: string;
 }
 
-export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
-  const { t } = useLanguage();
+export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScreenProps) {
+  const { t, language } = useLanguage();
 
   // Calculate all scores
   const crsScore = calculateCRS5Score(answers);
@@ -329,6 +331,28 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
             ))}
           </div>
         </motion.section>
+
+        {/* PDF Download Button */}
+        {anonymousId && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            className="pt-4"
+          >
+            <PDFDownloadButton
+              language={language}
+              anonymousId={anonymousId}
+              completedAt={new Date().toISOString()}
+              answers={answers}
+              profile={{
+                religiosityScore: crsScore,
+                iaComfortScore: aiScore,
+                theologicalOrientation: profile,
+              }}
+            />
+          </motion.div>
+        )}
 
         {/* CTA Button */}
         <motion.div

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { LanguageProvider } from "@/lib";
 import { ToastProvider } from "@/components/ui";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
+import { WebVitalsReporter } from "@/components/analytics/WebVitalsReporter";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -73,6 +74,7 @@ export default function RootLayout({
           <ToastProvider>{children}</ToastProvider>
         </LanguageProvider>
         <AnalyticsProvider />
+        <WebVitalsReporter />
       </body>
     </html>
   );

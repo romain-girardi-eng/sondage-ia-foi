@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { CheckCircle, Share2, BarChart3, Heart, Sparkles, Copy, Database } from "lucide-react";
 import { cn, useLanguage } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
+import { QRCodeShare } from "@/components/sharing";
 import Link from "next/link";
 
 interface ThankYouScreenProps {
@@ -193,6 +194,16 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
             <Share2 className="w-5 h-5" />
             <span>{t("thanks.share")}</span>
           </button>
+        </motion.div>
+
+        {/* QR Code Share */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="w-full max-w-md mt-6"
+        >
+          <QRCodeShare language={language} className="w-full" />
         </motion.div>
 
         {/* Bonus badge */}

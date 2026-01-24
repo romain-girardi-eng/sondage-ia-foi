@@ -16,6 +16,10 @@ import {
   TrendingUp,
   Clock,
   Eye,
+  Filter,
+  Trash2,
+  X,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +34,12 @@ interface DashboardData {
   demo?: boolean;
 }
 
+interface ExportFilters {
+  dateFrom: string;
+  dateTo: string;
+  language: "" | "fr" | "en";
+}
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
@@ -38,6 +48,14 @@ export default function AdminPage() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [exportLoading, setExportLoading] = useState<"json" | "csv" | null>(null);
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<ExportFilters>({
+    dateFrom: "",
+    dateTo: "",
+    language: "",
+  });
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -55,7 +73,6 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    // Check if already authenticated (stored in sessionStorage)
     const storedAuth = sessionStorage.getItem("admin_authenticated");
     if (storedAuth === "true") {
       setIsAuthenticated(true);
@@ -74,7 +91,6 @@ export default function AdminPage() {
     setIsLoading(true);
 
     try {
-      // Test authentication by making a request to the export endpoint
       const response = await fetch("/api/results/export?format=json", {
         headers: {
           Authorization: `Bearer ${password}`,
@@ -82,7 +98,6 @@ export default function AdminPage() {
       });
 
       if (response.ok || response.status === 404) {
-        // 404 means authenticated but no data
         setIsAuthenticated(true);
         sessionStorage.setItem("admin_authenticated", "true");
         sessionStorage.setItem("admin_token", password);
@@ -111,7 +126,19 @@ export default function AdminPage() {
 
     try {
       const token = sessionStorage.getItem("admin_token");
-      const response = await fetch(`/api/results/export?format=${format}`, {
+      const params = new URLSearchParams({ format });
+
+      if (filters.dateFrom) {
+        params.append("dateFrom", new Date(filters.dateFrom).toISOString());
+      }
+      if (filters.dateTo) {
+        params.append("dateTo", new Date(filters.dateTo).toISOString());
+      }
+      if (filters.language) {
+        params.append("language", filters.language);
+      }
+
+      const response = await fetch(`/api/results/export?${params}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -140,6 +167,42 @@ export default function AdminPage() {
       setTimeout(() => setExportSuccess(null), 3000);
     }
   };
+
+  const handleDeleteSpam = async (responseId: string) => {
+    setDeleteLoading(true);
+    try {
+      const token = sessionStorage.getItem("admin_token");
+      const response = await fetch(`/api/admin/responses/${responseId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setExportSuccess("Réponse supprimée avec succès");
+        fetchDashboardData();
+      } else {
+        setExportSuccess("Erreur lors de la suppression");
+      }
+    } catch {
+      setExportSuccess("Erreur lors de la suppression");
+    } finally {
+      setDeleteLoading(false);
+      setDeleteConfirm(null);
+      setTimeout(() => setExportSuccess(null), 3000);
+    }
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      dateFrom: "",
+      dateTo: "",
+      language: "",
+    });
+  };
+
+  const hasActiveFilters = filters.dateFrom || filters.dateTo || filters.language;
 
   // Login form
   if (!isAuthenticated) {
@@ -285,17 +348,90 @@ export default function AdminPage() {
           />
         </motion.div>
 
-        {/* Export Section */}
+        {/* Export Section with Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8"
         >
-          <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-            <Download className="w-5 h-5 text-blue-400" />
-            Exporter les données
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              <Download className="w-5 h-5 text-blue-400" />
+              Exporter les données
+            </h2>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all",
+                showFilters || hasActiveFilters
+                  ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                  : "bg-white/5 text-white/60 hover:bg-white/10 border border-white/10"
+              )}
+            >
+              <Filter className="w-4 h-4" />
+              Filtres
+              {hasActiveFilters && (
+                <span className="w-2 h-2 rounded-full bg-blue-400" />
+              )}
+            </button>
+          </div>
+
+          {/* Filters Panel */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-6 overflow-hidden"
+              >
+                <div className="bg-white/5 rounded-xl p-4 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm text-white/60 mb-2">Date de début</label>
+                      <input
+                        type="date"
+                        value={filters.dateFrom}
+                        onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
+                        className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-white/60 mb-2">Date de fin</label>
+                      <input
+                        type="date"
+                        value={filters.dateTo}
+                        onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
+                        className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-white/60 mb-2">Langue</label>
+                      <select
+                        value={filters.language}
+                        onChange={(e) => setFilters({ ...filters, language: e.target.value as "" | "fr" | "en" })}
+                        className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                      >
+                        <option value="">Toutes</option>
+                        <option value="fr">Français</option>
+                        <option value="en">English</option>
+                      </select>
+                    </div>
+                  </div>
+                  {hasActiveFilters && (
+                    <button
+                      onClick={clearFilters}
+                      className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                      Effacer les filtres
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <p className="text-white/60 mb-6">
             Téléchargez les données du sondage au format JSON ou CSV.
@@ -377,6 +513,7 @@ export default function AdminPage() {
                     <th className="text-left text-white/60 font-medium py-3 px-4">Question ID</th>
                     <th className="text-left text-white/60 font-medium py-3 px-4">Réponses</th>
                     <th className="text-left text-white/60 font-medium py-3 px-4">Distribution</th>
+                    <th className="text-right text-white/60 font-medium py-3 px-4">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -413,6 +550,15 @@ export default function AdminPage() {
                           )}
                         </div>
                       </td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => setDeleteConfirm(result.questionId)}
+                          className="p-2 text-white/40 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                          title="Supprimer les réponses spam"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -435,6 +581,56 @@ export default function AdminPage() {
             </div>
           )}
         </motion.div>
+
+        {/* Delete Confirmation Modal */}
+        <AnimatePresence>
+          {deleteConfirm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+              onClick={() => setDeleteConfirm(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="bg-slate-800 border border-white/10 rounded-2xl p-6 max-w-md w-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-red-500/10 rounded-lg">
+                    <Trash2 className="w-6 h-6 text-red-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Confirmer la suppression</h3>
+                </div>
+                <p className="text-white/60 mb-6">
+                  Êtes-vous sûr de vouloir supprimer les réponses pour la question <strong className="text-white">{deleteConfirm}</strong> ? Cette action est irréversible.
+                </p>
+                <div className="flex gap-3 justify-end">
+                  <button
+                    onClick={() => setDeleteConfirm(null)}
+                    className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white transition-all"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    onClick={() => handleDeleteSpam(deleteConfirm)}
+                    disabled={deleteLoading}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-xl text-white font-medium transition-all disabled:opacity-50"
+                  >
+                    {deleteLoading ? (
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                    ) : (
+                      "Supprimer"
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

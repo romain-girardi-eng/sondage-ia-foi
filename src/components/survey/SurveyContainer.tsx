@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { SURVEY_QUESTIONS } from "@/data";
 import { useLanguage } from "@/lib";
-import { ResultsDashboard } from "@/components/dashboard";
+import { LazyResultsDashboard as ResultsDashboard } from "@/components/dashboard";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { SurveyIntroShader } from "./SurveyIntroShader";
 import { QuestionCard } from "./QuestionCard";
@@ -61,8 +61,19 @@ function getAnonymousId(): string {
   return id;
 }
 
-export function SurveyContainer() {
-  const { t, language } = useLanguage();
+interface SurveyContainerProps {
+  initialLanguage?: "fr" | "en";
+}
+
+export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) {
+  const { t, language, setLanguage } = useLanguage();
+
+  // Set initial language from URL if provided
+  useEffect(() => {
+    if (initialLanguage && initialLanguage !== language) {
+      setLanguage(initialLanguage);
+    }
+  }, [initialLanguage, language, setLanguage]);
   const [step, setStep] = useState<SurveyStep>(getInitialStep);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | number | string[]>>({});
@@ -291,7 +302,11 @@ export function SurveyContainer() {
   if (step === "feedback") {
     return (
       <div className="w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <FeedbackScreen answers={answers} onContinue={handleFeedbackContinue} />
+        <FeedbackScreen
+          answers={answers}
+          onContinue={handleFeedbackContinue}
+          anonymousId={anonymousId.current}
+        />
       </div>
     );
   }
