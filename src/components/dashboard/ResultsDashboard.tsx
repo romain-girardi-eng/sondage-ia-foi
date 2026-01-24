@@ -28,11 +28,12 @@ const COLORS = [
 
 const FLAT_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#f43f5e", "#8b5cf6", "#06b6d4"];
 
-// Animated counter hook
+// Animated counter hook with proper cleanup
 function useAnimatedCounter(end: number, duration: number = 1500, delay: number = 0) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
+  const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!isInView) return;
@@ -44,12 +45,19 @@ function useAnimatedCounter(end: number, duration: number = 1500, delay: number 
         const progress = Math.min((currentTime - startTime) / duration, 1);
         const easeOutQuart = 1 - Math.pow(1 - progress, 4);
         setCount(Math.floor(easeOutQuart * end));
-        if (progress < 1) requestAnimationFrame(animate);
+        if (progress < 1) {
+          animationFrameRef.current = requestAnimationFrame(animate);
+        }
       };
-      requestAnimationFrame(animate);
+      animationFrameRef.current = requestAnimationFrame(animate);
     }, delay);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeout);
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, [end, duration, delay, isInView]);
 
   return { count, ref };
@@ -183,9 +191,11 @@ function HorizontalBar({
 function RadialChart({
   data,
   total,
+  language,
 }: {
   data: { name: string; value: number; fullName: string }[];
   total: number;
+  language: "fr" | "en";
 }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -216,7 +226,7 @@ function RadialChart({
               {maxPercentage.toFixed(0)}%
             </motion.div>
             <div className="text-[10px] text-white/50 uppercase tracking-wider mt-1">
-              Majoritaire
+              {language === "fr" ? "Majoritaire" : "Majority"}
             </div>
           </div>
         </CircularProgress>
@@ -568,6 +578,7 @@ export function ResultsDashboard() {
                 index={index}
                 isExpanded={expandedCards.has(question.id)}
                 onToggle={() => toggleCard(question.id)}
+                language={language}
               />
             );
           })}
@@ -606,9 +617,10 @@ interface ModernChartCardProps {
   index: number;
   isExpanded: boolean;
   onToggle: () => void;
+  language: "fr" | "en";
 }
 
-function ModernChartCard({ question, data, index, isExpanded, onToggle }: ModernChartCardProps) {
+function ModernChartCard({ question, data, index, isExpanded, onToggle, language }: ModernChartCardProps) {
   const chartData = useMemo(() => {
     return Object.entries(data.distribution)
       .map(([key, value]) => {
@@ -685,10 +697,10 @@ function ModernChartCard({ question, data, index, isExpanded, onToggle }: Modern
 
         {/* Quick stats */}
         <div className="flex items-center gap-4 mt-4 text-xs text-white/50">
-          <span>{totalResponses} réponses</span>
+          <span>{totalResponses} {language === "fr" ? "réponses" : "responses"}</span>
           <span>•</span>
           <span className="text-emerald-400">
-            {((chartData[0]?.value || 0) / totalResponses * 100).toFixed(0)}% majoritaire
+            {((chartData[0]?.value || 0) / totalResponses * 100).toFixed(0)}% {language === "fr" ? "majoritaire" : "majority"}
           </span>
         </div>
       </div>
@@ -739,7 +751,7 @@ function ModernChartCard({ question, data, index, isExpanded, onToggle }: Modern
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <RadialChart data={chartData} total={totalResponses} />
+              <RadialChart data={chartData} total={totalResponses} language={language} />
             </motion.div>
           )}
         </AnimatePresence>

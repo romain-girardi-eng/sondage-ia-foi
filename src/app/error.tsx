@@ -1,0 +1,60 @@
+"use client";
+
+import { useEffect } from "react";
+import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import Link from "next/link";
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    // Log the error to an error reporting service
+    console.error("Application error:", error);
+  }, [error]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <div className="text-center space-y-8 max-w-lg">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-500/10 border border-red-500/20">
+          <AlertTriangle className="w-10 h-10 text-red-400" />
+        </div>
+
+        <div className="space-y-3">
+          <h1 className="text-3xl font-bold text-white">
+            Oups ! Une erreur est survenue
+          </h1>
+          <p className="text-white/60 text-lg">
+            Nous rencontrons un problème technique. Notre équipe a été notifiée.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button
+            onClick={reset}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-all border border-white/10"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Réessayer
+          </button>
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all"
+          >
+            <Home className="w-4 h-4" />
+            Retour à l&apos;accueil
+          </Link>
+        </div>
+
+        {error.digest && (
+          <p className="text-xs text-white/30">
+            Code erreur : {error.digest}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}

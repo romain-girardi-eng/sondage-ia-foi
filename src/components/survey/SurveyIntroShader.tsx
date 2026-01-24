@@ -7,9 +7,11 @@ import FAQSection from "@/components/ui/faq-section";
 
 interface SurveyIntroShaderProps {
   onStart: () => void;
+  onConsentChange?: (consent: boolean) => void;
+  consentGiven?: boolean;
 }
 
-export function SurveyIntroShader({ onStart }: SurveyIntroShaderProps) {
+export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = false }: SurveyIntroShaderProps) {
   const { t, language } = useLanguage();
 
   const scrollToFaq = () => {
@@ -46,6 +48,10 @@ export function SurveyIntroShader({ onStart }: SurveyIntroShaderProps) {
         onPrimaryClick={onStart}
         onSecondaryClick={scrollToFaq}
         features={features}
+        consentGiven={consentGiven}
+        onConsentChange={onConsentChange}
+        consentLabel={t("consent.checkbox")}
+        privacyLink="/privacy"
       />
 
       {/* FAQ Section */}

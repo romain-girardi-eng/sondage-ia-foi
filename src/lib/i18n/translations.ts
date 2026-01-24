@@ -102,6 +102,51 @@ export const translations = {
       aiUsage: "Usage de l'IA",
       spiritualAI: "IA & Spiritualité",
       demographics: "Démographie",
+      loading: "Analyse des données en cours...",
+      visualization: "Visualisation des Données",
+      exploreInsights: "Explorez les tendances et insights de notre communauté de participants",
+      questionsAnalyzed: "Questions analysées",
+      simulated: "Simulées",
+      demoData: "Données de démo",
+      responses: "réponses",
+      majority: "majoritaire",
+      restartSurvey: "Recommencer le sondage",
+      thankYouFooter: "Merci pour votre contribution à cette recherche académique.",
+      all: "Tous",
+      profile: "Profil",
+      religiosity: "Religiosité",
+      usage: "Usage IA",
+      theology: "Théologie",
+      psychology: "Psychologie",
+    },
+
+    // Session
+    session: {
+      resumeTitle: "Reprendre où vous en étiez ?",
+      resumeDescription: "Nous avons trouvé une session incomplète. Voulez-vous la reprendre ?",
+      resumeButton: "Reprendre",
+      restartButton: "Recommencer",
+      saving: "Sauvegarde en cours...",
+      saved: "Progression sauvegardée",
+      leaveWarning: "Votre progression sera perdue si vous quittez maintenant.",
+    },
+
+    // Errors
+    errors: {
+      generic: "Une erreur est survenue",
+      network: "Erreur de connexion. Vérifiez votre connexion internet.",
+      validation: "Données invalides",
+      notFound: "Page introuvable",
+      retry: "Réessayer",
+      goHome: "Retour à l'accueil",
+    },
+
+    // Consent
+    consent: {
+      checkbox: "J'accepte les conditions de participation et la politique de confidentialité",
+      required: "Votre consentement est requis pour participer",
+      privacyLink: "Politique de confidentialité",
+      termsLink: "Conditions d'utilisation",
     },
   },
 
@@ -208,6 +253,51 @@ export const translations = {
       aiUsage: "AI Usage",
       spiritualAI: "AI & Spirituality",
       demographics: "Demographics",
+      loading: "Analyzing data...",
+      visualization: "Data Visualization",
+      exploreInsights: "Explore trends and insights from our participant community",
+      questionsAnalyzed: "Questions analyzed",
+      simulated: "Simulated",
+      demoData: "Demo data",
+      responses: "responses",
+      majority: "majority",
+      restartSurvey: "Restart survey",
+      thankYouFooter: "Thank you for your contribution to this academic research.",
+      all: "All",
+      profile: "Profile",
+      religiosity: "Religiosity",
+      usage: "AI Usage",
+      theology: "Theology",
+      psychology: "Psychology",
+    },
+
+    // Session
+    session: {
+      resumeTitle: "Resume where you left off?",
+      resumeDescription: "We found an incomplete session. Would you like to resume?",
+      resumeButton: "Resume",
+      restartButton: "Start over",
+      saving: "Saving...",
+      saved: "Progress saved",
+      leaveWarning: "Your progress will be lost if you leave now.",
+    },
+
+    // Errors
+    errors: {
+      generic: "An error occurred",
+      network: "Connection error. Please check your internet connection.",
+      validation: "Invalid data",
+      notFound: "Page not found",
+      retry: "Retry",
+      goHome: "Go home",
+    },
+
+    // Consent
+    consent: {
+      checkbox: "I accept the participation conditions and privacy policy",
+      required: "Your consent is required to participate",
+      privacyLink: "Privacy policy",
+      termsLink: "Terms of use",
     },
   },
 } as const;

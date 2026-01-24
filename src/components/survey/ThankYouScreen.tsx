@@ -1,16 +1,37 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, Share2, BarChart3, Heart, Sparkles } from "lucide-react";
+import { CheckCircle, Share2, BarChart3, Heart, Sparkles, Copy, Database } from "lucide-react";
 import { cn, useLanguage } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
+import Link from "next/link";
 
 interface ThankYouScreenProps {
   onViewResults: () => void;
+  anonymousId?: string;
 }
 
-export function ThankYouScreen({ onViewResults }: ThankYouScreenProps) {
-  const { t } = useLanguage();
+export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenProps) {
+  const { t, language } = useLanguage();
+  const [participantCount, setParticipantCount] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  // Fetch real participant count
+  useEffect(() => {
+    async function fetchCount() {
+      try {
+        const response = await fetch("/api/results/aggregated");
+        if (response.ok) {
+          const data = await response.json();
+          setParticipantCount(data.participantCount);
+        }
+      } catch {
+        // Fall back to placeholder
+      }
+    }
+    fetchCount();
+  }, []);
 
   const handleShare = async () => {
     const shareData = {
@@ -28,6 +49,14 @@ export function ThankYouScreen({ onViewResults }: ThankYouScreenProps) {
     } else {
       await navigator.clipboard.writeText(window.location.href);
       alert(t("thanks.linkCopied"));
+    }
+  };
+
+  const handleCopyId = async () => {
+    if (anonymousId) {
+      await navigator.clipboard.writeText(anonymousId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -82,13 +111,54 @@ export function ThankYouScreen({ onViewResults }: ThankYouScreenProps) {
               <span className="text-sm">{t("thanks.community")}</span>
             </div>
             <div className="text-4xl md:text-5xl font-bold text-white mb-2">
-              1,543+
+              {participantCount !== null ? participantCount.toLocaleString() : "1,500+"}
             </div>
             <p className="text-sm text-muted-foreground">
               {t("thanks.contributed")}
             </p>
           </div>
         </motion.div>
+
+        {/* Anonymous ID Card */}
+        {anonymousId && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="w-full max-w-md mt-4 glass-card-refined rounded-xl p-4 relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <Database className="w-5 h-5 text-purple-400" />
+                <div className="text-left">
+                  <p className="text-xs text-muted-foreground">
+                    {language === "fr" ? "Votre identifiant anonyme" : "Your anonymous ID"}
+                  </p>
+                  <p className="text-sm font-mono text-white truncate max-w-[200px] sm:max-w-xs">
+                    {anonymousId}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleCopyId}
+                className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <Copy className={cn("w-4 h-4", copied ? "text-emerald-400" : "text-white/60")} />
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground/60 mt-3">
+              {language === "fr"
+                ? "Conservez cet identifiant pour accéder à vos données ou les supprimer."
+                : "Keep this ID to access or delete your data."}
+            </p>
+            <Link
+              href="/mes-donnees"
+              className="inline-block mt-2 text-xs text-blue-400 hover:underline"
+            >
+              {language === "fr" ? "Gérer mes données →" : "Manage my data →"}
+            </Link>
+          </motion.div>
+        )}
 
         {/* Action Buttons */}
         <motion.div

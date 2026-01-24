@@ -266,6 +266,10 @@ interface SpiritualHeroProps {
   onPrimaryClick: () => void;
   onSecondaryClick?: () => void;
   features?: Array<{ icon: string; text: string }>;
+  consentGiven?: boolean;
+  onConsentChange?: (consent: boolean) => void;
+  consentLabel?: string;
+  privacyLink?: string;
 }
 
 export default function SpiritualShaderHero({
@@ -278,7 +282,11 @@ export default function SpiritualShaderHero({
   secondaryButtonText,
   onPrimaryClick,
   onSecondaryClick,
-  features = []
+  features = [],
+  consentGiven = false,
+  onConsentChange,
+  consentLabel,
+  privacyLink,
 }: SpiritualHeroProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const headerRef = useRef<HTMLHeadingElement | null>(null);
@@ -417,11 +425,52 @@ export default function SpiritualShaderHero({
           {description}
         </p>
 
+        {/* Consent Checkbox */}
+        {onConsentChange && consentLabel && (
+          <div className="max-w-md">
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative flex items-center justify-center mt-1">
+                <input
+                  type="checkbox"
+                  checked={consentGiven}
+                  onChange={(e) => onConsentChange(e.target.checked)}
+                  className="peer sr-only"
+                />
+                <div className="h-5 w-5 rounded border border-white/30 bg-white/5 transition-all peer-checked:border-blue-500 peer-checked:bg-blue-500 peer-focus:ring-2 peer-focus:ring-blue-500/30">
+                  {consentGiven && (
+                    <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-sm text-white/60 text-left leading-relaxed group-hover:text-white/80 transition-colors">
+                {consentLabel}
+                {privacyLink && (
+                  <>
+                    {' '}
+                    <a
+                      href={privacyLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      En savoir plus
+                    </a>
+                  </>
+                )}
+              </span>
+            </label>
+          </div>
+        )}
+
         {/* CTA Buttons */}
         <div ref={ctaRef} className="flex flex-wrap items-center justify-center gap-4 pt-4">
           <button
             onClick={onPrimaryClick}
-            className="group relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-base font-medium text-slate-900 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            disabled={onConsentChange && !consentGiven}
+            className="group relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-base font-medium text-slate-900 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             <span className="relative z-10">{primaryButtonText}</span>
             <div className="absolute inset-0 -z-0 bg-gradient-to-r from-purple-200 to-blue-200 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
