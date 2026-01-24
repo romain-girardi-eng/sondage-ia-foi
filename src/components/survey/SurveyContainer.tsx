@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { SURVEY_QUESTIONS } from "@/data";
 import { ResultsDashboard } from "@/components/dashboard";
+import { AnimatedBackground } from "@/components/ui";
 import { SurveyIntro } from "./SurveyIntro";
 import { QuestionCard } from "./QuestionCard";
 import { FeedbackScreen } from "./FeedbackScreen";
@@ -115,10 +116,11 @@ export function SurveyContainer() {
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full min-h-[100dvh] flex flex-col max-w-4xl mx-auto px-4 py-6 md:py-12 relative"
-    >
+    <AnimatedBackground variant="subtle" showGrid showOrbs>
+      <div
+        ref={containerRef}
+        className="w-full min-h-[100dvh] flex flex-col max-w-4xl mx-auto px-4 py-6 md:py-12 relative"
+      >
       {/* Header: Progress Bar */}
       <header className="w-full shrink-0 mb-8 md:mb-12">
         <div className="flex items-center justify-between mb-3 px-1">
@@ -191,6 +193,7 @@ export function SurveyContainer() {
           <div className="w-[88px] sm:w-[100px]" />
         </div>
       </footer>
-    </div>
+      </div>
+    </AnimatedBackground>
   );
 }

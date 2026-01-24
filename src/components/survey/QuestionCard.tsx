@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { type Question } from "@/data";
 import { cn } from "@/lib";
-import { Check } from "lucide-react";
+import { Check, ChevronRight } from "lucide-react";
 
 interface QuestionCardProps {
   question: Question;
@@ -28,7 +28,7 @@ export function QuestionCard({
       onChange(optionValue);
       setTimeout(() => {
         onNext();
-      }, 200);
+      }, 250);
     },
     [onChange, onNext]
   );
@@ -51,7 +51,7 @@ export function QuestionCard({
       onChange(num);
       setTimeout(() => {
         onNext();
-      }, 200);
+      }, 250);
     },
     [onChange, onNext]
   );
@@ -64,7 +64,7 @@ export function QuestionCard({
 
   return (
     <article
-      className="w-full max-w-2xl mx-auto space-y-6 md:space-y-8"
+      className="w-full max-w-2xl mx-auto space-y-8 md:space-y-10"
       aria-labelledby={`question-${question.id}`}
     >
       {/* Question Title */}
@@ -72,15 +72,16 @@ export function QuestionCard({
         id={`question-${question.id}`}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-2xl md:text-4xl font-light text-center leading-snug px-2 text-balance"
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="text-2xl md:text-4xl font-light text-center leading-snug px-2 text-balance text-gradient-animated"
       >
         {question.text}
       </motion.h2>
 
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="w-full"
       >
         {/* TYPE: SINGLE CHOICE */}
@@ -88,39 +89,50 @@ export function QuestionCard({
           <fieldset className="border-0">
             <legend className="sr-only">{question.text}</legend>
             <div className="grid grid-cols-1 gap-3 pb-8" role="radiogroup">
-              {question.options.map((opt) => {
+              {question.options.map((opt, idx) => {
                 const isSelected = value === opt.value;
                 return (
-                  <button
+                  <motion.button
                     key={opt.value}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 * idx, duration: 0.4 }}
                     onClick={() => handleChoiceClick(opt.value)}
                     role="radio"
                     aria-checked={isSelected}
                     tabIndex={0}
                     className={cn(
-                      "w-full p-4 md:p-5 rounded-xl text-left transition-all duration-200 border relative overflow-hidden group",
+                      "group w-full p-4 md:p-5 rounded-2xl text-left transition-all duration-300 border relative overflow-hidden",
                       "touch-manipulation active:scale-[0.98]",
                       "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                       isSelected
-                        ? "bg-white text-slate-900 border-white shadow-lg font-medium"
-                        : "bg-white/5 border-white/10 text-slate-100 hover:bg-white/10 hover:border-white/20"
+                        ? "bg-white text-slate-900 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)] font-medium"
+                        : "glass-card-refined hover:border-white/20"
                     )}
                   >
-                    <div className="flex items-center justify-between gap-4">
+                    {/* Hover glow effect */}
+                    {!isSelected && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/5 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    )}
+
+                    <div className="relative flex items-center justify-between gap-4">
                       <span className="text-base md:text-lg leading-snug">
                         {opt.label}
                       </span>
-                      {isSelected && (
+                      {isSelected ? (
                         <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="shrink-0 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center"
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                          className="shrink-0 w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center"
                         >
-                          <Check className="w-3 h-3 text-white" />
+                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                         </motion.div>
+                      ) : (
+                        <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-white/40 group-hover:translate-x-1 transition-all" />
                       )}
                     </div>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -132,66 +144,85 @@ export function QuestionCard({
           <fieldset className="border-0">
             <legend className="sr-only">{question.text}</legend>
             <div className="space-y-3 pb-4">
-              {question.options.map((opt) => {
+              {question.options.map((opt, idx) => {
                 const isSelected = multipleSelected.includes(opt.value);
                 return (
-                  <button
+                  <motion.button
                     key={opt.value}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 * idx, duration: 0.4 }}
                     onClick={() => handleMultipleToggle(opt.value)}
                     role="checkbox"
                     aria-checked={isSelected}
                     tabIndex={0}
                     className={cn(
-                      "w-full p-4 md:p-5 rounded-xl text-left transition-all duration-200 border relative overflow-hidden",
+                      "group w-full p-4 md:p-5 rounded-2xl text-left transition-all duration-300 border relative overflow-hidden",
                       "touch-manipulation active:scale-[0.98]",
                       "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                       isSelected
-                        ? "bg-blue-500/20 text-white border-blue-500/50"
-                        : "bg-white/5 border-white/10 text-slate-100 hover:bg-white/10 hover:border-white/20"
+                        ? "bg-blue-500/20 text-white border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+                        : "glass-card-refined hover:border-white/20"
                     )}
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="relative flex items-center gap-4">
                       <div
                         className={cn(
-                          "shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
+                          "shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300",
                           isSelected
-                            ? "bg-blue-500 border-blue-500"
-                            : "border-white/30"
+                            ? "bg-blue-500 border-blue-500 scale-110"
+                            : "border-white/30 group-hover:border-white/50"
                         )}
                       >
-                        {isSelected && <Check className="w-3 h-3 text-white" />}
+                        <motion.div
+                          initial={false}
+                          animate={{ scale: isSelected ? 1 : 0 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                        >
+                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                        </motion.div>
                       </div>
                       <span className="text-base md:text-lg leading-snug">
                         {opt.label}
                       </span>
                     </div>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
 
             {/* Submit button for multiple choice */}
-            <div className="pt-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="pt-6"
+            >
               <button
                 onClick={handleMultipleSubmit}
                 disabled={multipleSelected.length === 0}
                 className={cn(
-                  "w-full py-4 rounded-xl font-semibold text-lg transition-all duration-200",
+                  "w-full py-4 rounded-2xl font-semibold text-lg transition-all duration-300 relative overflow-hidden",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
                   multipleSelected.length > 0
-                    ? "bg-white text-slate-900 hover:bg-blue-50"
-                    : "bg-white/10 text-white/40 cursor-not-allowed"
+                    ? "bg-white text-slate-900 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] btn-glow"
+                    : "bg-white/5 text-white/30 cursor-not-allowed border border-white/5"
                 )}
               >
-                Continuer
+                <span className="relative z-10">
+                  Continuer
+                  {multipleSelected.length > 0 && (
+                    <span className="ml-2 text-sm opacity-60">
+                      ({multipleSelected.length} selection
+                      {multipleSelected.length > 1 ? "s" : ""})
+                    </span>
+                  )}
+                </span>
                 {multipleSelected.length > 0 && (
-                  <span className="ml-2 text-sm opacity-60">
-                    ({multipleSelected.length} selection
-                    {multipleSelected.length > 1 ? "s" : ""})
-                  </span>
+                  <span className="absolute inset-0 animate-shimmer" />
                 )}
               </button>
-            </div>
+            </motion.div>
           </fieldset>
         )}
 
@@ -207,48 +238,54 @@ export function QuestionCard({
                 className="flex justify-between text-xs md:text-sm text-muted-foreground px-1 font-medium"
                 aria-hidden="true"
               >
-                <span className="max-w-[40%] text-left">{question.minLabel}</span>
-                <span className="max-w-[40%] text-right">{question.maxLabel}</span>
+                <span className="max-w-[40%] text-left opacity-70">{question.minLabel}</span>
+                <span className="max-w-[40%] text-right opacity-70">{question.maxLabel}</span>
               </div>
 
               {/* Scale Buttons */}
               <div
-                className="flex justify-between items-center gap-2 md:gap-4 px-1"
+                className="flex justify-between items-center gap-3 md:gap-4 px-1"
                 role="radiogroup"
                 aria-label={`Echelle de 1 (${question.minLabel}) a 5 (${question.maxLabel})`}
               >
-                {[1, 2, 3, 4, 5].map((num) => {
+                {[1, 2, 3, 4, 5].map((num, idx) => {
                   const isSelected = value === num;
                   return (
-                    <button
+                    <motion.button
                       key={num}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.05 * idx, duration: 0.3 }}
                       onClick={() => handleScaleClick(num)}
                       role="radio"
                       aria-checked={isSelected}
                       aria-label={`${num} sur 5${num === 1 ? ` - ${question.minLabel}` : ""}${num === 5 ? ` - ${question.maxLabel}` : ""}`}
                       tabIndex={0}
                       className={cn(
-                        "flex-1 aspect-square max-w-[60px] md:max-w-[80px] rounded-full flex items-center justify-center",
-                        "text-lg md:text-2xl font-medium transition-all duration-200 border",
+                        "flex-1 aspect-square max-w-[56px] md:max-w-[72px] rounded-2xl flex items-center justify-center",
+                        "text-lg md:text-2xl font-medium transition-all duration-300",
                         "touch-manipulation active:scale-90",
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                         isSelected
-                          ? "bg-white text-slate-900 border-white shadow-[0_0_20px_rgba(255,255,255,0.4)] scale-110 z-10"
-                          : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-white/20"
+                          ? "bg-white text-slate-900 shadow-[0_0_40px_rgba(255,255,255,0.3)] scale-110 z-10"
+                          : "glass-card-refined hover:scale-105 hover:border-white/30"
                       )}
                     >
                       {num}
-                    </button>
+                    </motion.button>
                   );
                 })}
               </div>
 
-              <p
-                className="text-center text-[10px] md:text-xs text-muted-foreground/50 uppercase tracking-widest"
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-center text-[10px] md:text-xs text-muted-foreground/40 uppercase tracking-widest"
                 aria-hidden="true"
               >
                 Selectionnez une valeur
-              </p>
+              </motion.p>
             </div>
           </fieldset>
         )}
