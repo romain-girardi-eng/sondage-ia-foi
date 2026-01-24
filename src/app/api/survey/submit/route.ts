@@ -56,16 +56,25 @@ export async function POST(request: NextRequest) {
     }
 
     // First, ensure session exists (upsert)
+    // Note: sessions table doesn't have anonymous_id column, and requires language
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any)
+    const { error: sessionError } = await (supabase as any)
       .from('sessions')
       .upsert({
         id: sessionId,
-        anonymous_id: anonymousId,
+        language: metadata?.language || 'fr',
         completed_at: new Date().toISOString(),
         is_complete: true,
         partial_answers: answers,
       }, { onConflict: 'id' });
+
+    if (sessionError) {
+      console.error('Session upsert error:', sessionError);
+      return NextResponse.json(
+        { error: 'Failed to save session' },
+        { status: 500 }
+      );
+    }
 
     // Insert response (without session_id foreign key dependency)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

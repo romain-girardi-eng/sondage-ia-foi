@@ -59,7 +59,7 @@ export interface Database {
           id?: string;
           started_at?: string;
           completed_at?: string | null;
-          language: string;
+          language: string;  // Required field
           user_agent?: string | null;
           partial_answers?: Json;
           last_question_index?: number;
