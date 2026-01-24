@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, Database, Clock, Lock } from "lucide-react";
 import { cn } from "@/lib";
+import { Spotlight } from "@/components/ui";
 
 interface SurveyIntroProps {
   onStart: () => void;
@@ -10,7 +11,12 @@ interface SurveyIntroProps {
 
 export function SurveyIntro({ onStart }: SurveyIntroProps) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[100dvh] px-4 max-w-4xl mx-auto space-y-10 md:space-y-12 py-12">
+    <div className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 max-w-4xl mx-auto space-y-10 md:space-y-12 py-12 overflow-hidden">
+      {/* Spotlight effect */}
+      <Spotlight
+        className="-top-40 left-0 md:left-60 md:-top-20"
+        fill="#3b82f6"
+      />
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: 20 }}
