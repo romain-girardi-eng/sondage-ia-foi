@@ -5,11 +5,12 @@ import { SURVEY_QUESTIONS } from "@/data";
 import { ResultsDashboard } from "@/components/dashboard";
 import { SurveyIntro } from "./SurveyIntro";
 import { QuestionCard } from "./QuestionCard";
+import { FeedbackScreen } from "./FeedbackScreen";
 import { ThankYouScreen } from "./ThankYouScreen";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 
-type SurveyStep = "intro" | "questions" | "thanks" | "results";
+type SurveyStep = "intro" | "questions" | "feedback" | "thanks" | "results";
 
 export function SurveyContainer() {
   const [step, setStep] = useState<SurveyStep>("intro");
@@ -45,7 +46,9 @@ export function SurveyContainer() {
 
   const handleNext = useCallback(() => {
     if (currentIndex >= totalQuestions - 1) {
-      setStep("thanks");
+      // Survey complete - show feedback first
+      setStep("feedback");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       setCurrentIndex((prev) => prev + 1);
     }
@@ -57,8 +60,14 @@ export function SurveyContainer() {
     }
   }, [currentIndex]);
 
+  const handleFeedbackContinue = useCallback(() => {
+    setStep("thanks");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   const handleViewResults = useCallback(() => {
     setStep("results");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   // Auto-scroll on question change
@@ -71,6 +80,15 @@ export function SurveyContainer() {
   // Intro screen
   if (step === "intro") {
     return <SurveyIntro onStart={handleStart} />;
+  }
+
+  // Feedback screen (personalized results)
+  if (step === "feedback") {
+    return (
+      <div className="w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <FeedbackScreen answers={answers} onContinue={handleFeedbackContinue} />
+      </div>
+    );
   }
 
   // Thank you screen
