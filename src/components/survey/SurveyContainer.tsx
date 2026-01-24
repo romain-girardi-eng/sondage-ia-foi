@@ -250,10 +250,6 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const handleEmailSkip = useCallback(() => {
-    setStep("feedback");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
 
   const handleFeedbackContinue = useCallback(() => {
     setStep("thanks");
@@ -333,7 +329,6 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
           anonymousId={anonymousId.current}
           responseId={responseId}
           onSuccess={handleEmailSuccess}
-          onSkip={handleEmailSkip}
         />
       </div>
     );

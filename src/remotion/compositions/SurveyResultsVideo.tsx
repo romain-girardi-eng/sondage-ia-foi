@@ -6,15 +6,18 @@ import {
   spring,
   Sequence,
 } from "remotion";
+import { z } from "zod";
 
-interface SurveyResultsVideoProps {
-  title: string;
-  subtitle: string;
-  religiosityScore: number;
-  aiAdoptionScore: number;
-  profileName: string;
-  profileEmoji: string;
-}
+export const surveyResultsSchema = z.object({
+  title: z.string(),
+  subtitle: z.string(),
+  religiosityScore: z.number(),
+  aiAdoptionScore: z.number(),
+  profileName: z.string(),
+  profileEmoji: z.string(),
+});
+
+type SurveyResultsVideoProps = z.infer<typeof surveyResultsSchema>;
 
 export const SurveyResultsVideo: React.FC<SurveyResultsVideoProps> = ({
   title,

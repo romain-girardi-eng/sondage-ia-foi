@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Mail, Send, Loader2, CheckCircle2, AlertCircle, SkipForward } from "lucide-react";
+import { Mail, Send, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn, useLanguage, useHasAnimated } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import type { Answers } from "@/data";
@@ -12,7 +12,6 @@ interface EmailCollectionScreenProps {
   anonymousId: string;
   responseId?: string;
   onSuccess: () => void;
-  onSkip: () => void;
 }
 
 type SubmissionState = "idle" | "loading" | "success" | "error" | "duplicate";
@@ -22,7 +21,6 @@ export function EmailCollectionScreen({
   anonymousId,
   responseId,
   onSuccess,
-  onSkip,
 }: EmailCollectionScreenProps) {
   const { t, language } = useLanguage();
   const hasAnimated = useHasAnimated();
@@ -258,21 +256,6 @@ export function EmailCollectionScreen({
           </p>
         </motion.form>
 
-        {/* Skip Button */}
-        <motion.button
-          initial={hasAnimated ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          onClick={onSkip}
-          disabled={submissionState === "loading"}
-          className={cn(
-            "mt-6 flex items-center gap-2 text-sm text-white/50 hover:text-white/80 transition-colors",
-            "disabled:opacity-50 disabled:cursor-not-allowed"
-          )}
-        >
-          <SkipForward className="w-4 h-4" />
-          <span>{t("email.skipEmail")}</span>
-        </motion.button>
       </div>
     </AnimatedBackground>
   );

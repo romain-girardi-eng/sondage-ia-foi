@@ -1,5 +1,6 @@
 import { Composition } from "remotion";
-import { SurveyResultsVideo } from "./compositions/SurveyResultsVideo";
+import { SurveyResultsVideo, surveyResultsSchema } from "./compositions/SurveyResultsVideo";
+import { LandingVideo } from "./compositions/LandingVideo";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -11,6 +12,7 @@ export const RemotionRoot: React.FC = () => {
         fps={30}
         width={1920}
         height={1080}
+        schema={surveyResultsSchema}
         defaultProps={{
           title: "IA & Vie Spirituelle",
           subtitle: "Vos Résultats Personnalisés",
@@ -19,6 +21,14 @@ export const RemotionRoot: React.FC = () => {
           profileName: "Explorateur Curieux",
           profileEmoji: "🔬",
         }}
+      />
+      <Composition
+        id="LandingVideo"
+        component={LandingVideo}
+        durationInFrames={300}
+        fps={30}
+        width={1920}
+        height={1080}
       />
     </>
   );
