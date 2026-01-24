@@ -121,18 +121,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     [language, setLanguage, t, tQuestion, tOption, tScale, isHydrated]
   );
 
-  // Show a minimal loading state until hydration is complete to avoid flash
-  if (!isHydrated) {
-    return (
-      <LanguageContext.Provider value={contextValue}>
-        <div className="min-h-screen bg-slate-950" />
-      </LanguageContext.Provider>
-    );
-  }
-
   return (
     <LanguageContext.Provider value={contextValue}>
-      {children}
+      <div
+        className={isHydrated ? "opacity-100" : "opacity-0"}
+        style={{ transition: "opacity 0.15s ease-in-out" }}
+      >
+        {children}
+      </div>
     </LanguageContext.Provider>
   );
 }
