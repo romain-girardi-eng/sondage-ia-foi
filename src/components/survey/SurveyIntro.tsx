@@ -33,7 +33,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card-refined text-blue-300 text-xs font-medium uppercase tracking-wider"
           >
             <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Etude Scientifique 2026</span>
+            <span>Étude Scientifique 2026</span>
           </motion.div>
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
@@ -53,10 +53,10 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
             transition={{ delay: 0.4, duration: 0.8 }}
             className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-balance"
           >
-            De la redaction de sermons a la priere assistee, l&apos;IA transforme
-            silencieusement les pratiques religieuses. Cette enquete academique
-            vise a cartographier ces usages et a comprendre les enjeux ethiques
-            qu&apos;ils soulevent.
+            De la rédaction de sermons à la prière assistée, l&apos;IA transforme
+            silencieusement les pratiques religieuses. Cette enquête académique
+            vise à cartographier ces usages et à comprendre les enjeux éthiques
+            qu&apos;ils soulèvent.
           </motion.p>
         </motion.header>
 
@@ -83,7 +83,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
                 id="privacy-heading"
                 className="font-semibold text-white text-lg"
               >
-                Protocole de Confidentialite
+                Protocole de Confidentialité
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Votre participation est essentielle pour la recherche. Nous
@@ -97,8 +97,8 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
                   />
                   <span>
                     <strong className="text-white">Anonymat total :</strong>{" "}
-                    Aucune donnee personnelle identifiante (nom, email, IP) n&apos;est
-                    enregistree.
+                    Aucune donnée personnelle identifiante (nom, email, IP) n&apos;est
+                    enregistrée.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
@@ -107,8 +107,8 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
                     aria-hidden="true"
                   />
                   <span>
-                    <strong className="text-white">Usage academique :</strong> Les
-                    reponses sont agregees uniquement a des fins statistiques.
+                    <strong className="text-white">Usage académique :</strong> Les
+                    réponses sont agrégées uniquement à des fins statistiques.
                   </span>
                 </li>
               </ul>
@@ -144,7 +144,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
 
           <p className="text-xs text-muted-foreground/50 flex items-center justify-center gap-1.5">
             <Clock className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Temps estime : 3 a 5 minutes</span>
+            <span>Temps estimé : 3 à 5 minutes</span>
           </p>
         </motion.div>
 
@@ -156,7 +156,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
           className="text-center text-xs text-muted-foreground/30 max-w-md space-y-2"
         >
           <p>
-            En cliquant sur &quot;J&apos;accepte&quot;, vous consentez a participer a cette etude
+            En cliquant sur &quot;J&apos;accepte&quot;, vous consentez à participer à cette étude
             dans le respect du RGPD.
           </p>
           <a

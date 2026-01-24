@@ -13,7 +13,7 @@ export function ThankYouScreen({ onViewResults }: ThankYouScreenProps) {
   const handleShare = async () => {
     const shareData = {
       title: "Sondage IA & Vie Spirituelle",
-      text: "J'ai participe a cette etude sur l'IA dans les pratiques religieuses. Participez aussi !",
+      text: "J'ai participé à cette étude sur l'IA dans les pratiques religieuses. Participez aussi !",
       url: window.location.href,
     };
 
@@ -25,7 +25,7 @@ export function ThankYouScreen({ onViewResults }: ThankYouScreenProps) {
       }
     } else {
       await navigator.clipboard.writeText(window.location.href);
-      alert("Lien copie dans le presse-papier !");
+      alert("Lien copié dans le presse-papier !");
     }
   };
 
@@ -59,8 +59,8 @@ export function ThankYouScreen({ onViewResults }: ThankYouScreenProps) {
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Votre contribution est precieuse pour faire avancer la recherche sur
-            les transformations numeriques de la vie spirituelle.
+            Votre contribution est précieuse pour faire avancer la recherche sur
+            les transformations numériques de la vie spirituelle.
           </p>
         </motion.div>
 
@@ -77,13 +77,13 @@ export function ThankYouScreen({ onViewResults }: ThankYouScreenProps) {
           <div className="relative">
             <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
               <Heart className="w-4 h-4 text-red-400" />
-              <span className="text-sm">Rejoignez notre communaute de participants</span>
+              <span className="text-sm">Rejoignez notre communauté de participants</span>
             </div>
             <div className="text-4xl md:text-5xl font-bold text-white mb-2">
               1,543+
             </div>
             <p className="text-sm text-muted-foreground">
-              personnes ont contribue a cette etude
+              personnes ont contribué à cette étude
             </p>
           </div>
         </motion.div>
@@ -106,7 +106,7 @@ export function ThankYouScreen({ onViewResults }: ThankYouScreenProps) {
             )}
           >
             <BarChart3 className="w-5 h-5" />
-            <span className="relative z-10">Voir les resultats</span>
+            <span className="relative z-10">Voir les résultats</span>
             <span className="absolute inset-0 animate-shimmer" />
           </button>
 
@@ -131,7 +131,7 @@ export function ThankYouScreen({ onViewResults }: ThankYouScreenProps) {
           className="mt-8 inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card-refined text-xs text-muted-foreground"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span>Votre profil personnalise est disponible</span>
+          <span>Votre profil personnalisé est disponible</span>
         </motion.div>
 
         {/* Footer Note */}
@@ -141,8 +141,8 @@ export function ThankYouScreen({ onViewResults }: ThankYouScreenProps) {
           transition={{ delay: 1 }}
           className="mt-8 text-xs text-muted-foreground/50 text-center max-w-md"
         >
-          Les resultats presentes sont des tendances anonymisees et agregees.
-          Aucune donnee individuelle n&apos;est accessible.
+          Les résultats présentés sont des tendances anonymisées et agrégées.
+          Aucune donnée individuelle n&apos;est accessible.
         </motion.p>
       </div>
     </AnimatedBackground>
