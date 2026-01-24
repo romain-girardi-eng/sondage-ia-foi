@@ -5,7 +5,7 @@ import { SURVEY_QUESTIONS } from "@/data";
 import { useLanguage } from "@/lib";
 import { ResultsDashboard } from "@/components/dashboard";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
-import { SurveyIntro } from "./SurveyIntro";
+import { SurveyIntroShader } from "./SurveyIntroShader";
 import { QuestionCard } from "./QuestionCard";
 import { FeedbackScreen } from "./FeedbackScreen";
 import { ThankYouScreen } from "./ThankYouScreen";
@@ -80,9 +80,9 @@ export function SurveyContainer() {
     }
   }, [currentIndex, step]);
 
-  // Intro screen
+  // Intro screen (with shader background)
   if (step === "intro") {
-    return <SurveyIntro onStart={handleStart} />;
+    return <SurveyIntroShader onStart={handleStart} />;
   }
 
   // Feedback screen (personalized results)

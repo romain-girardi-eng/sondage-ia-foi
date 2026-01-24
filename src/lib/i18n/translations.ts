@@ -3,8 +3,11 @@ export const translations = {
     // Survey Intro
     intro: {
       badge: "Étude Scientifique 2026",
+      badgeText: "IA & Foi Chrétienne",
+      title: "Intelligence Artificielle & Vie Spirituelle",
       title1: "Intelligence Artificielle",
       title2: "Vie Spirituelle",
+      subtitle: "Comment l'IA transforme-t-elle les pratiques religieuses ?",
       description:
         "De la rédaction de sermons à la prière assistée, l'IA transforme silencieusement les pratiques religieuses. Cette enquête académique vise à cartographier ces usages et à comprendre les enjeux éthiques qu'ils soulèvent.",
       privacyTitle: "Protocole de Confidentialité",
@@ -17,6 +20,8 @@ export const translations = {
       academicDesc:
         "Les réponses sont agrégées uniquement à des fins statistiques.",
       cta: "J'accepte et je commence",
+      startButton: "Commencer le sondage",
+      learnMore: "En savoir plus",
       time: "Temps estimé : 3 à 5 minutes",
       consent:
         "En cliquant sur \"J'accepte\", vous consentez à participer à cette étude dans le respect du RGPD.",
@@ -102,8 +107,11 @@ export const translations = {
     // Survey Intro
     intro: {
       badge: "Scientific Study 2026",
+      badgeText: "AI & Christian Faith",
+      title: "Artificial Intelligence & Spiritual Life",
       title1: "Artificial Intelligence",
       title2: "Spiritual Life",
+      subtitle: "How is AI transforming religious practices?",
       description:
         "From sermon writing to AI-assisted prayer, AI is silently transforming religious practices. This academic survey aims to map these uses and understand the ethical issues they raise.",
       privacyTitle: "Privacy Protocol",
@@ -116,6 +124,8 @@ export const translations = {
       academicDesc:
         "Responses are aggregated solely for statistical purposes.",
       cta: "I agree and start",
+      startButton: "Start the survey",
+      learnMore: "Learn more",
       time: "Estimated time: 3 to 5 minutes",
       consent:
         "By clicking \"I agree\", you consent to participate in this study in compliance with GDPR.",

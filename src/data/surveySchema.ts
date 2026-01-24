@@ -18,13 +18,17 @@ export interface Question {
     | 'profile'
     | 'religiosity'
     | 'usage'
+    | 'digital_spiritual'
     | 'ministry_preaching'
     | 'ministry_pastoral'
     | 'ministry_vision'
     | 'spirituality'
     | 'theology'
     | 'psychology'
-    | 'social_desirability';
+    | 'community'
+    | 'future'
+    | 'social_desirability'
+    | 'open';
   text: string;
   type: QuestionType;
   options?: Option[];
@@ -33,6 +37,7 @@ export interface Question {
   minLabelKey?: string;
   maxLabelKey?: string;
   condition?: (answers: Answers) => boolean;
+  placeholder?: string;
 }
 
 // Helper function to safely get string value from answers
@@ -95,14 +100,14 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'profil_statut',
     category: 'profile',
-    text: "Quelle fonction occupez-vous principalement au sein de votre communauté ?",
+    text: "Quelle est votre situation au sein de votre communauté religieuse ?",
     type: 'choice',
     options: [
-      { value: 'clerge', label: 'Clergé / Pasteur / Prêtre / Leader rémunéré' },
-      { value: 'religieux', label: 'Religieux / Consacré(e)' },
-      { value: 'laic_engagé', label: 'Laïc engagé / Responsable bénévole' },
-      { value: 'laic_pratiquant', label: 'Fidèle / Pratiquant régulier' },
-      { value: 'curieux', label: 'Croyant non pratiquant / Curieux' }
+      { value: 'clerge', label: 'Ministre ordonné (prêtre, pasteur, diacre...)' },
+      { value: 'religieux', label: 'Religieux/Religieuse (vie consacrée)' },
+      { value: 'laic_engagé', label: 'Laïc engagé (catéchiste, animateur, responsable bénévole...)' },
+      { value: 'laic_pratiquant', label: 'Fidèle pratiquant régulier' },
+      { value: 'curieux', label: 'Pratiquant occasionnel ou sympathisant' }
     ]
   },
   {
@@ -126,6 +131,112 @@ export const SURVEY_QUESTIONS: Question[] = [
       { value: 'homme', label: 'Homme' },
       { value: 'femme', label: 'Femme' },
       { value: 'autre', label: 'Autre / Ne souhaite pas répondre' }
+    ]
+  },
+  {
+    id: 'profil_education',
+    category: 'profile',
+    text: "Quel est votre niveau d'études le plus élevé ?",
+    type: 'choice',
+    options: [
+      { value: 'sans_diplome', label: 'Sans diplôme / Certificat d\'études' },
+      { value: 'brevet', label: 'Brevet des collèges' },
+      { value: 'bac', label: 'Baccalauréat ou équivalent' },
+      { value: 'bac_plus_2', label: 'Bac+2 (BTS, DUT, DEUG...)' },
+      { value: 'licence', label: 'Bac+3 (Licence, Bachelor)' },
+      { value: 'master', label: 'Bac+5 (Master, DEA, DESS, Grande École)' },
+      { value: 'doctorat', label: 'Doctorat ou équivalent' },
+      { value: 'ne_souhaite_pas', label: 'Ne souhaite pas répondre' }
+    ]
+  },
+  {
+    id: 'profil_pays',
+    category: 'profile',
+    text: "Dans quel pays résidez-vous principalement ?",
+    type: 'choice',
+    options: [
+      { value: 'france', label: 'France' },
+      { value: 'belgique', label: 'Belgique' },
+      { value: 'suisse', label: 'Suisse' },
+      { value: 'canada', label: 'Canada' },
+      { value: 'luxembourg', label: 'Luxembourg' },
+      { value: 'afrique_francophone', label: 'Afrique francophone' },
+      { value: 'autre_europe', label: 'Autre pays européen' },
+      { value: 'autre', label: 'Autre' }
+    ]
+  },
+  {
+    id: 'profil_milieu',
+    category: 'profile',
+    text: "Dans quel type de milieu vivez-vous ?",
+    type: 'choice',
+    options: [
+      { value: 'rural', label: 'Rural (commune de moins de 2 000 habitants)' },
+      { value: 'periurbain', label: 'Périurbain (petite ville, banlieue)' },
+      { value: 'urbain_moyen', label: 'Ville moyenne (20 000 à 100 000 habitants)' },
+      { value: 'grande_ville', label: 'Grande ville (plus de 100 000 habitants)' },
+      { value: 'metropole', label: 'Métropole / Grande agglomération' }
+    ]
+  },
+  {
+    id: 'profil_secteur',
+    category: 'profile',
+    text: "Quel est votre secteur d'activité principal ?",
+    type: 'choice',
+    options: [
+      { value: 'religieux', label: 'Ministère religieux (à temps plein)' },
+      { value: 'education', label: 'Éducation / Enseignement / Recherche' },
+      { value: 'sante', label: 'Santé / Social' },
+      { value: 'tech', label: 'Informatique / Numérique / Tech' },
+      { value: 'commerce', label: 'Commerce / Services' },
+      { value: 'industrie', label: 'Industrie / BTP / Agriculture' },
+      { value: 'administration', label: 'Administration / Fonction publique' },
+      { value: 'art_culture', label: 'Art / Culture / Communication' },
+      { value: 'retraite', label: 'Retraité(e)' },
+      { value: 'etudiant', label: 'Étudiant(e)' },
+      { value: 'autre', label: 'Autre' }
+    ]
+  },
+  {
+    id: 'profil_anciennete_foi',
+    category: 'profile',
+    text: "Depuis combien de temps vous considérez-vous comme croyant(e) / pratiquant(e) ?",
+    type: 'choice',
+    options: [
+      { value: 'naissance', label: 'Depuis toujours (éducation chrétienne)' },
+      { value: 'plus_20_ans', label: 'Plus de 20 ans' },
+      { value: '10_20_ans', label: 'Entre 10 et 20 ans' },
+      { value: '5_10_ans', label: 'Entre 5 et 10 ans' },
+      { value: '1_5_ans', label: 'Entre 1 et 5 ans' },
+      { value: 'moins_1_an', label: 'Moins d\'un an' }
+    ]
+  },
+  {
+    id: 'profil_annees_ministere',
+    category: 'profile',
+    text: "Depuis combien d'années exercez-vous votre ministère ?",
+    type: 'choice',
+    options: [
+      { value: 'moins_5', label: 'Moins de 5 ans' },
+      { value: '5_10', label: '5 à 10 ans' },
+      { value: '10_20', label: '10 à 20 ans' },
+      { value: '20_30', label: '20 à 30 ans' },
+      { value: 'plus_30', label: 'Plus de 30 ans' }
+    ],
+    condition: isClergy
+  },
+  {
+    id: 'profil_taille_communaute',
+    category: 'profile',
+    text: "Quelle est la taille approximative de votre communauté / paroisse ?",
+    type: 'choice',
+    options: [
+      { value: 'tres_petite', label: 'Moins de 50 personnes' },
+      { value: 'petite', label: '50 à 150 personnes' },
+      { value: 'moyenne', label: '150 à 500 personnes' },
+      { value: 'grande', label: '500 à 1000 personnes' },
+      { value: 'tres_grande', label: 'Plus de 1000 personnes' },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas' }
     ]
   },
 
@@ -260,6 +371,39 @@ export const SURVEY_QUESTIONS: Question[] = [
   },
 
   // ==========================================
+  // BLOC 3c: OUTILS NUMÉRIQUES SPIRITUELS EXISTANTS
+  // Établit si la résistance est spécifique à l'IA ou générale au numérique
+  // ==========================================
+  {
+    id: 'digital_outils_existants',
+    category: 'digital_spiritual',
+    text: "Quels outils numériques utilisez-vous déjà dans votre vie spirituelle ? (plusieurs réponses possibles)",
+    type: 'multiple',
+    options: [
+      { value: 'bible_app', label: 'Application Bible (YouVersion, Bible.is, etc.)' },
+      { value: 'priere_app', label: 'Application de prière (Hozana, Pray, etc.)' },
+      { value: 'podcast', label: 'Podcasts religieux / spirituels' },
+      { value: 'video', label: 'Vidéos en ligne (YouTube, messes en streaming)' },
+      { value: 'reseaux_sociaux', label: 'Réseaux sociaux à contenu religieux' },
+      { value: 'site_paroisse', label: 'Site web de paroisse / communauté' },
+      { value: 'aucun', label: 'Aucun de ces outils' }
+    ]
+  },
+  {
+    id: 'digital_attitude_generale',
+    category: 'digital_spiritual',
+    text: "De manière générale, comment percevez-vous l'utilisation du numérique dans la vie spirituelle ?",
+    type: 'choice',
+    options: [
+      { value: 'tres_positif', label: 'Très positivement - cela enrichit ma foi' },
+      { value: 'positif', label: 'Plutôt positivement - utile en complément' },
+      { value: 'neutre', label: 'De manière neutre - ni bien ni mal' },
+      { value: 'negatif', label: 'Plutôt négativement - cela peut distraire' },
+      { value: 'tres_negatif', label: 'Très négativement - incompatible avec la foi' }
+    ]
+  },
+
+  // ==========================================
   // BLOC 4: MINISTÈRE & LEADERSHIP (CLERGÉ UNIQUEMENT)
   // ==========================================
 
@@ -293,10 +437,10 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'min_pred_sentiment',
     category: 'ministry_preaching',
-    text: "Ressentez-vous une forme de 'culpabilité' ou de gêne à utiliser l'IA pour une tâche spirituelle ?",
+    text: "Comment vous sentez-vous lorsque vous utilisez l'IA pour préparer une prédication ?",
     type: 'scale',
-    minLabel: "Aucune gêne (C'est un outil)",
-    maxLabel: "Forte culpabilité (Sentiment de triche)",
+    minLabel: "Tout à fait à l'aise",
+    maxLabel: "Mal à l'aise",
     condition: clergyUsesAI
   },
 
@@ -335,21 +479,23 @@ export const SURVEY_QUESTIONS: Question[] = [
     type: 'choice',
     options: [
       { value: 'non', label: 'Non, jamais' },
-      { value: 'oui', label: "Oui, et c'était spirituellement porteur" },
-      { value: 'oui_bof', label: "Oui, mais c'était creux / vide" }
+      { value: 'oui_positif', label: "Oui, et j'ai trouvé cela spirituellement nourrissant" },
+      { value: 'oui_neutre', label: "Oui, mais cela ne m'a pas particulièrement touché(e)" },
+      { value: 'oui_negatif', label: "Oui, mais cela ne correspondait pas à mes attentes" }
     ],
     condition: isLayperson
   },
   {
     id: 'laic_conseil_spirituel',
     category: 'spirituality',
-    text: "Pourriez-vous imaginer demander un conseil spirituel à une IA plutôt qu'à un prêtre/pasteur ?",
+    text: "Pourriez-vous envisager de demander un conseil spirituel à une IA ?",
     type: 'choice',
     options: [
-      { value: 'jamais', label: 'Jamais, cela me semble inapproprié' },
-      { value: 'complement', label: 'En complément, mais pas en remplacement' },
-      { value: 'oui_possible', label: 'Oui, pour certaines questions' },
-      { value: 'deja_fait', label: "Oui, je l'ai déjà fait" }
+      { value: 'jamais', label: 'Non, je préfère un accompagnement humain' },
+      { value: 'complement', label: 'Oui, en complément d\'un accompagnement humain' },
+      { value: 'oui_possible', label: 'Oui, pour certaines questions simples' },
+      { value: 'deja_fait', label: "Oui, je l'ai déjà fait" },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas' }
     ],
     condition: isLayperson
   },
@@ -360,26 +506,44 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'psych_anthropomorphisme',
     category: 'psychology',
-    text: "Considérez-vous qu'une IA puisse avoir une forme de 'conscience' ou de 'personnalité' ?",
-    type: 'scale',
-    minLabel: "Impossible (Pure mécanique)",
-    maxLabel: "Possible (Forme d'intelligence)"
+    text: "Selon vous, une IA peut-elle avoir une forme de 'conscience' ou de 'personnalité' ?",
+    type: 'choice',
+    options: [
+      { value: 'impossible', label: "Non, c'est impossible" },
+      { value: 'peu_probable', label: "C'est peu probable" },
+      { value: 'incertain', label: "Je suis incertain(e)" },
+      { value: 'possible', label: "C'est possible" },
+      { value: 'probable', label: "Oui, probablement" },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas' }
+    ]
   },
   {
     id: 'psych_imago_dei',
     category: 'psychology',
     text: "Selon vous, l'IA remet-elle en question ce qui fait la spécificité de l'être humain (créé à l'image de Dieu) ?",
-    type: 'scale',
-    minLabel: "Non, l'humain reste unique",
-    maxLabel: "Oui, cela questionne notre singularité"
+    type: 'choice',
+    options: [
+      { value: 'pas_du_tout', label: "Pas du tout, l'humain reste unique" },
+      { value: 'peu', label: 'Un peu' },
+      { value: 'moderement', label: 'Modérément' },
+      { value: 'beaucoup', label: 'Beaucoup' },
+      { value: 'totalement', label: 'Oui, cela questionne notre singularité' },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas / Sans opinion' }
+    ]
   },
   {
     id: 'psych_anxiete_remplacement',
     category: 'psychology',
-    text: "Craignez-vous que l'IA puisse un jour remplacer certaines fonctions spirituelles humaines (prédication, accompagnement) ?",
-    type: 'scale',
-    minLabel: "Aucune crainte",
-    maxLabel: "Forte inquiétude"
+    text: "Pensez-vous que l'IA pourrait un jour remplacer certaines fonctions spirituelles humaines (prédication, accompagnement) ?",
+    type: 'choice',
+    options: [
+      { value: 'non_impossible', label: "Non, c'est impossible" },
+      { value: 'non_peu_probable', label: "Non, c'est peu probable" },
+      { value: 'possible_partiel', label: 'Possible pour certaines fonctions limitées' },
+      { value: 'oui_probable', label: 'Oui, probablement' },
+      { value: 'oui_certain', label: "Oui, c'est inévitable" },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas' }
+    ]
   },
 
   // ==========================================
@@ -388,34 +552,153 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'theo_inspiration',
     category: 'theology',
-    text: "Un texte généré par un algorithme peut-il, selon vous, transmettre la grâce ou être 'inspiré' ?",
-    type: 'scale',
-    minLabel: "Impossible (Matérialisme)",
-    maxLabel: "Possible (L'Esprit souffle où il veut)"
+    text: "Un texte généré par une IA peut-il, selon vous, transmettre la grâce ou être 'inspiré' ?",
+    type: 'choice',
+    options: [
+      { value: 'impossible', label: "Non, c'est impossible" },
+      { value: 'peu_probable', label: "C'est peu probable" },
+      { value: 'possible_indirect', label: "Possible, si un humain s'en saisit spirituellement" },
+      { value: 'possible', label: "Oui, l'Esprit peut agir par tous les moyens" },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas / Question trop complexe' }
+    ]
   },
   {
     id: 'theo_risque_futur',
     category: 'theology',
-    text: "Quelle est votre plus grande crainte concernant l'IA dans l'Église ?",
+    text: "Concernant l'utilisation de l'IA dans l'Église, qu'est-ce qui vous préoccupe le plus ?",
     type: 'choice',
     options: [
-      { value: 'paresse', label: 'La paresse intellectuelle/spirituelle des fidèles' },
-      { value: 'deshumanisation', label: 'La déshumanisation des relations' },
-      { value: 'heresie', label: "La diffusion d'erreurs doctrinales" },
-      { value: 'aucune', label: "Je n'ai pas de crainte majeure" }
+      { value: 'paresse', label: 'Un risque de moindre effort intellectuel ou spirituel' },
+      { value: 'deshumanisation', label: 'Un risque de relations moins authentiques' },
+      { value: 'heresie', label: "Un risque d'erreurs dans la transmission doctrinale" },
+      { value: 'autre', label: 'Autre préoccupation' },
+      { value: 'aucune', label: "Je n'ai pas de préoccupation particulière" },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas / Sans opinion' }
     ]
   },
   {
     id: 'theo_utilite_percue',
     category: 'theology',
     text: "Dans l'ensemble, pensez-vous que l'IA peut être un outil bénéfique pour la vie de l'Église ?",
-    type: 'scale',
-    minLabel: "Non, c'est un danger",
-    maxLabel: "Oui, c'est une opportunité"
+    type: 'choice',
+    options: [
+      { value: 'tres_negatif', label: "Non, c'est plutôt un danger" },
+      { value: 'negatif', label: 'Plutôt non, les risques dépassent les bénéfices' },
+      { value: 'neutre', label: 'Cela dépend de son usage' },
+      { value: 'positif', label: 'Plutôt oui, si bien encadré' },
+      { value: 'tres_positif', label: "Oui, c'est une opportunité à saisir" },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas / Sans opinion' }
+    ]
   },
 
   // ==========================================
-  // BLOC 8: CONTRÔLE DÉSIRABILITÉ SOCIALE (Marlowe-Crowne Short Form)
+  // BLOC 8: DIMENSION COMMUNAUTAIRE
+  // Position sociale et influence du groupe
+  // ==========================================
+  {
+    id: 'communaute_position_officielle',
+    category: 'community',
+    text: "Votre Église / dénomination a-t-elle pris position officiellement sur l'utilisation de l'IA ?",
+    type: 'choice',
+    options: [
+      { value: 'oui_favorable', label: 'Oui, plutôt favorable' },
+      { value: 'oui_prudent', label: 'Oui, avec prudence / encadrement' },
+      { value: 'oui_defavorable', label: 'Oui, plutôt défavorable' },
+      { value: 'non', label: 'Non, pas à ma connaissance' },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas' }
+    ]
+  },
+  {
+    id: 'communaute_discussions',
+    category: 'community',
+    text: "Avez-vous déjà discuté de l'IA avec d'autres membres de votre communauté religieuse ?",
+    type: 'choice',
+    options: [
+      { value: 'jamais', label: 'Jamais' },
+      { value: 'rarement', label: 'Rarement, en passant' },
+      { value: 'parfois', label: 'Parfois, de manière informelle' },
+      { value: 'souvent', label: 'Souvent, c\'est un sujet qui intéresse' },
+      { value: 'organise', label: 'Oui, dans un cadre organisé (réunion, formation)' }
+    ]
+  },
+  {
+    id: 'communaute_perception_pairs',
+    category: 'community',
+    text: "Comment percevez-vous l'attitude générale des membres de votre communauté envers l'IA ?",
+    type: 'choice',
+    options: [
+      { value: 'tres_favorable', label: 'Très favorable / enthousiaste' },
+      { value: 'favorable', label: 'Plutôt favorable / curieux' },
+      { value: 'neutre', label: 'Neutre / indifférent' },
+      { value: 'mefiant', label: 'Plutôt méfiant / réservé' },
+      { value: 'hostile', label: 'Hostile / opposé' },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas / opinions variées' }
+    ]
+  },
+
+  // ==========================================
+  // BLOC 9: INTENTIONS FUTURES
+  // Dimension prospective et besoins
+  // ==========================================
+  {
+    id: 'futur_intention_usage',
+    category: 'future',
+    text: "Dans les 12 prochains mois, pensez-vous utiliser davantage l'IA dans votre vie spirituelle ou ministère ?",
+    type: 'choice',
+    options: [
+      { value: 'oui_certain', label: 'Oui, certainement' },
+      { value: 'oui_probable', label: 'Oui, probablement' },
+      { value: 'peut_etre', label: 'Peut-être' },
+      { value: 'non_probable', label: 'Probablement pas' },
+      { value: 'non_certain', label: 'Certainement pas' },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas' }
+    ]
+  },
+  {
+    id: 'futur_formation_souhait',
+    category: 'future',
+    text: "Souhaiteriez-vous bénéficier d'une formation sur l'IA adaptée au contexte religieux ?",
+    type: 'choice',
+    options: [
+      { value: 'oui_tres', label: 'Oui, très intéressé(e)' },
+      { value: 'oui_assez', label: 'Oui, assez intéressé(e)' },
+      { value: 'peut_etre', label: 'Peut-être, selon le contenu' },
+      { value: 'non_pas_vraiment', label: 'Pas vraiment' },
+      { value: 'non_pas_du_tout', label: 'Non, pas du tout' }
+    ]
+  },
+  {
+    id: 'futur_domaines_interet',
+    category: 'future',
+    text: "Quels domaines d'application de l'IA vous intéresseraient le plus dans un contexte religieux ? (plusieurs réponses possibles)",
+    type: 'multiple',
+    options: [
+      { value: 'etude_bible', label: 'Étude biblique / exégèse' },
+      { value: 'preparation_predication', label: 'Préparation de prédications' },
+      { value: 'catechese', label: 'Catéchèse / éducation religieuse' },
+      { value: 'priere_meditation', label: 'Prière / méditation guidée' },
+      { value: 'accompagnement', label: 'Accompagnement pastoral' },
+      { value: 'communication', label: 'Communication / réseaux sociaux' },
+      { value: 'administration', label: 'Administration / gestion paroissiale' },
+      { value: 'musique_liturgie', label: 'Musique / liturgie' },
+      { value: 'aucun', label: 'Aucun de ces domaines' }
+    ]
+  },
+
+  // ==========================================
+  // BLOC 10: QUESTION OUVERTE FINALE
+  // Recueil de nuances et commentaires libres
+  // ==========================================
+  {
+    id: 'commentaires_libres',
+    category: 'open',
+    text: "Avez-vous des commentaires, réflexions ou expériences à partager concernant l'IA et la vie spirituelle ?",
+    type: 'text',
+    placeholder: "Votre réponse est facultative mais précieuse pour enrichir notre compréhension du sujet..."
+  },
+
+  // ==========================================
+  // BLOC 11: CONTRÔLE DÉSIRABILITÉ SOCIALE (Marlowe-Crowne Short Form)
   // 5 items sélectionnés pour cohérence interne
   // ==========================================
   {
