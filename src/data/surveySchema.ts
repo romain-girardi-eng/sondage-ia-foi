@@ -14,7 +14,17 @@ export interface Option {
 
 export interface Question {
   id: string;
-  category: 'profile' | 'religiosity' | 'usage' | 'ministry_preaching' | 'ministry_pastoral' | 'ministry_vision' | 'spirituality' | 'theology' | 'social_desirability';
+  category:
+    | 'profile'
+    | 'religiosity'
+    | 'usage'
+    | 'ministry_preaching'
+    | 'ministry_pastoral'
+    | 'ministry_vision'
+    | 'spirituality'
+    | 'theology'
+    | 'psychology'
+    | 'social_desirability';
   text: string;
   type: QuestionType;
   options?: Option[];
@@ -30,11 +40,31 @@ function getStringAnswer(answers: Answers, key: string): string {
   return '';
 }
 
+// Helper to check if respondent is clergy
+function isClergy(answers: Answers): boolean {
+  const statut = getStringAnswer(answers, 'profil_statut');
+  return ['clerge', 'religieux'].includes(statut);
+}
+
+// Helper to check if respondent is layperson
+function isLayperson(answers: Answers): boolean {
+  const statut = getStringAnswer(answers, 'profil_statut');
+  return ['laic_engagé', 'laic_pratiquant', 'curieux'].includes(statut);
+}
+
+// Helper to check if clergy uses AI for preaching
+function clergyUsesAI(answers: Answers): boolean {
+  const usage = getStringAnswer(answers, 'min_pred_usage');
+  return isClergy(answers) && usage !== '' && usage !== 'jamais';
+}
+
 // --- CONTENU DU SONDAGE COMPLET ---
+// Structure: ~15-18 questions selon le parcours (clergé vs laïc)
+// Hypothèses de corrélation testables: H1-H6 (voir méthodologie)
 
 export const SURVEY_QUESTIONS: Question[] = [
   // ==========================================
-  // 1. PROFIL & DÉMOGRAPHIE RELIGIEUSE
+  // BLOC 1: PROFIL & DÉMOGRAPHIE
   // ==========================================
   {
     id: 'profil_confession',
@@ -66,7 +96,7 @@ export const SURVEY_QUESTIONS: Question[] = [
     text: "Quelle fonction occupez-vous principalement au sein de votre communauté ?",
     type: 'choice',
     options: [
-      { value: 'clerge', label: 'Clergé / Pasteur / Prêtre / Leader rémunéré (Producteur)' },
+      { value: 'clerge', label: 'Clergé / Pasteur / Prêtre / Leader rémunéré' },
       { value: 'religieux', label: 'Religieux / Consacré(e)' },
       { value: 'laic_engagé', label: 'Laïc engagé / Responsable bénévole' },
       { value: 'laic_pratiquant', label: 'Fidèle / Pratiquant régulier' },
@@ -85,25 +115,106 @@ export const SURVEY_QUESTIONS: Question[] = [
       { value: '66+', label: 'Plus de 66 ans' }
     ]
   },
-
-  // ==========================================
-  // 2. RELIGIOSITÉ INTRINSÈQUE (Huber Scale)
-  // ==========================================
   {
-    id: 'relig_frequence_perso',
-    category: 'religiosity',
-    text: "En dehors des cultes/messes, à quelle fréquence priez-vous ou méditez-vous ?",
+    id: 'profil_genre',
+    category: 'profile',
+    text: "Votre genre",
     type: 'choice',
     options: [
-      { value: 'quotidien', label: 'Tous les jours' },
-      { value: 'hebdo', label: 'Plusieurs fois par semaine' },
-      { value: 'occasionnel', label: 'Occasionnellement' },
-      { value: 'jamais', label: 'Jamais' }
+      { value: 'homme', label: 'Homme' },
+      { value: 'femme', label: 'Femme' },
+      { value: 'autre', label: 'Autre / Ne souhaite pas répondre' }
     ]
   },
 
   // ==========================================
-  // 3. MINISTÈRE & LEADERSHIP (SECTION DÉDIÉE CLERCS)
+  // BLOC 2: CRS-5 (Centrality of Religiosity Scale - Short Form)
+  // Huber & Huber (2012) - 5 dimensions clés
+  // ==========================================
+  {
+    id: 'crs_intellect',
+    category: 'religiosity',
+    text: "À quelle fréquence réfléchissez-vous à des questions religieuses ?",
+    type: 'choice',
+    options: [
+      { value: 'jamais', label: 'Jamais' },
+      { value: 'rarement', label: 'Rarement' },
+      { value: 'occasionnellement', label: 'Occasionnellement' },
+      { value: 'souvent', label: 'Souvent' },
+      { value: 'tres_souvent', label: 'Très souvent' }
+    ]
+  },
+  {
+    id: 'crs_ideology',
+    category: 'religiosity',
+    text: "Dans quelle mesure croyez-vous en l'existence de Dieu ou d'une réalité divine ?",
+    type: 'choice',
+    options: [
+      { value: 'pas_du_tout', label: 'Pas du tout' },
+      { value: 'peu', label: 'Un peu' },
+      { value: 'moderement', label: 'Modérément' },
+      { value: 'beaucoup', label: 'Beaucoup' },
+      { value: 'totalement', label: 'Totalement' }
+    ]
+  },
+  {
+    id: 'crs_public_practice',
+    category: 'religiosity',
+    text: "À quelle fréquence participez-vous à des offices religieux ?",
+    type: 'choice',
+    options: [
+      { value: 'jamais', label: 'Jamais' },
+      { value: 'quelques_fois_an', label: 'Quelques fois par an' },
+      { value: 'mensuel', label: 'Une à trois fois par mois' },
+      { value: 'hebdo', label: 'Une fois par semaine' },
+      { value: 'pluri_hebdo', label: 'Plus d\'une fois par semaine' }
+    ]
+  },
+  {
+    id: 'crs_private_practice',
+    category: 'religiosity',
+    text: "À quelle fréquence priez-vous en dehors des offices ?",
+    type: 'choice',
+    options: [
+      { value: 'jamais', label: 'Jamais' },
+      { value: 'rarement', label: 'Rarement' },
+      { value: 'occasionnellement', label: 'Occasionnellement' },
+      { value: 'quotidien', label: 'Quotidiennement' },
+      { value: 'pluri_quotidien', label: 'Plusieurs fois par jour' }
+    ]
+  },
+  {
+    id: 'crs_experience',
+    category: 'religiosity',
+    text: "À quelle fréquence vivez-vous des expériences où vous sentez la présence de Dieu ?",
+    type: 'choice',
+    options: [
+      { value: 'jamais', label: 'Jamais' },
+      { value: 'rarement', label: 'Rarement' },
+      { value: 'occasionnellement', label: 'Occasionnellement' },
+      { value: 'souvent', label: 'Souvent' },
+      { value: 'tres_souvent', label: 'Très souvent' }
+    ]
+  },
+
+  // ==========================================
+  // BLOC 3: ORIENTATION THÉOLOGIQUE
+  // ==========================================
+  {
+    id: 'theo_orientation',
+    category: 'theology',
+    text: "Comment situeriez-vous votre sensibilité théologique ?",
+    type: 'choice',
+    options: [
+      { value: 'traditionaliste', label: 'Traditionaliste / Conservateur' },
+      { value: 'modere', label: 'Modéré / Centriste' },
+      { value: 'progressiste', label: 'Progressiste / Libéral' },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas / Sans opinion' }
+    ]
+  },
+
+  // ==========================================
+  // BLOC 4: MINISTÈRE & LEADERSHIP (CLERGÉ UNIQUEMENT)
   // ==========================================
 
   // A. PRÉDICATION (HOMILÉTIQUE)
@@ -118,10 +229,7 @@ export const SURVEY_QUESTIONS: Question[] = [
       { value: 'regulier', label: 'Régulièrement (Comme assistant de recherche)' },
       { value: 'systematique', label: 'Systématiquement (Partie intégrante du workflow)' }
     ],
-    condition: (answers) => {
-      const statut = getStringAnswer(answers, 'profil_statut');
-      return ['clerge', 'religieux'].includes(statut);
-    }
+    condition: isClergy
   },
   {
     id: 'min_pred_nature',
@@ -134,11 +242,7 @@ export const SURVEY_QUESTIONS: Question[] = [
       { value: 'illustration', label: "La recherche d'illustrations / anecdotes" },
       { value: 'redaction', label: 'La rédaction de paragraphes entiers' }
     ],
-    condition: (answers) => {
-      const statut = getStringAnswer(answers, 'profil_statut');
-      const usage = getStringAnswer(answers, 'min_pred_usage');
-      return ['clerge', 'religieux'].includes(statut) && usage !== 'jamais';
-    }
+    condition: clergyUsesAI
   },
   {
     id: 'min_pred_sentiment',
@@ -146,7 +250,8 @@ export const SURVEY_QUESTIONS: Question[] = [
     text: "Ressentez-vous une forme de 'culpabilité' ou de gêne à utiliser l'IA pour une tâche spirituelle ?",
     type: 'scale',
     minLabel: "Aucune gêne (C'est un outil)",
-    maxLabel: "Forte culpabilité (Sentiment de triche)"
+    maxLabel: "Forte culpabilité (Sentiment de triche)",
+    condition: clergyUsesAI
   },
 
   // B. SOIN PASTORAL (CARE)
@@ -160,23 +265,36 @@ export const SURVEY_QUESTIONS: Question[] = [
       { value: 'oui_brouillon', label: 'Oui, pour un premier brouillon que je retravaille' },
       { value: 'oui_souvent', label: "Oui, cela me permet d'être plus réactif" }
     ],
-    condition: (answers) => {
-      const statut = getStringAnswer(answers, 'profil_statut');
-      return ['clerge', 'religieux'].includes(statut);
-    }
+    condition: isClergy
   },
+
+  // C. VISION & CHARGE ADMINISTRATIVE
   {
     id: 'min_admin_burden',
     category: 'ministry_vision',
     text: "Diriez-vous que l'IA vous libère du temps administratif pour vous consacrer davantage aux relations humaines ?",
     type: 'scale',
     minLabel: "Non, ça complique tout",
-    maxLabel: "Oui, c'est un libérateur"
+    maxLabel: "Oui, c'est un libérateur",
+    condition: isClergy
   },
 
   // ==========================================
-  // 4. USAGE LAÏC & SPIRITUALITÉ
+  // BLOC 5: USAGE LAÏC & SPIRITUALITÉ (LAÏCS UNIQUEMENT)
   // ==========================================
+  {
+    id: 'laic_usage_general',
+    category: 'usage',
+    text: "Utilisez-vous des outils d'IA (ChatGPT, Gemini, Claude...) dans votre vie quotidienne ?",
+    type: 'choice',
+    options: [
+      { value: 'jamais', label: 'Jamais' },
+      { value: 'rarement', label: 'Rarement' },
+      { value: 'regulierement', label: 'Régulièrement' },
+      { value: 'quotidien', label: 'Quotidiennement' }
+    ],
+    condition: isLayperson
+  },
   {
     id: 'laic_substitution_priere',
     category: 'spirituality',
@@ -187,14 +305,52 @@ export const SURVEY_QUESTIONS: Question[] = [
       { value: 'oui', label: "Oui, et c'était spirituellement porteur" },
       { value: 'oui_bof', label: "Oui, mais c'était creux / vide" }
     ],
-    condition: (answers) => {
-      const statut = getStringAnswer(answers, 'profil_statut');
-      return !['clerge', 'religieux'].includes(statut);
-    }
+    condition: isLayperson
+  },
+  {
+    id: 'laic_conseil_spirituel',
+    category: 'spirituality',
+    text: "Pourriez-vous imaginer demander un conseil spirituel à une IA plutôt qu'à un prêtre/pasteur ?",
+    type: 'choice',
+    options: [
+      { value: 'jamais', label: 'Jamais, cela me semble inapproprié' },
+      { value: 'complement', label: 'En complément, mais pas en remplacement' },
+      { value: 'oui_possible', label: 'Oui, pour certaines questions' },
+      { value: 'deja_fait', label: "Oui, je l'ai déjà fait" }
+    ],
+    condition: isLayperson
   },
 
   // ==========================================
-  // 5. THÉOLOGIE & ÉTHIQUE (POUR TOUS)
+  // BLOC 6: PSYCHOLOGIE - ANTHROPOMORPHISME & ANXIÉTÉ IA
+  // ==========================================
+  {
+    id: 'psych_anthropomorphisme',
+    category: 'psychology',
+    text: "Considérez-vous qu'une IA puisse avoir une forme de 'conscience' ou de 'personnalité' ?",
+    type: 'scale',
+    minLabel: "Impossible (Pure mécanique)",
+    maxLabel: "Possible (Forme d'intelligence)"
+  },
+  {
+    id: 'psych_imago_dei',
+    category: 'psychology',
+    text: "Selon vous, l'IA remet-elle en question ce qui fait la spécificité de l'être humain (créé à l'image de Dieu) ?",
+    type: 'scale',
+    minLabel: "Non, l'humain reste unique",
+    maxLabel: "Oui, cela questionne notre singularité"
+  },
+  {
+    id: 'psych_anxiete_remplacement',
+    category: 'psychology',
+    text: "Craignez-vous que l'IA puisse un jour remplacer certaines fonctions spirituelles humaines (prédication, accompagnement) ?",
+    type: 'scale',
+    minLabel: "Aucune crainte",
+    maxLabel: "Forte inquiétude"
+  },
+
+  // ==========================================
+  // BLOC 7: THÉOLOGIE & ÉTHIQUE (POUR TOUS)
   // ==========================================
   {
     id: 'theo_inspiration',
@@ -216,14 +372,63 @@ export const SURVEY_QUESTIONS: Question[] = [
       { value: 'aucune', label: "Je n'ai pas de crainte majeure" }
     ]
   },
+  {
+    id: 'theo_utilite_percue',
+    category: 'theology',
+    text: "Dans l'ensemble, pensez-vous que l'IA peut être un outil bénéfique pour la vie de l'Église ?",
+    type: 'scale',
+    minLabel: "Non, c'est un danger",
+    maxLabel: "Oui, c'est une opportunité"
+  },
 
   // ==========================================
-  // 6. CONTRÔLE (Marlowe-Crowne)
+  // BLOC 8: CONTRÔLE DÉSIRABILITÉ SOCIALE (Marlowe-Crowne Short Form)
+  // 5 items sélectionnés pour cohérence interne
   // ==========================================
   {
-    id: 'ctrl_sdb_resentment',
+    id: 'ctrl_mc_1',
     category: 'social_desirability',
-    text: "Vrai ou Faux : 'Je n'ai jamais éprouvé de ressentiment envers quelqu'un dont le comportement m'a déplu.'",
+    text: "Vrai ou Faux : 'Il m'est parfois difficile de continuer mon travail si je ne suis pas encouragé(e).'",
+    type: 'choice',
+    options: [
+      { value: 'true', label: 'Vrai' },
+      { value: 'false', label: 'Faux' }
+    ]
+  },
+  {
+    id: 'ctrl_mc_2',
+    category: 'social_desirability',
+    text: "Vrai ou Faux : 'Je n'ai jamais intensément détesté quelqu'un.'",
+    type: 'choice',
+    options: [
+      { value: 'true', label: 'Vrai' },
+      { value: 'false', label: 'Faux' }
+    ]
+  },
+  {
+    id: 'ctrl_mc_3',
+    category: 'social_desirability',
+    text: "Vrai ou Faux : 'J'ai parfois eu envie de me rebeller contre des personnes en position d'autorité même si je savais qu'elles avaient raison.'",
+    type: 'choice',
+    options: [
+      { value: 'true', label: 'Vrai' },
+      { value: 'false', label: 'Faux' }
+    ]
+  },
+  {
+    id: 'ctrl_mc_4',
+    category: 'social_desirability',
+    text: "Vrai ou Faux : 'Je suis toujours courtois(e), même avec des personnes désagréables.'",
+    type: 'choice',
+    options: [
+      { value: 'true', label: 'Vrai' },
+      { value: 'false', label: 'Faux' }
+    ]
+  },
+  {
+    id: 'ctrl_mc_5',
+    category: 'social_desirability',
+    text: "Vrai ou Faux : 'Il m'est arrivé de profiter de quelqu'un.'",
     type: 'choice',
     options: [
       { value: 'true', label: 'Vrai' },
