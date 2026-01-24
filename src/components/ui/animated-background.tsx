@@ -38,7 +38,7 @@ export function AnimatedBackground({
   const colors = orbColors[variant];
 
   return (
-    <div className={cn("relative min-h-screen overflow-hidden", className)}>
+    <div className={cn("relative min-h-screen w-full overflow-hidden bg-background", className)}>
       {/* Dot grid pattern */}
       {showGrid && (
         <div

@@ -76,16 +76,15 @@ html {
   scroll-behavior: smooth;
 }
 
+html,
 body {
-  background-color: transparent;
+  background-color: var(--background);
   color: var(--foreground);
   min-height: 100dvh;
   overflow-x: hidden;
-}
-
-/* Fallback background for pages without video */
-html {
-  background-color: var(--background);
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
 
 /* Focus visible for accessibility */
