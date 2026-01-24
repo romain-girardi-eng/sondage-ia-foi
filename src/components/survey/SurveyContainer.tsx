@@ -69,13 +69,19 @@ interface SurveyContainerProps {
 
 export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) {
   const { t, language, setLanguage } = useLanguage();
+  const hasInitializedLanguage = useRef(false);
 
-  // Set initial language from URL if provided
+  // Set initial language from URL ONLY on first mount (not on every language change)
   useEffect(() => {
-    if (initialLanguage && initialLanguage !== language) {
-      setLanguage(initialLanguage);
+    if (!hasInitializedLanguage.current && initialLanguage) {
+      hasInitializedLanguage.current = true;
+      // Only set if no saved preference exists in localStorage
+      const savedLang = localStorage.getItem("survey-language");
+      if (!savedLang) {
+        setLanguage(initialLanguage);
+      }
     }
-  }, [initialLanguage, language, setLanguage]);
+  }, [initialLanguage, setLanguage]);
   const [step, setStep] = useState<SurveyStep>(getInitialStep);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | number | string[]>>({});
