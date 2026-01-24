@@ -15,6 +15,22 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
 
   return (
     <AnimatedBackground variant="default" showGrid showOrbs>
+      {/* Background Video - fixed positioning to escape z-index stacking */}
+      <div className="fixed inset-0 overflow-hidden -z-10">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/landing-video.webm" type="video/webm" />
+          <source src="/landing-video.mp4" type="video/mp4" />
+        </video>
+        {/* Gradient overlay for readability */}
+        <div className="absolute inset-0 bg-background/60" />
+      </div>
+
       <LanguageSwitcher />
       <div className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 max-w-4xl mx-auto space-y-10 md:space-y-12 py-12">
         {/* Spotlight effect */}
