@@ -77,10 +77,15 @@ html {
 }
 
 body {
-  background-color: var(--background);
+  background-color: transparent;
   color: var(--foreground);
   min-height: 100dvh;
   overflow-x: hidden;
+}
+
+/* Fallback background for pages without video */
+html {
+  background-color: var(--background);
 }
 
 /* Focus visible for accessibility */

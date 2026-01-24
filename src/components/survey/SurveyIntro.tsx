@@ -14,24 +14,25 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
   const hasAnimated = useHasAnimated();
 
   return (
-    <AnimatedBackground variant="default" showGrid showOrbs>
-      {/* Background Video - fixed positioning to escape z-index stacking */}
-      <div className="fixed inset-0 overflow-hidden -z-10">
+    <>
+      {/* Background Video - OUTSIDE AnimatedBackground to avoid overflow:hidden clipping */}
+      <div className="fixed inset-0 -z-10">
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="absolute inset-0 w-full h-full object-cover"
+          className="w-full h-full object-cover"
         >
           <source src="/landing-video.webm" type="video/webm" />
           <source src="/landing-video.mp4" type="video/mp4" />
         </video>
-        {/* Gradient overlay for readability */}
-        <div className="absolute inset-0 bg-background/60" />
+        {/* Gradient overlay for readability - reduced opacity */}
+        <div className="absolute inset-0 bg-background/50" />
       </div>
 
-      <LanguageSwitcher />
+      <AnimatedBackground variant="default" showGrid showOrbs>
+        <LanguageSwitcher />
       <div className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 max-w-4xl mx-auto space-y-10 md:space-y-12 py-12">
         {/* Spotlight effect */}
         <Spotlight
@@ -180,5 +181,6 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
         </motion.footer>
       </div>
     </AnimatedBackground>
+    </>
   );
 }
