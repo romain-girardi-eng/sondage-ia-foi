@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
+import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase';
 import { surveySubmissionSchema } from '@/lib/validation';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rateLimit';
 
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if Supabase is configured
-    if (!isSupabaseConfigured) {
+    if (!isServiceRoleConfigured) {
       // In demo mode, just acknowledge the submission
       console.log('Demo mode: Survey submission received', { sessionId, answersCount: Object.keys(answers).length });
       return NextResponse.json(
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceRoleClient();
     if (!supabase) {
       return NextResponse.json(
         { success: true, responseId: 'demo-' + Date.now(), anonymousId, demo: true },
@@ -55,18 +55,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update session as complete
+    // First, ensure session exists (upsert)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any)
       .from('sessions')
-      .update({
+      .upsert({
+        id: sessionId,
+        anonymous_id: anonymousId,
         completed_at: new Date().toISOString(),
         is_complete: true,
         partial_answers: answers,
-      })
-      .eq('id', sessionId);
+      }, { onConflict: 'id' });
 
-    // Insert response
+    // Insert response (without session_id foreign key dependency)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('responses')
