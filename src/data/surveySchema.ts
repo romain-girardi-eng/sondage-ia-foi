@@ -299,7 +299,7 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'crs_experience',
     category: 'religiosity',
-    text: "À quelle fréquence vivez-vous des expériences où vous sentez la présence de Dieu ?",
+    text: "À quelle fréquence vivez-vous des moments de spiritualité profonde ?",
     type: 'choice',
     options: [
       { value: 'jamais', label: 'Jamais' },

@@ -22,7 +22,7 @@ export const questionTranslations = {
       crs_ideology: "Dans quelle mesure croyez-vous en l'existence de Dieu ou d'une réalité divine ?",
       crs_public_practice: "À quelle fréquence participez-vous à des offices religieux ?",
       crs_private_practice: "À quelle fréquence priez-vous en dehors des offices ?",
-      crs_experience: "À quelle fréquence vivez-vous des expériences où vous sentez la présence de Dieu ?",
+      crs_experience: "À quelle fréquence vivez-vous des moments de spiritualité profonde ?",
 
       // === THÉOLOGIE ===
       theo_orientation: "Comment situeriez-vous votre sensibilité théologique ?",
@@ -281,7 +281,7 @@ export const questionTranslations = {
       crs_ideology: "To what extent do you believe in the existence of God or a divine reality?",
       crs_public_practice: "How often do you participate in religious services?",
       crs_private_practice: "How often do you pray outside of services?",
-      crs_experience: "How often do you experience situations where you feel God's presence?",
+      crs_experience: "How often do you experience moments of deep spirituality?",
 
       // === THEOLOGY ===
       theo_orientation: "How would you describe your theological orientation?",
