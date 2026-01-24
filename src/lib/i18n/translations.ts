@@ -148,6 +148,22 @@ export const translations = {
       privacyLink: "Politique de confidentialité",
       termsLink: "Conditions d'utilisation",
     },
+
+    // Email Collection
+    email: {
+      title: "Recevez vos résultats",
+      subtitle: "Entrez votre email pour recevoir votre rapport personnalisé en PDF",
+      placeholder: "votre@email.com",
+      submit: "Recevoir mon rapport",
+      sending: "Envoi en cours...",
+      sent: "Email envoyé !",
+      duplicate: "Cet email a déjà été utilisé pour cette étude",
+      invalidEmail: "Veuillez entrer une adresse email valide",
+      error: "Une erreur est survenue. Veuillez réessayer.",
+      marketingConsent: "Recevoir les actualités de l'étude",
+      skipEmail: "Continuer sans email",
+      privacyNote: "Votre email est chiffré et ne sera utilisé que pour vous envoyer votre rapport.",
+    },
   },
 
   en: {
@@ -298,6 +314,22 @@ export const translations = {
       required: "Your consent is required to participate",
       privacyLink: "Privacy policy",
       termsLink: "Terms of use",
+    },
+
+    // Email Collection
+    email: {
+      title: "Get your results",
+      subtitle: "Enter your email to receive your personalized PDF report",
+      placeholder: "your@email.com",
+      submit: "Get my report",
+      sending: "Sending...",
+      sent: "Email sent!",
+      duplicate: "This email was already used for this study",
+      invalidEmail: "Please enter a valid email address",
+      error: "An error occurred. Please try again.",
+      marketingConsent: "Receive study updates",
+      skipEmail: "Continue without email",
+      privacyNote: "Your email is encrypted and will only be used to send your report.",
     },
   },
 } as const;

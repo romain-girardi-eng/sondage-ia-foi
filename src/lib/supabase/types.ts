@@ -76,6 +76,47 @@ export interface Database {
           is_complete?: boolean;
         };
       };
+      email_submissions: {
+        Row: {
+          id: string;
+          created_at: string;
+          email_hash: string;
+          email_encrypted: string;
+          email_iv: string;
+          response_id: string | null;
+          anonymous_id: string;
+          marketing_consent: boolean;
+          pdf_sent_at: string | null;
+          pdf_send_attempts: number;
+          last_error: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          email_hash: string;
+          email_encrypted: string;
+          email_iv: string;
+          response_id?: string | null;
+          anonymous_id: string;
+          marketing_consent?: boolean;
+          pdf_sent_at?: string | null;
+          pdf_send_attempts?: number;
+          last_error?: string | null;
+        };
+        Update: {
+          id?: string;
+          created_at?: string;
+          email_hash?: string;
+          email_encrypted?: string;
+          email_iv?: string;
+          response_id?: string | null;
+          anonymous_id?: string;
+          marketing_consent?: boolean;
+          pdf_sent_at?: string | null;
+          pdf_send_attempts?: number;
+          last_error?: string | null;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
@@ -91,5 +132,7 @@ export interface Database {
 
 export type Response = Database['public']['Tables']['responses']['Row'];
 export type Session = Database['public']['Tables']['sessions']['Row'];
+export type EmailSubmission = Database['public']['Tables']['email_submissions']['Row'];
 export type InsertResponse = Database['public']['Tables']['responses']['Insert'];
 export type InsertSession = Database['public']['Tables']['sessions']['Insert'];
+export type InsertEmailSubmission = Database['public']['Tables']['email_submissions']['Insert'];

@@ -9,11 +9,12 @@ import { SurveyIntroShader } from "./SurveyIntroShader";
 import { QuestionCard } from "./QuestionCard";
 import { FeedbackScreen } from "./FeedbackScreen";
 import { ThankYouScreen } from "./ThankYouScreen";
+import { EmailCollectionScreen } from "./EmailCollectionScreen";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Save, RotateCcw, PlayCircle } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
-type SurveyStep = "intro" | "questions" | "feedback" | "thanks" | "results";
+type SurveyStep = "intro" | "questions" | "email" | "feedback" | "thanks" | "results";
 
 const STORAGE_KEY = "survey-progress";
 const SESSION_KEY = "survey-session";
@@ -34,6 +35,7 @@ function getInitialStep(): SurveyStep {
     if (view === "results") return "results";
     if (view === "feedback") return "feedback";
     if (view === "thanks") return "thanks";
+    if (view === "email") return "email";
   }
   return "intro";
 }
@@ -81,6 +83,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   const [savedProgress, setSavedProgress] = useState<SavedProgress | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
+  const [responseId, setResponseId] = useState<string | undefined>();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const sessionId = useRef<string>("");
@@ -196,7 +199,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
       // Submit to API if consent given
       if (consentGiven) {
         try {
-          await fetch("/api/survey/submit", {
+          const response = await fetch("/api/survey/submit", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -211,12 +214,19 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
               anonymousId: anonymousId.current,
             }),
           });
+
+          // Store response ID for email submission
+          const data = await response.json();
+          if (data.id) {
+            setResponseId(data.id);
+          }
         } catch (error) {
           console.error("Failed to submit survey:", error);
         }
       }
 
-      setStep("feedback");
+      // Go to email collection step instead of feedback
+      setStep("email");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       setCurrentIndex((prev) => prev + 1);
@@ -228,6 +238,16 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
       setCurrentIndex((prev) => prev - 1);
     }
   }, [currentIndex]);
+
+  const handleEmailSuccess = useCallback(() => {
+    setStep("feedback");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  const handleEmailSkip = useCallback(() => {
+    setStep("feedback");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const handleFeedbackContinue = useCallback(() => {
     setStep("thanks");
@@ -295,6 +315,21 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
         onConsentChange={setConsentGiven}
         consentGiven={consentGiven}
       />
+    );
+  }
+
+  // Email collection screen
+  if (step === "email") {
+    return (
+      <div className="w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <EmailCollectionScreen
+          answers={answers}
+          anonymousId={anonymousId.current}
+          responseId={responseId}
+          onSuccess={handleEmailSuccess}
+          onSkip={handleEmailSkip}
+        />
+      </div>
     );
   }
 
