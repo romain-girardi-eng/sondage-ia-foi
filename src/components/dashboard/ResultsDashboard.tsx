@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { SURVEY_QUESTIONS, type Question } from "@/data";
 import { getMockResults, type AggregatedResult, useLanguage } from "@/lib";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import { motion, useInView, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import {
   RefreshCw,
   Users,
@@ -13,57 +13,81 @@ import {
   BarChart3,
   PieChart as PieChartIcon,
   Filter,
+  Zap,
+  Target,
+  Award,
+  ArrowRight,
+  Brain,
+  Heart,
+  Church,
 } from "lucide-react";
 import { cn } from "@/lib";
 
 // Modern color palette
 const COLORS = [
-  { bg: "from-blue-500 to-blue-600", text: "text-blue-400", glow: "shadow-blue-500/20" },
-  { bg: "from-emerald-500 to-emerald-600", text: "text-emerald-400", glow: "shadow-emerald-500/20" },
-  { bg: "from-amber-500 to-amber-600", text: "text-amber-400", glow: "shadow-amber-500/20" },
-  { bg: "from-rose-500 to-rose-600", text: "text-rose-400", glow: "shadow-rose-500/20" },
-  { bg: "from-violet-500 to-violet-600", text: "text-violet-400", glow: "shadow-violet-500/20" },
-  { bg: "from-cyan-500 to-cyan-600", text: "text-cyan-400", glow: "shadow-cyan-500/20" },
+  { bg: "from-blue-500 to-blue-600", text: "text-blue-400", glow: "shadow-blue-500/20", hex: "#3b82f6" },
+  { bg: "from-emerald-500 to-emerald-600", text: "text-emerald-400", glow: "shadow-emerald-500/20", hex: "#10b981" },
+  { bg: "from-amber-500 to-amber-600", text: "text-amber-400", glow: "shadow-amber-500/20", hex: "#f59e0b" },
+  { bg: "from-rose-500 to-rose-600", text: "text-rose-400", glow: "shadow-rose-500/20", hex: "#f43f5e" },
+  { bg: "from-violet-500 to-violet-600", text: "text-violet-400", glow: "shadow-violet-500/20", hex: "#8b5cf6" },
+  { bg: "from-cyan-500 to-cyan-600", text: "text-cyan-400", glow: "shadow-cyan-500/20", hex: "#06b6d4" },
 ];
 
-const FLAT_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#f43f5e", "#8b5cf6", "#06b6d4"];
-
-// Animated counter hook with proper cleanup
-function useAnimatedCounter(end: number, duration: number = 1500, delay: number = 0) {
-  const [count, setCount] = useState(0);
+// Animated counter with spring physics
+function AnimatedNumber({ value, duration = 2 }: { value: number; duration?: number }) {
+  const motionValue = useMotionValue(0);
+  const rounded = useTransform(motionValue, (v) => Math.round(v));
+  const [displayValue, setDisplayValue] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
-  const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!isInView) return;
+    if (isInView) {
+      const controls = animate(motionValue, value, {
+        duration,
+        ease: [0.32, 0.72, 0, 1],
+      });
+      return controls.stop;
+    }
+  }, [isInView, motionValue, value, duration]);
 
-    const timeout = setTimeout(() => {
-      let startTime: number;
-      const animate = (currentTime: number) => {
-        if (!startTime) startTime = currentTime;
-        const progress = Math.min((currentTime - startTime) / duration, 1);
-        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-        setCount(Math.floor(easeOutQuart * end));
-        if (progress < 1) {
-          animationFrameRef.current = requestAnimationFrame(animate);
-        }
-      };
-      animationFrameRef.current = requestAnimationFrame(animate);
-    }, delay);
+  useEffect(() => {
+    const unsubscribe = rounded.on("change", setDisplayValue);
+    return unsubscribe;
+  }, [rounded]);
 
-    return () => {
-      clearTimeout(timeout);
-      if (animationFrameRef.current !== null) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [end, duration, delay, isInView]);
-
-  return { count, ref };
+  return <span ref={ref}>{displayValue.toLocaleString()}</span>;
 }
 
-// Animated circular progress component
+// Floating particles background
+function FloatingParticles() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(20)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1 h-1 bg-white/10 rounded-full"
+          initial={{
+            x: Math.random() * 100 + "%",
+            y: Math.random() * 100 + "%",
+          }}
+          animate={{
+            y: [null, "-20%", "120%"],
+            opacity: [0, 1, 0],
+          }}
+          transition={{
+            duration: Math.random() * 10 + 10,
+            repeat: Infinity,
+            delay: Math.random() * 5,
+            ease: "linear",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Animated circular progress component with glow
 function CircularProgress({
   percentage,
   size = 120,
@@ -71,6 +95,7 @@ function CircularProgress({
   color,
   delay = 0,
   children,
+  showGlow = true,
 }: {
   percentage: number;
   size?: number;
@@ -78,10 +103,10 @@ function CircularProgress({
   color: string;
   delay?: number;
   children?: React.ReactNode;
+  showGlow?: boolean;
 }) {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
-  const ref = useRef<SVGCircleElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true });
   const [offset, setOffset] = useState(circumference);
@@ -96,8 +121,13 @@ function CircularProgress({
 
   return (
     <div ref={containerRef} className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="transform -rotate-90">
-        {/* Background circle */}
+      {showGlow && (
+        <div
+          className="absolute inset-0 rounded-full blur-xl opacity-30 transition-opacity duration-1000"
+          style={{ backgroundColor: color }}
+        />
+      )}
+      <svg width={size} height={size} className="transform -rotate-90 relative z-10">
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -107,9 +137,7 @@ function CircularProgress({
           strokeWidth={strokeWidth}
           className="text-white/5"
         />
-        {/* Progress circle */}
         <circle
-          ref={ref}
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -120,192 +148,200 @@ function CircularProgress({
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           className="transition-all duration-1000 ease-out"
-          style={{ filter: `drop-shadow(0 0 6px ${color}40)` }}
+          style={{ filter: `drop-shadow(0 0 8px ${color}60)` }}
         />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center z-20">
         {children}
       </div>
     </div>
   );
 }
 
-// Modern horizontal bar component
-function HorizontalBar({
-  label,
+// Key insight card with animation
+function InsightCard({
+  icon: Icon,
+  title,
   value,
-  total,
+  subtitle,
   color,
-  index,
-  maxValue,
+  delay = 0,
 }: {
-  label: string;
-  value: number;
-  total: number;
-  color: typeof COLORS[0];
-  index: number;
-  maxValue: number;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  title: string;
+  value: string | number | React.ReactNode;
+  subtitle: string;
+  color: string;
+  delay?: number;
 }) {
-  const percentage = (value / total) * 100;
-  const widthPercentage = (value / maxValue) * 100;
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
-
   return (
     <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: -20 }}
-      animate={isInView ? { opacity: 1, x: 0 } : {}}
-      transition={{ delay: index * 0.08, duration: 0.5 }}
-      className="group"
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay, duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
+      whileHover={{ y: -5, scale: 1.02 }}
+      className="relative group"
     >
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-white/80 truncate max-w-[70%] group-hover:text-white transition-colors">
-          {label}
-        </span>
-        <div className="flex items-center gap-2">
-          <span className={cn("text-sm font-semibold", color.text)}>
-            {percentage.toFixed(1)}%
-          </span>
-          <span className="text-xs text-white/40">({value})</span>
-        </div>
-      </div>
-      <div className="h-3 bg-white/5 rounded-full overflow-hidden backdrop-blur-sm">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={isInView ? { width: `${widthPercentage}%` } : {}}
-          transition={{ delay: index * 0.08 + 0.2, duration: 0.8, ease: "easeOut" }}
-          className={cn(
-            "h-full rounded-full bg-gradient-to-r",
-            color.bg,
-            "shadow-lg",
-            color.glow
-          )}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="relative p-6 rounded-3xl bg-gradient-to-br from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-xl overflow-hidden">
+        {/* Decorative gradient */}
+        <div
+          className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"
+          style={{ backgroundColor: color }}
         />
+
+        <div className="relative z-10">
+          <div
+            className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
+            style={{ backgroundColor: `${color}20` }}
+          >
+            <Icon className="w-6 h-6" style={{ color: color }} />
+          </div>
+
+          <p className="text-xs text-white/50 uppercase tracking-wider mb-1">{title}</p>
+          <p className="text-3xl font-bold text-white mb-1">{value}</p>
+          <p className="text-sm text-white/60">{subtitle}</p>
+        </div>
       </div>
     </motion.div>
   );
 }
 
-// Radial chart for choice questions
-function RadialChart({
+// Animated bar chart
+function AnimatedBarChart({
   data,
-  total,
-  language,
+  maxValue,
+  color,
 }: {
-  data: { name: string; value: number; fullName: string }[];
-  total: number;
-  language: "fr" | "en";
+  data: { name: string; value: number; percentage: number }[];
+  maxValue: number;
+  color: typeof COLORS[0];
 }) {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, { once: true });
-
-  // Calculate the dominant response
-  const maxEntry = data.reduce((max, entry) => entry.value > max.value ? entry : max, data[0]);
-  const maxPercentage = (maxEntry.value / total) * 100;
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-6">
-      {/* Central radial visualization */}
-      <div className="relative">
-        <CircularProgress
-          percentage={maxPercentage}
-          size={140}
-          strokeWidth={10}
-          color={FLAT_COLORS[0]}
-          delay={200}
+    <div ref={ref} className="space-y-4">
+      {data.slice(0, 5).map((item, index) => (
+        <motion.div
+          key={item.name}
+          initial={{ opacity: 0, x: -30 }}
+          animate={isInView ? { opacity: 1, x: 0 } : {}}
+          transition={{ delay: index * 0.1, duration: 0.5 }}
+          className="group"
         >
-          <div className="text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={isInView ? { scale: 1 } : {}}
-              transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-              className="text-3xl font-bold text-white"
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-white/70 truncate max-w-[60%] group-hover:text-white transition-colors">
+              {item.name}
+            </span>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : {}}
+              transition={{ delay: index * 0.1 + 0.3 }}
+              className={cn("text-sm font-bold", color.text)}
             >
-              {maxPercentage.toFixed(0)}%
-            </motion.div>
-            <div className="text-[10px] text-white/50 uppercase tracking-wider mt-1">
-              {language === "fr" ? "Majoritaire" : "Majority"}
-            </div>
+              {item.percentage.toFixed(1)}%
+            </motion.span>
           </div>
-        </CircularProgress>
-
-        {/* Floating indicators */}
-        {data.slice(0, 4).map((entry, idx) => {
-          const angle = (idx / 4) * Math.PI * 2 - Math.PI / 2;
-          const radius = 90;
-          const x = Math.cos(angle) * radius;
-          const y = Math.sin(angle) * radius;
-          const percentage = (entry.value / total) * 100;
-
-          return (
+          <div className="relative h-3 bg-white/5 rounded-full overflow-hidden">
             <motion.div
-              key={idx}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ delay: 0.6 + idx * 0.1, type: "spring" }}
-              className="absolute"
-              style={{
-                left: `calc(50% + ${x}px - 16px)`,
-                top: `calc(50% + ${y}px - 16px)`,
-              }}
-              onMouseEnter={() => setHoveredIndex(idx)}
-              onMouseLeave={() => setHoveredIndex(null)}
-            >
-              <div
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white cursor-pointer transition-all duration-300",
-                  "bg-gradient-to-br",
-                  COLORS[idx % COLORS.length].bg,
-                  hoveredIndex === idx ? "scale-125 shadow-lg" : "scale-100"
-                )}
-              >
-                {percentage.toFixed(0)}
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Legend */}
-      <div className="w-full space-y-2 max-h-[180px] overflow-y-auto scrollbar-thin">
-        {data.map((entry, idx) => {
-          const percentage = (entry.value / total) * 100;
-          return (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 10 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.8 + idx * 0.05 }}
+              initial={{ width: 0 }}
+              animate={isInView ? { width: `${(item.value / maxValue) * 100}%` } : {}}
+              transition={{ delay: index * 0.1 + 0.2, duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
               className={cn(
-                "flex items-center gap-3 p-2 rounded-lg transition-all duration-200",
-                hoveredIndex === idx ? "bg-white/10" : "hover:bg-white/5"
+                "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r",
+                color.bg
               )}
-              onMouseEnter={() => setHoveredIndex(idx)}
-              onMouseLeave={() => setHoveredIndex(null)}
             >
-              <div
-                className={cn(
-                  "w-3 h-3 rounded-full bg-gradient-to-br shrink-0",
-                  COLORS[idx % COLORS.length].bg
-                )}
+              <motion.div
+                className="absolute inset-0 bg-white/20"
+                initial={{ x: "-100%" }}
+                animate={isInView ? { x: "100%" } : {}}
+                transition={{ delay: index * 0.1 + 0.5, duration: 0.8 }}
               />
-              <span className="text-xs text-white/70 truncate flex-1" title={entry.fullName}>
-                {entry.name}
-              </span>
-              <span className={cn("text-xs font-semibold", COLORS[idx % COLORS.length].text)}>
-                {percentage.toFixed(1)}%
-              </span>
             </motion.div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+// Modern donut chart
+function DonutChart({
+  data,
+  total,
+  size = 160,
+}: {
+  data: { name: string; value: number; color: string }[];
+  total: number;
+  size?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true });
+  const strokeWidth = 24;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+
+  let currentOffset = 0;
+
+  return (
+    <div ref={ref} className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="transform -rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          className="text-white/5"
+        />
+        {data.map((segment, index) => {
+          const segmentPercentage = (segment.value / total) * 100;
+          const segmentLength = (segmentPercentage / 100) * circumference;
+          const offset = currentOffset;
+          currentOffset += segmentLength;
+
+          return (
+            <motion.circle
+              key={index}
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke={segment.color}
+              strokeWidth={strokeWidth}
+              strokeLinecap="round"
+              strokeDasharray={`${segmentLength} ${circumference - segmentLength}`}
+              strokeDashoffset={-offset}
+              initial={{ opacity: 0, strokeDasharray: `0 ${circumference}` }}
+              animate={isInView ? {
+                opacity: 1,
+                strokeDasharray: `${segmentLength} ${circumference - segmentLength}`,
+              } : {}}
+              transition={{ delay: index * 0.15 + 0.3, duration: 0.8, ease: "easeOut" }}
+              style={{ filter: `drop-shadow(0 0 6px ${segment.color}40)` }}
+            />
           );
         })}
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <motion.span
+          initial={{ scale: 0 }}
+          animate={isInView ? { scale: 1 } : {}}
+          transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+          className="text-3xl font-bold text-white"
+        >
+          {total}
+        </motion.span>
+        <span className="text-xs text-white/50">réponses</span>
       </div>
     </div>
   );
 }
 
-// Scale visualization component
+// Scale visualization with animated bars
 function ScaleVisualization({
   data,
   question,
@@ -318,73 +354,87 @@ function ScaleVisualization({
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
 
-  // Calculate weighted average
   const weightedSum = data.reduce((sum, entry, idx) => {
     const numValue = parseInt(entry.name) || idx + 1;
     return sum + numValue * entry.value;
   }, 0);
   const average = weightedSum / total;
-
-  // Find max for scaling
   const maxValue = Math.max(...data.map((d) => d.value));
+
+  const getBarColor = (index: number) => {
+    const colors = ["#ef4444", "#f97316", "#eab308", "#84cc16", "#22c55e"];
+    return colors[index] || colors[0];
+  };
 
   return (
     <div ref={ref} className="space-y-6">
-      {/* Average indicator */}
-      <div className="flex items-center justify-center gap-4">
+      {/* Average score */}
+      <div className="flex items-center justify-center">
         <CircularProgress
           percentage={(average / 5) * 100}
-          size={100}
-          strokeWidth={8}
-          color={average >= 3.5 ? "#10b981" : average >= 2.5 ? "#f59e0b" : "#ef4444"}
+          size={120}
+          strokeWidth={10}
+          color={average >= 3.5 ? "#22c55e" : average >= 2.5 ? "#eab308" : "#ef4444"}
           delay={200}
         >
           <div className="text-center">
-            <div className="text-2xl font-bold text-white">{average.toFixed(1)}</div>
-            <div className="text-[9px] text-white/50">/5</div>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={isInView ? { scale: 1 } : {}}
+              transition={{ delay: 0.5, type: "spring" }}
+              className="text-3xl font-bold text-white"
+            >
+              {average.toFixed(1)}
+            </motion.div>
+            <div className="text-xs text-white/50">/5</div>
           </div>
         </CircularProgress>
       </div>
 
-      {/* Scale bars */}
-      <div className="flex items-end justify-center gap-2 h-32">
+      {/* Distribution bars */}
+      <div className="flex items-end justify-center gap-3 h-28">
         {data.map((entry, idx) => {
           const percentage = (entry.value / maxValue) * 100;
+          const color = getBarColor(idx);
+
           return (
             <motion.div
               key={idx}
-              className="flex flex-col items-center gap-2 flex-1 max-w-16"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              className="flex flex-col items-center gap-2 flex-1 max-w-14"
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : {}}
               transition={{ delay: idx * 0.1 }}
             >
-              <motion.div
-                className="w-full rounded-t-lg bg-gradient-to-t from-blue-600 to-blue-400 relative overflow-hidden group cursor-pointer"
-                initial={{ height: 0 }}
-                animate={isInView ? { height: `${Math.max(percentage, 10)}%` } : {}}
-                transition={{ delay: idx * 0.1 + 0.3, duration: 0.6, ease: "easeOut" }}
-                style={{ minHeight: "20px" }}
-              >
-                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative w-full h-full flex items-end">
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={isInView ? { opacity: 1 } : {}}
-                  transition={{ delay: idx * 0.1 + 0.8 }}
-                  className="absolute inset-x-0 top-1 text-center text-[10px] font-bold text-white"
+                  className="w-full rounded-t-xl relative overflow-hidden cursor-pointer group"
+                  initial={{ height: 0 }}
+                  animate={isInView ? { height: `${Math.max(percentage, 15)}%` } : {}}
+                  transition={{ delay: idx * 0.1 + 0.3, duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
+                  style={{ backgroundColor: color, minHeight: "24px" }}
+                  whileHover={{ scale: 1.05 }}
                 >
-                  {((entry.value / total) * 100).toFixed(0)}%
+                  <div className="absolute inset-0 bg-white/0 group-hover:bg-white/20 transition-colors" />
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={isInView ? { opacity: 1 } : {}}
+                    transition={{ delay: idx * 0.1 + 0.6 }}
+                    className="absolute inset-x-0 top-1.5 text-center text-xs font-bold text-white"
+                  >
+                    {((entry.value / total) * 100).toFixed(0)}%
+                  </motion.span>
                 </motion.div>
-              </motion.div>
-              <span className="text-sm font-medium text-white/60">{entry.name}</span>
+              </div>
+              <span className="text-base font-semibold text-white/70">{entry.name}</span>
             </motion.div>
           );
         })}
       </div>
 
       {/* Labels */}
-      <div className="flex justify-between text-[10px] text-white/40 px-1">
-        <span className="max-w-[40%] truncate">{question.minLabel}</span>
-        <span className="max-w-[40%] truncate text-right">{question.maxLabel}</span>
+      <div className="flex justify-between text-xs text-white/40 px-2">
+        <span>{question.minLabel}</span>
+        <span className="text-right">{question.maxLabel}</span>
       </div>
     </div>
   );
@@ -392,12 +442,12 @@ function ScaleVisualization({
 
 // Category filter pills
 const CATEGORIES = [
-  { id: "all", label: "Tous", labelEn: "All" },
-  { id: "profile", label: "Profil", labelEn: "Profile" },
-  { id: "religiosity", label: "Religiosité", labelEn: "Religiosity" },
-  { id: "usage", label: "Usage IA", labelEn: "AI Usage" },
-  { id: "theology", label: "Théologie", labelEn: "Theology" },
-  { id: "psychology", label: "Psychologie", labelEn: "Psychology" },
+  { id: "all", label: "Tous", labelEn: "All", icon: Sparkles },
+  { id: "profile", label: "Profil", labelEn: "Profile", icon: Users },
+  { id: "religiosity", label: "Religiosité", labelEn: "Religiosity", icon: Church },
+  { id: "usage", label: "Usage IA", labelEn: "AI Usage", icon: Brain },
+  { id: "theology", label: "Théologie", labelEn: "Theology", icon: Heart },
+  { id: "psychology", label: "Psychologie", labelEn: "Psychology", icon: Target },
 ];
 
 export function ResultsDashboard() {
@@ -407,13 +457,11 @@ export function ResultsDashboard() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
-  const { count: participantCount, ref: countRef } = useAnimatedCounter(1543, 2000, 500);
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setResults(getMockResults());
       setIsLoading(false);
-    }, 1200);
+    }, 1500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -435,136 +483,227 @@ export function ResultsDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+      <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8">
         <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="relative w-16 h-16"
-        >
-          <div className="absolute inset-0 rounded-full border-2 border-blue-500/20" />
-          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-500" />
-        </motion.div>
-        <motion.p
+          className="relative w-24 h-24"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-white/60 font-light"
         >
-          {language === "fr" ? "Analyse des données en cours..." : "Analyzing data..."}
-        </motion.p>
+          {/* Outer ring */}
+          <motion.div
+            className="absolute inset-0 rounded-full border-2 border-blue-500/20"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+          />
+          {/* Middle ring */}
+          <motion.div
+            className="absolute inset-2 rounded-full border-2 border-purple-500/30"
+            animate={{ rotate: -360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          />
+          {/* Inner ring */}
+          <motion.div
+            className="absolute inset-4 rounded-full border-2 border-transparent border-t-blue-500 border-r-purple-500"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+          {/* Center dot */}
+          <motion.div
+            className="absolute inset-0 m-auto w-4 h-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="text-center space-y-2"
+        >
+          <p className="text-white/80 font-medium">
+            {language === "fr" ? "Analyse des données" : "Analyzing data"}
+          </p>
+          <p className="text-white/40 text-sm">
+            {language === "fr" ? "Préparation des visualisations..." : "Preparing visualizations..."}
+          </p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 pb-20 space-y-10">
-      {/* Hero Header */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-6 pt-8"
+    <div className="relative w-full max-w-7xl mx-auto px-4 pb-20">
+      <FloatingParticles />
+
+      {/* Hero Section */}
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="relative pt-8 pb-12 space-y-8"
       >
+        {/* Badge */}
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-white/10"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex justify-center"
         >
-          <Sparkles className="w-4 h-4 text-purple-400" />
-          <span className="text-sm text-white/70">
-            {language === "fr" ? "Résultats de l'étude" : "Study Results"}
-          </span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-white/10 backdrop-blur-sm">
+            <motion.div
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            >
+              <Sparkles className="w-4 h-4 text-purple-400" />
+            </motion.div>
+            <span className="text-sm text-white/70">
+              {language === "fr" ? "Résultats en temps réel" : "Real-time results"}
+            </span>
+          </div>
         </motion.div>
 
-        <h1 className="text-4xl md:text-6xl font-extralight tracking-tight">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-purple-200">
-            {language === "fr" ? "Visualisation des Données" : "Data Visualization"}
-          </span>
-        </h1>
-
-        <p className="text-white/50 max-w-xl mx-auto text-lg font-light">
-          {language === "fr"
-            ? "Explorez les tendances et insights de notre communauté de participants"
-            : "Explore trends and insights from our participant community"}
-        </p>
-
-        {/* Stats Row */}
+        {/* Title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="flex flex-wrap items-center justify-center gap-6 pt-4"
+          transition={{ delay: 0.1 }}
+          className="text-center space-y-4"
         >
-          <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-            <div className="p-2 rounded-xl bg-blue-500/10">
-              <Users className="w-5 h-5 text-blue-400" />
-            </div>
-            <div className="text-left">
-              <div className="text-2xl font-bold text-white">
-                <span ref={countRef}>{participantCount.toLocaleString()}</span>
-              </div>
-              <div className="text-xs text-white/50">
-                {language === "fr" ? "Participants" : "Participants"}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-            <div className="p-2 rounded-xl bg-emerald-500/10">
-              <BarChart3 className="w-5 h-5 text-emerald-400" />
-            </div>
-            <div className="text-left">
-              <div className="text-2xl font-bold text-white">{filteredQuestions.length}</div>
-              <div className="text-xs text-white/50">
-                {language === "fr" ? "Questions analysées" : "Questions analyzed"}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-            <div className="p-2 rounded-xl bg-amber-500/10">
-              <TrendingUp className="w-5 h-5 text-amber-400" />
-            </div>
-            <div className="text-left">
-              <div className="text-2xl font-bold text-white">
-                {language === "fr" ? "Simulées" : "Simulated"}
-              </div>
-              <div className="text-xs text-white/50">
-                {language === "fr" ? "Données de démo" : "Demo data"}
-              </div>
-            </div>
-          </div>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extralight tracking-tight">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-purple-200">
+              {language === "fr" ? "Tableau de Bord" : "Dashboard"}
+            </span>
+          </h1>
+          <p className="text-white/50 max-w-2xl mx-auto text-lg font-light">
+            {language === "fr"
+              ? "Explorez les tendances et découvrez les insights de notre communauté"
+              : "Explore trends and discover insights from our community"}
+          </p>
         </motion.div>
-      </motion.header>
+
+        {/* Key Insights Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-6">
+          <InsightCard
+            icon={Users}
+            title={language === "fr" ? "Participants" : "Participants"}
+            value={<AnimatedNumber value={1543} />}
+            subtitle={language === "fr" ? "réponses collectées" : "responses collected"}
+            color="#3b82f6"
+            delay={0.2}
+          />
+          <InsightCard
+            icon={Church}
+            title={language === "fr" ? "Catholiques" : "Catholics"}
+            value="67%"
+            subtitle={language === "fr" ? "confession majoritaire" : "majority denomination"}
+            color="#8b5cf6"
+            delay={0.3}
+          />
+          <InsightCard
+            icon={Zap}
+            title={language === "fr" ? "Utilisateurs IA" : "AI Users"}
+            value="42%"
+            subtitle={language === "fr" ? "utilisent l'IA régulièrement" : "use AI regularly"}
+            color="#10b981"
+            delay={0.4}
+          />
+          <InsightCard
+            icon={Award}
+            title={language === "fr" ? "Score moyen" : "Average score"}
+            value="3.8/5"
+            subtitle={language === "fr" ? "religiosité CRS-5" : "CRS-5 religiosity"}
+            color="#f59e0b"
+            delay={0.5}
+          />
+        </div>
+      </motion.section>
+
+      {/* Highlight Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="relative mb-12"
+      >
+        <div className="relative p-8 rounded-3xl bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent border border-white/10 backdrop-blur-xl overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8">
+            <div className="flex-1 space-y-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-emerald-400" />
+                <span className="text-sm text-emerald-400 font-medium">
+                  {language === "fr" ? "Insight principal" : "Key insight"}
+                </span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-light text-white">
+                {language === "fr"
+                  ? "42% des chrétiens pratiquants utilisent déjà l'IA dans leur quotidien"
+                  : "42% of practicing Christians already use AI in their daily lives"}
+              </h2>
+              <p className="text-white/60">
+                {language === "fr"
+                  ? "Mais seulement 12% l'ont utilisée dans un contexte spirituel. Cette tension révèle une résistance spécifique au domaine religieux."
+                  : "But only 12% have used it in a spiritual context. This tension reveals a specific resistance in the religious domain."}
+              </p>
+              <motion.button
+                whileHover={{ x: 5 }}
+                className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                <span>{language === "fr" ? "Explorer les données" : "Explore data"}</span>
+                <ArrowRight className="w-4 h-4" />
+              </motion.button>
+            </div>
+
+            <div className="flex-shrink-0">
+              <DonutChart
+                data={[
+                  { name: "IA général", value: 42, color: "#3b82f6" },
+                  { name: "IA spirituel", value: 12, color: "#8b5cf6" },
+                  { name: "Non utilisateurs", value: 46, color: "#374151" },
+                ]}
+                total={100}
+                size={180}
+              />
+            </div>
+          </div>
+        </div>
+      </motion.section>
 
       {/* Category Filter */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="flex items-center justify-center gap-2 flex-wrap"
+        transition={{ delay: 0.7 }}
+        className="flex items-center justify-center gap-2 flex-wrap mb-10"
       >
-        <Filter className="w-4 h-4 text-white/40 mr-2" />
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setSelectedCategory(cat.id)}
-            className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
-              selectedCategory === cat.id
-                ? "bg-white text-slate-900 shadow-lg shadow-white/10"
-                : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/10"
-            )}
-          >
-            {language === "fr" ? cat.label : cat.labelEn}
-          </button>
-        ))}
+        {CATEGORIES.map((cat, index) => {
+          const Icon = cat.icon;
+          return (
+            <motion.button
+              key={cat.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.7 + index * 0.05 }}
+              onClick={() => setSelectedCategory(cat.id)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all duration-300",
+                selectedCategory === cat.id
+                  ? "bg-white text-slate-900 shadow-lg shadow-white/20"
+                  : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/10"
+              )}
+            >
+              <Icon className="w-4 h-4" />
+              {language === "fr" ? cat.label : cat.labelEn}
+            </motion.button>
+          );
+        })}
       </motion.div>
 
       {/* Charts Grid */}
-      <motion.div
-        layout
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-      >
+      <motion.div layout className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AnimatePresence mode="sync">
           {filteredQuestions.map((question, index) => {
             const data = results.find((r) => r.questionId === question.id);
@@ -589,21 +728,26 @@ export function ResultsDashboard() {
       <motion.footer
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="text-center pt-12 space-y-6"
+        transition={{ delay: 1 }}
+        className="text-center pt-16 space-y-6"
       >
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => window.location.reload()}
-          className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-medium transition-all duration-300 border border-white/10 hover:border-white/20 hover:scale-[1.02]"
+          className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20 text-white font-medium transition-all duration-300 border border-white/10 hover:border-white/20"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="w-5 h-5" />
           <span>{language === "fr" ? "Recommencer le sondage" : "Restart survey"}</span>
-        </button>
+        </motion.button>
 
-        <p className="text-xs text-white/30">
+        <p className="text-sm text-white/30">
           {language === "fr"
             ? "Merci pour votre contribution à cette recherche académique."
             : "Thank you for your contribution to this academic research."}
+        </p>
+        <p className="text-xs text-white/20">
+          {language === "fr" ? "Étude menée par Romain Girardi" : "Study conducted by Romain Girardi"}
         </p>
       </motion.footer>
     </div>
@@ -629,7 +773,7 @@ function ModernChartCard({ question, data, index, isExpanded, onToggle, language
         if (question.options) {
           const opt = question.options.find((o) => o.value === key);
           fullLabel = opt ? opt.label : key;
-          label = fullLabel.length > 25 ? fullLabel.substring(0, 25) + "..." : fullLabel;
+          label = fullLabel.length > 30 ? fullLabel.substring(0, 30) + "..." : fullLabel;
         }
         return { name: label, value, fullName: fullLabel };
       })
@@ -641,120 +785,114 @@ function ModernChartCard({ question, data, index, isExpanded, onToggle, language
   }, [data.distribution]);
 
   const maxValue = Math.max(...chartData.map((d) => d.value));
+  const topPercentage = ((chartData[0]?.value || 0) / totalResponses * 100);
+
+  const barChartData = chartData.map(item => ({
+    ...item,
+    percentage: (item.value / totalResponses) * 100,
+  }));
 
   return (
     <motion.article
       layout="position"
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
+      exit={{ opacity: 0, scale: 0.95 }}
       transition={{
-        layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
-        opacity: { duration: 0.3 },
-        y: { duration: 0.3, delay: index * 0.03 },
+        layout: { duration: 0.4, ease: [0.32, 0.72, 0, 1] },
+        opacity: { duration: 0.4 },
+        y: { duration: 0.5, delay: index * 0.05 },
       }}
-      className={cn(
-        "group relative rounded-3xl",
-        "bg-gradient-to-br from-white/[0.08] to-white/[0.02]",
-        "border border-white/10 hover:border-white/20",
-        "backdrop-blur-xl transition-colors duration-300",
-        "hover:shadow-2xl hover:shadow-blue-500/5"
-      )}
+      className="group relative"
     >
-      {/* Glow effect on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
 
-      {/* Header */}
-      <div className="relative p-6 pb-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              {question.type === "scale" ? (
-                <BarChart3 className="w-4 h-4 text-blue-400" />
-              ) : (
-                <PieChartIcon className="w-4 h-4 text-purple-400" />
-              )}
-              <span className="text-[10px] uppercase tracking-wider text-white/40">
-                {question.category.replace("_", " ")}
+      <div className={cn(
+        "relative rounded-3xl overflow-hidden",
+        "bg-gradient-to-br from-white/[0.08] to-white/[0.02]",
+        "border border-white/10 group-hover:border-white/20",
+        "backdrop-blur-xl transition-all duration-300",
+      )}>
+        {/* Header */}
+        <div className="p-6 pb-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center gap-2">
+                {question.type === "scale" ? (
+                  <BarChart3 className="w-4 h-4 text-blue-400" />
+                ) : (
+                  <PieChartIcon className="w-4 h-4 text-purple-400" />
+                )}
+                <span className="text-[10px] uppercase tracking-wider text-white/40 font-medium">
+                  {question.category.replace("_", " ")}
+                </span>
+              </div>
+              <h2 className="text-base font-medium text-white leading-relaxed">
+                {question.text}
+              </h2>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={onToggle}
+              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+            >
+              <motion.div
+                animate={{ rotate: isExpanded ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ChevronDown className="w-4 h-4 text-white/50" />
+              </motion.div>
+            </motion.button>
+          </div>
+
+          {/* Quick stats */}
+          <div className="flex items-center gap-4 mt-4">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5">
+              <Users className="w-3 h-3 text-white/40" />
+              <span className="text-xs text-white/60">{totalResponses}</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10">
+              <TrendingUp className="w-3 h-3 text-emerald-400" />
+              <span className="text-xs text-emerald-400 font-medium">
+                {topPercentage.toFixed(0)}% {language === "fr" ? "majoritaire" : "majority"}
               </span>
             </div>
-            <h2 className="text-base font-medium text-white leading-snug">
-              {question.text}
-            </h2>
           </div>
-          <button
-            onClick={onToggle}
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors shrink-0"
-          >
-            <ChevronDown
-              className={cn(
-                "w-4 h-4 text-white/50 transition-transform duration-300",
-                isExpanded && "rotate-180"
-              )}
-            />
-          </button>
         </div>
 
-        {/* Quick stats */}
-        <div className="flex items-center gap-4 mt-4 text-xs text-white/50">
-          <span>{totalResponses} {language === "fr" ? "réponses" : "responses"}</span>
-          <span>•</span>
-          <span className="text-emerald-400">
-            {((chartData[0]?.value || 0) / totalResponses * 100).toFixed(0)}% {language === "fr" ? "majoritaire" : "majority"}
-          </span>
-        </div>
-      </div>
-
-      {/* Chart Area */}
-      <div className="relative px-6 pb-6 overflow-hidden">
-        <AnimatePresence mode="wait" initial={false}>
-          {question.type === "scale" ? (
-            <motion.div
-              key="scale"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ScaleVisualization
-                data={chartData}
-                question={question}
-                total={totalResponses}
-              />
-            </motion.div>
-          ) : isExpanded ? (
-            <motion.div
-              key="expanded"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-3"
-            >
-              {chartData.map((entry, idx) => (
-                <HorizontalBar
-                  key={idx}
-                  label={entry.fullName}
-                  value={entry.value}
+        {/* Chart Area */}
+        <div className="px-6 pb-6">
+          <AnimatePresence mode="wait" initial={false}>
+            {question.type === "scale" ? (
+              <motion.div
+                key="scale"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <ScaleVisualization
+                  data={chartData}
+                  question={question}
                   total={totalResponses}
-                  color={COLORS[idx % COLORS.length]}
-                  index={idx}
-                  maxValue={maxValue}
                 />
-              ))}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="radial"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <RadialChart data={chartData} total={totalResponses} language={language} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="bars"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <AnimatedBarChart
+                  data={barChartData}
+                  maxValue={maxValue}
+                  color={COLORS[index % COLORS.length]}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </motion.article>
   );

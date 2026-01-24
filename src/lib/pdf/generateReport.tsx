@@ -17,14 +17,14 @@ import {
 import type { Answers } from '@/data';
 import type { SevenDimensions, ProfileSpectrum } from '@/lib/scoring/types';
 
-// Register fonts for better rendering
+// Register Open Sans fonts (TTF format required by react-pdf)
+// Using Open Sans as it has good Unicode/international support
 Font.register({
-  family: 'Inter',
+  family: 'OpenSans',
   fonts: [
-    { src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2', fontWeight: 400 },
-    { src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hjp-Ek-_EeA.woff2', fontWeight: 500 },
-    { src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hjp-Ek-_EeA.woff2', fontWeight: 600 },
-    { src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYAZ9hjp-Ek-_EeA.woff2', fontWeight: 700 },
+    { src: 'https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-regular.ttf', fontWeight: 400 },
+    { src: 'https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-600.ttf', fontWeight: 600 },
+    { src: 'https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-700.ttf', fontWeight: 700 },
   ],
 });
 
@@ -129,7 +129,7 @@ const dimensionColors: Record<keyof SevenDimensions, string> = {
 // Styles
 const styles = StyleSheet.create({
   page: {
-    fontFamily: 'Inter',
+    fontFamily: 'OpenSans',
     fontSize: 10,
     paddingTop: 0,
     paddingBottom: 50,
@@ -219,8 +219,7 @@ const styles = StyleSheet.create({
   profileMotivation: {
     fontSize: 9,
     color: colors.textMuted,
-    fontStyle: 'italic',
-    marginTop: 4,
+        marginTop: 4,
   },
   subProfileBox: {
     backgroundColor: colors.background,
@@ -368,8 +367,7 @@ const styles = StyleSheet.create({
   tensionSuggestion: {
     fontSize: 8,
     color: colors.textMuted,
-    fontStyle: 'italic',
-  },
+      },
   growthCard: {
     backgroundColor: '#f0fdf4',
     borderWidth: 1,
@@ -591,7 +589,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ data, spectrum }) => {
         </View>
 
         <View style={styles.content}>
-          <Text style={{ fontSize: 9, color: colors.textMuted, fontStyle: 'italic', marginBottom: 16 }}>
+          <Text style={{ fontSize: 9, color: colors.textMuted, marginBottom: 16 }}>
             {t.dimensionsIntro}
           </Text>
 
@@ -643,7 +641,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ data, spectrum }) => {
               <View style={styles.sectionTitleWithBg}>
                 <Text style={styles.sectionTitleText}>{t.tensions}</Text>
               </View>
-              <Text style={{ fontSize: 8, color: colors.textMuted, fontStyle: 'italic', marginBottom: 10 }}>
+              <Text style={{ fontSize: 8, color: colors.textMuted, marginBottom: 10 }}>
                 {t.tensionIntro}
               </Text>
               {spectrum.tensions.map((tension, i) => {
@@ -669,7 +667,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ data, spectrum }) => {
               <View style={[styles.sectionTitleWithBg, { marginTop: 12 }]}>
                 <Text style={styles.sectionTitleText}>{t.growthAreas}</Text>
               </View>
-              <Text style={{ fontSize: 8, color: colors.textMuted, fontStyle: 'italic', marginBottom: 10 }}>
+              <Text style={{ fontSize: 8, color: colors.textMuted, marginBottom: 10 }}>
                 {t.growthIntro}
               </Text>
               {spectrum.growthAreas.map((area, i) => (

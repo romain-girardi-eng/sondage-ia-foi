@@ -3,6 +3,9 @@ import { Resend } from 'resend';
 // Check if Resend is configured
 export const isResendConfigured = Boolean(process.env.RESEND_API_KEY);
 
+// Email from address - uses custom domain if configured, otherwise Resend's default
+const EMAIL_FROM = process.env.EMAIL_FROM_ADDRESS || 'Sondage IA & Foi <onboarding@resend.dev>';
+
 // Lazy-initialize Resend client to avoid errors during build
 let _resend: Resend | null = null;
 
@@ -66,7 +69,7 @@ export async function sendPDFEmail({
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Sondage IA & Foi <noreply@sondage-ia-foi.fr>',
+      from: EMAIL_FROM,
       to: [to],
       subject,
       html: `
