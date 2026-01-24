@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, TrendingUp, Users, Brain, Shield } from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp, Users, Brain, Shield, Target, AlertTriangle, Lightbulb, ChevronRight } from "lucide-react";
 import { cn, useLanguage } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { PDFDownloadButton } from "@/components/sharing";
@@ -17,10 +17,14 @@ import {
   calculateSpiritualResistanceIndex,
   getResistanceLevel,
   RESISTANCE_LABELS,
-  getSpiritualAIProfile,
-  PROFILE_DATA,
   getPercentileComparison,
-  generateInsights,
+  // New advanced profiling
+  calculateProfileSpectrum,
+  PROFILE_DEFINITIONS,
+  SUB_PROFILE_DEFINITIONS,
+  DIMENSION_LABELS,
+  DIMENSION_COLORS,
+  type ProfileSpectrum,
 } from "@/lib/scoring";
 
 interface FeedbackScreenProps {
@@ -32,7 +36,10 @@ interface FeedbackScreenProps {
 export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScreenProps) {
   const { t, language } = useLanguage();
 
-  // Calculate all scores
+  // Calculate all scores using the new advanced profiling system
+  const spectrum: ProfileSpectrum = calculateProfileSpectrum(answers);
+
+  // Legacy scores for backward compatibility
   const crsScore = calculateCRS5Score(answers);
   const religiosityLevel = getReligiosityLevel(crsScore);
   const aiScore = calculateAIAdoptionScore(answers);
@@ -40,11 +47,17 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
   const generalAIScore = calculateGeneralAIScore(answers);
   const resistanceIndex = calculateSpiritualResistanceIndex(answers);
   const resistanceLevel = getResistanceLevel(resistanceIndex);
-  const profile = getSpiritualAIProfile(answers);
-  const profileData = PROFILE_DATA[profile];
   const religiosityPercentile = getPercentileComparison(crsScore, 'religiosity');
   const aiPercentile = getPercentileComparison(aiScore, 'ai_adoption');
-  const insights = generateInsights(answers);
+
+  // New advanced profile data
+  const primaryMatch = spectrum.primary;
+  const profileDef = PROFILE_DEFINITIONS[primaryMatch.profile];
+  const subProfileMatch = spectrum.subProfile;
+  const subProfileDef = subProfileMatch ? SUB_PROFILE_DEFINITIONS[subProfileMatch.subProfile as keyof typeof SUB_PROFILE_DEFINITIONS] : null;
+  const insights = spectrum.insights;
+  const tensions = spectrum.tensions;
+  const growthAreas = spectrum.growthAreas;
 
   // Get resistance description based on level and language
   const getResistanceDescription = () => {
@@ -109,32 +122,170 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
               transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
               className="text-6xl mb-4"
             >
-              {profileData.emoji}
+              {profileDef.emoji}
             </motion.div>
             <h2
               id="profile-heading"
               className="text-2xl md:text-3xl font-bold text-gradient-animated"
             >
-              {profileData.title}
+              {profileDef.title}
             </h2>
+
+            {/* Profile Match Confidence */}
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <span className="text-muted-foreground">Correspondance:</span>
+              <span className="text-purple-400 font-semibold">{primaryMatch.matchScore}%</span>
+            </div>
+
             <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
-              {profileData.description}
+              {profileDef.shortDescription}
             </p>
+
+            {/* Sub-profile Badge */}
+            {subProfileDef && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30"
+              >
+                <span className="text-lg">{subProfileDef.emoji}</span>
+                <span className="text-sm font-medium text-purple-300">{subProfileDef.title}</span>
+              </motion.div>
+            )}
+
+            {/* Sub-profile description */}
+            {subProfileDef && (
+              <p className="text-sm text-muted-foreground/80 italic max-w-md mx-auto">
+                {subProfileDef.description}
+              </p>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 text-left">
               <div className="glass-card-refined rounded-xl p-4 group/card hover:border-emerald-500/30 transition-colors">
                 <div className="text-xs text-emerald-400 uppercase tracking-wider mb-1">
                   {t("feedback.yourStrength")}
                 </div>
-                <p className="text-sm text-white">{profileData.strength}</p>
+                <p className="text-sm text-white">{profileDef.coreMotivation}</p>
               </div>
               <div className="glass-card-refined rounded-xl p-4 group/card hover:border-amber-500/30 transition-colors">
                 <div className="text-xs text-amber-400 uppercase tracking-wider mb-1">
                   {t("feedback.yourChallenge")}
                 </div>
-                <p className="text-sm text-white">{profileData.challenge}</p>
+                <p className="text-sm text-white">{profileDef.primaryFear}</p>
               </div>
             </div>
+          </div>
+        </motion.section>
+
+        {/* Profile Spectrum - Top 3 matches */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.5 }}
+          className="w-full max-w-2xl glass-card-refined rounded-xl p-5"
+        >
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+            <Target className="w-4 h-4" />
+            Spectre de votre profil
+          </h3>
+          <div className="space-y-3">
+            {spectrum.allMatches.slice(0, 3).map((match, index) => {
+              const matchDef = PROFILE_DEFINITIONS[match.profile];
+              return (
+                <motion.div
+                  key={match.profile}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 + index * 0.1 }}
+                  className="flex items-center gap-3"
+                >
+                  <span className="text-2xl">{matchDef.emoji}</span>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={cn(
+                        "text-sm font-medium",
+                        index === 0 ? "text-white" : "text-muted-foreground"
+                      )}>
+                        {matchDef.title}
+                      </span>
+                      <span className={cn(
+                        "text-sm font-bold",
+                        index === 0 ? "text-purple-400" : "text-muted-foreground"
+                      )}>
+                        {match.matchScore}%
+                      </span>
+                    </div>
+                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${match.matchScore}%` }}
+                        transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
+                        className={cn(
+                          "h-full rounded-full",
+                          index === 0
+                            ? "bg-gradient-to-r from-purple-500 to-purple-400"
+                            : "bg-white/20"
+                        )}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.section>
+
+        {/* 7 Dimensions Visualization */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45, duration: 0.5 }}
+          className="w-full max-w-2xl glass-card-refined rounded-xl p-5"
+        >
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+            <Brain className="w-4 h-4" />
+            Vos 7 dimensions
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {Object.entries(spectrum.dimensions).map(([key, dimension], index) => {
+              const dimLabel = DIMENSION_LABELS[key as keyof typeof DIMENSION_LABELS];
+              const color = DIMENSION_COLORS[key as keyof typeof DIMENSION_COLORS];
+              // Generate interpretation based on value
+              const interpretation = dimension.value >= 4
+                ? dimLabel.highDescription
+                : dimension.value <= 2
+                ? dimLabel.lowDescription
+                : dimLabel.description;
+              return (
+                <motion.div
+                  key={key}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 + index * 0.05 }}
+                  className="glass-card-refined rounded-lg p-3"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-muted-foreground">{dimLabel.label}</span>
+                    <span className="text-sm font-bold text-white">
+                      {dimension.value.toFixed(1)}/5
+                    </span>
+                  </div>
+                  <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(dimension.value / 5) * 100}%` }}
+                      transition={{ delay: 0.6 + index * 0.05, duration: 0.5 }}
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: color }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground/70 mt-1">
+                    {interpretation}
+                  </p>
+                </motion.div>
+              );
+            })}
           </div>
         </motion.section>
 
@@ -298,11 +449,85 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
           </motion.div>
         </motion.section>
 
+        {/* Tensions - Points of internal conflict */}
+        {tensions.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65, duration: 0.5 }}
+            className="w-full max-w-2xl glass-card-refined rounded-xl p-5"
+          >
+            <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" />
+              Points de tension
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              Ces tensions internes peuvent enrichir votre réflexion et votre discernement.
+            </p>
+            <div className="space-y-3">
+              {tensions.map((tension, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7 + index * 0.1 }}
+                  className="flex items-start gap-3 p-3 bg-amber-500/5 rounded-lg border border-amber-500/20"
+                >
+                  <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
+                    <span className="text-amber-400 text-xs font-bold">{index + 1}</span>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white mb-1">
+                      <span className="text-amber-400">{DIMENSION_LABELS[tension.dimension1].label}</span>
+                      <span className="text-muted-foreground"> vs </span>
+                      <span className="text-amber-400">{DIMENSION_LABELS[tension.dimension2].label}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{tension.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+        )}
+
+        {/* Growth Areas */}
+        {growthAreas.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.5 }}
+            className="w-full max-w-2xl glass-card-refined rounded-xl p-5"
+          >
+            <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Lightbulb className="w-4 h-4" />
+              Pistes de croissance
+            </h3>
+            <div className="space-y-3">
+              {growthAreas.map((area, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.75 + index * 0.1 }}
+                  className="flex items-start gap-3 p-3 bg-emerald-500/5 rounded-lg border border-emerald-500/20"
+                >
+                  <ChevronRight className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-sm font-medium text-white mb-1">{area.area}</h4>
+                    <p className="text-xs text-muted-foreground mb-1">{area.potentialGrowth}</p>
+                    <p className="text-xs text-emerald-400/80">{area.actionableStep}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+        )}
+
         {/* Personalized Insights */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
+          transition={{ delay: 0.75, duration: 0.5 }}
           className="w-full max-w-2xl space-y-3"
         >
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
@@ -310,12 +535,12 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
           </h3>
 
           <div className="space-y-3">
-            {insights.map((insight, index) => (
+            {insights.slice(0, 3).map((insight, index) => (
               <motion.div
                 key={insight.title}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 + index * 0.1, duration: 0.4 }}
+                transition={{ delay: 0.8 + index * 0.1, duration: 0.4 }}
                 className="group glass-card-refined rounded-xl p-4 flex gap-4 hover:border-white/20 transition-colors"
               >
                 <div className="text-2xl shrink-0 group-hover:scale-110 transition-transform">{insight.icon}</div>
@@ -337,7 +562,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 }}
+            transition={{ delay: 1.0 }}
             className="pt-4"
           >
             <PDFDownloadButton
@@ -348,7 +573,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
               profile={{
                 religiosityScore: crsScore,
                 iaComfortScore: aiScore,
-                theologicalOrientation: profile,
+                theologicalOrientation: profileDef.title,
               }}
             />
           </motion.div>
@@ -358,7 +583,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
+          transition={{ delay: 1.1 }}
           className="pt-4"
         >
           <button
@@ -385,7 +610,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
+          transition={{ delay: 1.3 }}
           className="text-xs text-muted-foreground/50 text-center max-w-md"
         >
           {t("feedback.disclaimer")}

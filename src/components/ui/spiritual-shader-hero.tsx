@@ -292,6 +292,7 @@ export default function SpiritualShaderHero({
   const headerRef = useRef<HTMLHeadingElement | null>(null);
   const subtitleRef = useRef<HTMLParagraphElement | null>(null);
   const paraRef = useRef<HTMLParagraphElement | null>(null);
+  const consentRef = useRef<HTMLDivElement | null>(null);
   const ctaRef = useRef<HTMLDivElement | null>(null);
   const badgeRef = useRef<HTMLDivElement | null>(null);
   const featuresRef = useRef<HTMLDivElement | null>(null);
@@ -321,6 +322,9 @@ export default function SpiritualShaderHero({
         }
         if (paraRef.current) {
           gsap.set(paraRef.current, { autoAlpha: 0, y: 16 });
+        }
+        if (consentRef.current) {
+          gsap.set(consentRef.current, { autoAlpha: 0, y: 16 });
         }
         if (ctaRef.current) {
           gsap.set(ctaRef.current, { autoAlpha: 0, y: 16 });
@@ -355,6 +359,9 @@ export default function SpiritualShaderHero({
         }
         if (paraRef.current) {
           tl.to(paraRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, '-=0.4');
+        }
+        if (consentRef.current) {
+          tl.to(consentRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, '-=0.3');
         }
         if (ctaRef.current) {
           tl.to(ctaRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, '-=0.3');
@@ -427,7 +434,7 @@ export default function SpiritualShaderHero({
 
         {/* Consent Checkbox */}
         {onConsentChange && consentLabel && (
-          <div className="max-w-md">
+          <div ref={consentRef} className="max-w-md">
             <label className="flex items-start gap-3 cursor-pointer group">
               <div className="relative flex items-center justify-center mt-1">
                 <input

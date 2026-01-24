@@ -184,12 +184,113 @@ export const PROFILE_DATA: Record<SpiritualAIProfile, {
   }
 };
 
+// Legacy General AI Score (baseline usage)
+export function calculateGeneralAIScore(answers: Answers): number {
+  let score = 0;
+  let items = 0;
+
+  // Fréquence générale d'usage IA
+  const freq = answers['ctrl_ia_frequence'];
+  if (typeof freq === 'string') {
+    const freqScores: Record<string, number> = {
+      'jamais': 1, 'essaye': 2, 'occasionnel': 3, 'regulier': 4, 'quotidien': 5
+    };
+    if (freqScores[freq]) {
+      score += freqScores[freq];
+      items++;
+    }
+  }
+
+  // Niveau de confort avec l'IA
+  const confort = answers['ctrl_ia_confort'];
+  if (typeof confort === 'number') {
+    score += confort;
+    items++;
+  }
+
+  // Nombre de contextes d'usage (0-6 → 1-5)
+  const contextes = answers['ctrl_ia_contextes'];
+  if (Array.isArray(contextes)) {
+    const contextScore = Math.min(5, 1 + contextes.length);
+    score += contextScore;
+    items++;
+  }
+
+  return items > 0 ? Math.round((score / items) * 10) / 10 : 1;
+}
+
+// Legacy Spiritual AI Score (spiritual-specific usage)
+export function calculateSpiritualAIScore(answers: Answers): number {
+  let score = 0;
+  let items = 0;
+
+  // Clergy: prédication
+  const predUsage = answers['min_pred_usage'];
+  if (typeof predUsage === 'string') {
+    const usageScores: Record<string, number> = {
+      'jamais': 1, 'rare': 2, 'regulier': 4, 'systematique': 5
+    };
+    if (usageScores[predUsage]) {
+      score += usageScores[predUsage];
+      items++;
+    }
+  }
+
+  // Clergy: soin pastoral
+  const careEmail = answers['min_care_email'];
+  if (typeof careEmail === 'string') {
+    const careScores: Record<string, number> = {
+      'non_jamais': 1, 'oui_brouillon': 3, 'oui_souvent': 5
+    };
+    if (careScores[careEmail]) {
+      score += careScores[careEmail];
+      items++;
+    }
+  }
+
+  // Laïc: prière générée
+  const laicPriere = answers['laic_substitution_priere'];
+  if (typeof laicPriere === 'string') {
+    const priereScores: Record<string, number> = {
+      'non': 1, 'oui_bof': 3, 'oui': 5
+    };
+    if (priereScores[laicPriere]) {
+      score += priereScores[laicPriere];
+      items++;
+    }
+  }
+
+  // Laïc: conseil spirituel
+  const laicConseil = answers['laic_conseil_spirituel'];
+  if (typeof laicConseil === 'string') {
+    const conseilScores: Record<string, number> = {
+      'jamais': 1, 'complement': 3, 'oui_possible': 4, 'deja_fait': 5
+    };
+    if (conseilScores[laicConseil]) {
+      score += conseilScores[laicConseil];
+      items++;
+    }
+  }
+
+  // Contexte spirituel coché?
+  const contextes = answers['ctrl_ia_contextes'];
+  if (Array.isArray(contextes) && contextes.includes('spirituel')) {
+    score += 5;
+    items++;
+  } else if (Array.isArray(contextes)) {
+    score += 1;
+    items++;
+  }
+
+  return items > 0 ? Math.round((score / items) * 10) / 10 : 1;
+}
+
 // Legacy resistance calculation
 export function calculateSpiritualResistanceIndex(answers: Answers): number {
-  const generalScore = calculateAIOpennessDimension(answers).value;
-  const sacredBoundary = calculateProfileSpectrum(answers).dimensions.sacredBoundary.value;
-  // Transform sacred boundary (1-5) to resistance index (-4 to +4)
-  return Math.round((sacredBoundary - 3) * 2 * 10) / 10;
+  const generalScore = calculateGeneralAIScore(answers);
+  const spiritualScore = calculateSpiritualAIScore(answers);
+  // Index: différence normalisée (-4 à +4)
+  return Math.round((generalScore - spiritualScore) * 10) / 10;
 }
 
 export type ResistanceLevel = 'aucune' | 'faible' | 'moderee' | 'forte';

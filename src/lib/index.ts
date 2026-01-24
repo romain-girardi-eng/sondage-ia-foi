@@ -6,6 +6,8 @@ export {
   calculateCRS5Score,
   getReligiosityLevel,
   RELIGIOSITY_LABELS,
+  calculateGeneralAIScore,
+  calculateSpiritualAIScore,
   calculateSpiritualResistanceIndex,
   getResistanceLevel,
   RESISTANCE_LABELS,
