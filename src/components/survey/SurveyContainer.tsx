@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import { SURVEY_QUESTIONS } from "@/data/surveySchema";
+import { SURVEY_QUESTIONS } from "@/data";
+import { ResultsDashboard } from "@/components/dashboard";
 import { SurveyIntro } from "./SurveyIntro";
 import { QuestionCard } from "./QuestionCard";
 import { ThankYouScreen } from "./ThankYouScreen";
-import { ResultsDashboard } from "../dashboard/ResultsDashboard";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 

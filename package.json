@@ -1,22 +1,26 @@
 {
   "name": "sondage-ia-foi",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "description": "Survey application studying AI usage in Christian religious practices",
+  "author": "Romain Girardi",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .next node_modules"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
     "clsx": "^2.1.1",
     "framer-motion": "^12.28.1",
     "lucide-react": "^0.562.0",
     "next": "16.1.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-hook-form": "^7.71.1",
     "recharts": "^3.7.0",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.3.5"
@@ -31,5 +35,8 @@
     "eslint-config-next": "16.1.4",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

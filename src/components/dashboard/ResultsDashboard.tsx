@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { SURVEY_QUESTIONS, Question } from "@/data/surveySchema";
-import { getMockResults, AggregatedResult } from "@/lib/dataService";
+import { SURVEY_QUESTIONS, type Question } from "@/data";
+import { getMockResults, type AggregatedResult } from "@/lib";
 import {
   PieChart,
   Pie,

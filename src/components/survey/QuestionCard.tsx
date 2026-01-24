@@ -2,8 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Question } from "@/data/surveySchema";
-import { cn } from "@/lib/utils";
+import { type Question } from "@/data";
+import { cn } from "@/lib";
 import { Check } from "lucide-react";
 
 interface QuestionCardProps {

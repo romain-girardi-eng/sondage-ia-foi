@@ -1,4 +1,4 @@
-import { SURVEY_QUESTIONS } from "@/data/surveySchema";
+import { SURVEY_QUESTIONS } from "@/data";
 
 export type AggregatedResult = {
   questionId: string;
