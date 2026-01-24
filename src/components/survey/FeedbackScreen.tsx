@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, TrendingUp, Users, Brain } from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp, Users, Brain, Shield } from "lucide-react";
 import { cn } from "@/lib";
 import type { Answers } from "@/data";
 import {
@@ -11,6 +11,10 @@ import {
   calculateAIAdoptionScore,
   getAIAdoptionLevel,
   AI_ADOPTION_LABELS,
+  calculateGeneralAIScore,
+  calculateSpiritualResistanceIndex,
+  getResistanceLevel,
+  RESISTANCE_LABELS,
   getSpiritualAIProfile,
   PROFILE_DATA,
   getPercentileComparison,
@@ -28,6 +32,9 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
   const religiosityLevel = getReligiosityLevel(crsScore);
   const aiScore = calculateAIAdoptionScore(answers);
   const aiLevel = getAIAdoptionLevel(aiScore);
+  const generalAIScore = calculateGeneralAIScore(answers);
+  const resistanceIndex = calculateSpiritualResistanceIndex(answers);
+  const resistanceLevel = getResistanceLevel(resistanceIndex);
   const profile = getSpiritualAIProfile(answers);
   const profileData = PROFILE_DATA[profile];
   const religiosityPercentile = getPercentileComparison(crsScore, 'religiosity');
@@ -189,6 +196,61 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
               transition={{ delay: 0.7, duration: 0.8, ease: "easeOut" }}
               className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full"
             />
+          </div>
+        </div>
+
+        {/* Spiritual Resistance Index - Full width */}
+        <div className="md:col-span-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400">
+              <Shield className="w-5 h-5" aria-hidden="true" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">Résistance Spirituelle</h3>
+              <p className="text-xs text-muted-foreground">Usage général vs spirituel</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-baseline gap-3 mb-2">
+                <div>
+                  <span className="text-xs text-muted-foreground">IA Général</span>
+                  <div className="text-xl font-bold text-white">{generalAIScore.toFixed(1)}/5</div>
+                </div>
+                <div className="text-2xl text-muted-foreground">→</div>
+                <div>
+                  <span className="text-xs text-muted-foreground">IA Spirituel</span>
+                  <div className="text-xl font-bold text-white">{(generalAIScore - resistanceIndex).toFixed(1)}/5</div>
+                </div>
+                <div className="text-2xl text-muted-foreground">=</div>
+                <div>
+                  <span className="text-xs text-muted-foreground">Écart</span>
+                  <div className={cn(
+                    "text-xl font-bold",
+                    resistanceIndex > 0 ? "text-amber-400" : "text-emerald-400"
+                  )}>
+                    {resistanceIndex > 0 ? "+" : ""}{resistanceIndex.toFixed(1)}
+                  </div>
+                </div>
+              </div>
+              <div className={cn(
+                "text-sm",
+                resistanceIndex > 1 ? "text-amber-400" : resistanceIndex > 0 ? "text-amber-300" : "text-emerald-400"
+              )}>
+                {RESISTANCE_LABELS[resistanceLevel]}
+              </div>
+            </div>
+
+            <div className="text-sm text-muted-foreground max-w-xs">
+              {resistanceIndex > 1 ? (
+                "Vous utilisez l'IA régulièrement mais résistez à son usage spirituel. Cette distinction est significative."
+              ) : resistanceIndex > 0 ? (
+                "Légère différence entre vos usages généraux et spirituels de l'IA."
+              ) : (
+                "Votre usage de l'IA est cohérent entre domaines séculier et spirituel."
+              )}
+            </div>
           </div>
         </div>
       </motion.section>

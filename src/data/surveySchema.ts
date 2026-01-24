@@ -214,6 +214,50 @@ export const SURVEY_QUESTIONS: Question[] = [
   },
 
   // ==========================================
+  // BLOC 3b: CONTRÔLE USAGE IA GÉNÉRAL (POUR TOUS)
+  // Établit une baseline avant les questions spirituelles
+  // ==========================================
+  {
+    id: 'ctrl_ia_frequence',
+    category: 'usage',
+    text: "En général, à quelle fréquence utilisez-vous des outils d'IA (ChatGPT, Gemini, Claude, Copilot...) ?",
+    type: 'choice',
+    options: [
+      { value: 'jamais', label: 'Jamais' },
+      { value: 'essaye', label: 'J\'ai essayé une ou deux fois' },
+      { value: 'occasionnel', label: 'Occasionnellement (quelques fois par mois)' },
+      { value: 'regulier', label: 'Régulièrement (plusieurs fois par semaine)' },
+      { value: 'quotidien', label: 'Quotidiennement' }
+    ]
+  },
+  {
+    id: 'ctrl_ia_contextes',
+    category: 'usage',
+    text: "Dans quels contextes utilisez-vous l'IA ? (plusieurs réponses possibles)",
+    type: 'multiple',
+    options: [
+      { value: 'travail_pro', label: 'Travail professionnel (emails, rapports, présentations)' },
+      { value: 'recherche_info', label: 'Recherche d\'informations / Apprentissage' },
+      { value: 'creation', label: 'Création de contenu (textes, images, vidéos)' },
+      { value: 'programmation', label: 'Programmation / Code' },
+      { value: 'loisirs', label: 'Loisirs / Divertissement' },
+      { value: 'spirituel', label: 'Vie spirituelle / Religieuse' }
+    ],
+    condition: (answers) => {
+      const freq = getStringAnswer(answers, 'ctrl_ia_frequence');
+      return freq !== '' && freq !== 'jamais';
+    }
+  },
+  {
+    id: 'ctrl_ia_confort',
+    category: 'usage',
+    text: "Globalement, quel est votre niveau de confort avec les outils d'IA ?",
+    type: 'scale',
+    minLabel: "Très inconfortable",
+    maxLabel: "Très à l'aise"
+  },
+
+  // ==========================================
   // BLOC 4: MINISTÈRE & LEADERSHIP (CLERGÉ UNIQUEMENT)
   // ==========================================
 
@@ -280,21 +324,8 @@ export const SURVEY_QUESTIONS: Question[] = [
   },
 
   // ==========================================
-  // BLOC 5: USAGE LAÏC & SPIRITUALITÉ (LAÏCS UNIQUEMENT)
+  // BLOC 5: USAGE SPIRITUEL LAÏC (LAÏCS UNIQUEMENT)
   // ==========================================
-  {
-    id: 'laic_usage_general',
-    category: 'usage',
-    text: "Utilisez-vous des outils d'IA (ChatGPT, Gemini, Claude...) dans votre vie quotidienne ?",
-    type: 'choice',
-    options: [
-      { value: 'jamais', label: 'Jamais' },
-      { value: 'rarement', label: 'Rarement' },
-      { value: 'regulierement', label: 'Régulièrement' },
-      { value: 'quotidien', label: 'Quotidiennement' }
-    ],
-    condition: isLayperson
-  },
   {
     id: 'laic_substitution_priere',
     category: 'spirituality',
