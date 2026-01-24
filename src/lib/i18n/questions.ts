@@ -26,7 +26,7 @@ export const questionTranslations = {
 
       // === THÉOLOGIE ===
       theo_orientation: "Comment situeriez-vous votre sensibilité théologique ?",
-      theo_inspiration: "Un texte généré par une IA peut-il, selon vous, transmettre la grâce ou être 'inspiré' ?",
+      theo_inspiration: "Selon vous, un texte généré par une IA (par exemple une prière ou une méditation) peut-il avoir une dimension spirituelle authentique ?",
       theo_risque_futur: "Concernant l'utilisation de l'IA dans l'Église, qu'est-ce qui vous préoccupe le plus ?",
       theo_utilite_percue: "Dans l'ensemble, pensez-vous que l'IA peut être un outil bénéfique pour la vie de l'Église ?",
 
@@ -37,7 +37,7 @@ export const questionTranslations = {
 
       // === OUTILS NUMÉRIQUES SPIRITUELS ===
       digital_outils_existants: "Quels outils numériques utilisez-vous déjà dans votre vie spirituelle ? (plusieurs réponses possibles)",
-      digital_attitude_generale: "De manière générale, comment percevez-vous l'utilisation du numérique dans la vie spirituelle ?",
+      digital_attitude_generale: "De manière générale, comment percevez-vous l'utilisation du numérique dans votre vie spirituelle personnelle ?",
 
       // === MINISTÈRE (CLERGÉ) ===
       min_pred_usage: "Pour la préparation de vos prédications (homélies, sermons), utilisez-vous l'IA ?",
@@ -285,7 +285,7 @@ export const questionTranslations = {
 
       // === THEOLOGY ===
       theo_orientation: "How would you describe your theological orientation?",
-      theo_inspiration: "In your opinion, can an AI-generated text convey grace or be 'inspired'?",
+      theo_inspiration: "In your opinion, can an AI-generated text (for example, a prayer or meditation) have an authentic spiritual dimension?",
       theo_risque_futur: "Regarding the use of AI in the Church, what concerns you the most?",
       theo_utilite_percue: "Overall, do you think AI can be a beneficial tool for the life of the Church?",
 
@@ -296,7 +296,7 @@ export const questionTranslations = {
 
       // === DIGITAL SPIRITUAL TOOLS ===
       digital_outils_existants: "Which digital tools do you already use in your spiritual life? (multiple answers possible)",
-      digital_attitude_generale: "In general, how do you perceive the use of digital technology in spiritual life?",
+      digital_attitude_generale: "In general, how do you perceive the use of digital technology in your personal spiritual life?",
 
       // === MINISTRY (CLERGY) ===
       min_pred_usage: "For preparing your sermons (homilies), do you use AI?",

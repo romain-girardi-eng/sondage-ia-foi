@@ -52,6 +52,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
         onConsentChange={onConsentChange}
         consentLabel={t("consent.checkbox")}
         privacyLink="/privacy"
+        privacyLinkText={t("intro.learnMore")}
       />
 
       {/* FAQ Section */}

@@ -6,6 +6,7 @@ import {
   useState,
   useCallback,
   useMemo,
+  useEffect,
   type ReactNode,
 } from "react";
 import { translations, type Language } from "./translations";
@@ -18,6 +19,7 @@ interface LanguageContextType {
   tQuestion: (questionId: string) => string;
   tOption: (optionKey: string) => string;
   tScale: (scaleKey: string) => string;
+  isHydrated: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
@@ -39,18 +41,19 @@ function getNestedValue(obj: Record<string, unknown>, path: string): string {
   return typeof value === "string" ? value : path;
 }
 
-function getInitialLanguage(): Language {
-  if (typeof window !== "undefined") {
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  // Always start with "fr" for SSR consistency, then hydrate from localStorage
+  const [language, setLanguageState] = useState<Language>("fr");
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Hydrate language from localStorage after mount
+  useEffect(() => {
     const saved = localStorage.getItem("survey-language") as Language | null;
     if (saved && (saved === "fr" || saved === "en")) {
-      return saved;
+      setLanguageState(saved);
     }
-  }
-  return "fr";
-}
-
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(getInitialLanguage);
+    setIsHydrated(true);
+  }, []);
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
@@ -113,9 +116,19 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       tQuestion,
       tOption,
       tScale,
+      isHydrated,
     }),
-    [language, setLanguage, t, tQuestion, tOption, tScale]
+    [language, setLanguage, t, tQuestion, tOption, tScale, isHydrated]
   );
+
+  // Show a minimal loading state until hydration is complete to avoid flash
+  if (!isHydrated) {
+    return (
+      <LanguageContext.Provider value={contextValue}>
+        <div className="min-h-screen bg-slate-950" />
+      </LanguageContext.Provider>
+    );
+  }
 
   return (
     <LanguageContext.Provider value={contextValue}>

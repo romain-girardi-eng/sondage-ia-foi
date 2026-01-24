@@ -165,8 +165,8 @@ const fragmentShader = `
 
   void main() {
     vec2 uv = vUv * 2.0 - 1.0; uv.y *= -1.0;
-    // Slower, more meditative animation
-    gl_FragColor = cppn_fn(uv, 0.08 * sin(0.15 * iTime), 0.08 * sin(0.35 * iTime), 0.08 * sin(0.22 * iTime));
+    // Slightly faster, flowing animation
+    gl_FragColor = cppn_fn(uv, 0.08 * sin(0.35 * iTime), 0.08 * sin(0.55 * iTime), 0.08 * sin(0.42 * iTime));
   }
 `;
 
@@ -270,6 +270,7 @@ interface SpiritualHeroProps {
   onConsentChange?: (consent: boolean) => void;
   consentLabel?: string;
   privacyLink?: string;
+  privacyLinkText?: string;
 }
 
 export default function SpiritualShaderHero({
@@ -287,6 +288,7 @@ export default function SpiritualShaderHero({
   onConsentChange,
   consentLabel,
   privacyLink,
+  privacyLinkText = "Learn more",
 }: SpiritualHeroProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const headerRef = useRef<HTMLHeadingElement | null>(null);
@@ -463,7 +465,7 @@ export default function SpiritualShaderHero({
                       className="text-blue-400 hover:underline"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      En savoir plus
+                      {privacyLinkText}
                     </a>
                   </>
                 )}
@@ -511,6 +513,13 @@ export default function SpiritualShaderHero({
 
       {/* Bottom gradient fade */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 to-transparent" />
+
+      {/* Footer credit */}
+      <div className="absolute inset-x-0 bottom-4 text-center">
+        <p className="text-xs text-white/30 font-light">
+          Étude menée par Romain Girardi
+        </p>
+      </div>
     </section>
   );
 }
