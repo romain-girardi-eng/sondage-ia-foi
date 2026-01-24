@@ -2,7 +2,7 @@ export const translations = {
   fr: {
     // Survey Intro
     intro: {
-      badge: "Étude Scientifique 2026",
+      badge: "Grande enquête 2026",
       badgeText: "IA & Foi Chrétienne",
       title: "Intelligence Artificielle & Vie Spirituelle",
       title1: "Intelligence Artificielle",
@@ -169,7 +169,7 @@ export const translations = {
   en: {
     // Survey Intro
     intro: {
-      badge: "Scientific Study 2026",
+      badge: "Major Survey 2026",
       badgeText: "AI & Christian Faith",
       title: "Artificial Intelligence & Spiritual Life",
       title1: "Artificial Intelligence",
