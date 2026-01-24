@@ -1,4 +1,5 @@
 export { cn } from "./utils";
+export { useHasAnimated } from "./hooks";
 export { LanguageProvider, useLanguage } from "./i18n";
 export { getMockResults, type AggregatedResult } from "./dataService";
 // Legacy exports for backward compatibility

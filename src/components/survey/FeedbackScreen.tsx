@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, TrendingUp, Users, Brain, Shield, Target, AlertTriangle, Lightbulb, ChevronRight } from "lucide-react";
-import { cn, useLanguage } from "@/lib";
+import { cn, useLanguage, useHasAnimated } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { PDFDownloadButton } from "@/components/sharing";
 import type { Answers } from "@/data";
@@ -35,6 +35,7 @@ interface FeedbackScreenProps {
 
 export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScreenProps) {
   const { t, language } = useLanguage();
+  const hasAnimated = useHasAnimated();
 
   // Calculate all scores using the new advanced profiling system
   const spectrum: ProfileSpectrum = calculateProfileSpectrum(answers);
@@ -75,13 +76,13 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
       <div className="flex flex-col items-center justify-start min-h-[100dvh] px-4 max-w-4xl mx-auto py-12 space-y-8">
         {/* Header */}
         <motion.header
-          initial={{ opacity: 0, y: 20 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center space-y-4"
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={hasAnimated ? false : { opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1, duration: 0.5 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card-refined text-purple-300 text-xs font-medium uppercase tracking-wider"
@@ -99,7 +100,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
 
         {/* Main Profile Card */}
         <motion.section
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={hasAnimated ? false : { opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
           className="group w-full max-w-2xl glass-card-refined rounded-2xl p-6 md:p-8 relative overflow-hidden"
@@ -117,7 +118,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
 
           <div className="relative z-10 text-center space-y-4">
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
+              initial={hasAnimated ? false : { scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
               className="text-6xl mb-4"
@@ -144,7 +145,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             {/* Sub-profile Badge */}
             {subProfileDef && (
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
+                initial={hasAnimated ? false : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30"
@@ -180,7 +181,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
 
         {/* Profile Spectrum - Top 3 matches */}
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 0.5 }}
           className="w-full max-w-2xl glass-card-refined rounded-xl p-5"
@@ -195,7 +196,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
               return (
                 <motion.div
                   key={match.profile}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={hasAnimated ? false : { opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 + index * 0.1 }}
                   className="flex items-center gap-3"
@@ -218,7 +219,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                     </div>
                     <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                       <motion.div
-                        initial={{ width: 0 }}
+                        initial={hasAnimated ? false : { width: 0 }}
                         animate={{ width: `${match.matchScore}%` }}
                         transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
                         className={cn(
@@ -238,7 +239,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
 
         {/* 7 Dimensions Visualization */}
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45, duration: 0.5 }}
           className="w-full max-w-2xl glass-card-refined rounded-xl p-5"
@@ -260,7 +261,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
               return (
                 <motion.div
                   key={key}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={hasAnimated ? false : { opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 + index * 0.05 }}
                   className="glass-card-refined rounded-lg p-3"
@@ -273,7 +274,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                   </div>
                   <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                     <motion.div
-                      initial={{ width: 0 }}
+                      initial={hasAnimated ? false : { width: 0 }}
                       animate={{ width: `${(dimension.value / 5) * 100}%` }}
                       transition={{ delay: 0.6 + index * 0.05, duration: 0.5 }}
                       className="h-full rounded-full"
@@ -291,14 +292,14 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
 
         {/* Scores Grid */}
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
           className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-4"
         >
           {/* CRS-5 Score */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={hasAnimated ? false : { opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.4 }}
             className="group glass-card-refined rounded-xl p-5 hover:border-blue-500/30 transition-colors"
@@ -337,7 +338,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             {/* Progress bar */}
             <div className="mt-4 h-2 bg-white/5 rounded-full overflow-hidden">
               <motion.div
-                initial={{ width: 0 }}
+                initial={hasAnimated ? false : { width: 0 }}
                 animate={{ width: `${(crsScore / 5) * 100}%` }}
                 transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
                 className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"
@@ -347,7 +348,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
 
           {/* AI Adoption Score */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={hasAnimated ? false : { opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.55, duration: 0.4 }}
             className="group glass-card-refined rounded-xl p-5 hover:border-emerald-500/30 transition-colors"
@@ -386,7 +387,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             {/* Progress bar */}
             <div className="mt-4 h-2 bg-white/5 rounded-full overflow-hidden">
               <motion.div
-                initial={{ width: 0 }}
+                initial={hasAnimated ? false : { width: 0 }}
                 animate={{ width: `${(aiScore / 5) * 100}%` }}
                 transition={{ delay: 0.7, duration: 0.8, ease: "easeOut" }}
                 className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"
@@ -396,7 +397,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
 
           {/* Spiritual Resistance Index - Full width */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={hasAnimated ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.4 }}
             className="md:col-span-2 group glass-card-refined rounded-xl p-5 hover:border-amber-500/30 transition-colors"
@@ -452,7 +453,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
         {/* Tensions - Points of internal conflict */}
         {tensions.length > 0 && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
+            initial={hasAnimated ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.65, duration: 0.5 }}
             className="w-full max-w-2xl glass-card-refined rounded-xl p-5"
@@ -468,7 +469,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
               {tensions.map((tension, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={hasAnimated ? false : { opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.7 + index * 0.1 }}
                   className="flex items-start gap-3 p-3 bg-amber-500/5 rounded-lg border border-amber-500/20"
@@ -493,7 +494,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
         {/* Growth Areas */}
         {growthAreas.length > 0 && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
+            initial={hasAnimated ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.5 }}
             className="w-full max-w-2xl glass-card-refined rounded-xl p-5"
@@ -506,7 +507,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
               {growthAreas.map((area, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={hasAnimated ? false : { opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.75 + index * 0.1 }}
                   className="flex items-start gap-3 p-3 bg-emerald-500/5 rounded-lg border border-emerald-500/20"
@@ -525,7 +526,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
 
         {/* Personalized Insights */}
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.75, duration: 0.5 }}
           className="w-full max-w-2xl space-y-3"
@@ -538,7 +539,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             {insights.slice(0, 3).map((insight, index) => (
               <motion.div
                 key={insight.title}
-                initial={{ opacity: 0, x: -20 }}
+                initial={hasAnimated ? false : { opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.8 + index * 0.1, duration: 0.4 }}
                 className="group glass-card-refined rounded-xl p-4 flex gap-4 hover:border-white/20 transition-colors"
@@ -560,7 +561,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
         {/* PDF Download Button */}
         {anonymousId && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={hasAnimated ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.0 }}
             className="pt-4"
@@ -581,7 +582,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
 
         {/* CTA Button */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.1 }}
           className="pt-4"
@@ -608,7 +609,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
 
         {/* Disclaimer */}
         <motion.p
-          initial={{ opacity: 0 }}
+          initial={hasAnimated ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.3 }}
           className="text-xs text-muted-foreground/50 text-center max-w-md"

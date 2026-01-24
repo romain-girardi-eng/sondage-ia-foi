@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Share2, BarChart3, Heart, Sparkles, Copy, Database } from "lucide-react";
-import { cn, useLanguage } from "@/lib";
+import { cn, useLanguage, useHasAnimated } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { QRCodeShare } from "@/components/sharing";
 import Link from "next/link";
@@ -15,6 +15,7 @@ interface ThankYouScreenProps {
 
 export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenProps) {
   const { t, language } = useLanguage();
+  const hasAnimated = useHasAnimated();
   const [participantCount, setParticipantCount] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -67,7 +68,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
       <div className="flex flex-col items-center justify-center min-h-[100dvh] px-4 max-w-3xl mx-auto py-12">
         {/* Success Animation */}
         <motion.div
-          initial={{ scale: 0, opacity: 0 }}
+          initial={hasAnimated ? false : { scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 200, damping: 15 }}
           className="relative mb-8"
@@ -80,7 +81,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
 
         {/* Main Content */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
           className="text-center space-y-6"
@@ -98,7 +99,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
 
         {/* Stats Card */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={hasAnimated ? false : { opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
           className="w-full max-w-md mt-10 glass-card-refined rounded-2xl p-6 text-center relative overflow-hidden group"
@@ -123,7 +124,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
         {/* Anonymous ID Card */}
         {anonymousId && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={hasAnimated ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
             className="w-full max-w-md mt-4 glass-card-refined rounded-xl p-4 relative overflow-hidden"
@@ -163,7 +164,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
 
         {/* Action Buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
           className="flex flex-col sm:flex-row gap-4 mt-10 w-full max-w-md"
@@ -198,7 +199,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
 
         {/* QR Code Share */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
           className="w-full max-w-md mt-6"
@@ -208,7 +209,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
 
         {/* Bonus badge */}
         <motion.div
-          initial={{ opacity: 0 }}
+          initial={hasAnimated ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
           className="mt-8 inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card-refined text-xs text-muted-foreground"
@@ -219,7 +220,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
 
         {/* Footer Note */}
         <motion.p
-          initial={{ opacity: 0 }}
+          initial={hasAnimated ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
           className="mt-8 text-xs text-muted-foreground/50 text-center max-w-md"

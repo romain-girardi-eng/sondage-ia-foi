@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Mail, Send, Loader2, CheckCircle2, AlertCircle, SkipForward } from "lucide-react";
-import { cn, useLanguage } from "@/lib";
+import { cn, useLanguage, useHasAnimated } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import type { Answers } from "@/data";
 
@@ -25,6 +25,7 @@ export function EmailCollectionScreen({
   onSkip,
 }: EmailCollectionScreenProps) {
   const { t, language } = useLanguage();
+  const hasAnimated = useHasAnimated();
   const [email, setEmail] = useState("");
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [submissionState, setSubmissionState] = useState<SubmissionState>("idle");
@@ -138,13 +139,13 @@ export function EmailCollectionScreen({
       <div className="flex flex-col items-center justify-center min-h-[100dvh] px-4 max-w-lg mx-auto py-12">
         {/* Header */}
         <motion.header
-          initial={{ opacity: 0, y: 20 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center space-y-4 mb-8"
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={hasAnimated ? false : { opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1, duration: 0.5 }}
             className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-white/10"
@@ -163,7 +164,7 @@ export function EmailCollectionScreen({
 
         {/* Form Card */}
         <motion.form
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={hasAnimated ? false : { opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
           onSubmit={handleSubmit}
@@ -259,7 +260,7 @@ export function EmailCollectionScreen({
 
         {/* Skip Button */}
         <motion.button
-          initial={{ opacity: 0 }}
+          initial={hasAnimated ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
           onClick={onSkip}

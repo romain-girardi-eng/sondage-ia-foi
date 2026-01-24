@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, Database, Clock, Lock, Sparkles } from "lucide-react";
-import { cn, useLanguage } from "@/lib";
+import { cn, useLanguage, useHasAnimated } from "@/lib";
 import { AnimatedBackground, Spotlight, LanguageSwitcher } from "@/components/ui";
 
 interface SurveyIntroProps {
@@ -11,6 +11,7 @@ interface SurveyIntroProps {
 
 export function SurveyIntro({ onStart }: SurveyIntroProps) {
   const { t } = useLanguage();
+  const hasAnimated = useHasAnimated();
 
   return (
     <AnimatedBackground variant="default" showGrid showOrbs>
@@ -24,13 +25,13 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
 
         {/* Header */}
         <motion.header
-          initial={{ opacity: 0, y: 20 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="text-center space-y-6"
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={hasAnimated ? false : { opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card-refined text-blue-300 text-xs font-medium uppercase tracking-wider"
@@ -51,7 +52,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
           </h1>
 
           <motion.p
-            initial={{ opacity: 0 }}
+            initial={hasAnimated ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.8 }}
             className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-balance"
@@ -62,7 +63,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
 
         {/* Privacy Card */}
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="group w-full max-w-2xl glass-card-refined rounded-2xl p-6 md:p-8 relative overflow-hidden"
@@ -116,7 +117,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
 
         {/* CTA Section */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={hasAnimated ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
           className="text-center space-y-4"
@@ -148,7 +149,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
 
         {/* Footer */}
         <motion.footer
-          initial={{ opacity: 0 }}
+          initial={hasAnimated ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
           className="text-center text-xs text-muted-foreground/30 max-w-md space-y-2"
