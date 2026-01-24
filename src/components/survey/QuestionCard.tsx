@@ -317,6 +317,46 @@ export function QuestionCard({
             </div>
           </fieldset>
         )}
+
+        {/* TYPE: TEXT (Open question) */}
+        {question.type === "text" && (
+          <div className="space-y-6 pb-4">
+            <textarea
+              value={typeof value === "string" ? value : ""}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder={question.placeholder || t("survey.textPlaceholder")}
+              rows={5}
+              className={cn(
+                "w-full p-4 md:p-5 rounded-2xl resize-none transition-all duration-300",
+                "bg-white/5 border border-white/10 text-white placeholder:text-white/30",
+                "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                "focus:bg-white/10"
+              )}
+            />
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <button
+                onClick={onNext}
+                className={cn(
+                  "w-full py-4 rounded-2xl font-semibold text-lg transition-all duration-300 relative overflow-hidden",
+                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                  "bg-white text-slate-900 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] btn-glow"
+                )}
+              >
+                <span className="relative z-10">
+                  {t("survey.continue")}
+                </span>
+                <span className="absolute inset-0 animate-shimmer" />
+              </button>
+              <p className="text-center text-xs text-white/40 mt-3">
+                {t("survey.optionalQuestion")}
+              </p>
+            </motion.div>
+          </div>
+        )}
       </motion.div>
     </article>
   );

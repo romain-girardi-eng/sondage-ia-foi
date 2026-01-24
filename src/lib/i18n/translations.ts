@@ -37,6 +37,8 @@ export const translations = {
       selectionsPlural: "{count} sélections",
       selectValue: "Sélectionnez une valeur",
       scaleFrom: "Échelle de 1 ({min}) à 5 ({max})",
+      textPlaceholder: "Écrivez votre réponse ici...",
+      optionalQuestion: "Cette question est facultative",
     },
 
     // Feedback Screen
@@ -141,6 +143,8 @@ export const translations = {
       selectionsPlural: "{count} selections",
       selectValue: "Select a value",
       scaleFrom: "Scale from 1 ({min}) to 5 ({max})",
+      textPlaceholder: "Write your answer here...",
+      optionalQuestion: "This question is optional",
     },
 
     // Feedback Screen
