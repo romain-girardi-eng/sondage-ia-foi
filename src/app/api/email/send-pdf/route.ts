@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { generatePDFReport } from '@/lib/pdf/generateReport';
+import { generatePDFReportBuffer } from '@/lib/pdf/generateReport';
 import { sendPDFEmail } from '@/lib/email/resend';
 import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase';
 import {
@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
     const profile = getSpiritualAIProfile(answers as Answers);
     const profileData = PROFILE_DATA[profile];
 
-    // Generate PDF
-    const pdfDoc = generatePDFReport({
+    // Generate PDF using the new async function
+    const pdfBuffer = await generatePDFReportBuffer({
       language,
       anonymousId,
       completedAt: new Date().toISOString(),
@@ -56,10 +56,6 @@ export async function POST(request: NextRequest) {
         theologicalOrientation: profileData.title,
       },
     });
-
-    // Convert jsPDF to buffer
-    const pdfArrayBuffer = pdfDoc.output('arraybuffer');
-    const pdfBuffer = Buffer.from(pdfArrayBuffer);
 
     // Send email
     const filename = language === 'fr'
@@ -121,7 +117,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('PDF send error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

@@ -2,6 +2,40 @@ import { NextRequest, NextResponse } from 'next/server';
 import { emailSubmissionSchema } from '@/lib/validation';
 import { hashEmail, encryptEmail, isEncryptionConfigured } from '@/lib/crypto';
 import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase';
+import { isResendConfigured } from '@/lib/email/resend';
+
+// Helper function to trigger PDF sending
+async function triggerPdfSend(
+  request: NextRequest,
+  submissionId: string,
+  email: string,
+  language: string,
+  anonymousId: string,
+  answers: Record<string, unknown>
+) {
+  try {
+    const pdfResponse = await fetch(new URL('/api/email/send-pdf', request.url), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        submissionId,
+        email,
+        language,
+        anonymousId,
+        answers,
+      }),
+    });
+
+    if (!pdfResponse.ok) {
+      console.error('PDF send failed:', await pdfResponse.text());
+      return false;
+    }
+    return true;
+  } catch (pdfError) {
+    console.error('Failed to trigger PDF send:', pdfError);
+    return false;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,11 +57,19 @@ export async function POST(request: NextRequest) {
 
     // Check if Supabase and encryption are configured
     if (!isServiceRoleConfigured || !isEncryptionConfigured) {
-      // Demo mode - simulate success
+      // Demo mode - but still try to send email if Resend is configured
       console.log('Demo mode: Email submission received', {
         emailHash: emailHash.slice(0, 8),
-        reason: !isServiceRoleConfigured ? 'no supabase' : 'no encryption key'
+        reason: !isServiceRoleConfigured ? 'no supabase' : 'no encryption key',
+        resendConfigured: isResendConfigured
       });
+
+      // Even in demo mode, try to send the PDF email if Resend is configured
+      if (isResendConfigured) {
+        const demoSubmissionId = 'demo-' + Date.now();
+        await triggerPdfSend(request, demoSubmissionId, email, language, anonymousId, answers);
+      }
+
       return NextResponse.json({
         success: true,
         submissionId: 'demo-' + Date.now(),
@@ -86,28 +128,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Trigger PDF generation and sending (async, non-blocking)
-    try {
-      // Call the send-pdf endpoint internally
-      const pdfResponse = await fetch(new URL('/api/email/send-pdf', request.url), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          submissionId: submission.id,
-          email,
-          language,
-          anonymousId,
-          answers,
-        }),
-      });
-
-      if (!pdfResponse.ok) {
-        // Log but don't fail the main request
-        console.error('PDF send failed:', await pdfResponse.text());
-      }
-    } catch (pdfError) {
-      // Log but don't fail the main request - PDF will be retried later
-      console.error('Failed to trigger PDF send:', pdfError);
-    }
+    await triggerPdfSend(request, submission.id, email, language, anonymousId, answers);
 
     return NextResponse.json({
       success: true,
