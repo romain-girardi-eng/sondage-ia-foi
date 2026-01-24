@@ -123,13 +123,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(generateMockStats());
     }
 
+    // Use type assertion for untyped table
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = supabase as any;
+
     // Get total responses
-    const { count: totalResponses } = await supabase
+    const { count: totalResponses } = await db
       .from("survey_responses")
       .select("*", { count: "exact", head: true });
 
     // Get completed responses
-    const { count: completedResponses } = await supabase
+    const { count: completedResponses } = await db
       .from("survey_responses")
       .select("*", { count: "exact", head: true })
       .eq("completed", true);
@@ -137,7 +141,7 @@ export async function GET(request: NextRequest) {
     // Get today's responses
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const { count: todayResponses } = await supabase
+    const { count: todayResponses } = await db
       .from("survey_responses")
       .select("*", { count: "exact", head: true })
       .gte("created_at", today.toISOString());
@@ -145,13 +149,13 @@ export async function GET(request: NextRequest) {
     // Get this week's responses
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const { count: weekResponses } = await supabase
+    const { count: weekResponses } = await db
       .from("survey_responses")
       .select("*", { count: "exact", head: true })
       .gte("created_at", weekAgo.toISOString());
 
     // Get responses by language
-    const { data: languageData } = await supabase
+    const { data: languageData } = await db
       .from("survey_responses")
       .select("language")
       .not("language", "is", null);
@@ -166,7 +170,7 @@ export async function GET(request: NextRequest) {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const { data: timelineData } = await supabase
+    const { data: timelineData } = await db
       .from("survey_responses")
       .select("created_at")
       .gte("created_at", thirtyDaysAgo.toISOString())
@@ -192,7 +196,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get recent responses
-    const { data: recentData } = await supabase
+    const { data: recentData } = await db
       .from("survey_responses")
       .select("id, created_at, language, completed, answers")
       .order("created_at", { ascending: false })
