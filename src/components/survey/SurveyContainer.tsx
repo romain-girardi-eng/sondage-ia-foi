@@ -14,9 +14,21 @@ import { ChevronLeft } from "lucide-react";
 
 type SurveyStep = "intro" | "questions" | "feedback" | "thanks" | "results";
 
+// Check URL for direct navigation (dev mode)
+function getInitialStep(): SurveyStep {
+  if (typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search);
+    const view = params.get("view");
+    if (view === "results") return "results";
+    if (view === "feedback") return "feedback";
+    if (view === "thanks") return "thanks";
+  }
+  return "intro";
+}
+
 export function SurveyContainer() {
   const { t } = useLanguage();
-  const [step, setStep] = useState<SurveyStep>("intro");
+  const [step, setStep] = useState<SurveyStep>(getInitialStep);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | number | string[]>>({});
 

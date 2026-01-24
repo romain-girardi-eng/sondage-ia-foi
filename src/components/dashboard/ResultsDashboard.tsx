@@ -551,8 +551,11 @@ export function ResultsDashboard() {
       </motion.div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AnimatePresence mode="popLayout">
+      <motion.div
+        layout
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
+        <AnimatePresence mode="sync">
           {filteredQuestions.map((question, index) => {
             const data = results.find((r) => r.questionId === question.id);
             if (!data || Object.keys(data.distribution).length === 0) return null;
@@ -569,7 +572,7 @@ export function ResultsDashboard() {
             );
           })}
         </AnimatePresence>
-      </div>
+      </motion.div>
 
       {/* Footer */}
       <motion.footer
@@ -629,16 +632,20 @@ function ModernChartCard({ question, data, index, isExpanded, onToggle }: Modern
 
   return (
     <motion.article
-      layout
-      initial={{ opacity: 0, y: 30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ delay: index * 0.05, duration: 0.5 }}
+      layout="position"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{
+        layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+        opacity: { duration: 0.3 },
+        y: { duration: 0.3, delay: index * 0.03 },
+      }}
       className={cn(
-        "group relative overflow-hidden rounded-3xl",
+        "group relative rounded-3xl",
         "bg-gradient-to-br from-white/[0.08] to-white/[0.02]",
         "border border-white/10 hover:border-white/20",
-        "backdrop-blur-xl transition-all duration-500",
+        "backdrop-blur-xl transition-colors duration-300",
         "hover:shadow-2xl hover:shadow-blue-500/5"
       )}
     >
@@ -687,21 +694,29 @@ function ModernChartCard({ question, data, index, isExpanded, onToggle }: Modern
       </div>
 
       {/* Chart Area */}
-      <div className="relative px-6 pb-6">
-        <AnimatePresence mode="wait">
+      <div className="relative px-6 pb-6 overflow-hidden">
+        <AnimatePresence mode="wait" initial={false}>
           {question.type === "scale" ? (
-            <ScaleVisualization
+            <motion.div
               key="scale"
-              data={chartData}
-              question={question}
-              total={totalResponses}
-            />
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ScaleVisualization
+                data={chartData}
+                question={question}
+                total={totalResponses}
+              />
+            </motion.div>
           ) : isExpanded ? (
             <motion.div
               key="expanded"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               className="space-y-3"
             >
               {chartData.map((entry, idx) => (
@@ -717,7 +732,15 @@ function ModernChartCard({ question, data, index, isExpanded, onToggle }: Modern
               ))}
             </motion.div>
           ) : (
-            <RadialChart key="radial" data={chartData} total={totalResponses} />
+            <motion.div
+              key="radial"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <RadialChart data={chartData} total={totalResponses} />
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
