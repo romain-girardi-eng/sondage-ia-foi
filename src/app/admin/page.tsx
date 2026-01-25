@@ -350,6 +350,7 @@ export default function AdminPage() {
   const [activeDetailTab, setActiveDetailTab] = useState<"profil" | "scores" | "reponses" | "analyse">("profil");
 const [selectedResponseIds, setSelectedResponseIds] = useState<string[]>([]);
 const [showComparison, setShowComparison] = useState(false);
+const [showNotifications, setShowNotifications] = useState(false);
 const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
   const [statsError, setStatsError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
@@ -496,6 +497,18 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
       return () => clearInterval(interval);
     }
   }, [isAuthenticated, fetchStats]);
+
+  // Close notifications dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (showNotifications && !target.closest('[data-notifications]')) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showNotifications]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -753,10 +766,89 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 <span className="hidden sm:inline">Refresh</span>
               </button>
 
-              <button className="relative p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all">
-                <Bell className="w-4 h-4 text-white" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full" />
-              </button>
+              <div className="relative" data-notifications>
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="relative p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
+                >
+                  <Bell className="w-4 h-4 text-white" />
+                  {stats && stats.recentResponses.length > 0 && (
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full" />
+                  )}
+                </button>
+
+                {/* Notifications Dropdown */}
+                <AnimatePresence>
+                  {showNotifications && stats && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 top-full mt-2 w-80 bg-slate-900 border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden"
+                    >
+                      <div className="p-3 border-b border-white/5 flex items-center justify-between">
+                        <h4 className="text-sm font-medium text-white">Recent Responses</h4>
+                        <span className="text-xs text-white/50">{stats.recentResponses.length} latest</span>
+                      </div>
+                      <div className="max-h-80 overflow-y-auto">
+                        {stats.recentResponses.length === 0 ? (
+                          <div className="p-6 text-center text-white/40 text-sm">
+                            No responses yet
+                          </div>
+                        ) : (
+                          stats.recentResponses.slice(0, 5).map((response) => (
+                            <button
+                              key={response.id}
+                              onClick={() => {
+                                handleOpenDetail(response.id);
+                                setShowNotifications(false);
+                              }}
+                              className="w-full p-3 hover:bg-white/5 border-b border-white/5 last:border-0 text-left transition-colors"
+                            >
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="font-mono text-xs text-white/70">
+                                  #{response.id.slice(0, 8)}
+                                </span>
+                                <span className="text-xs text-white/40">
+                                  {new Date(response.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={cn(
+                                    "text-xs px-1.5 py-0.5 rounded",
+                                    response.completed
+                                      ? "bg-green-500/20 text-green-400"
+                                      : "bg-amber-500/20 text-amber-400"
+                                  )}
+                                >
+                                  {response.completed ? "Complete" : "Partial"}
+                                </span>
+                                <span className="text-xs text-white/50">
+                                  {PROFILE_LABELS[response.profile] || response.profile}
+                                </span>
+                              </div>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                      {stats.recentResponses.length > 0 && (
+                        <div className="p-2 border-t border-white/5">
+                          <button
+                            onClick={() => {
+                              setActiveTab("responses");
+                              setShowNotifications(false);
+                            }}
+                            className="w-full text-center text-xs text-blue-400 hover:text-blue-300 py-2 transition-colors"
+                          >
+                            View all responses →
+                          </button>
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
 
