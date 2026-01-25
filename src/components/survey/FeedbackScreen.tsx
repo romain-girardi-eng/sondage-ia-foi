@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, TrendingUp, Users, Brain, Shield, Target, AlertTriangle, Lightbulb, ChevronRight, HelpCircle } from "lucide-react";
-import { cn, useLanguage, useHasAnimated } from "@/lib";
+import { cn, useLanguage, useHasAnimated, useMemoizedProfileSpectrum } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { ProfilesModal } from "./ProfilesModal";
@@ -20,11 +20,9 @@ import {
   getResistanceLevel,
   RESISTANCE_LABELS,
   getPercentileComparison,
-  calculateProfileSpectrum,
   PROFILE_DEFINITIONS,
   SUB_PROFILE_DEFINITIONS,
   DIMENSION_COLORS,
-  type ProfileSpectrum,
 } from "@/lib/scoring";
 
 interface FeedbackScreenProps {
@@ -79,17 +77,28 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
     setIsProfilesModalOpen(true);
   };
 
-  // Calculate all scores
-  const spectrum: ProfileSpectrum = calculateProfileSpectrum(answers);
-  const crsScore = calculateCRS5Score(answers);
-  const religiosityLevel = getReligiosityLevel(crsScore);
-  const aiScore = calculateAIAdoptionScore(answers);
-  const aiLevel = getAIAdoptionLevel(aiScore);
-  const generalAIScore = calculateGeneralAIScore(answers);
-  const resistanceIndex = calculateSpiritualResistanceIndex(answers);
-  const resistanceLevel = getResistanceLevel(resistanceIndex);
-  const religiosityPercentile = getPercentileComparison(crsScore, 'religiosity');
-  const aiPercentile = getPercentileComparison(aiScore, 'ai_adoption');
+  // Calculate all scores - memoized to prevent expensive recalculations
+  const spectrum = useMemoizedProfileSpectrum(answers);
+
+  // Memoize other score calculations
+  const { crsScore, religiosityLevel, aiScore, aiLevel, generalAIScore, resistanceIndex, resistanceLevel, religiosityPercentile, aiPercentile } = useMemo(() => {
+    const crs = calculateCRS5Score(answers);
+    const ai = calculateAIAdoptionScore(answers);
+    const general = calculateGeneralAIScore(answers);
+    const resistance = calculateSpiritualResistanceIndex(answers);
+
+    return {
+      crsScore: crs,
+      religiosityLevel: getReligiosityLevel(crs),
+      aiScore: ai,
+      aiLevel: getAIAdoptionLevel(ai),
+      generalAIScore: general,
+      resistanceIndex: resistance,
+      resistanceLevel: getResistanceLevel(resistance),
+      religiosityPercentile: getPercentileComparison(crs, 'religiosity'),
+      aiPercentile: getPercentileComparison(ai, 'ai_adoption'),
+    };
+  }, [answers]);
 
   // Profile data
   const primaryMatch = spectrum.primary;
@@ -137,7 +146,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 hover:bg-muted border border-border hover:border-border/80 text-muted-foreground hover:text-foreground text-sm font-medium transition-all"
           >
             <HelpCircle className="w-4 h-4" />
-            {t("profiles.viewAll")}
+            {t("profilesModal.viewAll")}
           </motion.button>
         </motion.header>
 
@@ -166,14 +175,14 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                 </div>
                 <div className="space-y-3 mt-4">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-2xl md:text-3xl font-bold text-foreground">{profileDef.title}</h2>
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground">{t(`profiles.${primaryMatch.profile}` as any) || profileDef.title}</h2>
                     <ChevronRight className="w-5 h-5 text-muted-foreground/50 group-hover:text-muted-foreground group-hover:translate-x-1 transition-all" />
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">{profileDef.shortDescription}</p>
                   {subProfileDef && (
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/20 dark:bg-purple-500/20 border border-purple-500/30">
                       <span>{subProfileDef.emoji}</span>
-                      <span className="text-xs font-medium text-purple-700 dark:text-purple-300">{subProfileDef.title}</span>
+                      <span className="text-xs font-medium text-purple-700 dark:text-purple-300">{t(`profiles.${subProfileMatch?.subProfile}` as any) || subProfileDef.title}</span>
                     </div>
                   )}
                 </div>
@@ -293,7 +302,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                       <span className="text-2xl">{matchDef.emoji}</span>
                       <div className="flex-1 min-w-0">
                         <p className={cn("text-sm font-medium truncate", index === 0 ? "text-foreground" : "text-muted-foreground")}>
-                          {matchDef.title}
+                          {t(`profiles.${match.profile}` as any) || matchDef.title}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
@@ -407,8 +416,8 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                 <div className="flex items-start gap-3">
                   <ChevronRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-sm font-medium text-foreground mb-1">{growthAreas[0].area}</h4>
-                    <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80">{growthAreas[0].actionableStep}</p>
+                    <h4 className="text-sm font-medium text-foreground mb-1">{t(`growthAreas.${growthAreas[0].area}` as any)}</h4>
+                    <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80">{t(`growthAreas.${growthAreas[0].actionableStep}` as any)}</p>
                   </div>
                 </div>
               </GlowCard>
@@ -428,7 +437,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                   <span className="text-muted-foreground"> vs </span>
                   <span className="text-amber-600 dark:text-amber-400">{t(`dimensions.${tensions[0].dimension2}.label` as any)}</span>
                 </div>
-                <p className="text-xs text-muted-foreground">{tensions[0].description}</p>
+                <p className="text-xs text-muted-foreground">{t(`tensions.${tensions[0].description}` as any)}</p>
               </GlowCard>
             )}
           </ul>

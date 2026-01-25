@@ -662,8 +662,8 @@ function identifyTensions(dimensions: SevenDimensions): TensionPoint[] {
     tensions.push({
       dimension1: 'aiOpenness',
       dimension2: 'sacredBoundary',
-      description: 'Vous êtes ouvert à l\'IA en général mais maintenez une réserve pour le spirituel.',
-      suggestion: 'Clarifiez ce qui distingue un usage spirituel d\'un usage pratique de l\'IA.',
+      description: 'tension_ai_sacred',
+      suggestion: 'tension_ai_sacred_suggestion',
     });
   }
 
@@ -672,8 +672,8 @@ function identifyTensions(dimensions: SevenDimensions): TensionPoint[] {
     tensions.push({
       dimension1: 'ethicalConcern',
       dimension2: 'futureOrientation',
-      description: 'Vous voulez avancer mais avec prudence éthique.',
-      suggestion: 'Cette tension est créative : elle peut vous conduire à une adoption responsable.',
+      description: 'tension_ethical_future',
+      suggestion: 'tension_ethical_future_suggestion',
     });
   }
 
@@ -682,8 +682,8 @@ function identifyTensions(dimensions: SevenDimensions): TensionPoint[] {
     tensions.push({
       dimension1: 'communityInfluence',
       dimension2: 'religiosity',
-      description: 'Foi profonde mais peu influencée par la communauté.',
-      suggestion: 'Enrichissez votre réflexion par le dialogue avec d\'autres croyants.',
+      description: 'tension_community_faith',
+      suggestion: 'tension_community_faith_suggestion',
     });
   }
 
@@ -692,8 +692,8 @@ function identifyTensions(dimensions: SevenDimensions): TensionPoint[] {
     tensions.push({
       dimension1: 'psychologicalPerception',
       dimension2: 'ethicalConcern',
-      description: 'Vous réfléchissez à la nature de l\'IA mais sans inquiétude particulière.',
-      suggestion: 'Votre approche philosophique pourrait gagner à considérer les implications pratiques.',
+      description: 'tension_perception_ethics',
+      suggestion: 'tension_perception_ethics_suggestion',
     });
   }
 
@@ -714,46 +714,46 @@ function identifyGrowthAreas(
 
   if (dimensions.aiOpenness.value <= 2.5 && dimensions.futureOrientation.value >= 3) {
     growthAreas.push({
-      area: 'Exploration technologique',
-      currentState: 'Réserve face à l\'IA',
-      potentialGrowth: 'Découvrir des usages qui correspondent à vos valeurs',
-      actionableStep: 'Essayez un outil d\'IA simple dans un contexte non spirituel pour vous familiariser',
+      area: 'exploration_tech',
+      currentState: 'exploration_tech_current',
+      potentialGrowth: 'exploration_tech_potential',
+      actionableStep: 'exploration_tech_action',
     });
   }
 
   if (dimensions.communityInfluence.value <= 2 && dimensions.religiosity.value >= 3) {
     growthAreas.push({
-      area: 'Dialogue communautaire',
-      currentState: 'Réflexion plutôt individuelle',
-      potentialGrowth: 'Enrichir votre perspective par l\'échange',
-      actionableStep: 'Initiez une conversation sur l\'IA avec un membre de votre communauté',
+      area: 'community_dialogue',
+      currentState: 'community_dialogue_current',
+      potentialGrowth: 'community_dialogue_potential',
+      actionableStep: 'community_dialogue_action',
     });
   }
 
   if (dimensions.ethicalConcern.value <= 2 && dimensions.aiOpenness.value >= 4) {
     growthAreas.push({
-      area: 'Réflexion éthique',
-      currentState: 'Adoption sans réserves particulières',
-      potentialGrowth: 'Développer un regard critique constructif',
-      actionableStep: 'Lisez un article sur les enjeux éthiques de l\'IA dans un domaine qui vous concerne',
+      area: 'ethical_reflection',
+      currentState: 'ethical_reflection_current',
+      potentialGrowth: 'ethical_reflection_potential',
+      actionableStep: 'ethical_reflection_action',
     });
   }
 
   if (dimensions.sacredBoundary.value >= 4.5 && dimensions.futureOrientation.value >= 3) {
     growthAreas.push({
-      area: 'Expérimentation encadrée',
-      currentState: 'Frontière sacrée très marquée',
-      potentialGrowth: 'Tester prudemment certains usages sans compromettre l\'essentiel',
-      actionableStep: 'Identifiez un usage administratif où l\'IA pourrait vous libérer du temps pour le relationnel',
+      area: 'guided_experimentation',
+      currentState: 'guided_experimentation_current',
+      potentialGrowth: 'guided_experimentation_potential',
+      actionableStep: 'guided_experimentation_action',
     });
   }
 
   if (dimensions.futureOrientation.value <= 2) {
     growthAreas.push({
-      area: 'Ouverture au changement',
-      currentState: 'Satisfaction avec l\'approche actuelle',
-      potentialGrowth: 'Rester informé des évolutions sans nécessairement les adopter',
-      actionableStep: 'Suivez occasionnellement l\'actualité de l\'IA dans le domaine religieux',
+      area: 'openness_change',
+      currentState: 'openness_change_current',
+      potentialGrowth: 'openness_change_potential',
+      actionableStep: 'openness_change_action',
     });
   }
 

@@ -80,6 +80,65 @@ export const translations = {
       tensionPoint: "Point de tension",
     },
 
+    // Profile names
+    profiles: {
+      gardien_tradition: "Gardien de la Tradition",
+      prudent_eclaire: "Prudent Éclairé",
+      innovateur_ancre: "Innovateur Ancré",
+      equilibriste: "Équilibriste Spirituel",
+      pragmatique_moderne: "Pragmatique Moderne",
+      pionnier_spirituel: "Pionnier Spirituel",
+      progressiste_critique: "Progressiste Critique",
+      explorateur: "Explorateur",
+      // Sub-profiles
+      protecteur_sacre: "Le Protecteur du Sacré",
+      sage_prudent: "Le Sage Prudent",
+      berger_communautaire: "Le Berger Communautaire",
+      analyste_spirituel: "L'Analyste Spirituel",
+      discerneur_pastoral: "Le Discerneur Pastoral",
+      observateur_engage: "L'Observateur Engagé",
+      pont_generationnel: "Le Pont Générationnel",
+      evangeliste_digital: "L'Évangéliste Digital",
+      theologien_techno: "Le Théologien Techno",
+      mediateur: "Le Médiateur",
+      chercheur_sens: "Le Chercheur de Sens",
+      adaptateur_prudent: "L'Adaptateur Prudent",
+      efficace_engage: "L'Efficace Engagé",
+      communicateur_digital: "Le Communicateur Digital",
+      optimisateur_pastoral: "L'Optimisateur Pastoral",
+      visionnaire: "Le Visionnaire",
+      experimentateur: "L'Expérimentateur",
+      prophete_digital: "Le Prophète Digital",
+      ethicien: "L'Éthicien",
+      reformateur_social: "Le Réformateur Social",
+      philosophe_spirituel: "Le Philosophe Spirituel",
+      curieux_spirituel: "Le Curieux Spirituel",
+      novice_technologique: "Le Novice Technologique",
+      chercheur_seculier: "Le Chercheur Séculier",
+    },
+
+    // Growth areas
+    growthAreas: {
+      exploration_tech: "Exploration technologique",
+      exploration_tech_action: "Essayez un outil d'IA simple dans un contexte non spirituel pour vous familiariser",
+      community_dialogue: "Dialogue communautaire",
+      community_dialogue_action: "Initiez une conversation sur l'IA avec un membre de votre communauté",
+      ethical_reflection: "Réflexion éthique",
+      ethical_reflection_action: "Lisez un article sur les enjeux éthiques de l'IA dans un domaine qui vous concerne",
+      guided_experimentation: "Expérimentation encadrée",
+      guided_experimentation_action: "Identifiez un usage administratif où l'IA pourrait vous libérer du temps pour le relationnel",
+      openness_change: "Ouverture au changement",
+      openness_change_action: "Suivez occasionnellement l'actualité de l'IA dans le domaine religieux",
+    },
+
+    // Tensions
+    tensions: {
+      tension_ai_sacred: "Vous êtes ouvert à l'IA en général mais maintenez une réserve pour le spirituel.",
+      tension_ethical_future: "Vous voulez avancer mais avec prudence éthique.",
+      tension_community_faith: "Foi profonde mais peu influencée par la communauté.",
+      tension_perception_ethics: "Vous réfléchissez à la nature de l'IA mais sans inquiétude particulière.",
+    },
+
     // Thank You Screen
     thanks: {
       title: "Merci pour votre participation",
@@ -221,7 +280,7 @@ export const translations = {
     },
 
     // Profiles Modal
-    profiles: {
+    profilesModal: {
       title: "Les 8 profils",
       subtitle: "Découvrez les différentes postures face à l'IA et la foi",
       viewAll: "Voir tous les profils",
@@ -455,6 +514,65 @@ export const translations = {
       tensionPoint: "Tension Point",
     },
 
+    // Profile names
+    profiles: {
+      gardien_tradition: "Tradition Guardian",
+      prudent_eclaire: "Enlightened Cautious",
+      innovateur_ancre: "Anchored Innovator",
+      equilibriste: "Spiritual Balancer",
+      pragmatique_moderne: "Modern Pragmatist",
+      pionnier_spirituel: "Spiritual Pioneer",
+      progressiste_critique: "Critical Progressive",
+      explorateur: "Explorer",
+      // Sub-profiles
+      protecteur_sacre: "The Sacred Protector",
+      sage_prudent: "The Prudent Sage",
+      berger_communautaire: "The Community Shepherd",
+      analyste_spirituel: "The Spiritual Analyst",
+      discerneur_pastoral: "The Pastoral Discerner",
+      observateur_engage: "The Engaged Observer",
+      pont_generationnel: "The Generational Bridge",
+      evangeliste_digital: "The Digital Evangelist",
+      theologien_techno: "The Techno Theologian",
+      mediateur: "The Mediator",
+      chercheur_sens: "The Meaning Seeker",
+      adaptateur_prudent: "The Prudent Adapter",
+      efficace_engage: "The Engaged Efficient",
+      communicateur_digital: "The Digital Communicator",
+      optimisateur_pastoral: "The Pastoral Optimizer",
+      visionnaire: "The Visionary",
+      experimentateur: "The Experimenter",
+      prophete_digital: "The Digital Prophet",
+      ethicien: "The Ethicist",
+      reformateur_social: "The Social Reformer",
+      philosophe_spirituel: "The Spiritual Philosopher",
+      curieux_spirituel: "The Spiritual Curious",
+      novice_technologique: "The Tech Novice",
+      chercheur_seculier: "The Secular Seeker",
+    },
+
+    // Growth areas
+    growthAreas: {
+      exploration_tech: "Tech Exploration",
+      exploration_tech_action: "Try a simple AI tool in a non-spiritual context to get familiar",
+      community_dialogue: "Community Dialogue",
+      community_dialogue_action: "Start a conversation about AI with a member of your community",
+      ethical_reflection: "Ethical Reflection",
+      ethical_reflection_action: "Read an article about AI ethical issues in a field that concerns you",
+      guided_experimentation: "Guided Experimentation",
+      guided_experimentation_action: "Identify an administrative use where AI could free up time for relationships",
+      openness_change: "Openness to Change",
+      openness_change_action: "Occasionally follow AI news in the religious domain",
+    },
+
+    // Tensions
+    tensions: {
+      tension_ai_sacred: "You are open to AI in general but maintain reservations for spiritual matters.",
+      tension_ethical_future: "You want to move forward but with ethical caution.",
+      tension_community_faith: "Deep faith but little influenced by community.",
+      tension_perception_ethics: "You reflect on the nature of AI but without particular concern.",
+    },
+
     // Thank You Screen
     thanks: {
       title: "Thank you for your participation",
@@ -596,7 +714,7 @@ export const translations = {
     },
 
     // Profiles Modal
-    profiles: {
+    profilesModal: {
       title: "The 8 Profiles",
       subtitle: "Discover the different stances towards AI and faith",
       viewAll: "View all profiles",

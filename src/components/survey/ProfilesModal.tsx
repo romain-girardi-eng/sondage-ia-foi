@@ -78,13 +78,13 @@ export function ProfilesModal({ isOpen, onClose, currentProfile, initialSelected
           {/* Header */}
           <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-white/10 bg-[#0d1424]/95 backdrop-blur-sm">
             <div>
-              <h2 className="text-2xl font-bold text-white">{t("profiles.title")}</h2>
-              <p className="text-sm text-muted-foreground mt-1">{t("profiles.subtitle")}</p>
+              <h2 className="text-2xl font-bold text-white">{t("profilesModal.title")}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{t("profilesModal.subtitle")}</p>
             </div>
             <button
               onClick={onClose}
               className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-              aria-label={t("profiles.close")}
+              aria-label={t("profilesModal.close")}
             >
               <X className="w-5 h-5 text-white/70" />
             </button>
@@ -129,7 +129,7 @@ export function ProfilesModal({ isOpen, onClose, currentProfile, initialSelected
                   >
                     {isCurrentProfile && (
                       <span className="absolute top-2 right-2 px-2 py-0.5 text-[10px] font-medium rounded-full bg-purple-500/30 text-purple-300">
-                        {t("profiles.yourProfile")}
+                        {t("profilesModal.yourProfile")}
                       </span>
                     )}
 
@@ -169,7 +169,7 @@ export function ProfilesModal({ isOpen, onClose, currentProfile, initialSelected
                             <div className="mt-4 space-y-2">
                               <div className="flex items-start gap-2">
                                 <span className="text-xs text-muted-foreground shrink-0">
-                                  {t("profiles.coreMotivation")}:
+                                  {t("profilesModal.coreMotivation")}:
                                 </span>
                                 <span className="text-xs text-emerald-400">
                                   {profile.coreMotivation}
@@ -177,7 +177,7 @@ export function ProfilesModal({ isOpen, onClose, currentProfile, initialSelected
                               </div>
                               <div className="flex items-start gap-2">
                                 <span className="text-xs text-muted-foreground shrink-0">
-                                  {t("profiles.primaryFear")}:
+                                  {t("profilesModal.primaryFear")}:
                                 </span>
                                 <span className="text-xs text-amber-400">
                                   {profile.primaryFear}

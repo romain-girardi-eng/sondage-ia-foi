@@ -1,6 +1,8 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
+import type { Answers } from "@/data";
+import { calculateProfileSpectrum, type ProfileSpectrum } from "./scoring";
 
 /**
  * Hook to track if it's the first render (for animations)
@@ -21,4 +23,12 @@ export function useHasAnimated() {
   }, []);
 
   return hasAnimated;
+}
+
+/**
+ * Memoized profile spectrum calculation
+ * Prevents expensive re-calculations on every render
+ */
+export function useMemoizedProfileSpectrum(answers: Answers): ProfileSpectrum {
+  return useMemo(() => calculateProfileSpectrum(answers), [answers]);
 }
