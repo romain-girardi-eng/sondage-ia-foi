@@ -23,14 +23,14 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
 
   const features = language === "fr"
     ? [
-        { icon: "🔬", text: "Étude scientifique" },
+        { icon: "🔬", text: "Méthodologie scientifique" },
         { icon: "🔒", text: "100% anonyme" },
-        { icon: "⏱️", text: "3-5 minutes" },
+        { icon: "⏱️", text: "5-7 minutes" },
       ]
     : [
-        { icon: "🔬", text: "Scientific study" },
+        { icon: "🔬", text: "Scientific methodology" },
         { icon: "🔒", text: "100% anonymous" },
-        { icon: "⏱️", text: "3-5 minutes" },
+        { icon: "⏱️", text: "5-7 minutes" },
       ];
 
   return (

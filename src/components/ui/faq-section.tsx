@@ -205,8 +205,8 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
     ? "Aucune question ne correspond à votre recherche."
     : "No questions match your search.";
   const footerText = language === "fr"
-    ? "Étude académique sur l'IA et la vie spirituelle"
-    : "Academic study on AI and spiritual life";
+    ? "Grande enquête sur l'IA et la vie spirituelle"
+    : "Major survey on AI and spiritual life";
 
   const filtered = query
     ? faqs.filter(({ q, a }) => (q + a).toLowerCase().includes(query.toLowerCase()))
