@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { QrCode, Download, Copy, Check, Share2 } from "lucide-react";
 import { generateQRCodeDataURL, getSurveyShareURL } from "@/lib/qrcode/generateQR";
-import { cn } from "@/lib/utils";
+import { cn, useLanguage } from "@/lib";
 
 interface QRCodeShareProps {
   language: "fr" | "en";
@@ -12,34 +12,12 @@ interface QRCodeShareProps {
 }
 
 export function QRCodeShare({ language, className }: QRCodeShareProps) {
+  const { t } = useLanguage();
   const [qrCodeDataURL, setQRCodeDataURL] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const shareURL = getSurveyShareURL(language);
-
-  const translations = {
-    fr: {
-      title: "Partagez ce sondage",
-      scanQR: "Scannez ce QR code",
-      orCopyLink: "Ou copiez le lien",
-      copyLink: "Copier le lien",
-      copied: "Copié !",
-      download: "Télécharger",
-      share: "Partager",
-    },
-    en: {
-      title: "Share this survey",
-      scanQR: "Scan this QR code",
-      orCopyLink: "Or copy the link",
-      copyLink: "Copy link",
-      copied: "Copied!",
-      download: "Download",
-      share: "Share",
-    },
-  };
-
-  const t = translations[language];
 
   useEffect(() => {
     generateQRCodeDataURL(shareURL, { width: 200 })
@@ -73,10 +51,8 @@ export function QRCodeShare({ language, className }: QRCodeShareProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: language === "fr" ? "Sondage IA & Foi" : "AI & Faith Survey",
-          text: language === "fr"
-            ? "Participez à cette étude sur l'IA et la vie spirituelle"
-            : "Participate in this study on AI and spiritual life",
+          title: t("sharing.shareTitle"),
+          text: t("sharing.shareDescription"),
           url: shareURL,
         });
       } catch (error) {
@@ -98,7 +74,7 @@ export function QRCodeShare({ language, className }: QRCodeShareProps) {
     >
       <div className="flex items-center gap-2 mb-4">
         <QrCode className="w-5 h-5 text-blue-400" />
-        <h3 className="text-lg font-semibold text-white">{t.title}</h3>
+        <h3 className="text-lg font-semibold text-white">{t("sharing.title")}</h3>
       </div>
 
       <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -119,11 +95,11 @@ export function QRCodeShare({ language, className }: QRCodeShareProps) {
 
         {/* Actions */}
         <div className="flex-1 space-y-4">
-          <p className="text-white/60 text-sm">{t.scanQR}</p>
+          <p className="text-white/60 text-sm">{t("sharing.scanQR")}</p>
 
           <div className="space-y-3">
             <p className="text-white/40 text-xs uppercase tracking-wider">
-              {t.orCopyLink}
+              {t("sharing.orCopyLink")}
             </p>
 
             <div className="flex flex-wrap gap-2">
@@ -139,12 +115,12 @@ export function QRCodeShare({ language, className }: QRCodeShareProps) {
                 {copied ? (
                   <>
                     <Check className="w-4 h-4" />
-                    {t.copied}
+                    {t("sharing.copied")}
                   </>
                 ) : (
                   <>
                     <Copy className="w-4 h-4" />
-                    {t.copyLink}
+                    {t("sharing.copyLink")}
                   </>
                 )}
               </button>
@@ -155,7 +131,7 @@ export function QRCodeShare({ language, className }: QRCodeShareProps) {
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-white/5 text-white hover:bg-white/10 border border-white/10 transition-all disabled:opacity-50"
               >
                 <Download className="w-4 h-4" />
-                {t.download}
+                {t("sharing.download")}
               </button>
 
               {typeof navigator !== "undefined" && "share" in navigator && (
@@ -164,7 +140,7 @@ export function QRCodeShare({ language, className }: QRCodeShareProps) {
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-blue-600 text-white hover:bg-blue-500 transition-all"
                 >
                   <Share2 className="w-4 h-4" />
-                  {t.share}
+                  {t("sharing.share")}
                 </button>
               )}
             </div>

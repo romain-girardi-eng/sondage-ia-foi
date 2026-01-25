@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FileText, Download, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, useLanguage } from "@/lib";
 
 // Dynamically import PDF components to avoid SSR issues
 const PDFDownloadLink = dynamic(
@@ -38,23 +38,9 @@ export function PDFDownloadButton({
   profile,
   className,
 }: PDFDownloadButtonProps) {
+  const { t } = useLanguage();
   const [isClient, setIsClient] = useState(false);
   const [spectrum, setSpectrum] = useState<any>(null);
-
-  const translations = {
-    fr: {
-      download: "Télécharger mon rapport PDF",
-      generating: "Génération...",
-      preparing: "Préparation...",
-    },
-    en: {
-      download: "Download my PDF report",
-      generating: "Generating...",
-      preparing: "Preparing...",
-    },
-  };
-
-  const t = translations[language];
 
   const filename = language === "fr"
     ? `rapport-ia-foi-${anonymousId.slice(0, 8)}.pdf`

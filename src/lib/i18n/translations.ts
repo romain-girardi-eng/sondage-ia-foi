@@ -141,6 +141,43 @@ export const translations = {
       usage: "Usage IA",
       theology: "Théologie",
       psychology: "Psychologie",
+      analyzingData: "Analyse des données",
+      preparingViz: "Préparation des visualisations...",
+      realTimeResults: "Résultats en temps réel",
+      dashboardTitle: "Tableau de Bord",
+      exploreDescription: "Explorez les tendances et découvrez les insights de notre communauté",
+      responsesCollected: "réponses collectées",
+      catholics: "Catholiques",
+      majorityDenomination: "confession majoritaire",
+      aiUsers: "Utilisateurs IA",
+      useAIRegularly: "utilisent l'IA régulièrement",
+      averageScore: "Score moyen",
+      crs5Religiosity: "religiosité CRS-5",
+      keyInsight: "Insight principal",
+      insightTitle: "42% des chrétiens pratiquants utilisent déjà l'IA dans leur quotidien",
+      insightDescription: "Mais seulement 12% l'ont utilisée dans un contexte spirituel. Cette tension révèle une résistance spécifique au domaine religieux.",
+      exploreData: "Explorer les données",
+      studyConductedBy: "Étude menée par Romain Girardi",
+    },
+
+    // Sharing
+    sharing: {
+      title: "Partagez ce sondage",
+      scanQR: "Scannez ce QR code",
+      orCopyLink: "Ou copiez le lien",
+      copyLink: "Copier le lien",
+      copied: "Copié !",
+      download: "Télécharger",
+      share: "Partager",
+      shareTitle: "Sondage IA & Foi",
+      shareDescription: "Participez à cette étude sur l'IA et la vie spirituelle",
+    },
+
+    // PDF
+    pdf: {
+      download: "Télécharger mon rapport PDF",
+      generating: "Génération...",
+      preparing: "Préparation...",
     },
 
     // Session
@@ -342,6 +379,43 @@ export const translations = {
       usage: "AI Usage",
       theology: "Theology",
       psychology: "Psychology",
+      analyzingData: "Analyzing data",
+      preparingViz: "Preparing visualizations...",
+      realTimeResults: "Real-time results",
+      dashboardTitle: "Dashboard",
+      exploreDescription: "Explore trends and discover insights from our community",
+      responsesCollected: "responses collected",
+      catholics: "Catholics",
+      majorityDenomination: "majority denomination",
+      aiUsers: "AI Users",
+      useAIRegularly: "use AI regularly",
+      averageScore: "Average score",
+      crs5Religiosity: "CRS-5 religiosity",
+      keyInsight: "Key insight",
+      insightTitle: "42% of practicing Christians already use AI in their daily lives",
+      insightDescription: "But only 12% have used it in a spiritual context. This tension reveals a specific resistance in the religious domain.",
+      exploreData: "Explore data",
+      studyConductedBy: "Study conducted by Romain Girardi",
+    },
+
+    // Sharing
+    sharing: {
+      title: "Share this survey",
+      scanQR: "Scan this QR code",
+      orCopyLink: "Or copy the link",
+      copyLink: "Copy link",
+      copied: "Copied!",
+      download: "Download",
+      share: "Share",
+      shareTitle: "AI & Faith Survey",
+      shareDescription: "Participate in this study on AI and spiritual life",
+    },
+
+    // PDF
+    pdf: {
+      download: "Download my PDF report",
+      generating: "Generating...",
+      preparing: "Preparing...",
     },
 
     // Session

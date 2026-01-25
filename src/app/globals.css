@@ -336,3 +336,36 @@ main {
   height: 100%;
 }
 
+.glow::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--glowingeffect-border-width, 3px));
+  border-radius: inherit;
+  border: var(--glowingeffect-border-width, 3px) solid transparent;
+  background: var(--gradient);
+  background-attachment: fixed;
+  opacity: var(--active, 0);
+  transition: opacity 300ms;
+  pointer-events: none;
+
+  /* Mask for the spotlight effect */
+  -webkit-mask-image: linear-gradient(#0000, #0000),
+    conic-gradient(
+      from calc((var(--start, 0) - var(--spread, 20)) * 1deg),
+      #00000000 0deg,
+      #fff,
+      #00000000 calc(var(--spread, 20) * 2deg)
+    );
+  mask-image: linear-gradient(#0000, #0000),
+    conic-gradient(
+      from calc((var(--start, 0) - var(--spread, 20)) * 1deg),
+      #00000000 0deg,
+      #fff,
+      #00000000 calc(var(--spread, 20) * 2deg)
+    );
+  -webkit-mask-clip: padding-box, border-box;
+  mask-clip: padding-box, border-box;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
