@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, TrendingUp, Users, Brain, Shield, Target, AlertTriangle, Lightbulb, ChevronRight } from "lucide-react";
 import { cn, useLanguage, useHasAnimated } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { PDFDownloadButton } from "@/components/sharing";
 import type { Answers } from "@/data";
 import {
@@ -103,17 +104,16 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
           initial={hasAnimated ? false : { opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="group w-full max-w-2xl glass-card-refined rounded-2xl p-6 md:p-8 relative overflow-hidden"
+          className="group w-full max-w-2xl glass-card-refined rounded-2xl p-6 md:p-8 relative"
           aria-labelledby="profile-heading"
         >
-          {/* Hover glow */}
-          <div
-            className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 transition-opacity duration-500 opacity-50 group-hover:opacity-100"
-            aria-hidden="true"
-          />
-          <div
-            className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 transition-opacity duration-500 opacity-30 group-hover:opacity-70"
-            aria-hidden="true"
+          <GlowingEffect
+            spread={60}
+            glow={true}
+            disabled={false}
+            proximity={100}
+            inactiveZone={0.01}
+            borderWidth={2}
           />
 
           <div className="relative z-10 text-center space-y-4">
@@ -302,8 +302,16 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             initial={hasAnimated ? false : { opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.4 }}
-            className="group glass-card-refined rounded-xl p-5 hover:border-blue-500/30 transition-colors"
+            className="group glass-card-refined rounded-xl p-5 hover:border-blue-500/30 transition-colors relative"
           >
+            <GlowingEffect
+              spread={40}
+              glow={true}
+              disabled={false}
+              proximity={64}
+              inactiveZone={0.01}
+              borderWidth={2}
+            />
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400 group-hover:scale-110 transition-transform">
                 <Brain className="w-5 h-5" aria-hidden="true" />
@@ -351,8 +359,16 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             initial={hasAnimated ? false : { opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.55, duration: 0.4 }}
-            className="group glass-card-refined rounded-xl p-5 hover:border-emerald-500/30 transition-colors"
+            className="group glass-card-refined rounded-xl p-5 hover:border-emerald-500/30 transition-colors relative"
           >
+            <GlowingEffect
+              spread={40}
+              glow={true}
+              disabled={false}
+              proximity={64}
+              inactiveZone={0.01}
+              borderWidth={2}
+            />
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
                 <TrendingUp className="w-5 h-5" aria-hidden="true" />
@@ -400,8 +416,16 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             initial={hasAnimated ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.4 }}
-            className="md:col-span-2 group glass-card-refined rounded-xl p-5 hover:border-amber-500/30 transition-colors"
+            className="md:col-span-2 group glass-card-refined rounded-xl p-5 hover:border-amber-500/30 transition-colors relative"
           >
+            <GlowingEffect
+              spread={40}
+              glow={true}
+              disabled={false}
+              proximity={64}
+              inactiveZone={0.01}
+              borderWidth={2}
+            />
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 group-hover:scale-110 transition-transform">
                 <Shield className="w-5 h-5" aria-hidden="true" />

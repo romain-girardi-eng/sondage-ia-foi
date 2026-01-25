@@ -33,6 +33,7 @@ import {
   GitCompare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 import {
   AreaChart,
   Area,
@@ -3572,26 +3573,36 @@ function StatCard({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border p-5",
+        "relative rounded-2xl border p-5",
         "bg-gradient-to-br",
         colorStyles[color]
       )}
     >
-      <div className="flex items-start justify-between">
-        <div className={cn("p-2 rounded-lg bg-white/10", iconColors[color])}>{icon}</div>
-        {trend && (
-          <div className="text-right">
-            <span className={cn("text-sm font-medium", iconColors[color])}>
-              +{trend.value}
-              {trend.suffix}
-            </span>
-            <p className="text-xs text-white/40">{trend.label}</p>
-          </div>
-        )}
-      </div>
-      <div className="mt-4">
-        <p className="text-2xl lg:text-3xl font-bold text-white">{value}</p>
-        <p className="text-sm text-white/50 mt-1">{subtext || label}</p>
+      <GlowingEffect
+        spread={40}
+        glow={true}
+        disabled={false}
+        proximity={64}
+        inactiveZone={0.01}
+        borderWidth={2}
+      />
+      <div className="relative z-10">
+        <div className="flex items-start justify-between">
+          <div className={cn("p-2 rounded-lg bg-white/10", iconColors[color])}>{icon}</div>
+          {trend && (
+            <div className="text-right">
+              <span className={cn("text-sm font-medium", iconColors[color])}>
+                +{trend.value}
+                {trend.suffix}
+              </span>
+              <p className="text-xs text-white/40">{trend.label}</p>
+            </div>
+          )}
+        </div>
+        <div className="mt-4">
+          <p className="text-2xl lg:text-3xl font-bold text-white">{value}</p>
+          <p className="text-sm text-white/50 mt-1">{subtext || label}</p>
+        </div>
       </div>
     </div>
   );
