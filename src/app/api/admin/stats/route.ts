@@ -129,20 +129,20 @@ export async function GET(request: NextRequest) {
 
     // Get total responses
     const { count: totalResponses } = await db
-      .from("survey_responses")
+      .from("responses")
       .select("*", { count: "exact", head: true });
 
-    // Get completed responses
+    // Get completed responses (consent_given = true means completed)
     const { count: completedResponses } = await db
-      .from("survey_responses")
+      .from("responses")
       .select("*", { count: "exact", head: true })
-      .eq("completed", true);
+      .eq("consent_given", true);
 
     // Get today's responses
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const { count: todayResponses } = await db
-      .from("survey_responses")
+      .from("responses")
       .select("*", { count: "exact", head: true })
       .gte("created_at", today.toISOString());
 
@@ -150,19 +150,18 @@ export async function GET(request: NextRequest) {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     const { count: weekResponses } = await db
-      .from("survey_responses")
+      .from("responses")
       .select("*", { count: "exact", head: true })
       .gte("created_at", weekAgo.toISOString());
 
-    // Get responses by language
+    // Get responses by language (language is in metadata JSON)
     const { data: languageData } = await db
-      .from("survey_responses")
-      .select("language")
-      .not("language", "is", null);
+      .from("responses")
+      .select("metadata");
 
     const byLanguage: Record<string, number> = {};
-    (languageData as Array<{ language: string | null }> | null)?.forEach((r) => {
-      const lang = r.language || "unknown";
+    (languageData as Array<{ metadata: { language?: string } | null }> | null)?.forEach((r) => {
+      const lang = r.metadata?.language || "unknown";
       byLanguage[lang] = (byLanguage[lang] || 0) + 1;
     });
 
@@ -171,7 +170,7 @@ export async function GET(request: NextRequest) {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const { data: timelineData } = await db
-      .from("survey_responses")
+      .from("responses")
       .select("created_at")
       .gte("created_at", thirtyDaysAgo.toISOString())
       .order("created_at", { ascending: true });
@@ -197,24 +196,24 @@ export async function GET(request: NextRequest) {
 
     // Get recent responses
     const { data: recentData } = await db
-      .from("survey_responses")
-      .select("id, created_at, language, completed, answers")
+      .from("responses")
+      .select("id, created_at, metadata, consent_given, answers")
       .order("created_at", { ascending: false })
       .limit(10);
 
     interface RecentResponse {
       id: string;
       created_at: string;
-      language: string | null;
-      completed: boolean | null;
+      metadata: { language?: string } | null;
+      consent_given: boolean | null;
       answers: Record<string, unknown> | null;
     }
 
     const recentResponses = (recentData as RecentResponse[] | null)?.map((r) => ({
       id: r.id,
       createdAt: r.created_at,
-      language: r.language || "unknown",
-      completed: r.completed || false,
+      language: r.metadata?.language || "unknown",
+      completed: r.consent_given || false,
       profile: "unknown",
       religiosityScore: "N/A",
       aiScore: "N/A",
