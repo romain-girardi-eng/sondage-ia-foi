@@ -290,6 +290,52 @@ export const translations = {
       balancedPosition: "Position équilibrée sur cette dimension",
     },
 
+    // Dimensions
+    dimensions: {
+      religiosity: {
+        label: "Intensité Spirituelle",
+        description: "Centralité de la foi dans votre vie quotidienne",
+        low: "Foi questionnée ou en exploration",
+        high: "Foi au cœur de chaque aspect de la vie",
+      },
+      aiOpenness: {
+        label: "Ouverture à l'IA",
+        description: "Disposition à adopter et utiliser l'intelligence artificielle",
+        low: "Prudence ou résistance face à l'IA",
+        high: "Adoption enthousiaste de l'IA",
+      },
+      sacredBoundary: {
+        label: "Frontière Sacrée",
+        description: "Distinction entre ce qui peut être confié à l'IA et ce qui doit rester humain/spirituel",
+        low: "Frontière perméable, l'IA peut aider partout",
+        high: "Frontière stricte, le sacré est protégé",
+      },
+      ethicalConcern: {
+        label: "Préoccupation Éthique",
+        description: "Niveau d'inquiétude face aux implications éthiques de l'IA",
+        low: "Confiance dans le progrès technologique",
+        high: "Vigilance face aux risques éthiques",
+      },
+      psychologicalPerception: {
+        label: "Perception de l'IA",
+        description: "Comment vous percevez la nature de l'IA et son rapport à l'humain",
+        low: "L'IA est un simple outil",
+        high: "Questions profondes sur la conscience et l'humanité",
+      },
+      communityInfluence: {
+        label: "Ancrage Communautaire",
+        description: "Importance de la communauté dans vos choix concernant l'IA",
+        low: "Décisions individuelles indépendantes",
+        high: "Fort alignement avec la communauté",
+      },
+      futureOrientation: {
+        label: "Orientation Future",
+        description: "Volonté d'évoluer dans votre rapport à l'IA",
+        low: "Satisfaction avec l'approche actuelle",
+        high: "Désir d'explorer et d'apprendre davantage",
+      },
+    },
+
     // Email Collection
     email: {
       title: "Recevez vos résultats",
@@ -596,6 +642,52 @@ export const translations = {
       matchExplain: "The match percentage indicates how closely your response profile corresponds to the typical profile. A high score means strong alignment.",
       disclaimer: "These profiles are reflection tools, not rigid categories. You can evolve and exhibit characteristics of multiple profiles.",
       balancedPosition: "Balanced position on this dimension",
+    },
+
+    // Dimensions
+    dimensions: {
+      religiosity: {
+        label: "Spiritual Intensity",
+        description: "Centrality of faith in your daily life",
+        low: "Faith questioned or being explored",
+        high: "Faith at the heart of every aspect of life",
+      },
+      aiOpenness: {
+        label: "AI Openness",
+        description: "Willingness to adopt and use artificial intelligence",
+        low: "Caution or resistance towards AI",
+        high: "Enthusiastic adoption of AI",
+      },
+      sacredBoundary: {
+        label: "Sacred Boundary",
+        description: "Distinction between what can be entrusted to AI and what must remain human/spiritual",
+        low: "Permeable boundary, AI can help everywhere",
+        high: "Strict boundary, the sacred is protected",
+      },
+      ethicalConcern: {
+        label: "Ethical Concern",
+        description: "Level of concern about the ethical implications of AI",
+        low: "Trust in technological progress",
+        high: "Vigilance towards ethical risks",
+      },
+      psychologicalPerception: {
+        label: "AI Perception",
+        description: "How you perceive the nature of AI and its relationship to humanity",
+        low: "AI is simply a tool",
+        high: "Deep questions about consciousness and humanity",
+      },
+      communityInfluence: {
+        label: "Community Anchoring",
+        description: "Importance of community in your choices regarding AI",
+        low: "Independent individual decisions",
+        high: "Strong alignment with community",
+      },
+      futureOrientation: {
+        label: "Future Orientation",
+        description: "Willingness to evolve in your relationship with AI",
+        low: "Satisfaction with current approach",
+        high: "Desire to explore and learn more",
+      },
     },
 
     // Email Collection

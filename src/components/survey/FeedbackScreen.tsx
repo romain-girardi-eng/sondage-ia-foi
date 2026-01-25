@@ -23,7 +23,6 @@ import {
   calculateProfileSpectrum,
   PROFILE_DEFINITIONS,
   SUB_PROFILE_DEFINITIONS,
-  DIMENSION_LABELS,
   DIMENSION_COLORS,
   type ProfileSpectrum,
 } from "@/lib/scoring";
@@ -327,10 +326,10 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
                 {Object.entries(spectrum.dimensions).map(([key, dimension], index) => {
-                  const dimLabel = DIMENSION_LABELS[key as keyof typeof DIMENSION_LABELS];
                   const color = DIMENSION_COLORS[key as keyof typeof DIMENSION_COLORS];
                   const isHigh = dimension.value >= 3.5;
                   const isLow = dimension.value <= 2.5;
+                  const dimKey = `dimensions.${key}` as const;
                   return (
                     <motion.div
                       key={key}
@@ -358,17 +357,17 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                           {dimension.value.toFixed(1)}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground leading-tight">{dimLabel.label}</p>
+                      <p className="text-xs text-muted-foreground leading-tight">{t(`${dimKey}.label` as any)}</p>
 
                       {/* Tooltip on hover - appears below */}
                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-3 rounded-xl bg-[#1a1f2e] border border-white/10 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left pointer-events-none">
                         {/* Arrow pointing up */}
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-[#1a1f2e]" />
-                        <p className="text-xs font-medium text-white mb-1">{dimLabel.label}</p>
-                        <p className="text-[11px] text-muted-foreground mb-2">{dimLabel.description}</p>
+                        <p className="text-xs font-medium text-white mb-1">{t(`${dimKey}.label` as any)}</p>
+                        <p className="text-[11px] text-muted-foreground mb-2">{t(`${dimKey}.description` as any)}</p>
                         <div className="pt-2 border-t border-white/10">
                           <p className="text-[11px]" style={{ color }}>
-                            {isHigh ? dimLabel.highDescription : isLow ? dimLabel.lowDescription : t("resultsExplain.balancedPosition")}
+                            {isHigh ? t(`${dimKey}.high` as any) : isLow ? t(`${dimKey}.low` as any) : t("resultsExplain.balancedPosition")}
                           </p>
                         </div>
                       </div>
@@ -420,9 +419,9 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                   </h3>
                 </div>
                 <div className="text-sm text-white mb-1">
-                  <span className="text-amber-400">{DIMENSION_LABELS[tensions[0].dimension1].label}</span>
+                  <span className="text-amber-400">{t(`dimensions.${tensions[0].dimension1}.label` as any)}</span>
                   <span className="text-muted-foreground"> vs </span>
-                  <span className="text-amber-400">{DIMENSION_LABELS[tensions[0].dimension2].label}</span>
+                  <span className="text-amber-400">{t(`dimensions.${tensions[0].dimension2}.label` as any)}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">{tensions[0].description}</p>
               </GlowCard>
