@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronRight, Info } from "lucide-react";
 import { useLanguage } from "@/lib";
@@ -28,11 +28,20 @@ const PROFILE_ORDER: PrimaryProfile[] = [
 export function ProfilesModal({ isOpen, onClose, currentProfile, initialSelectedProfile }: ProfilesModalProps) {
   const { t, language } = useLanguage();
   const [selectedProfile, setSelectedProfile] = useState<PrimaryProfile | null>(null);
+  const profileRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Set initial selected profile when modal opens
+  // Set initial selected profile when modal opens and scroll to it
   useEffect(() => {
     if (isOpen && initialSelectedProfile) {
       setSelectedProfile(initialSelectedProfile);
+      // Scroll to the selected profile after a short delay to allow rendering
+      setTimeout(() => {
+        const element = profileRefs.current[initialSelectedProfile];
+        if (element && scrollContainerRef.current) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
     } else if (!isOpen) {
       setSelectedProfile(null);
     }
@@ -82,7 +91,7 @@ export function ProfilesModal({ isOpen, onClose, currentProfile, initialSelected
           </div>
 
           {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(85vh-88px)]">
+          <div ref={scrollContainerRef} className="p-6 overflow-y-auto max-h-[calc(85vh-88px)]">
             {/* Intro explanation */}
             <div className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
               <div className="flex items-start gap-3">
@@ -106,6 +115,7 @@ export function ProfilesModal({ isOpen, onClose, currentProfile, initialSelected
                 return (
                   <motion.button
                     key={profileId}
+                    ref={(el) => { profileRefs.current[profileId] = el; }}
                     onClick={() => setSelectedProfile(isSelected ? null : profileId)}
                     className={`relative text-left p-4 rounded-xl border transition-all ${
                       isCurrentProfile
