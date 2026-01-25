@@ -32,7 +32,7 @@ interface FeedbackScreenProps {
   anonymousId?: string;
 }
 
-// Reusable card wrapper with glowing effect
+// Reusable card wrapper with glowing effect (matching demo exactly)
 function GlowCard({
   children,
   className,
@@ -43,24 +43,24 @@ function GlowCard({
   area?: string;
 }) {
   return (
-    <div className={cn("min-h-[10rem] list-none", area)}>
-      <div className="relative h-full rounded-2xl border border-white/10 p-2">
+    <li className={cn("min-h-[14rem] list-none", area)}>
+      <div className="relative h-full rounded-[1.25rem] border-[0.75px] border-border p-2 md:rounded-[1.5rem] md:p-3">
         <GlowingEffect
           spread={40}
           glow={true}
           disabled={false}
           proximity={64}
           inactiveZone={0.01}
-          borderWidth={2}
+          borderWidth={3}
         />
         <div className={cn(
-          "relative flex h-full flex-col overflow-hidden rounded-xl border border-white/5 bg-white/[0.02] p-5 shadow-lg",
+          "relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-[0.75px] bg-background p-6 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)]",
           className
         )}>
           {children}
         </div>
       </div>
-    </div>
+    </li>
   );
 }
 
