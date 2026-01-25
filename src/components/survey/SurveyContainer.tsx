@@ -123,7 +123,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
     setIsHydrated(true);
     const viewFromUrl = getViewFromUrl();
     if (viewFromUrl) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- URL-based dev navigation
+       
       setStep(viewFromUrl);
     }
   }, []);

@@ -26,7 +26,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
       setThemeState(stored)
     } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
+       
       setThemeState("light")
     }
   }, [])

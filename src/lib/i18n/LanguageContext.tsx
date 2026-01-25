@@ -53,7 +53,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
       setLanguageState(saved);
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
+     
     setIsHydrated(true);
   }, []);
 

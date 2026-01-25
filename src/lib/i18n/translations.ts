@@ -271,6 +271,17 @@ export const translations = {
       contactEmail: "contact@ia-foi.fr",
       legitimateUser: "Je suis un utilisateur légitime",
       legitimateUserDesc: "Si vous partagez un ordinateur ou un réseau avec d'autres participants, contactez-nous avec votre situation et nous pourrons vous aider.",
+      // Solutions for blocked users
+      solutionsTitle: "Solutions possibles",
+      solution1Title: "Utilisez un autre appareil",
+      solution1Desc: "Essayez depuis votre téléphone, tablette ou un autre ordinateur.",
+      solution2Title: "Utilisez un autre navigateur",
+      solution2Desc: "Essayez avec Chrome, Firefox, Safari ou Edge si vous n'avez pas déjà participé.",
+      solution3Title: "Ordinateur partagé ?",
+      solution3Desc: "Si quelqu'un d'autre a déjà participé depuis cet appareil, contactez-nous pour obtenir un accès.",
+      stillNeedHelp: "Toujours bloqué ? Nous pouvons vous aider.",
+      emailSubject: "Demande d'accès au sondage",
+      emailBody: "Bonjour,\n\nJ'essaie d'accéder au sondage mais je reçois une erreur ({errorCode}).\n\nMa situation :\n\nMerci.",
     },
 
     // Not Found (404)
@@ -715,6 +726,17 @@ export const translations = {
       contactEmail: "contact@ia-foi.fr",
       legitimateUser: "I am a legitimate user",
       legitimateUserDesc: "If you share a computer or network with other participants, contact us with your situation and we can help.",
+      // Solutions for blocked users
+      solutionsTitle: "Possible solutions",
+      solution1Title: "Use a different device",
+      solution1Desc: "Try from your phone, tablet, or another computer.",
+      solution2Title: "Use a different browser",
+      solution2Desc: "Try with Chrome, Firefox, Safari, or Edge if you haven't already participated.",
+      solution3Title: "Shared computer?",
+      solution3Desc: "If someone else already participated from this device, contact us to get access.",
+      stillNeedHelp: "Still blocked? We can help.",
+      emailSubject: "Survey Access Request",
+      emailBody: "Hello,\n\nI am trying to access the survey but received an error ({errorCode}).\n\nMy situation:\n\nThank you.",
     },
 
     // Not Found (404)

@@ -539,10 +539,9 @@ function generateInterpretation(
 // ADVANCED INSIGHTS
 // ========================================== 
 
+ 
 function generateAdvancedInsights(
-  dimensions: SevenDimensions,
-  _primary: ProfileMatch,
-  _answers: Answers
+  dimensions: SevenDimensions
 ): AdvancedInsight[] {
   const insights: AdvancedInsight[] = [];
 
@@ -714,9 +713,9 @@ function identifyTensions(dimensions: SevenDimensions): TensionPoint[] {
 // GROWTH AREAS
 // ========================================== 
 
+ 
 function identifyGrowthAreas(
-  dimensions: SevenDimensions,
-  _primary: ProfileMatch
+  dimensions: SevenDimensions
 ): GrowthArea[] {
   const growthAreas: GrowthArea[] = [];
 
@@ -797,13 +796,13 @@ export function calculateProfileSpectrum(answers: Answers): ProfileSpectrum {
   const interpretation = generateInterpretation(dimensions, primary, secondary, subProfile);
 
   // Step 6: Generate advanced insights
-  const insights = generateAdvancedInsights(dimensions, primary, answers);
+  const insights = generateAdvancedInsights(dimensions);
 
   // Step 7: Identify tensions
   const tensions = identifyTensions(dimensions);
 
   // Step 8: Identify growth areas
-  const growthAreas = identifyGrowthAreas(dimensions, primary);
+  const growthAreas = identifyGrowthAreas(dimensions);
 
   return {
     primary,

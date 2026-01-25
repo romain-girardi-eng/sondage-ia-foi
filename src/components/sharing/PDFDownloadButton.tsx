@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FileText, Download, Loader2 } from "lucide-react";
 import { cn, useLanguage } from "@/lib";
+import type { ProfileSpectrum } from "@/lib/scoring/types";
 
 // Dynamically import PDF components to avoid SSR issues
 const PDFDownloadLink = dynamic(
@@ -40,7 +41,7 @@ export function PDFDownloadButton({
 }: PDFDownloadButtonProps) {
   const { t } = useLanguage();
   const [isClient, setIsClient] = useState(false);
-  const [spectrum, setSpectrum] = useState<Record<string, unknown> | null>(null);
+  const [spectrum, setSpectrum] = useState<ProfileSpectrum | null>(null);
 
   const filename = language === "fr"
     ? `rapport-ia-foi-${anonymousId.slice(0, 8)}.pdf`
@@ -52,7 +53,7 @@ export function PDFDownloadButton({
     // Dynamically import the scoring function
     import("@/lib/scoring/profiles").then(({ calculateProfileSpectrum }) => {
       const calculatedSpectrum = calculateProfileSpectrum(answers as Record<string, string | number | string[]>);
-      setSpectrum(calculatedSpectrum as Record<string, unknown>);
+      setSpectrum(calculatedSpectrum);
     });
   }, [answers]);
 

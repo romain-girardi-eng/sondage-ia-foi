@@ -24,6 +24,7 @@ import {
   SUB_PROFILE_DEFINITIONS,
   DIMENSION_COLORS,
 } from "@/lib/scoring";
+import type { PrimaryProfile } from "@/lib/scoring/types";
 
 interface FeedbackScreenProps {
   answers: Answers;
@@ -70,9 +71,9 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
   const { t } = useLanguage();
   const hasAnimated = useHasAnimated();
   const [isProfilesModalOpen, setIsProfilesModalOpen] = useState(false);
-  const [selectedProfileForModal, setSelectedProfileForModal] = useState<string | null>(null);
+  const [selectedProfileForModal, setSelectedProfileForModal] = useState<PrimaryProfile | null>(null);
 
-  const openProfileModal = (profileId?: string) => {
+  const openProfileModal = (profileId?: PrimaryProfile) => {
     setSelectedProfileForModal(profileId || null);
     setIsProfilesModalOpen(true);
   };

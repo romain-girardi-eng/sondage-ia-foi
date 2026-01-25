@@ -21,7 +21,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
     setMounted(true);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
+     
     setShowVideo(true);
   }, []);
 
