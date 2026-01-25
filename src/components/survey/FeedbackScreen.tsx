@@ -39,10 +39,12 @@ function GlowCard({
   children,
   className,
   area,
+  allowOverflow = false,
 }: {
   children: React.ReactNode;
   className?: string;
   area?: string;
+  allowOverflow?: boolean;
 }) {
   return (
     <li className={cn("min-h-[14rem] list-none", area)}>
@@ -56,7 +58,8 @@ function GlowCard({
           borderWidth={5}
         />
         <div className={cn(
-          "relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-[0.75px] bg-background p-6 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)]",
+          "relative flex h-full flex-col justify-between gap-6 rounded-xl border-[0.75px] bg-background p-6 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)]",
+          allowOverflow ? "overflow-visible" : "overflow-hidden",
           className
         )}>
           {children}
@@ -315,7 +318,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             </GlowCard>
 
             {/* 7 Dimensions */}
-            <GlowCard area="md:col-span-12 lg:col-span-12">
+            <GlowCard area="md:col-span-12 lg:col-span-12" allowOverflow>
               <div className="flex items-center gap-2 mb-4">
                 <Brain className="w-4 h-4 text-muted-foreground" />
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
