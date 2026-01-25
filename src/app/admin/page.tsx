@@ -8,35 +8,29 @@ import {
   Download,
   RefreshCw,
   Users,
-  Calendar,
   FileJson,
   FileSpreadsheet,
   AlertCircle,
   CheckCircle,
-  TrendingUp,
-  TrendingDown,
   Clock,
   Eye,
   Filter,
-  Trash2,
   X,
   Globe,
   BarChart3,
   PieChart,
   Activity,
-  Target,
   Zap,
-  ChevronRight,
-  ExternalLink,
   Search,
-  ChevronDown,
-  Settings,
   Bell,
   Shield,
-  Percent,
   Timer,
   UserCheck,
   FileText,
+  TrendingUp,
+  Sparkles,
+  Target,
+  GitCompare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -53,12 +47,90 @@ import {
   Pie,
   Cell,
   Legend,
-  FunnelChart,
-  Funnel,
-  LabelList,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
 } from "recharts";
+import { SURVEY_QUESTIONS } from "@/data/surveySchema";
+
+// Helper functions to get question labels
+const getQuestionText = (questionId: string): string => {
+  const question = SURVEY_QUESTIONS.find((q) => q.id === questionId);
+  return question?.text || questionId;
+};
+
+const getAnswerLabel = (questionId: string, value: string | number | string[]): string => {
+  if (Array.isArray(value)) {
+    return value
+      .map((v) => {
+        const question = SURVEY_QUESTIONS.find((q) => q.id === questionId);
+        const option = question?.options?.find((o) => o.value === v);
+        return option?.label || v;
+      })
+      .join(", ");
+  }
+
+  const question = SURVEY_QUESTIONS.find((q) => q.id === questionId);
+  const option = question?.options?.find((o) => o.value === value);
+  return option?.label || String(value);
+};
+
+const getQuestionCategory = (questionId: string): string => {
+  const question = SURVEY_QUESTIONS.find((q) => q.id === questionId);
+  return question?.category || "other";
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  profile: "📋 Profil & Démographie",
+  religiosity: "🙏 Religiosité (CRS-5)",
+  usage: "💻 Usage de l'IA",
+  digital_spiritual: "🌐 Pratiques spirituelles numériques",
+  ministry_preaching: "📖 Ministère - Prédication",
+  ministry_pastoral: "💬 Ministère - Accompagnement",
+  ministry_vision: "🔮 Ministère - Vision future",
+  spirituality: "✨ Spiritualité & IA",
+  theology: "📚 Théologie & IA",
+  psychology: "🧠 Perception psychologique",
+  community: "👥 Communauté",
+  future: "🚀 Futur de l'IA",
+  social_desirability: "📊 Contrôle",
+  open: "💭 Questions ouvertes",
+  other: "📝 Autres",
+};
 
 // Types
+interface SegmentStats {
+  count: number;
+  avgReligiosity: number;
+  avgAiAdoption: number;
+  avgResistance: number;
+  profileDistribution: Record<string, number>;
+  dimensionAverages: Record<string, number>;
+}
+
+interface DimensionStat {
+  mean: number;
+  stdDev: number;
+  median: number;
+  distribution: number[];
+}
+
+interface KeyFinding {
+  type: 'correlation' | 'segment' | 'pattern';
+  title: string;
+  description: string;
+  significance: 'high' | 'medium' | 'low';
+}
+
+interface ProfileCluster {
+  profile: string;
+  count: number;
+  avgReligiosity: number;
+  avgAiOpenness: number;
+}
+
 interface AdminStats {
   overview: {
     totalResponses: number;
@@ -75,6 +147,8 @@ interface AdminStats {
     byRole: Record<string, number>;
     byDenomination: Record<string, number>;
     byAge: Record<string, number>;
+    byGender?: Record<string, number>;
+    byCountry?: Record<string, number>;
   };
   profiles: Record<string, number>;
   scores: {
@@ -94,6 +168,12 @@ interface AdminStats {
     religiosityScore: string;
     aiScore: string;
   }>;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
   conversionFunnel: {
     started: number;
     section1Complete: number;
@@ -101,6 +181,17 @@ interface AdminStats {
     section3Complete: number;
     completed: number;
   };
+  // Enhanced analytics
+  segmentedAnalysis?: {
+    byRole: Record<string, SegmentStats>;
+    byDenomination: Record<string, SegmentStats>;
+    byAge: Record<string, SegmentStats>;
+  };
+  dimensionStats?: Record<string, DimensionStat>;
+  correlationMatrix?: Record<string, Record<string, number>>;
+  profileClusters?: ProfileCluster[];
+  keyFindings?: KeyFinding[];
+  populationAverages?: Record<string, number>;
   demo?: boolean;
 }
 
@@ -109,6 +200,107 @@ interface ExportFilters {
   dateTo: string;
   language: "" | "fr" | "en";
 }
+
+interface ResponseDetail {
+  id: string;
+  createdAt: string;
+  language: string;
+  completionTime: number | null;
+  answers: Record<string, string | number | string[]>;
+  scores: {
+    crs5: {
+      value: number;
+      breakdown: Record<string, number>;
+    };
+    aiAdoption: {
+      value: number;
+      breakdown: Record<string, number>;
+    };
+    resistanceIndex: number;
+  };
+  profile: {
+    primary: {
+      name: string;
+      score: number;
+      title: string;
+      emoji: string;
+    };
+    secondary: {
+      name: string;
+      score: number;
+      title: string;
+    } | null;
+    subProfile: string;
+    allMatches: Array<{ name: string; score: number }>;
+  };
+  dimensions: {
+    religiosity: { value: number; percentile: number };
+    aiOpenness: { value: number; percentile: number };
+    sacredBoundary: { value: number; percentile: number };
+    ethicalConcern: { value: number; percentile: number };
+    psychologicalPerception: { value: number; percentile: number };
+    communityInfluence: { value: number; percentile: number };
+    futureOrientation: { value: number; percentile: number };
+  };
+  interpretation: {
+    headline: string;
+    narrative: string;
+    uniqueAspects: string[];
+    blindSpots: string[];
+  };
+  growthAreas: Array<{
+    area: string;
+    currentState: string;
+    potentialGrowth: string;
+    actionableStep: string;
+  }>;
+  tensions: Array<{
+    dimension1: string;
+    dimension2: string;
+    description: string;
+    suggestion: string;
+  }>;
+  insights: Array<{
+    category: string;
+    icon: string;
+    title: string;
+    message: string;
+    priority: number;
+  }>;
+}
+
+const DIMENSION_LABELS: Record<string, string> = {
+  religiosity: "Religiosité",
+  aiOpenness: "Ouverture IA",
+  sacredBoundary: "Frontière sacrée",
+  ethicalConcern: "Préoccupation éthique",
+  psychologicalPerception: "Perception psychologique",
+  communityInfluence: "Influence communautaire",
+  futureOrientation: "Orientation future",
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  clerge: "Clergé",
+  religieux: "Religieux/Religieuse",
+  laic_engagé: "Laïc engagé",
+  laic_pratiquant: "Laïc pratiquant",
+  curieux: "Curieux/Sympathisant",
+};
+
+const DENOMINATION_LABELS: Record<string, string> = {
+  catholique: "Catholique",
+  protestant: "Protestant",
+  orthodoxe: "Orthodoxe",
+  autre: "Autre",
+  sans_religion: "Sans religion",
+};
+
+const AGE_LABELS: Record<string, string> = {
+  "18-35": "18-35 ans",
+  "36-50": "36-50 ans",
+  "51-65": "51-65 ans",
+  "66+": "Plus de 66 ans",
+};
 
 // Color palette
 const CHART_COLORS = ["#3b82f6", "#8b5cf6", "#10b981", "#f59e0b", "#ef4444", "#06b6d4", "#ec4899", "#84cc16"];
@@ -141,7 +333,7 @@ export default function AdminPage() {
   const [authError, setAuthError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState<AdminStats | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "responses" | "analytics" | "export">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "responses" | "analytics" | "executive" | "export">("overview");
   const [exportLoading, setExportLoading] = useState<"json" | "csv" | null>(null);
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -151,24 +343,143 @@ export default function AdminPage() {
     language: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedResponseId, setSelectedResponseId] = useState<string | null>(null);
+  const [responseDetail, setResponseDetail] = useState<ResponseDetail | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
+  const [activeDetailTab, setActiveDetailTab] = useState<"profil" | "scores" | "reponses" | "analyse">("profil");
+const [selectedResponseIds, setSelectedResponseIds] = useState<string[]>([]);
+const [showComparison, setShowComparison] = useState(false);
+const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
+  const [statsError, setStatsError] = useState<string | null>(null);
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [responsesPerPage] = useState(20);
 
-  const fetchStats = useCallback(async () => {
+  const fetchStats = useCallback(async (page = 1, search = "") => {
     try {
       setIsLoading(true);
+      setStatsError(null);
       const token = sessionStorage.getItem("admin_token");
-      const response = await fetch("/api/admin/stats", {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: responsesPerPage.toString(),
+        ...(search && { search }),
+      });
+      const response = await fetch(`/api/admin/stats?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
         const data = await response.json();
         setStats(data);
+        setLastRefresh(new Date());
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        setStatsError(errorData.error || `Error: ${response.status}`);
       }
     } catch (error) {
       console.error("Failed to fetch stats:", error);
+      setStatsError("Network error. Please check your connection.");
     } finally {
       setIsLoading(false);
     }
+  }, [responsesPerPage]);
+
+  const fetchResponseDetail = useCallback(async (responseId: string) => {
+    try {
+      setDetailLoading(true);
+      setDetailError(null);
+      const token = sessionStorage.getItem("admin_token");
+      const response = await fetch(`/api/admin/response/${responseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setResponseDetail(data);
+        setActiveDetailTab("profil");
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        setDetailError(errorData.error || `Error: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Failed to fetch response detail:", error);
+      setDetailError("Failed to load response details.");
+    } finally {
+      setDetailLoading(false);
+    }
   }, []);
+
+  const handleOpenDetail = (responseId: string) => {
+    setSelectedResponseId(responseId);
+    fetchResponseDetail(responseId);
+  };
+
+  const handleCloseDetail = () => {
+    setSelectedResponseId(null);
+    setResponseDetail(null);
+  };
+
+  const handleToggleSelection = (id: string) => {
+    setSelectedResponseIds(prev => {
+      if (prev.includes(id)) {
+        return prev.filter(x => x !== id);
+      }
+      if (prev.length >= 3) {
+        // Max 3 selections for comparison
+        return [...prev.slice(1), id];
+      }
+      return [...prev, id];
+    });
+  };
+
+  const handleClearSelection = () => {
+    setSelectedResponseIds([]);
+    setShowComparison(false);
+    setComparisonData([]);
+  };
+
+  const handleCompareSelected = async () => {
+    if (selectedResponseIds.length < 2) return;
+
+    setShowComparison(true);
+    setComparisonData([]);
+
+    // Fetch details for all selected responses
+    const token = sessionStorage.getItem("admin_token") || "";
+    const details: ResponseDetail[] = [];
+
+    for (const id of selectedResponseIds) {
+      try {
+        const response = await fetch(`/api/admin/response/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          details.push(data);
+        }
+      } catch (error) {
+        console.error("Error fetching response for comparison:", id, error);
+      }
+    }
+
+    setComparisonData(details);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    fetchStats(newPage, searchQuery);
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    fetchStats(1, searchQuery);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   useEffect(() => {
     const storedAuth = sessionStorage.getItem("admin_authenticated");
@@ -373,6 +684,7 @@ export default function AdminPage() {
             { id: "overview", icon: Activity, label: "Overview" },
             { id: "responses", icon: Users, label: "Responses" },
             { id: "analytics", icon: PieChart, label: "Analytics" },
+            { id: "executive", icon: Sparkles, label: "Executive" },
             { id: "export", icon: Download, label: "Export" },
           ].map((item) => (
             <button
@@ -414,17 +726,26 @@ export default function AdminPage() {
               </button>
 
               <div>
-                <h2 className="text-lg font-semibold text-white capitalize">{activeTab}</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-semibold text-white capitalize">{activeTab}</h2>
+                  {stats?.demo && (
+                    <span className="px-2 py-0.5 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-medium rounded-full">
+                      Demo
+                    </span>
+                  )}
+                </div>
                 <p className="text-sm text-white/50">
-                  {stats?.demo ? "Demo Mode" : "Live Data"} • Last updated:{" "}
-                  {new Date().toLocaleTimeString()}
+                  {lastRefresh
+                    ? `Last updated: ${lastRefresh.toLocaleTimeString()}`
+                    : "Loading..."}
+                  {stats && !stats.demo && ` • ${stats.overview.completedResponses} responses`}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
               <button
-                onClick={fetchStats}
+                onClick={() => fetchStats(currentPage, searchQuery)}
                 disabled={isLoading}
                 className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white text-sm transition-all"
               >
@@ -445,6 +766,7 @@ export default function AdminPage() {
               { id: "overview", icon: Activity, label: "Overview" },
               { id: "responses", icon: Users, label: "Responses" },
               { id: "analytics", icon: PieChart, label: "Analytics" },
+              { id: "executive", icon: Sparkles, label: "Executive" },
               { id: "export", icon: Download, label: "Export" },
             ].map((item) => (
               <button
@@ -466,6 +788,67 @@ export default function AdminPage() {
 
         {/* Content */}
         <div className="p-4 lg:p-8">
+          {/* Error State */}
+          {statsError && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl"
+            >
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-medium text-red-400">Error Loading Data</h3>
+                  <p className="text-sm text-red-300/70 mt-1">{statsError}</p>
+                </div>
+                <button
+                  onClick={() => fetchStats(currentPage, searchQuery)}
+                  className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-sm font-medium rounded-lg transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Loading Skeleton */}
+          {isLoading && !stats && (
+            <div className="space-y-6">
+              {/* Skeleton Stats Grid */}
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 animate-pulse"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="w-10 h-10 rounded-lg bg-white/10" />
+                      <div className="w-16 h-4 rounded bg-white/10" />
+                    </div>
+                    <div className="mt-4 space-y-2">
+                      <div className="w-20 h-8 rounded bg-white/10" />
+                      <div className="w-32 h-4 rounded bg-white/5" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Skeleton Chart */}
+              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 animate-pulse">
+                <div className="w-40 h-6 rounded bg-white/10 mb-6" />
+                <div className="h-64 flex items-end gap-2">
+                  {[...Array(12)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 rounded-t bg-white/5"
+                      style={{ height: `${Math.random() * 80 + 20}%` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           <AnimatePresence mode="wait">
             {activeTab === "overview" && stats && (
               <motion.div
@@ -670,13 +1053,17 @@ export default function AdminPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {stats.recentResponses.map((response, i) => (
+                        {stats.recentResponses.map((response) => (
                           <tr
                             key={response.id}
-                            className={cn("border-b border-white/5 hover:bg-white/[0.02] transition-colors")}
+                            onClick={() => handleOpenDetail(response.id)}
+                            className={cn("border-b border-white/5 hover:bg-white/[0.04] transition-colors cursor-pointer")}
                           >
                             <td className="py-4 px-6">
-                              <span className="font-mono text-sm text-white/70">{response.id.slice(0, 8)}...</span>
+                              <div className="flex items-center gap-2">
+                                <Eye className="w-4 h-4 text-white/30" />
+                                <span className="font-mono text-sm text-white/70">{response.id.slice(0, 8)}...</span>
+                              </div>
                             </td>
                             <td className="py-4 px-6">
                               <span className="text-sm text-white/70">
@@ -745,15 +1132,24 @@ export default function AdminPage() {
               >
                 {/* Search & Filters */}
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                    <input
-                      type="text"
-                      placeholder="Search responses..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                    />
+                  <div className="relative flex-1 flex gap-2">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                      <input
+                        type="text"
+                        placeholder="Search by ID..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={handleSearchKeyDown}
+                        className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                      />
+                    </div>
+                    <button
+                      onClick={handleSearch}
+                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-all"
+                    >
+                      Search
+                    </button>
                   </div>
                   <button
                     onClick={() => setShowFilters(!showFilters)}
@@ -822,13 +1218,54 @@ export default function AdminPage() {
                   <div className="p-6 border-b border-white/5 flex items-center justify-between">
                     <h3 className="font-semibold text-white">All Responses</h3>
                     <span className="text-sm text-white/50">
-                      {stats.overview.totalResponses.toLocaleString()} total
+                      {stats.pagination ? (
+                        <>
+                          Showing {((stats.pagination.page - 1) * stats.pagination.limit) + 1}-
+                          {Math.min(stats.pagination.page * stats.pagination.limit, stats.pagination.total)} of{" "}
+                          {stats.pagination.total.toLocaleString()}
+                        </>
+                      ) : (
+                        <>{stats.overview.totalResponses.toLocaleString()} total</>
+                      )}
                     </span>
                   </div>
+                  {/* Selection Action Bar */}
+                  {selectedResponseIds.length > 0 && (
+                    <div className="bg-blue-600/20 border border-blue-500/30 rounded-xl p-4 mb-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-blue-400 font-medium">
+                          {selectedResponseIds.length} selected
+                        </span>
+                        <button
+                          onClick={handleClearSelection}
+                          className="text-xs text-white/60 hover:text-white transition-colors"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                      <button
+                        onClick={handleCompareSelected}
+                        disabled={selectedResponseIds.length < 2}
+                        className={cn(
+                          "px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
+                          selectedResponseIds.length >= 2
+                            ? "bg-blue-600 hover:bg-blue-500 text-white"
+                            : "bg-white/10 text-white/30 cursor-not-allowed"
+                        )}
+                      >
+                        <GitCompare className="w-4 h-4" />
+                        Compare ({selectedResponseIds.length}/3)
+                      </button>
+                    </div>
+                  )}
+
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-white/5">
+                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-3 w-12">
+                            <span className="sr-only">Select</span>
+                          </th>
                           <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-6">
                             ID
                           </th>
@@ -853,10 +1290,37 @@ export default function AdminPage() {
                         {stats.recentResponses.map((response) => (
                           <tr
                             key={response.id}
-                            className="border-b border-white/5 hover:bg-white/[0.02] transition-colors"
+                            className={cn(
+                              "border-b border-white/5 hover:bg-white/[0.04] transition-colors",
+                              selectedResponseIds.includes(response.id) && "bg-blue-500/10"
+                            )}
                           >
-                            <td className="py-4 px-6">
-                              <span className="font-mono text-sm text-white/70">{response.id.slice(0, 8)}...</span>
+                            <td className="py-4 px-3">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleSelection(response.id);
+                                }}
+                                className={cn(
+                                  "w-5 h-5 rounded border-2 flex items-center justify-center transition-all",
+                                  selectedResponseIds.includes(response.id)
+                                    ? "bg-blue-600 border-blue-600 text-white"
+                                    : "border-white/20 hover:border-white/40"
+                                )}
+                              >
+                                {selectedResponseIds.includes(response.id) && (
+                                  <CheckCircle className="w-3 h-3" />
+                                )}
+                              </button>
+                            </td>
+                            <td
+                              className="py-4 px-6 cursor-pointer"
+                              onClick={() => handleOpenDetail(response.id)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <Eye className="w-4 h-4 text-white/30" />
+                                <span className="font-mono text-sm text-white/70">{response.id.slice(0, 8)}...</span>
+                              </div>
                             </td>
                             <td className="py-4 px-6 text-sm text-white/70">
                               {new Date(response.createdAt).toLocaleDateString()}
@@ -892,6 +1356,80 @@ export default function AdminPage() {
                       </tbody>
                     </table>
                   </div>
+
+                  {/* Pagination Controls */}
+                  {stats.pagination && stats.pagination.totalPages > 1 && (
+                    <div className="p-4 border-t border-white/5 flex items-center justify-between">
+                      <p className="text-sm text-white/50">
+                        Page {stats.pagination.page} of {stats.pagination.totalPages}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handlePageChange(1)}
+                          disabled={stats.pagination.page === 1}
+                          className="px-3 py-1.5 text-sm bg-white/5 hover:bg-white/10 text-white/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        >
+                          First
+                        </button>
+                        <button
+                          onClick={() => handlePageChange(stats.pagination.page - 1)}
+                          disabled={stats.pagination.page === 1}
+                          className="px-3 py-1.5 text-sm bg-white/5 hover:bg-white/10 text-white/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        >
+                          Previous
+                        </button>
+
+                        {/* Page numbers */}
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: Math.min(5, stats.pagination.totalPages) }, (_, i) => {
+                            let pageNum: number;
+                            const totalPages = stats.pagination.totalPages;
+                            const currentPage = stats.pagination.page;
+
+                            if (totalPages <= 5) {
+                              pageNum = i + 1;
+                            } else if (currentPage <= 3) {
+                              pageNum = i + 1;
+                            } else if (currentPage >= totalPages - 2) {
+                              pageNum = totalPages - 4 + i;
+                            } else {
+                              pageNum = currentPage - 2 + i;
+                            }
+
+                            return (
+                              <button
+                                key={pageNum}
+                                onClick={() => handlePageChange(pageNum)}
+                                className={cn(
+                                  "w-8 h-8 text-sm rounded-lg transition-all",
+                                  pageNum === currentPage
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-white/5 hover:bg-white/10 text-white/70"
+                                )}
+                              >
+                                {pageNum}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        <button
+                          onClick={() => handlePageChange(stats.pagination.page + 1)}
+                          disabled={stats.pagination.page === stats.pagination.totalPages}
+                          className="px-3 py-1.5 text-sm bg-white/5 hover:bg-white/10 text-white/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        >
+                          Next
+                        </button>
+                        <button
+                          onClick={() => handlePageChange(stats.pagination.totalPages)}
+                          disabled={stats.pagination.page === stats.pagination.totalPages}
+                          className="px-3 py-1.5 text-sm bg-white/5 hover:bg-white/10 text-white/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        >
+                          Last
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -925,6 +1463,82 @@ export default function AdminPage() {
                     color="amber"
                   />
                 </div>
+
+                {/* Profile Distribution */}
+                {Object.keys(stats.profiles).some((k) => stats.profiles[k] > 0) && (
+                  <div className="grid lg:grid-cols-2 gap-6">
+                    {/* Profile Pie Chart */}
+                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                      <h3 className="font-semibold text-white mb-6">Profile Distribution</h3>
+                      <div className="h-72">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RechartsPieChart>
+                            <Pie
+                              data={Object.entries(stats.profiles)
+                                .filter(([, count]) => count > 0)
+                                .map(([profile, count]) => ({
+                                  name: PROFILE_LABELS[profile] || profile,
+                                  value: count,
+                                  fill: PROFILE_COLORS[profile] || "#3b82f6",
+                                }))}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={100}
+                              paddingAngle={2}
+                              dataKey="value"
+                            >
+                              {Object.entries(stats.profiles)
+                                .filter(([, count]) => count > 0)
+                                .map(([profile], index) => (
+                                  <Cell key={`cell-${index}`} fill={PROFILE_COLORS[profile] || "#3b82f6"} />
+                                ))}
+                            </Pie>
+                            <Tooltip
+                              contentStyle={{
+                                backgroundColor: "#1e293b",
+                                border: "1px solid rgba(255,255,255,0.1)",
+                                borderRadius: "8px",
+                              }}
+                            />
+                            <Legend
+                              layout="vertical"
+                              align="right"
+                              verticalAlign="middle"
+                              wrapperStyle={{ fontSize: "11px" }}
+                            />
+                          </RechartsPieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+
+                    {/* Profile Bar Chart */}
+                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                      <h3 className="font-semibold text-white mb-6">Profiles by Count</h3>
+                      <div className="space-y-3">
+                        {Object.entries(stats.profiles)
+                          .sort(([, a], [, b]) => b - a)
+                          .map(([profile, count]) => (
+                            <div key={profile}>
+                              <div className="flex items-center justify-between text-sm mb-1">
+                                <span className="text-white/70">{PROFILE_LABELS[profile] || profile}</span>
+                                <span className="text-white font-medium">{count}</span>
+                              </div>
+                              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full transition-all"
+                                  style={{
+                                    width: `${(count / stats.overview.completedResponses) * 100}%`,
+                                    backgroundColor: PROFILE_COLORS[profile] || "#3b82f6",
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Distribution Charts */}
                 <div className="grid lg:grid-cols-2 gap-6">
@@ -985,22 +1599,26 @@ export default function AdminPage() {
 
                 {/* Demographics */}
                 <div className="grid lg:grid-cols-2 gap-6">
-                  {/* By Role */}
-                  {Object.keys(stats.demographics.byRole).length > 0 && (
+                  {/* By Denomination */}
+                  {Object.keys(stats.demographics.byDenomination).length > 0 && (
                     <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                      <h3 className="font-semibold text-white mb-6">By Role</h3>
+                      <h3 className="font-semibold text-white mb-6">By Denomination</h3>
                       <div className="space-y-3">
-                        {Object.entries(stats.demographics.byRole).map(([role, count], i) => (
-                          <div key={role}>
+                        {Object.entries(stats.demographics.byDenomination)
+                          .sort(([, a], [, b]) => b - a)
+                          .map(([denomination, count], i) => (
+                          <div key={denomination}>
                             <div className="flex items-center justify-between text-sm mb-1">
-                              <span className="text-white/70 capitalize">{role.replace("_", " ")}</span>
+                              <span className="text-white/70">
+                                {DENOMINATION_LABELS[denomination] || denomination}
+                              </span>
                               <span className="text-white font-medium">{count.toLocaleString()}</span>
                             </div>
                             <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                               <div
                                 className="h-full rounded-full"
                                 style={{
-                                  width: `${(count / stats.overview.totalResponses) * 100}%`,
+                                  width: `${(count / stats.overview.completedResponses) * 100}%`,
                                   backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
                                 }}
                               />
@@ -1011,22 +1629,26 @@ export default function AdminPage() {
                     </div>
                   )}
 
-                  {/* By Age */}
-                  {Object.keys(stats.demographics.byAge).length > 0 && (
+                  {/* By Role */}
+                  {Object.keys(stats.demographics.byRole).length > 0 && (
                     <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                      <h3 className="font-semibold text-white mb-6">By Age Group</h3>
+                      <h3 className="font-semibold text-white mb-6">By Role</h3>
                       <div className="space-y-3">
-                        {Object.entries(stats.demographics.byAge).map(([age, count], i) => (
-                          <div key={age}>
+                        {Object.entries(stats.demographics.byRole)
+                          .sort(([, a], [, b]) => b - a)
+                          .map(([role, count], i) => (
+                          <div key={role}>
                             <div className="flex items-center justify-between text-sm mb-1">
-                              <span className="text-white/70">{age}</span>
+                              <span className="text-white/70">
+                                {ROLE_LABELS[role] || role.replace(/_/g, " ")}
+                              </span>
                               <span className="text-white font-medium">{count.toLocaleString()}</span>
                             </div>
                             <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                               <div
                                 className="h-full rounded-full"
                                 style={{
-                                  width: `${(count / stats.overview.totalResponses) * 100}%`,
+                                  width: `${(count / stats.overview.completedResponses) * 100}%`,
                                   backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
                                 }}
                               />
@@ -1037,6 +1659,316 @@ export default function AdminPage() {
                     </div>
                   )}
                 </div>
+
+                {/* More Demographics */}
+                <div className="grid lg:grid-cols-2 gap-6">
+                  {/* By Age */}
+                  {Object.keys(stats.demographics.byAge).length > 0 && (
+                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                      <h3 className="font-semibold text-white mb-6">By Age Group</h3>
+                      <div className="space-y-3">
+                        {Object.entries(stats.demographics.byAge)
+                          .sort(([a], [b]) => {
+                            const order = ["18-35", "36-50", "51-65", "66+"];
+                            return order.indexOf(a) - order.indexOf(b);
+                          })
+                          .map(([age, count], i) => (
+                          <div key={age}>
+                            <div className="flex items-center justify-between text-sm mb-1">
+                              <span className="text-white/70">{AGE_LABELS[age] || age}</span>
+                              <span className="text-white font-medium">{count.toLocaleString()}</span>
+                            </div>
+                            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full"
+                                style={{
+                                  width: `${(count / stats.overview.completedResponses) * 100}%`,
+                                  backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+                                }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* By Country */}
+                  {stats.demographics.byCountry && Object.keys(stats.demographics.byCountry).length > 0 && (
+                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                      <h3 className="font-semibold text-white mb-6">By Country</h3>
+                      <div className="space-y-3">
+                        {Object.entries(stats.demographics.byCountry)
+                          .sort(([, a], [, b]) => b - a)
+                          .slice(0, 8)
+                          .map(([country, count], i) => (
+                          <div key={country}>
+                            <div className="flex items-center justify-between text-sm mb-1">
+                              <span className="text-white/70 capitalize">{country.replace(/_/g, " ")}</span>
+                              <span className="text-white font-medium">{count.toLocaleString()}</span>
+                            </div>
+                            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full"
+                                style={{
+                                  width: `${(count / stats.overview.completedResponses) * 100}%`,
+                                  backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+                                }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Cross-Segment Analysis */}
+                {stats.segmentedAnalysis && (
+                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                    <h3 className="font-semibold text-white mb-6 flex items-center gap-2">
+                      <Users className="w-4 h-4 text-blue-400" />
+                      Cross-Segment Analysis
+                    </h3>
+
+                    {/* Clergy vs Laity Comparison */}
+                    {stats.segmentedAnalysis.byRole?.clergy && stats.segmentedAnalysis.byRole?.laity && (
+                      <div className="mb-6">
+                        <h4 className="text-sm font-medium text-white/70 mb-4">Clergy vs Laity Comparison</h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {/* Clergy */}
+                          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-sm font-medium text-blue-400">Clergy</span>
+                              <span className="text-xs text-white/50">n={stats.segmentedAnalysis.byRole.clergy.count}</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 text-center">
+                              <div>
+                                <p className="text-lg font-bold text-white">{stats.segmentedAnalysis.byRole.clergy.avgReligiosity.toFixed(1)}</p>
+                                <p className="text-xs text-white/50">Religiosity</p>
+                              </div>
+                              <div>
+                                <p className="text-lg font-bold text-white">{stats.segmentedAnalysis.byRole.clergy.avgAiAdoption.toFixed(1)}</p>
+                                <p className="text-xs text-white/50">AI Adoption</p>
+                              </div>
+                              <div>
+                                <p className="text-lg font-bold text-white">{stats.segmentedAnalysis.byRole.clergy.avgResistance.toFixed(1)}</p>
+                                <p className="text-xs text-white/50">Resistance</p>
+                              </div>
+                            </div>
+                          </div>
+                          {/* Laity */}
+                          <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-sm font-medium text-green-400">Laity</span>
+                              <span className="text-xs text-white/50">n={stats.segmentedAnalysis.byRole.laity.count}</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 text-center">
+                              <div>
+                                <p className="text-lg font-bold text-white">{stats.segmentedAnalysis.byRole.laity.avgReligiosity.toFixed(1)}</p>
+                                <p className="text-xs text-white/50">Religiosity</p>
+                              </div>
+                              <div>
+                                <p className="text-lg font-bold text-white">{stats.segmentedAnalysis.byRole.laity.avgAiAdoption.toFixed(1)}</p>
+                                <p className="text-xs text-white/50">AI Adoption</p>
+                              </div>
+                              <div>
+                                <p className="text-lg font-bold text-white">{stats.segmentedAnalysis.byRole.laity.avgResistance.toFixed(1)}</p>
+                                <p className="text-xs text-white/50">Resistance</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Difference indicator */}
+                        <div className="mt-3 flex items-center justify-center gap-4 text-xs">
+                          <span className="text-white/40">Difference:</span>
+                          <span className={cn(
+                            "font-medium",
+                            Math.abs(stats.segmentedAnalysis.byRole.clergy.avgReligiosity - stats.segmentedAnalysis.byRole.laity.avgReligiosity) > 0.5
+                              ? "text-amber-400"
+                              : "text-white/50"
+                          )}>
+                            Δ Rel: {(stats.segmentedAnalysis.byRole.clergy.avgReligiosity - stats.segmentedAnalysis.byRole.laity.avgReligiosity).toFixed(1)}
+                          </span>
+                          <span className={cn(
+                            "font-medium",
+                            Math.abs(stats.segmentedAnalysis.byRole.clergy.avgAiAdoption - stats.segmentedAnalysis.byRole.laity.avgAiAdoption) > 0.5
+                              ? "text-amber-400"
+                              : "text-white/50"
+                          )}>
+                            Δ AI: {(stats.segmentedAnalysis.byRole.clergy.avgAiAdoption - stats.segmentedAnalysis.byRole.laity.avgAiAdoption).toFixed(1)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* By Age Group */}
+                    {Object.keys(stats.segmentedAnalysis.byAge || {}).length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-sm font-medium text-white/70 mb-4">Dimension Averages by Age Group</h4>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b border-white/10">
+                                <th className="text-left py-2 px-3 text-white/50 font-medium">Age</th>
+                                <th className="text-center py-2 px-3 text-white/50 font-medium">n</th>
+                                <th className="text-center py-2 px-3 text-white/50 font-medium">Rel.</th>
+                                <th className="text-center py-2 px-3 text-white/50 font-medium">AI Open.</th>
+                                <th className="text-center py-2 px-3 text-white/50 font-medium">Sacred</th>
+                                <th className="text-center py-2 px-3 text-white/50 font-medium">Future</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Object.entries(stats.segmentedAnalysis.byAge)
+                                .sort(([a], [b]) => {
+                                  const order = ["18-35", "36-50", "51-65", "66+"];
+                                  return order.indexOf(a) - order.indexOf(b);
+                                })
+                                .map(([age, data]) => (
+                                  <tr key={age} className="border-b border-white/5 hover:bg-white/[0.02]">
+                                    <td className="py-2 px-3 text-white">{AGE_LABELS[age] || age}</td>
+                                    <td className="py-2 px-3 text-center text-white/50">{data.count}</td>
+                                    <td className="py-2 px-3 text-center">
+                                      <span className="text-blue-400 font-medium">{data.avgReligiosity.toFixed(1)}</span>
+                                    </td>
+                                    <td className="py-2 px-3 text-center">
+                                      <span className="text-green-400 font-medium">{data.avgAiAdoption.toFixed(1)}</span>
+                                    </td>
+                                    <td className="py-2 px-3 text-center">
+                                      <span className="text-amber-400 font-medium">{data.dimensionAverages?.sacredBoundary?.toFixed(1) || '—'}</span>
+                                    </td>
+                                    <td className="py-2 px-3 text-center">
+                                      <span className="text-purple-400 font-medium">{data.dimensionAverages?.futureOrientation?.toFixed(1) || '—'}</span>
+                                    </td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Profile Distribution by Segment */}
+                    {stats.segmentedAnalysis.byRole?.clergy && stats.segmentedAnalysis.byRole?.laity && (
+                      <div>
+                        <h4 className="text-sm font-medium text-white/70 mb-4">Profile Distribution by Role</h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {/* Clergy profiles */}
+                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                            <p className="text-xs text-white/50 mb-3">Clergy Top Profiles</p>
+                            <div className="space-y-2">
+                              {Object.entries(stats.segmentedAnalysis.byRole.clergy.profileDistribution)
+                                .sort(([, a], [, b]) => b - a)
+                                .slice(0, 4)
+                                .map(([profile, count]) => (
+                                  <div key={profile} className="flex items-center gap-2">
+                                    <div
+                                      className="w-2 h-2 rounded-full"
+                                      style={{ backgroundColor: PROFILE_COLORS[profile] || '#3b82f6' }}
+                                    />
+                                    <span className="text-xs text-white/70 flex-1">{PROFILE_LABELS[profile] || profile}</span>
+                                    <span className="text-xs text-white">{count}</span>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                          {/* Laity profiles */}
+                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                            <p className="text-xs text-white/50 mb-3">Laity Top Profiles</p>
+                            <div className="space-y-2">
+                              {Object.entries(stats.segmentedAnalysis.byRole.laity.profileDistribution)
+                                .sort(([, a], [, b]) => b - a)
+                                .slice(0, 4)
+                                .map(([profile, count]) => (
+                                  <div key={profile} className="flex items-center gap-2">
+                                    <div
+                                      className="w-2 h-2 rounded-full"
+                                      style={{ backgroundColor: PROFILE_COLORS[profile] || '#3b82f6' }}
+                                    />
+                                    <span className="text-xs text-white/70 flex-1">{PROFILE_LABELS[profile] || profile}</span>
+                                    <span className="text-xs text-white">{count}</span>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Full Correlation Matrix */}
+                {stats.correlationMatrix && (
+                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                    <h3 className="font-semibold text-white mb-6 flex items-center gap-2">
+                      <GitCompare className="w-4 h-4 text-purple-400" />
+                      7-Dimension Correlation Matrix
+                    </h3>
+                    <p className="text-sm text-white/50 mb-4">
+                      Pearson correlation coefficients between the seven dimensions. Blue = positive, Red = negative.
+                    </p>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr>
+                            <th className="p-2 text-left text-white/50"></th>
+                            {Object.keys(stats.correlationMatrix).map((dim) => (
+                              <th key={dim} className="p-2 text-center text-white/50 font-normal" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', height: '80px' }}>
+                                {DIMENSION_LABELS[dim]?.split(' ').slice(0, 2).join(' ') || dim}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(stats.correlationMatrix).map(([dim1, row]) => (
+                            <tr key={dim1}>
+                              <td className="p-2 text-white/70 whitespace-nowrap">
+                                {DIMENSION_LABELS[dim1]?.split(' ').slice(0, 2).join(' ') || dim1}
+                              </td>
+                              {Object.entries(row).map(([dim2, value]) => {
+                                const intensity = Math.abs(value);
+                                const bgColor = value > 0
+                                  ? `rgba(59, 130, 246, ${intensity * 0.8})`
+                                  : value < 0
+                                  ? `rgba(239, 68, 68, ${intensity * 0.8})`
+                                  : 'rgba(255, 255, 255, 0.05)';
+                                return (
+                                  <td
+                                    key={dim2}
+                                    className="p-2 text-center border border-white/5"
+                                    style={{ backgroundColor: bgColor }}
+                                  >
+                                    <span className={cn(
+                                      "font-medium",
+                                      dim1 === dim2 ? "text-white/30" : "text-white"
+                                    )}>
+                                      {dim1 === dim2 ? '1' : value.toFixed(2)}
+                                    </span>
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {/* Legend */}
+                    <div className="flex items-center justify-center gap-6 mt-4 text-xs text-white/50">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(239, 68, 68, 0.6)' }} />
+                        <span>Negative correlation</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded bg-white/5" />
+                        <span>No correlation</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(59, 130, 246, 0.6)' }} />
+                        <span>Positive correlation</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
 
@@ -1167,9 +2099,1350 @@ export default function AdminPage() {
                 </div>
               </motion.div>
             )}
+
+            {/* Executive Summary Tab */}
+            {activeTab === "executive" && stats && (
+              <motion.div
+                key="executive"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-6"
+              >
+                {/* Research Quality Header */}
+                <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/30 rounded-2xl p-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-purple-400" />
+                        Executive Summary
+                      </h2>
+                      <p className="text-sm text-white/60 mt-1">
+                        Research-ready insights and statistical analysis
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-3xl font-bold text-white">{stats.overview.completedResponses.toLocaleString()}</p>
+                      <p className="text-xs text-white/50">Valid Responses</p>
+                    </div>
+                  </div>
+
+                  {/* Research Quality Metrics */}
+                  <div className="grid grid-cols-4 gap-4 mt-6">
+                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                      <p className="text-2xl font-bold text-green-400">{stats.overview.completionRate}%</p>
+                      <p className="text-xs text-white/50 mt-1">Completion Rate</p>
+                    </div>
+                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                      <p className="text-2xl font-bold text-blue-400">{stats.overview.avgCompletionTime}m</p>
+                      <p className="text-xs text-white/50 mt-1">Avg. Time</p>
+                    </div>
+                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                      <p className="text-2xl font-bold text-purple-400">
+                        {Object.keys(stats.demographics.byDenomination || {}).length}
+                      </p>
+                      <p className="text-xs text-white/50 mt-1">Denominations</p>
+                    </div>
+                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                      <p className="text-2xl font-bold text-amber-400">
+                        {Object.keys(stats.demographics.byAge || {}).length}
+                      </p>
+                      <p className="text-xs text-white/50 mt-1">Age Groups</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Key Findings */}
+                {stats.keyFindings && stats.keyFindings.length > 0 && (
+                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                    <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                      <Target className="w-4 h-4 text-amber-400" />
+                      Key Research Findings
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {stats.keyFindings.map((finding, i) => (
+                        <div
+                          key={i}
+                          className={cn(
+                            "p-4 rounded-xl border",
+                            finding.significance === 'high'
+                              ? "bg-green-500/10 border-green-500/30"
+                              : finding.significance === 'medium'
+                              ? "bg-blue-500/10 border-blue-500/30"
+                              : "bg-white/5 border-white/10"
+                          )}
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <span className={cn(
+                              "text-xs font-medium px-2 py-0.5 rounded-full",
+                              finding.type === 'correlation' ? "bg-purple-500/20 text-purple-400" :
+                              finding.type === 'segment' ? "bg-blue-500/20 text-blue-400" :
+                              "bg-amber-500/20 text-amber-400"
+                            )}>
+                              {finding.type === 'correlation' ? '📊 Correlation' :
+                               finding.type === 'segment' ? '👥 Segment' : '📈 Pattern'}
+                            </span>
+                            <span className={cn(
+                              "text-xs",
+                              finding.significance === 'high' ? "text-green-400" :
+                              finding.significance === 'medium' ? "text-blue-400" : "text-white/40"
+                            )}>
+                              {finding.significance === 'high' ? '●●●' :
+                               finding.significance === 'medium' ? '●●○' : '●○○'}
+                            </span>
+                          </div>
+                          <h4 className="font-medium text-white text-sm">{finding.title}</h4>
+                          <p className="text-xs text-white/60 mt-1">{finding.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Profile Clusters Visualization */}
+                {stats.profileClusters && stats.profileClusters.length > 0 && (
+                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                    <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-blue-400" />
+                      Profile Clusters (Religiosity × AI Openness)
+                    </h3>
+                    <div className="h-80 relative">
+                      {/* Axis labels */}
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 text-xs text-white/40 whitespace-nowrap">
+                        AI Openness →
+                      </div>
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xs text-white/40">
+                        Religiosity →
+                      </div>
+                      {/* Scatter/Bubble area */}
+                      <div className="ml-8 mb-6 h-full relative bg-white/[0.02] rounded-xl overflow-hidden">
+                        {/* Grid lines */}
+                        <div className="absolute inset-0 grid grid-cols-5 grid-rows-5">
+                          {[...Array(25)].map((_, i) => (
+                            <div key={i} className="border border-white/5" />
+                          ))}
+                        </div>
+                        {/* Bubbles */}
+                        {stats.profileClusters.map((cluster) => {
+                          const x = ((cluster.avgReligiosity - 1) / 4) * 100;
+                          const y = 100 - ((cluster.avgAiOpenness - 1) / 4) * 100;
+                          const size = Math.max(30, Math.min(80, cluster.count / 5 + 20));
+                          return (
+                            <div
+                              key={cluster.profile}
+                              className="absolute transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group"
+                              style={{
+                                left: `${x}%`,
+                                top: `${y}%`,
+                                width: size,
+                                height: size,
+                              }}
+                            >
+                              <div
+                                className="rounded-full flex items-center justify-center text-xs font-medium text-white opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  backgroundColor: PROFILE_COLORS[cluster.profile] || '#3b82f6',
+                                }}
+                              >
+                                {cluster.count}
+                              </div>
+                              {/* Tooltip */}
+                              <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block z-10">
+                                <div className="bg-slate-800 border border-white/10 rounded-lg px-3 py-2 text-xs whitespace-nowrap">
+                                  <p className="font-medium text-white">{PROFILE_LABELS[cluster.profile]}</p>
+                                  <p className="text-white/60">n={cluster.count}</p>
+                                  <p className="text-white/60">Rel: {cluster.avgReligiosity} | AI: {cluster.avgAiOpenness}</p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    {/* Legend */}
+                    <div className="flex flex-wrap gap-3 mt-4 justify-center">
+                      {stats.profileClusters.slice(0, 6).map((cluster) => (
+                        <div key={cluster.profile} className="flex items-center gap-2">
+                          <div
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: PROFILE_COLORS[cluster.profile] || '#3b82f6' }}
+                          />
+                          <span className="text-xs text-white/60">{PROFILE_LABELS[cluster.profile]}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Dimension Statistics Table */}
+                {stats.dimensionStats && (
+                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                    <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                      📊 Dimension Statistics
+                    </h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-white/10">
+                            <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-4">
+                              Dimension
+                            </th>
+                            <th className="text-center text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-4">
+                              Mean
+                            </th>
+                            <th className="text-center text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-4">
+                              Std Dev
+                            </th>
+                            <th className="text-center text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-4">
+                              Median
+                            </th>
+                            <th className="text-center text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-4">
+                              Distribution
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(stats.dimensionStats).map(([dim, stat]) => (
+                            <tr key={dim} className="border-b border-white/5 hover:bg-white/[0.02]">
+                              <td className="py-3 px-4">
+                                <span className="text-sm text-white">{DIMENSION_LABELS[dim] || dim}</span>
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <span className="text-sm font-medium text-blue-400">{stat.mean.toFixed(2)}</span>
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <span className="text-sm text-white/60">±{stat.stdDev.toFixed(2)}</span>
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <span className="text-sm text-white/60">{stat.median.toFixed(2)}</span>
+                              </td>
+                              <td className="py-3 px-4">
+                                {/* Mini sparkline/distribution */}
+                                <div className="flex items-end gap-0.5 h-6 justify-center">
+                                  {stat.distribution.map((count, i) => {
+                                    const maxCount = Math.max(...stat.distribution);
+                                    const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                                    return (
+                                      <div
+                                        key={i}
+                                        className="w-3 bg-blue-500/50 rounded-t"
+                                        style={{ height: `${Math.max(10, height)}%` }}
+                                        title={`${['1-2', '2-3', '3-4', '4-5', '5'][i]}: ${count}`}
+                                      />
+                                    );
+                                  })}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Correlation Matrix Preview */}
+                {stats.correlationMatrix && (
+                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                    <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                      <GitCompare className="w-4 h-4 text-purple-400" />
+                      Correlation Matrix (7 Dimensions)
+                    </h3>
+                    <p className="text-sm text-white/50 mb-4">
+                      See full matrix in Analytics tab
+                    </p>
+                    {/* Top correlations preview */}
+                    <div className="grid md:grid-cols-3 gap-3">
+                      {(() => {
+                        const correlations: { dim1: string; dim2: string; value: number }[] = [];
+                        const dims = Object.keys(stats.correlationMatrix);
+                        for (let i = 0; i < dims.length; i++) {
+                          for (let j = i + 1; j < dims.length; j++) {
+                            correlations.push({
+                              dim1: dims[i],
+                              dim2: dims[j],
+                              value: stats.correlationMatrix[dims[i]][dims[j]],
+                            });
+                          }
+                        }
+                        return correlations
+                          .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
+                          .slice(0, 6)
+                          .map((c, i) => (
+                            <div key={i} className="bg-white/5 rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs text-white/50">
+                                  {DIMENSION_LABELS[c.dim1]?.split(' ')[0] || c.dim1}
+                                  {' × '}
+                                  {DIMENSION_LABELS[c.dim2]?.split(' ')[0] || c.dim2}
+                                </span>
+                                <span className={cn(
+                                  "text-sm font-bold",
+                                  c.value > 0 ? "text-blue-400" : "text-red-400"
+                                )}>
+                                  {c.value > 0 ? '+' : ''}{c.value.toFixed(2)}
+                                </span>
+                              </div>
+                              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                                <div
+                                  className={cn(
+                                    "h-full rounded-full",
+                                    c.value > 0 ? "bg-blue-500" : "bg-red-500"
+                                  )}
+                                  style={{
+                                    width: `${Math.abs(c.value) * 100}%`,
+                                    marginLeft: c.value < 0 ? 'auto' : 0,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          ));
+                      })()}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </main>
+
+      {/* Response Detail Modal */}
+      <AnimatePresence>
+        {selectedResponseId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={handleCloseDetail}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-4xl max-h-[90vh] overflow-hidden bg-slate-900 border border-white/10 rounded-2xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-white/5">
+                <div>
+                  <h2 className="text-xl font-semibold text-white">
+                    Réponse #{selectedResponseId.slice(0, 8)}...
+                  </h2>
+                  {responseDetail && (
+                    <p className="text-sm text-white/50 mt-1">
+                      {new Date(responseDetail.createdAt).toLocaleDateString()} •{" "}
+                      {responseDetail.language.toUpperCase()}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={handleCloseDetail}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-white/60" />
+                </button>
+              </div>
+
+              {/* Modal Tabs */}
+              <div className="flex gap-1 p-2 border-b border-white/5 bg-white/[0.02]">
+                {[
+                  { id: "profil", label: "Profil" },
+                  { id: "scores", label: "Scores" },
+                  { id: "reponses", label: "Réponses" },
+                  { id: "analyse", label: "Analyse" },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveDetailTab(tab.id as typeof activeDetailTab)}
+                    className={cn(
+                      "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                      activeDetailTab === tab.id
+                        ? "bg-blue-600 text-white"
+                        : "text-white/60 hover:bg-white/5 hover:text-white"
+                    )}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+                {detailLoading ? (
+                  <div className="flex flex-col items-center justify-center py-20 gap-3">
+                    <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
+                    <p className="text-sm text-white/50">Loading response details...</p>
+                  </div>
+                ) : detailError ? (
+                  <div className="flex flex-col items-center justify-center py-20 gap-4">
+                    <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+                      <AlertCircle className="w-8 h-8 text-red-400" />
+                    </div>
+                    <div className="text-center">
+                      <h3 className="font-medium text-white mb-1">Failed to Load</h3>
+                      <p className="text-sm text-white/50">{detailError}</p>
+                    </div>
+                    <button
+                      onClick={() => selectedResponseId && fetchResponseDetail(selectedResponseId)}
+                      className="px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg text-sm font-medium text-white transition-colors"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                ) : responseDetail ? (
+                  <>
+                    {/* Profil Tab */}
+                    {activeDetailTab === "profil" && (
+                      <div className="space-y-6">
+                        <div className="grid md:grid-cols-2 gap-6">
+                          {/* Demographics */}
+                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                            <h3 className="font-semibold text-white mb-4">Profil Démographique</h3>
+                            <div className="space-y-3">
+                              {[
+                                { label: "Confession", value: DENOMINATION_LABELS[responseDetail.answers.profil_confession as string] || responseDetail.answers.profil_confession },
+                                { label: "Statut", value: ROLE_LABELS[responseDetail.answers.profil_statut as string] || responseDetail.answers.profil_statut },
+                                { label: "Âge", value: AGE_LABELS[responseDetail.answers.profil_age as string] || responseDetail.answers.profil_age },
+                                { label: "Pays", value: responseDetail.answers.profil_pays },
+                                { label: "Milieu", value: responseDetail.answers.profil_milieu },
+                                { label: "Orientation théo.", value: responseDetail.answers.theo_orientation },
+                              ].map((item, i) => (
+                                <div key={i} className="flex justify-between">
+                                  <span className="text-white/50 text-sm">{item.label}</span>
+                                  <span className="text-white text-sm font-medium">
+                                    {typeof item.value === "string" ? item.value : "—"}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Profile Type */}
+                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                            <h3 className="font-semibold text-white mb-4">Profil Typologique</h3>
+                            <div className="flex items-center gap-4 mb-4">
+                              <div
+                                className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl"
+                                style={{ backgroundColor: `${PROFILE_COLORS[responseDetail.profile.primary.name]}30` }}
+                              >
+                                {responseDetail.profile.primary.emoji}
+                              </div>
+                              <div>
+                                <h4 className="text-lg font-semibold text-white">
+                                  {PROFILE_LABELS[responseDetail.profile.primary.name] || responseDetail.profile.primary.name}
+                                </h4>
+                                <p className="text-sm text-white/50">
+                                  Match: {responseDetail.profile.primary.score}%
+                                </p>
+                              </div>
+                            </div>
+                            {responseDetail.profile.secondary && (
+                              <div className="pt-3 border-t border-white/5">
+                                <p className="text-sm text-white/50">
+                                  Profil secondaire:{" "}
+                                  <span className="text-white">
+                                    {PROFILE_LABELS[responseDetail.profile.secondary.name]} ({responseDetail.profile.secondary.score}%)
+                                  </span>
+                                </p>
+                              </div>
+                            )}
+                            <div className="pt-3 mt-3 border-t border-white/5">
+                              <p className="text-sm text-white/50">
+                                Sous-profil:{" "}
+                                <span className="text-white">{responseDetail.profile.subProfile}</span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Profile Match Distribution */}
+                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                          <h3 className="font-semibold text-white mb-4">Distribution des Correspondances</h3>
+                          <div className="space-y-2">
+                            {responseDetail.profile.allMatches.slice(0, 5).map((match) => (
+                              <div key={match.name}>
+                                <div className="flex justify-between text-sm mb-1">
+                                  <span className="text-white/70">
+                                    {PROFILE_LABELS[match.name] || match.name}
+                                  </span>
+                                  <span className="text-white">{match.score}%</span>
+                                </div>
+                                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full transition-all"
+                                    style={{
+                                      width: `${match.score}%`,
+                                      backgroundColor: PROFILE_COLORS[match.name] || "#3b82f6",
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Scores Tab */}
+                    {activeDetailTab === "scores" && (
+                      <div className="space-y-6">
+                        {/* Main Scores */}
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-5">
+                            <h4 className="text-sm text-blue-400 mb-2">CRS-5 (Religiosité)</h4>
+                            <p className="text-3xl font-bold text-white">
+                              {responseDetail.scores.crs5.value.toFixed(1)}
+                              <span className="text-lg text-white/50">/5</span>
+                            </p>
+                            <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-blue-500 rounded-full"
+                                style={{ width: `${(responseDetail.scores.crs5.value / 5) * 100}%` }}
+                              />
+                            </div>
+                          </div>
+                          <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-5">
+                            <h4 className="text-sm text-green-400 mb-2">Adoption IA</h4>
+                            <p className="text-3xl font-bold text-white">
+                              {responseDetail.scores.aiAdoption.value.toFixed(1)}
+                              <span className="text-lg text-white/50">/5</span>
+                            </p>
+                            <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-green-500 rounded-full"
+                                style={{ width: `${(responseDetail.scores.aiAdoption.value / 5) * 100}%` }}
+                              />
+                            </div>
+                          </div>
+                          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5">
+                            <h4 className="text-sm text-amber-400 mb-2">Résistance Spirituelle</h4>
+                            <p className="text-3xl font-bold text-white">
+                              {responseDetail.scores.resistanceIndex.toFixed(1)}
+                            </p>
+                            <p className="text-sm text-white/50 mt-1">
+                              {responseDetail.scores.resistanceIndex <= 0
+                                ? "Aucune résistance"
+                                : responseDetail.scores.resistanceIndex < 1
+                                ? "Légère réserve"
+                                : responseDetail.scores.resistanceIndex < 2
+                                ? "Résistance modérée"
+                                : "Forte résistance"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Radar Chart - 7 Dimensions with Population Comparison */}
+                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                          <h3 className="font-semibold text-white mb-2">Les 7 Dimensions vs Population</h3>
+                          <p className="text-xs text-white/50 mb-4">Blue: This response • Gray: Population average</p>
+                          <div className="h-80">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <RadarChart
+                                data={Object.entries(responseDetail.dimensions).map(([key, dim]) => ({
+                                  dimension: DIMENSION_LABELS[key] || key,
+                                  value: dim.value,
+                                  population: stats?.populationAverages?.[key] || 3,
+                                  fullMark: 5,
+                                }))}
+                              >
+                                <PolarGrid stroke="#ffffff20" />
+                                <PolarAngleAxis
+                                  dataKey="dimension"
+                                  tick={{ fill: "#ffffff70", fontSize: 11 }}
+                                />
+                                <PolarRadiusAxis
+                                  angle={30}
+                                  domain={[0, 5]}
+                                  tick={{ fill: "#ffffff50", fontSize: 10 }}
+                                />
+                                <Radar
+                                  name="Population"
+                                  dataKey="population"
+                                  stroke="#ffffff40"
+                                  fill="#ffffff"
+                                  fillOpacity={0.1}
+                                  strokeDasharray="5 5"
+                                />
+                                <Radar
+                                  name="This Response"
+                                  dataKey="value"
+                                  stroke="#3b82f6"
+                                  fill="#3b82f6"
+                                  fillOpacity={0.4}
+                                />
+                                <Legend />
+                                <Tooltip
+                                  contentStyle={{
+                                    backgroundColor: "#1e293b",
+                                    border: "1px solid rgba(255,255,255,0.1)",
+                                    borderRadius: "8px",
+                                  }}
+                                />
+                              </RadarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+
+                        {/* Enhanced Dimension Details with Percentile Visualization */}
+                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                          <h3 className="font-semibold text-white mb-4">Détail des Dimensions & Percentiles</h3>
+                          <div className="space-y-4">
+                            {Object.entries(responseDetail.dimensions).map(([key, dim]) => {
+                              const popAvg = stats?.populationAverages?.[key] || 3;
+                              const diff = dim.value - popAvg;
+                              return (
+                                <div key={key} className="bg-white/[0.02] rounded-lg p-4">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div>
+                                      <p className="text-sm font-medium text-white">
+                                        {DIMENSION_LABELS[key] || key}
+                                      </p>
+                                      <p className="text-xs text-white/50">
+                                        vs Population: {diff > 0 ? '+' : ''}{diff.toFixed(1)}
+                                      </p>
+                                    </div>
+                                    <div className="text-right">
+                                      <p className="text-lg font-bold text-white">{dim.value.toFixed(1)}</p>
+                                      <p className={cn(
+                                        "text-xs",
+                                        dim.percentile > 70 ? "text-green-400" :
+                                        dim.percentile > 30 ? "text-white/50" : "text-amber-400"
+                                      )}>
+                                        Top {100 - dim.percentile}%
+                                      </p>
+                                    </div>
+                                  </div>
+                                  {/* Percentile visualization */}
+                                  <div className="relative h-3 bg-white/5 rounded-full overflow-hidden">
+                                    {/* Population marker */}
+                                    <div
+                                      className="absolute top-0 bottom-0 w-0.5 bg-white/50 z-10"
+                                      style={{ left: `${(popAvg / 5) * 100}%` }}
+                                    />
+                                    {/* Score bar */}
+                                    <div
+                                      className={cn(
+                                        "h-full rounded-full transition-all",
+                                        diff > 0.5 ? "bg-green-500" : diff < -0.5 ? "bg-amber-500" : "bg-blue-500"
+                                      )}
+                                      style={{ width: `${(dim.value / 5) * 100}%` }}
+                                    />
+                                  </div>
+                                  {/* Percentile position */}
+                                  <div className="relative h-1.5 mt-2">
+                                    <div className="absolute inset-x-0 h-full bg-gradient-to-r from-red-500/30 via-yellow-500/30 to-green-500/30 rounded-full" />
+                                    <div
+                                      className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-lg border border-white/50"
+                                      style={{ left: `${dim.percentile}%`, marginLeft: '-4px' }}
+                                    />
+                                  </div>
+                                  <div className="flex justify-between text-xs text-white/30 mt-1">
+                                    <span>0%</span>
+                                    <span>50%</span>
+                                    <span>100%</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Responses Tab */}
+                    {activeDetailTab === "reponses" && (
+                      <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2">
+                        {/* Group answers by category */}
+                        {(() => {
+                          const groupedAnswers: Record<string, Array<{ key: string; value: string | number | string[] }>> = {};
+
+                          Object.entries(responseDetail.answers).forEach(([key, value]) => {
+                            const category = getQuestionCategory(key);
+                            if (!groupedAnswers[category]) {
+                              groupedAnswers[category] = [];
+                            }
+                            groupedAnswers[category].push({ key, value });
+                          });
+
+                          // Define category order
+                          const categoryOrder = [
+                            "profile", "religiosity", "usage", "digital_spiritual",
+                            "ministry_preaching", "ministry_pastoral", "ministry_vision",
+                            "spirituality", "theology", "psychology", "community",
+                            "future", "social_desirability", "open", "other"
+                          ];
+
+                          return categoryOrder
+                            .filter((cat) => groupedAnswers[cat]?.length > 0)
+                            .map((category) => (
+                              <div key={category} className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden">
+                                <div className="px-5 py-3 bg-white/[0.03] border-b border-white/5">
+                                  <h3 className="font-semibold text-white text-sm">
+                                    {CATEGORY_LABELS[category] || category}
+                                  </h3>
+                                </div>
+                                <div className="divide-y divide-white/5">
+                                  {groupedAnswers[category].map(({ key, value }) => (
+                                    <div key={key} className="px-5 py-4">
+                                      <div className="flex flex-col gap-2">
+                                        <p className="text-sm text-white/90 font-medium">
+                                          {getQuestionText(key)}
+                                        </p>
+                                        <div className="flex items-start gap-2">
+                                          <span className="text-xs text-white/30 font-mono bg-white/5 px-2 py-0.5 rounded">
+                                            {key}
+                                          </span>
+                                          <p className="text-sm text-blue-400 font-medium">
+                                            {getAnswerLabel(key, value)}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ));
+                        })()}
+
+                        {/* Summary stats */}
+                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-5">
+                          <h4 className="text-sm font-medium text-blue-400 mb-3">📊 Résumé</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                            <div>
+                              <p className="text-2xl font-bold text-white">
+                                {Object.keys(responseDetail.answers).length}
+                              </p>
+                              <p className="text-xs text-white/50">Questions répondues</p>
+                            </div>
+                            <div>
+                              <p className="text-2xl font-bold text-white">
+                                {responseDetail.completionTime ? `${responseDetail.completionTime}m` : "—"}
+                              </p>
+                              <p className="text-xs text-white/50">Temps de complétion</p>
+                            </div>
+                            <div>
+                              <p className="text-2xl font-bold text-white">
+                                {responseDetail.scores.crs5.value.toFixed(1)}
+                              </p>
+                              <p className="text-xs text-white/50">Score CRS-5</p>
+                            </div>
+                            <div>
+                              <p className="text-2xl font-bold text-white">
+                                {responseDetail.scores.aiAdoption.value.toFixed(1)}
+                              </p>
+                              <p className="text-xs text-white/50">Score IA</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Analysis Tab */}
+                    {activeDetailTab === "analyse" && (
+                      <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2">
+                        {/* Key Summary Banner */}
+                        <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-xl p-6">
+                          <div className="flex items-start gap-4">
+                            <div
+                              className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl shrink-0"
+                              style={{ backgroundColor: `${PROFILE_COLORS[responseDetail.profile.primary.name]}30` }}
+                            >
+                              {responseDetail.profile.primary.emoji}
+                            </div>
+                            <div className="flex-1">
+                              <h2 className="text-xl font-bold text-white mb-1">
+                                {responseDetail.profile.primary.title}
+                              </h2>
+                              <p className="text-sm text-white/70 mb-3">
+                                {responseDetail.interpretation.headline}
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full">
+                                  CRS-5: {responseDetail.scores.crs5.value.toFixed(1)}/5
+                                </span>
+                                <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
+                                  IA: {responseDetail.scores.aiAdoption.value.toFixed(1)}/5
+                                </span>
+                                <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">
+                                  Match: {responseDetail.profile.primary.score}%
+                                </span>
+                                {responseDetail.profile.subProfile && (
+                                  <span className="text-xs px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full">
+                                    {responseDetail.profile.subProfile}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Interpretation Narrative */}
+                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                          <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-blue-400" />
+                            Analyse Narrative
+                          </h3>
+                          <p className="text-white/80 text-sm leading-relaxed">
+                            {responseDetail.interpretation.narrative}
+                          </p>
+                        </div>
+
+                        {/* Why This Profile? Explainer */}
+                        <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-5">
+                          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                            <Target className="w-4 h-4 text-purple-400" />
+                            Pourquoi ce profil?
+                          </h3>
+                          <p className="text-sm text-white/60 mb-4">
+                            Les réponses clés qui ont déterminé la classification:
+                          </p>
+                          <div className="space-y-3">
+                            {/* Key dimension indicators */}
+                            {Object.entries(responseDetail.dimensions)
+                              .sort(([, a], [, b]) => Math.abs(b.value - 3) - Math.abs(a.value - 3))
+                              .slice(0, 4)
+                              .map(([key, dim]) => {
+                                const isHigh = dim.value > 3.5;
+                                const isLow = dim.value < 2.5;
+                                if (!isHigh && !isLow) return null;
+                                return (
+                                  <div key={key} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
+                                    <div className={cn(
+                                      "w-8 h-8 rounded-full flex items-center justify-center text-sm",
+                                      isHigh ? "bg-green-500/20 text-green-400" : "bg-amber-500/20 text-amber-400"
+                                    )}>
+                                      {isHigh ? "↑" : "↓"}
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="text-sm font-medium text-white">
+                                        {DIMENSION_LABELS[key] || key}: {dim.value.toFixed(1)}/5
+                                      </p>
+                                      <p className="text-xs text-white/50">
+                                        {isHigh ? `Score élevé (Top ${100 - dim.percentile}%)` : `Score faible (Bottom ${dim.percentile}%)`}
+                                      </p>
+                                    </div>
+                                    <span className={cn(
+                                      "text-xs px-2 py-1 rounded-full",
+                                      isHigh ? "bg-green-500/20 text-green-400" : "bg-amber-500/20 text-amber-400"
+                                    )}>
+                                      {isHigh ? "Distinctif +" : "Distinctif -"}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                          </div>
+                          {/* Profile match explanation */}
+                          <div className="mt-4 p-3 bg-white/5 rounded-lg">
+                            <p className="text-xs text-white/70">
+                              <span className="text-purple-400 font-medium">Match {responseDetail.profile.primary.score}%:</span>{" "}
+                              Ce profil correspond le mieux au pattern de réponses observé.
+                              {responseDetail.profile.secondary && (
+                                <span className="text-white/50">
+                                  {" "}Profil secondaire: {PROFILE_LABELS[responseDetail.profile.secondary.name]} ({responseDetail.profile.secondary.score}%)
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Answer Influence Scoring */}
+                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                            📊 Réponses Clés par Impact
+                          </h3>
+                          <p className="text-sm text-white/50 mb-4">
+                            Réponses qui ont le plus contribué à la classification du profil:
+                          </p>
+                          <div className="space-y-2">
+                            {[
+                              { key: 'ctrl_ia_frequence', label: "Fréquence d'usage IA", dimension: 'aiOpenness' },
+                              { key: 'ctrl_ia_confort', label: "Niveau de confort IA", dimension: 'aiOpenness' },
+                              { key: 'crs_private_practice', label: "Pratique religieuse privée", dimension: 'religiosity' },
+                              { key: 'theo_inspiration', label: "L'IA peut-elle transmettre la grâce?", dimension: 'sacredBoundary' },
+                              { key: 'futur_intention_usage', label: "Intention d'augmenter l'usage", dimension: 'futureOrientation' },
+                            ].map(item => {
+                              const answer = responseDetail.answers[item.key];
+                              if (!answer) return null;
+                              const dimValue = responseDetail.dimensions[item.dimension as keyof typeof responseDetail.dimensions]?.value || 3;
+                              const impact = Math.abs(dimValue - 3) / 2;
+                              return (
+                                <div key={item.key} className="flex items-center gap-3 p-2 bg-white/[0.02] rounded-lg">
+                                  <div className="w-24 text-xs text-white/40 truncate">{item.label}</div>
+                                  <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                                    <div
+                                      className={cn(
+                                        "h-full rounded-full",
+                                        impact > 0.6 ? "bg-purple-500" : impact > 0.3 ? "bg-blue-500" : "bg-white/20"
+                                      )}
+                                      style={{ width: `${Math.min(100, impact * 100 + 30)}%` }}
+                                    />
+                                  </div>
+                                  <div className="w-20 text-right">
+                                    <span className="text-xs text-white/70 font-mono">
+                                      {typeof answer === 'string' ? answer.slice(0, 12) : Array.isArray(answer) ? answer.length + ' items' : String(answer)}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* CRS-5 Breakdown */}
+                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                            🙏 Détail CRS-5 (Religiosité)
+                          </h3>
+                          <div className="grid grid-cols-5 gap-2">
+                            {Object.entries(responseDetail.scores.crs5.breakdown).map(([key, value]) => {
+                              const labels: Record<string, string> = {
+                                intellect: "Intellect",
+                                ideology: "Idéologie",
+                                public: "Pratique pub.",
+                                private: "Pratique priv.",
+                                experience: "Expérience",
+                              };
+                              return (
+                                <div key={key} className="text-center p-3 bg-white/[0.02] rounded-lg">
+                                  <p className="text-xs text-white/50 mb-1">{labels[key] || key}</p>
+                                  <p className="text-2xl font-bold text-blue-400">{value}</p>
+                                  <div className="mt-2 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full bg-blue-500 rounded-full"
+                                      style={{ width: `${(value / 5) * 100}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* AI Adoption Breakdown */}
+                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                            🤖 Détail Adoption IA
+                          </h3>
+                          <div className="grid grid-cols-3 gap-4">
+                            {Object.entries(responseDetail.scores.aiAdoption.breakdown).map(([key, value]) => {
+                              const labels: Record<string, string> = {
+                                frequency: "Fréquence d'usage",
+                                comfort: "Niveau de confort",
+                                contexts: "Variété des contextes",
+                              };
+                              const icons: Record<string, string> = {
+                                frequency: "📊",
+                                comfort: "😌",
+                                contexts: "🎯",
+                              };
+                              return (
+                                <div key={key} className="p-4 bg-white/[0.02] rounded-lg">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span>{icons[key] || "📈"}</span>
+                                    <p className="text-xs text-white/50">{labels[key] || key}</p>
+                                  </div>
+                                  <p className="text-2xl font-bold text-green-400">{typeof value === 'number' ? value.toFixed(1) : value}</p>
+                                  <div className="mt-2 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full bg-green-500 rounded-full"
+                                      style={{ width: `${(Number(value) / 5) * 100}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Unique Aspects & Blind Spots */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-5">
+                            <h4 className="text-sm font-medium text-green-400 mb-3 flex items-center gap-2">
+                              ✨ Forces & Aspects Uniques
+                            </h4>
+                            <ul className="space-y-2">
+                              {responseDetail.interpretation.uniqueAspects.length > 0 ? (
+                                responseDetail.interpretation.uniqueAspects.map((aspect, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-white/70">
+                                    <span className="text-green-400 mt-0.5">✓</span>
+                                    {aspect}
+                                  </li>
+                                ))
+                              ) : (
+                                <li className="text-sm text-white/50 italic">Aucun aspect unique identifié</li>
+                              )}
+                            </ul>
+                          </div>
+                          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5">
+                            <h4 className="text-sm font-medium text-amber-400 mb-3 flex items-center gap-2">
+                              ⚠️ Points d&apos;attention
+                            </h4>
+                            <ul className="space-y-2">
+                              {responseDetail.interpretation.blindSpots.length > 0 ? (
+                                responseDetail.interpretation.blindSpots.map((spot, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-white/70">
+                                    <span className="text-amber-400 mt-0.5">!</span>
+                                    {spot}
+                                  </li>
+                                ))
+                              ) : (
+                                <li className="text-sm text-white/50 italic">Aucun point d&apos;attention</li>
+                              )}
+                            </ul>
+                          </div>
+                        </div>
+
+                        {/* Insights */}
+                        {responseDetail.insights.length > 0 && (
+                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                              💡 Insights Clés
+                            </h3>
+                            <div className="grid md:grid-cols-2 gap-4">
+                              {responseDetail.insights.map((insight, i) => (
+                                <div key={i} className="flex gap-3 p-4 bg-white/[0.03] rounded-lg border border-white/5">
+                                  <span className="text-2xl">{insight.icon}</span>
+                                  <div>
+                                    <h5 className="text-sm font-medium text-white">{insight.title}</h5>
+                                    <p className="text-xs text-white/60 mt-1">{insight.message}</p>
+                                    <span className="inline-block mt-2 text-xs px-2 py-0.5 bg-white/5 rounded text-white/40">
+                                      Priorité: {insight.priority}/10
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Tensions */}
+                        {responseDetail.tensions.length > 0 && (
+                          <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-5">
+                            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                              ⚡ Points de Tension Identifiés
+                            </h3>
+                            <div className="space-y-4">
+                              {responseDetail.tensions.map((tension, i) => (
+                                <div key={i} className="p-4 bg-white/[0.03] rounded-lg">
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full font-medium">
+                                      {DIMENSION_LABELS[tension.dimension1] || tension.dimension1}
+                                    </span>
+                                    <span className="text-purple-400">↔</span>
+                                    <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full font-medium">
+                                      {DIMENSION_LABELS[tension.dimension2] || tension.dimension2}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-white/80 mb-2">{tension.description}</p>
+                                  <div className="flex items-start gap-2 p-2 bg-blue-500/10 rounded-lg">
+                                    <span className="text-blue-400">💡</span>
+                                    <p className="text-xs text-blue-300">{tension.suggestion}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Growth Areas */}
+                        {responseDetail.growthAreas.length > 0 && (
+                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                              🌱 Axes de Développement
+                            </h3>
+                            <div className="space-y-4">
+                              {responseDetail.growthAreas.map((area, i) => (
+                                <div key={i} className="p-4 bg-white/[0.03] rounded-lg border-l-4 border-green-500">
+                                  <h5 className="text-sm font-medium text-white mb-2">{area.area}</h5>
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <span className="text-xs px-2 py-1 bg-white/10 text-white/60 rounded">
+                                      État actuel: {area.currentState}
+                                    </span>
+                                    <span className="text-white/30">→</span>
+                                    <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded">
+                                      Potentiel: {area.potentialGrowth}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-start gap-2 p-2 bg-green-500/10 rounded-lg">
+                                    <span>🎯</span>
+                                    <p className="text-xs text-green-300">{area.actionableStep}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Profile Match Details */}
+                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                            📊 Correspondance des Profils
+                          </h3>
+                          <div className="space-y-2">
+                            {responseDetail.profile.allMatches.slice(0, 5).map((match, i) => (
+                              <div key={i} className="flex items-center gap-3">
+                                <span className="w-6 text-center text-sm text-white/40">{i + 1}</span>
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="text-sm text-white/80">
+                                      {PROFILE_LABELS[match.name] || match.name}
+                                    </span>
+                                    <span className="text-sm text-white/60">{match.score}%</span>
+                                  </div>
+                                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full rounded-full transition-all"
+                                      style={{
+                                        width: `${match.score}%`,
+                                        backgroundColor: i === 0 ? PROFILE_COLORS[match.name] : "#ffffff30",
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-center py-20 text-white/50">
+                    Aucune donnée disponible
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Comparison Modal */}
+      <AnimatePresence>
+        {showComparison && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowComparison(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-6xl max-h-[90vh] overflow-hidden bg-slate-900 border border-white/10 rounded-2xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-white/5">
+                <div>
+                  <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                    <GitCompare className="w-5 h-5 text-blue-400" />
+                    Response Comparison
+                  </h2>
+                  <p className="text-sm text-white/50 mt-1">
+                    Comparing {comparisonData.length} responses
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowComparison(false)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-white/60" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)]">
+                {comparisonData.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20 gap-3">
+                    <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
+                    <p className="text-sm text-white/50">Loading comparison data...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Overlay Radar Chart */}
+                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
+                      <h3 className="font-semibold text-white mb-4">7 Dimensions Overlay</h3>
+                      <div className="h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RadarChart
+                            data={Object.keys(comparisonData[0]?.dimensions || {}).map((key) => ({
+                              dimension: DIMENSION_LABELS[key] || key,
+                              ...comparisonData.reduce((acc, d, i) => ({
+                                ...acc,
+                                [`resp${i}`]: d.dimensions[key as keyof typeof d.dimensions]?.value || 0,
+                              }), {}),
+                              fullMark: 5,
+                            }))}
+                          >
+                            <PolarGrid stroke="#ffffff20" />
+                            <PolarAngleAxis dataKey="dimension" tick={{ fill: "#ffffff70", fontSize: 11 }} />
+                            <PolarRadiusAxis angle={30} domain={[0, 5]} tick={{ fill: "#ffffff50", fontSize: 10 }} />
+                            {comparisonData.map((d, i) => (
+                              <Radar
+                                key={d.id}
+                                name={`#${d.id.slice(0, 6)}`}
+                                dataKey={`resp${i}`}
+                                stroke={CHART_COLORS[i % CHART_COLORS.length]}
+                                fill={CHART_COLORS[i % CHART_COLORS.length]}
+                                fillOpacity={0.2}
+                              />
+                            ))}
+                            <Legend />
+                            <Tooltip
+                              contentStyle={{
+                                backgroundColor: "#1e293b",
+                                border: "1px solid rgba(255,255,255,0.1)",
+                                borderRadius: "8px",
+                              }}
+                            />
+                          </RadarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+
+                    {/* Profile Comparison Cards */}
+                    <div className="grid md:grid-cols-3 gap-4">
+                      {comparisonData.map((d, i) => (
+                        <div
+                          key={d.id}
+                          className="bg-white/[0.02] border rounded-xl p-4"
+                          style={{ borderColor: `${CHART_COLORS[i % CHART_COLORS.length]}50` }}
+                        >
+                          <div className="flex items-center gap-3 mb-3">
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }}
+                            />
+                            <span className="font-mono text-sm text-white/70">#{d.id.slice(0, 8)}</span>
+                          </div>
+                          <div className="flex items-center gap-3 mb-3">
+                            <div
+                              className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+                              style={{ backgroundColor: `${PROFILE_COLORS[d.profile.primary.name]}30` }}
+                            >
+                              {d.profile.primary.emoji}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-white">
+                                {PROFILE_LABELS[d.profile.primary.name] || d.profile.primary.name}
+                              </p>
+                              <p className="text-xs text-white/50">{d.profile.primary.score}% match</p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-center">
+                            <div className="bg-white/5 rounded-lg p-2">
+                              <p className="text-lg font-bold text-blue-400">{d.scores.crs5.value.toFixed(1)}</p>
+                              <p className="text-xs text-white/40">CRS-5</p>
+                            </div>
+                            <div className="bg-white/5 rounded-lg p-2">
+                              <p className="text-lg font-bold text-green-400">{d.scores.aiAdoption.value.toFixed(1)}</p>
+                              <p className="text-xs text-white/40">AI Score</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Dimension Comparison Table */}
+                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
+                      <h3 className="font-semibold text-white mb-4">Dimension Comparison</h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-white/10">
+                              <th className="text-left py-2 px-3 text-white/50 font-medium">Dimension</th>
+                              {comparisonData.map((d, i) => (
+                                <th key={d.id} className="text-center py-2 px-3 font-medium" style={{ color: CHART_COLORS[i % CHART_COLORS.length] }}>
+                                  #{d.id.slice(0, 6)}
+                                </th>
+                              ))}
+                              <th className="text-center py-2 px-3 text-white/50 font-medium">Δ Max</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Object.keys(comparisonData[0]?.dimensions || {}).map((dimKey) => {
+                              const values = comparisonData.map(d => d.dimensions[dimKey as keyof typeof d.dimensions]?.value || 0);
+                              const maxDiff = Math.max(...values) - Math.min(...values);
+                              return (
+                                <tr key={dimKey} className="border-b border-white/5 hover:bg-white/[0.02]">
+                                  <td className="py-2 px-3 text-white/70">{DIMENSION_LABELS[dimKey] || dimKey}</td>
+                                  {values.map((val, i) => (
+                                    <td key={i} className="py-2 px-3 text-center text-white font-medium">
+                                      {val.toFixed(1)}
+                                    </td>
+                                  ))}
+                                  <td className={cn(
+                                    "py-2 px-3 text-center font-medium",
+                                    maxDiff > 1.5 ? "text-red-400" : maxDiff > 0.8 ? "text-amber-400" : "text-green-400"
+                                  )}>
+                                    {maxDiff.toFixed(1)}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Answer Diff View - Show only differing answers */}
+                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
+                      <h3 className="font-semibold text-white mb-4">Key Answer Differences</h3>
+                      <div className="space-y-3 max-h-80 overflow-y-auto">
+                        {(() => {
+                          // Find questions where answers differ
+                          const allKeys = new Set<string>();
+                          comparisonData.forEach(d => {
+                            if (d.answers) {
+                              Object.keys(d.answers).forEach(k => allKeys.add(k));
+                            }
+                          });
+
+                          const differingKeys = Array.from(allKeys).filter(key => {
+                            const values = comparisonData.map(d => d.answers?.[key]);
+                            return new Set(values.map(v => JSON.stringify(v))).size > 1;
+                          });
+
+                          return differingKeys.slice(0, 10).map(key => (
+                            <div key={key} className="bg-white/5 rounded-lg p-3">
+                              <p className="text-xs text-white/50 mb-2 font-mono">{key}</p>
+                              <div className="flex flex-wrap gap-2">
+                                {comparisonData.map((d, i) => (
+                                  <span
+                                    key={d.id}
+                                    className="text-xs px-2 py-1 rounded-full"
+                                    style={{
+                                      backgroundColor: `${CHART_COLORS[i % CHART_COLORS.length]}20`,
+                                      color: CHART_COLORS[i % CHART_COLORS.length],
+                                    }}
+                                  >
+                                    {typeof d.answers?.[key] === 'string'
+                                      ? d.answers[key]
+                                      : Array.isArray(d.answers?.[key])
+                                      ? (d.answers[key] as string[]).join(', ')
+                                      : String(d.answers?.[key] ?? '—')}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          ));
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
