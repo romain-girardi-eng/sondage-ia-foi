@@ -235,6 +235,10 @@ export const questionTranslations = {
       very_comfortable: "Très à l'aise",
       comfortable: "Tout à fait à l'aise",
       uncomfortable: "Mal à l'aise",
+      no_complicates_all: "Non, ça complique tout",
+      yes_liberator: "Oui, c'est un libérateur",
+      absolutely_not: "Absolument pas",
+      completely_acceptable: "Tout à fait acceptable",
     },
 
     // Placeholders
@@ -496,6 +500,10 @@ export const questionTranslations = {
       very_comfortable: "Very comfortable",
       comfortable: "Completely comfortable",
       uncomfortable: "Uncomfortable",
+      no_complicates_all: "No, it complicates everything",
+      yes_liberator: "Yes, it's a liberator",
+      absolutely_not: "Absolutely not",
+      completely_acceptable: "Completely acceptable",
     },
 
     // Placeholders

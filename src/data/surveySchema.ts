@@ -389,8 +389,8 @@ export const SURVEY_QUESTIONS: Question[] = [
     category: 'usage',
     text: "Globalement, quel est votre niveau de confort avec les outils d'IA ?",
     type: 'scale',
-    minLabel: "Très inconfortable",
-    maxLabel: "Très à l'aise"
+    minLabelKey: "not_comfortable",
+    maxLabelKey: "very_comfortable"
   },
 
   // ==========================================
@@ -462,8 +462,8 @@ export const SURVEY_QUESTIONS: Question[] = [
     category: 'ministry_preaching',
     text: "Comment vous sentez-vous lorsque vous utilisez l'IA pour préparer une prédication ?",
     type: 'scale',
-    minLabel: "Tout à fait à l'aise",
-    maxLabel: "Mal à l'aise",
+    minLabelKey: "comfortable",
+    maxLabelKey: "uncomfortable",
     condition: clergyUsesAI
   },
 
@@ -487,8 +487,8 @@ export const SURVEY_QUESTIONS: Question[] = [
     category: 'ministry_vision',
     text: "Diriez-vous que l'IA vous libère du temps administratif pour vous consacrer davantage aux relations humaines ?",
     type: 'scale',
-    minLabel: "Non, ça complique tout",
-    maxLabel: "Oui, c'est un libérateur",
+    minLabelKey: "no_complicates_all",
+    maxLabelKey: "yes_liberator",
     condition: isClergy
   },
 
@@ -615,8 +615,8 @@ export const SURVEY_QUESTIONS: Question[] = [
     category: 'theology',
     text: "L'utilisation de contenus générés par IA vous semble-t-elle acceptable dans un contexte liturgique (messe, culte, célébrations) ?",
     type: 'scale',
-    minLabel: "Absolument pas",
-    maxLabel: "Tout à fait acceptable"
+    minLabelKey: "absolutely_not",
+    maxLabelKey: "completely_acceptable"
   },
   {
     id: 'theo_activites_sacrees',

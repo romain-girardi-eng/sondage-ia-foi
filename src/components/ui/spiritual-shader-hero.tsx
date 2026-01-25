@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { SplitText } from 'gsap/SplitText';
+import { useTheme } from '@/lib/theme/ThemeContext';
 
 gsap.registerPlugin(SplitText, useGSAP);
 
@@ -108,6 +109,7 @@ const fragmentShader = `
   #endif
   uniform float iTime;
   uniform vec2 iResolution;
+  uniform float uDarkMode;
   varying vec2 vUv;
 
   vec4 buf[8];
@@ -228,10 +230,20 @@ const fragmentShader = `
 
     buf[0] = sigmoid(buf[0]);
 
-    // Spiritual color transformation: deep purples, warm golds, soft blues
-    float r = buf[0].x * 0.4 + buf[0].z * 0.3 + 0.08; // Deep purple-blue base
-    float g = buf[0].y * 0.25 + buf[0].x * 0.15 + 0.05; // Subtle green for depth
-    float b = buf[0].z * 0.5 + buf[0].x * 0.2 + 0.15; // Rich blue-violet
+    // Dark mode: deep purples, warm golds, soft blues
+    float darkR = buf[0].x * 0.4 + buf[0].z * 0.3 + 0.08;
+    float darkG = buf[0].y * 0.25 + buf[0].x * 0.15 + 0.05;
+    float darkB = buf[0].z * 0.5 + buf[0].x * 0.2 + 0.15;
+
+    // Light mode: soft pastels on light background - same pattern, inverted and lighter
+    float lightR = 0.95 - buf[0].x * 0.15 - buf[0].z * 0.1;
+    float lightG = 0.93 - buf[0].y * 0.12 - buf[0].x * 0.08;
+    float lightB = 0.97 - buf[0].z * 0.18 - buf[0].x * 0.08;
+
+    // Mix between light and dark based on uDarkMode (0.0 = light, 1.0 = dark)
+    float r = mix(lightR, darkR, uDarkMode);
+    float g = mix(lightG, darkG, uDarkMode);
+    float b = mix(lightB, darkB, uDarkMode);
 
     return vec4(r, g, b, 1.0);
   }
@@ -244,7 +256,7 @@ const fragmentShader = `
 `;
 
 const SpiritualShaderMaterial = shaderMaterial(
-  { iTime: 0, iResolution: new THREE.Vector2(1, 1) },
+  { iTime: 0, iResolution: new THREE.Vector2(1, 1), uDarkMode: 1.0 },
   vertexShader,
   fragmentShader
 );
@@ -253,9 +265,10 @@ extend({ SpiritualShaderMaterial });
 
 interface ShaderPlaneProps {
   isPaused?: boolean;
+  isDarkMode?: boolean;
 }
 
-function ShaderPlane({ isPaused = false }: ShaderPlaneProps) {
+function ShaderPlane({ isPaused = false, isDarkMode = true }: ShaderPlaneProps) {
   const meshRef = useRef<THREE.Mesh>(null!);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const materialRef = useRef<any>(null!);
@@ -270,6 +283,7 @@ function ShaderPlane({ isPaused = false }: ShaderPlaneProps) {
     }
 
     materialRef.current.iTime = lastTimeRef.current;
+    materialRef.current.uDarkMode = isDarkMode ? 1.0 : 0.0;
     const { width, height } = state.size;
     materialRef.current.iResolution.set(width, height);
   });
@@ -286,6 +300,8 @@ function ShaderBackground() {
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const isClient = useIsClient();
   const isPaused = useShaderPause(canvasRef);
+  const { theme } = useTheme();
+  const isDarkMode = theme === 'dark';
 
   const camera = useMemo(() => ({
     position: [0, 0, 1] as [number, number, number],
@@ -318,7 +334,7 @@ function ShaderBackground() {
 
   if (!isClient) {
     return (
-      <div className="absolute inset-0 -z-10 w-full h-full bg-gradient-to-br from-slate-950 via-purple-950/30 to-slate-950" />
+      <div className="absolute inset-0 -z-10 w-full h-full bg-gradient-to-br from-slate-100 via-purple-100/30 to-slate-100 dark:from-slate-950 dark:via-purple-950/30 dark:to-slate-950" />
     );
   }
 
@@ -332,11 +348,8 @@ function ShaderBackground() {
         // Reduce frame rate when paused for battery/GPU savings
         frameloop={isPaused ? "demand" : "always"}
       >
-        <ShaderPlane isPaused={isPaused} />
+        <ShaderPlane isPaused={isPaused} isDarkMode={isDarkMode} />
       </Canvas>
-      {/* Soft overlays for ethereal effect */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30" />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-blue-900/10" />
     </div>
   );
 }
@@ -469,7 +482,7 @@ export default function SpiritualShaderHero({
   );
 
   return (
-    <section ref={sectionRef} className="relative min-h-[100dvh] w-screen max-w-full overflow-hidden">
+    <section ref={sectionRef} className="relative min-h-[100dvh] w-full overflow-hidden">
       <ShaderBackground />
 
       <div className="relative mx-auto flex min-h-[100dvh] max-w-4xl flex-col items-center justify-center gap-6 px-6 py-24 text-center">
@@ -477,18 +490,18 @@ export default function SpiritualShaderHero({
         {(badgeLabel || badgeText) && (
           <div
             ref={badgeRef}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-background/50 px-4 py-2 backdrop-blur-sm"
           >
             {badgeLabel && (
               <>
-                <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-purple-300/80">
+                <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-primary">
                   {badgeLabel}
                 </span>
-                <span className="h-1 w-1 rounded-full bg-white/30" />
+                <span className="h-1 w-1 rounded-full bg-muted-foreground/50" />
               </>
             )}
             {badgeText && (
-              <span className="text-xs font-light tracking-wide text-white/70">
+              <span className="text-xs font-light tracking-wide text-muted-foreground">
                 {badgeText}
               </span>
             )}
@@ -498,7 +511,7 @@ export default function SpiritualShaderHero({
         {/* Title */}
         <h1
           ref={headerRef}
-          className="max-w-3xl text-4xl font-extralight leading-[1.1] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+          className="max-w-3xl text-4xl font-extralight leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
         >
           {title}
         </h1>
@@ -507,7 +520,7 @@ export default function SpiritualShaderHero({
         {subtitle && (
           <p
             ref={subtitleRef}
-            className="max-w-xl text-lg font-light leading-relaxed text-purple-200/80 sm:text-xl"
+            className="max-w-xl text-lg font-light leading-relaxed text-muted-foreground sm:text-xl"
           >
             {subtitle}
           </p>
@@ -516,7 +529,7 @@ export default function SpiritualShaderHero({
         {/* Description */}
         <p
           ref={paraRef}
-          className="max-w-xl text-base font-light leading-relaxed text-white/60 sm:text-lg"
+          className="max-w-xl text-base font-light leading-relaxed text-muted-foreground sm:text-lg"
         >
           {description}
         </p>
@@ -532,7 +545,7 @@ export default function SpiritualShaderHero({
                   onChange={(e) => onConsentChange(e.target.checked)}
                   className="peer sr-only"
                 />
-                <div className="h-5 w-5 rounded border border-white/30 bg-white/5 transition-all peer-checked:border-blue-500 peer-checked:bg-blue-500 peer-focus:ring-2 peer-focus:ring-blue-500/30">
+                <div className="h-5 w-5 rounded border-2 border-slate-600 bg-white dark:border-white/30 dark:bg-white/5 transition-all peer-checked:border-blue-500 peer-checked:bg-blue-500 peer-focus:ring-2 peer-focus:ring-blue-500/30">
                   {consentGiven && (
                     <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -540,7 +553,7 @@ export default function SpiritualShaderHero({
                   )}
                 </div>
               </div>
-              <span className="text-sm text-white/60 text-left leading-relaxed group-hover:text-white/80 transition-colors">
+              <span className="text-sm text-muted-foreground text-left leading-relaxed group-hover:text-foreground transition-colors">
                 {consentLabel}
                 {privacyLink && (
                   <>
@@ -566,7 +579,7 @@ export default function SpiritualShaderHero({
           <button
             onClick={onPrimaryClick}
             disabled={onConsentChange && !consentGiven}
-            className="group relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-base font-medium text-slate-900 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="group relative overflow-hidden rounded-2xl bg-foreground px-8 py-4 text-base font-medium text-background transition-all duration-300 hover:scale-[1.02] hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             <span className="relative z-10">{primaryButtonText}</span>
             <div className="absolute inset-0 -z-0 bg-gradient-to-r from-purple-200 to-blue-200 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -575,7 +588,7 @@ export default function SpiritualShaderHero({
           {secondaryButtonText && onSecondaryClick && (
             <button
               onClick={onSecondaryClick}
-              className="rounded-2xl border border-white/10 bg-white/5 px-8 py-4 text-base font-light text-white/80 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+              className="rounded-2xl border border-border bg-background/50 px-8 py-4 text-base font-light text-foreground backdrop-blur-sm transition-all duration-300 hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {secondaryButtonText}
             </button>
@@ -586,7 +599,7 @@ export default function SpiritualShaderHero({
         {features.length > 0 && (
           <div
             ref={featuresRef}
-            className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm font-light text-white/50"
+            className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm font-light text-muted-foreground"
           >
             {features.map((feature, index) => (
               <div key={index} className="flex items-center gap-2">
@@ -598,39 +611,6 @@ export default function SpiritualShaderHero({
         )}
       </div>
 
-      {/* Bottom gradient fade */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 to-transparent" />
-
-      {/* Footer credit */}
-      <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-3">
-        <p className="text-xs text-white/30 font-light">
-          Étude menée par Romain Girardi
-        </p>
-        <div className="flex items-center gap-2">
-          <a
-            href="https://github.com/romain-girardi-eng"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-white/30 hover:text-white/60 transition-colors"
-            aria-label="GitHub"
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
-            </svg>
-          </a>
-          <a
-            href="https://www.linkedin.com/in/romain-girardi/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-white/30 hover:text-white/60 transition-colors"
-            aria-label="LinkedIn"
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-            </svg>
-          </a>
-        </div>
-      </div>
     </section>
   );
 }
@@ -642,6 +622,7 @@ declare module '@react-three/fiber' {
       side?: THREE.Side;
       iTime?: number;
       iResolution?: THREE.Vector2;
+      uDarkMode?: number;
     };
   }
 }
