@@ -326,13 +326,15 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                 {Object.entries(spectrum.dimensions).map(([key, dimension], index) => {
                   const dimLabel = DIMENSION_LABELS[key as keyof typeof DIMENSION_LABELS];
                   const color = DIMENSION_COLORS[key as keyof typeof DIMENSION_COLORS];
+                  const isHigh = dimension.value >= 3.5;
+                  const isLow = dimension.value <= 2.5;
                   return (
                     <motion.div
                       key={key}
                       initial={hasAnimated ? false : { opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 + index * 0.05 }}
-                      className="text-center p-3 rounded-xl bg-white/[0.02] border border-white/5"
+                      className="group relative text-center p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all cursor-help"
                     >
                       <div className="relative w-12 h-12 mx-auto mb-2">
                         <svg className="w-12 h-12 -rotate-90">
@@ -354,6 +356,19 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground leading-tight">{dimLabel.label}</p>
+
+                      {/* Tooltip on hover */}
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 rounded-xl bg-[#1a1f2e] border border-white/10 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left pointer-events-none">
+                        <p className="text-xs font-medium text-white mb-1">{dimLabel.label}</p>
+                        <p className="text-[11px] text-muted-foreground mb-2">{dimLabel.description}</p>
+                        <div className="pt-2 border-t border-white/10">
+                          <p className="text-[11px]" style={{ color }}>
+                            {isHigh ? dimLabel.highDescription : isLow ? dimLabel.lowDescription : t("resultsExplain.balancedPosition")}
+                          </p>
+                        </div>
+                        {/* Arrow */}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-[#1a1f2e]" />
+                      </div>
                     </motion.div>
                   );
                 })}

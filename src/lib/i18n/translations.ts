@@ -287,6 +287,7 @@ export const translations = {
       futureOrientation: "Votre volonté d'évoluer dans votre rapport à l'IA",
       matchExplain: "Le pourcentage de correspondance indique à quel point votre profil de réponses correspond au profil type. Un score élevé signifie une forte adéquation.",
       disclaimer: "Ces profils sont des outils de réflexion, pas des catégories rigides. Vous pouvez évoluer et présenter des caractéristiques de plusieurs profils.",
+      balancedPosition: "Position équilibrée sur cette dimension",
     },
 
     // Email Collection
@@ -594,6 +595,7 @@ export const translations = {
       futureOrientation: "Your willingness to evolve in your relationship with AI",
       matchExplain: "The match percentage indicates how closely your response profile corresponds to the typical profile. A high score means strong alignment.",
       disclaimer: "These profiles are reflection tools, not rigid categories. You can evolve and exhibit characteristics of multiple profiles.",
+      balancedPosition: "Balanced position on this dimension",
     },
 
     // Email Collection
