@@ -26,14 +26,16 @@ const PROFILE_ORDER: PrimaryProfile[] = [
 ];
 
 export function ProfilesModal({ isOpen, onClose, currentProfile, initialSelectedProfile }: ProfilesModalProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [selectedProfile, setSelectedProfile] = useState<PrimaryProfile | null>(null);
   const profileRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Set initial selected profile when modal opens and scroll to it
+  // This setState pattern is intentional for syncing prop to state
   useEffect(() => {
     if (isOpen && initialSelectedProfile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Syncing prop to state
       setSelectedProfile(initialSelectedProfile);
       // Scroll to the selected profile after a short delay to allow rendering
       setTimeout(() => {
@@ -48,11 +50,11 @@ export function ProfilesModal({ isOpen, onClose, currentProfile, initialSelected
   }, [isOpen, initialSelectedProfile]);
 
   const getProfileTranslation = (profileId: PrimaryProfile) => {
-    const key = `profiles.${profileId}` as const;
+    const key = `profiles.${profileId}`;
     return {
-      title: t(`${key}.title` as any) || PROFILE_DEFINITIONS[profileId].title,
-      short: t(`${key}.short` as any) || PROFILE_DEFINITIONS[profileId].shortDescription,
-      description: t(`${key}.description` as any) || PROFILE_DEFINITIONS[profileId].fullDescription,
+      title: t(`${key}.title`) || PROFILE_DEFINITIONS[profileId].title,
+      short: t(`${key}.short`) || PROFILE_DEFINITIONS[profileId].shortDescription,
+      description: t(`${key}.description`) || PROFILE_DEFINITIONS[profileId].fullDescription,
     };
   };
 

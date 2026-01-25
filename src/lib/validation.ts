@@ -12,10 +12,13 @@ export const surveySubmissionSchema = z.object({
     completedAt: z.string().datetime().optional(),
     timeSpent: z.number().optional(),
     language: z.enum(['fr', 'en']).optional(),
+    startedAt: z.string().datetime().optional(),
   }).optional(),
   consentGiven: z.boolean(),
   consentVersion: z.string().optional(),
   anonymousId: z.string().uuid(),
+  // Fingerprint for duplicate detection
+  fingerprint: z.string().min(1).max(100).optional(),
 });
 
 // Email submission schema

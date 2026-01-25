@@ -5,6 +5,7 @@
 
 import type { Answers } from '@/data';
 import type { DimensionScore, SevenDimensions } from './types';
+import { calculateSocialDesirabilityScore, adjustScoreForBias } from './bias';
 
 // ==========================================
 // HELPER FUNCTIONS
@@ -42,15 +43,16 @@ function calculatePercentile(score: number, mean: number, stdDev: number): numbe
   return Math.max(1, Math.min(99, percentile));
 }
 
-// Population distribution parameters (can be refined with real data)
+// Population distribution parameters (Refined with mock data based on likely demographic)
+// These provide more realistic percentiles than the previous flat placeholders.
 const POPULATION_PARAMS = {
-  religiosity: { mean: 3.5, stdDev: 0.9 },
-  aiOpenness: { mean: 2.6, stdDev: 1.0 },
-  sacredBoundary: { mean: 3.2, stdDev: 0.9 },
-  ethicalConcern: { mean: 3.4, stdDev: 0.8 },
-  psychologicalPerception: { mean: 3.0, stdDev: 0.9 },
-  communityInfluence: { mean: 2.8, stdDev: 0.8 },
-  futureOrientation: { mean: 3.0, stdDev: 1.0 },
+  religiosity: { mean: 3.8, stdDev: 0.9 }, // Skewed high for a religious survey
+  aiOpenness: { mean: 2.4, stdDev: 1.1 }, // Generally lower, but high variance
+  sacredBoundary: { mean: 3.5, stdDev: 1.0 }, // Tendency to protect the sacred
+  ethicalConcern: { mean: 3.8, stdDev: 0.8 }, // High concern is normative
+  psychologicalPerception: { mean: 3.0, stdDev: 0.9 }, // Neutral/Uncertain
+  communityInfluence: { mean: 2.8, stdDev: 0.9 }, // Moderate
+  futureOrientation: { mean: 3.2, stdDev: 1.0 }, // Slightly positive skew
 };
 
 // ==========================================
@@ -71,7 +73,7 @@ const CRS_SCORE_MAP: Record<string, number> = {
   'pluri_quotidien': 5,
 };
 
-export function calculateReligiosityDimension(answers: Answers): DimensionScore {
+export function calculateReligiosityDimension(answers: Answers, biasScore?: number): DimensionScore {
   const crsQuestions = [
     'crs_intellect',
     'crs_ideology',
@@ -91,7 +93,12 @@ export function calculateReligiosityDimension(answers: Answers): DimensionScore 
     }
   }
 
-  const value = count > 0 ? Math.round((total / count) * 10) / 10 : 3;
+  const rawValue = count > 0 ? Math.round((total / count) * 10) / 10 : 3;
+  
+  // Apply bias correction (High sensitivity: 0.8)
+  const bias = biasScore ?? calculateSocialDesirabilityScore(answers);
+  const value = adjustScoreForBias(rawValue, bias, 0.8);
+  
   const confidence = count / crsQuestions.length;
   const params = POPULATION_PARAMS.religiosity;
 
@@ -142,7 +149,7 @@ const LAIC_CONSEIL_SCORES: Record<string, number> = {
   'ne_sait_pas': 2.5,
 };
 
-export function calculateAIOpennessDimension(answers: Answers): DimensionScore {
+export function calculateAIOpennessDimension(answers: Answers, biasScore?: number): DimensionScore {
   const scores: number[] = [];
   const weights: number[] = [];
 
@@ -222,7 +229,12 @@ export function calculateAIOpennessDimension(answers: Answers): DimensionScore {
     totalWeight += weights[i];
   }
 
-  const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 2.5;
+  const rawValue = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 2.5;
+  
+  // Low bias sensitivity for AI Openness (0.2)
+  const bias = biasScore ?? calculateSocialDesirabilityScore(answers);
+  const value = adjustScoreForBias(rawValue, bias, 0.2);
+
   const confidence = Math.min(1, scores.length / 5);
   const params = POPULATION_PARAMS.aiOpenness;
 
@@ -238,7 +250,7 @@ export function calculateAIOpennessDimension(answers: Answers): DimensionScore {
 // Measures resistance to AI in sacred/spiritual contexts specifically
 // ==========================================
 
-export function calculateSacredBoundaryDimension(answers: Answers): DimensionScore {
+export function calculateSacredBoundaryDimension(answers: Answers, biasScore?: number): DimensionScore {
   const scores: number[] = [];
   const weights: number[] = [];
 
@@ -366,8 +378,12 @@ export function calculateSacredBoundaryDimension(answers: Answers): DimensionSco
     totalWeight += weights[i];
   }
 
-  const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
-  // Updated confidence: now targeting 6+ items for full confidence
+  const rawValue = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+  
+  // Moderate sensitivity (0.5) - declaring one protects the sacred is socially desirable
+  const bias = biasScore ?? calculateSocialDesirabilityScore(answers);
+  const value = adjustScoreForBias(rawValue, bias, 0.5);
+
   const confidence = Math.min(1, scores.length / 6);
   const params = POPULATION_PARAMS.sacredBoundary;
 
@@ -382,7 +398,7 @@ export function calculateSacredBoundaryDimension(answers: Answers): DimensionSco
 // DIMENSION 4: ETHICAL CONCERN
 // ==========================================
 
-export function calculateEthicalConcernDimension(answers: Answers): DimensionScore {
+export function calculateEthicalConcernDimension(answers: Answers, biasScore?: number): DimensionScore {
   const scores: number[] = [];
   const weights: number[] = [];
 
@@ -431,6 +447,20 @@ export function calculateEthicalConcernDimension(answers: Answers): DimensionSco
     weights.push(1.5);
   }
 
+  // AIAS: Sociotechnical Blindness / Opacity Concern
+  const opacityConcern = getStringAnswer(answers, 'psych_aias_opacity');
+  const opacityMap: Record<string, number> = {
+    'non_confiance': 1,
+    'non_indifferent': 1.5,
+    'peu': 2.5,
+    'oui_moderement': 4,
+    'oui_fortement': 5,
+  };
+  if (opacityConcern && opacityMap[opacityConcern]) {
+    scores.push(opacityMap[opacityConcern]);
+    weights.push(1.5);
+  }
+
   // Clergy: guilt/discomfort when using AI
   if (isClergy(answers)) {
     const sentiment = getNumberAnswer(answers, 'min_pred_sentiment');
@@ -463,7 +493,12 @@ export function calculateEthicalConcernDimension(answers: Answers): DimensionSco
     totalWeight += weights[i];
   }
 
-  const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+  const rawValue = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+
+  // High sensitivity (0.7) - expressing ethical concern is seen as virtuous
+  const bias = biasScore ?? calculateSocialDesirabilityScore(answers);
+  const value = adjustScoreForBias(rawValue, bias, 0.7);
+
   const confidence = Math.min(1, scores.length / 4);
   const params = POPULATION_PARAMS.ethicalConcern;
 
@@ -479,23 +514,36 @@ export function calculateEthicalConcernDimension(answers: Answers): DimensionSco
 // How they perceive AI's nature and its relationship to humanity
 // ==========================================
 
-export function calculatePsychologicalPerceptionDimension(answers: Answers): DimensionScore {
+export function calculatePsychologicalPerceptionDimension(answers: Answers, biasScore?: number): DimensionScore {
   const scores: number[] = [];
   const weights: number[] = [];
 
-  // Anthropomorphism: can AI have consciousness?
-  const anthropo = getStringAnswer(answers, 'psych_anthropomorphisme');
-  const anthropoMap: Record<string, number> = {
-    'impossible': 1,
-    'peu_probable': 2,
-    'incertain': 3,
-    'possible': 4,
-    'probable': 5,
-    'ne_sait_pas': 3,
+  // Godspeed: Nature perception (Machine vs Human)
+  const godspeedNature = getStringAnswer(answers, 'psych_godspeed_nature');
+  const natureMap: Record<string, number> = {
+    '1_machine': 1,
+    '2_machine_plus': 2,
+    '3_neutre': 3,
+    '4_humain_moins': 4,
+    '5_humain': 5,
   };
-  if (anthropo && anthropoMap[anthropo]) {
-    scores.push(anthropoMap[anthropo]);
+  if (godspeedNature && natureMap[godspeedNature]) {
+    scores.push(natureMap[godspeedNature]);
     weights.push(2);
+  }
+
+  // Godspeed: Consciousness attribution
+  const godspeedConscience = getStringAnswer(answers, 'psych_godspeed_conscience');
+  const conscienceMap: Record<string, number> = {
+    'impossible': 1,
+    'imitation': 2,
+    'incertain': 3,
+    'possible_emergence': 4,
+    'probable': 5,
+  };
+  if (godspeedConscience && conscienceMap[godspeedConscience]) {
+    scores.push(conscienceMap[godspeedConscience]);
+    weights.push(2.5); // Higher weight for explicit consciousness attribution
   }
 
   // Imago Dei: does AI challenge human uniqueness?
@@ -513,7 +561,7 @@ export function calculatePsychologicalPerceptionDimension(answers: Answers): Dim
     weights.push(1.8);
   }
 
-  // Anxiety about replacement
+  // Anxiety about replacement (also used in ethical concern, but relevant here for perception)
   const anxiete = getStringAnswer(answers, 'psych_anxiete_remplacement');
   const anxieteMap: Record<string, number> = {
     'non_impossible': 1,
@@ -550,8 +598,13 @@ export function calculatePsychologicalPerceptionDimension(answers: Answers): Dim
     totalWeight += weights[i];
   }
 
-  const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
-  const confidence = Math.min(1, scores.length / 3);
+  const rawValue = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+
+  // Low sensitivity (0.2)
+  const bias = biasScore ?? calculateSocialDesirabilityScore(answers);
+  const value = adjustScoreForBias(rawValue, bias, 0.2);
+
+  const confidence = Math.min(1, scores.length / 4); // Updated divider
   const params = POPULATION_PARAMS.psychologicalPerception;
 
   return {
@@ -566,7 +619,7 @@ export function calculatePsychologicalPerceptionDimension(answers: Answers): Dim
 // How much community context shapes their views
 // ==========================================
 
-export function calculateCommunityInfluenceDimension(answers: Answers): DimensionScore {
+export function calculateCommunityInfluenceDimension(answers: Answers, biasScore?: number): DimensionScore {
   const scores: number[] = [];
   const weights: number[] = [];
 
@@ -657,7 +710,12 @@ export function calculateCommunityInfluenceDimension(answers: Answers): Dimensio
     totalWeight += weights[i];
   }
 
-  const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 2.5;
+  const rawValue = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 2.5;
+  
+  // Moderate sensitivity (0.3)
+  const bias = biasScore ?? calculateSocialDesirabilityScore(answers);
+  const value = adjustScoreForBias(rawValue, bias, 0.3);
+
   const confidence = Math.min(1, scores.length / 4);
   const params = POPULATION_PARAMS.communityInfluence;
 
@@ -673,7 +731,7 @@ export function calculateCommunityInfluenceDimension(answers: Answers): Dimensio
 // Openness to evolving relationship with AI
 // ==========================================
 
-export function calculateFutureOrientationDimension(answers: Answers): DimensionScore {
+export function calculateFutureOrientationDimension(answers: Answers, biasScore?: number): DimensionScore {
   const scores: number[] = [];
   const weights: number[] = [];
 
@@ -767,7 +825,12 @@ export function calculateFutureOrientationDimension(answers: Answers): Dimension
     totalWeight += weights[i];
   }
 
-  const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+  const rawValue = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+
+  // Medium sensitivity (0.4) - "Open-mindedness" bias
+  const bias = biasScore ?? calculateSocialDesirabilityScore(answers);
+  const value = adjustScoreForBias(rawValue, bias, 0.4);
+
   const confidence = Math.min(1, scores.length / 4);
   const params = POPULATION_PARAMS.futureOrientation;
 
@@ -783,13 +846,16 @@ export function calculateFutureOrientationDimension(answers: Answers): Dimension
 // ==========================================
 
 export function calculateAllDimensions(answers: Answers): SevenDimensions {
+  // Calculate bias once
+  const biasScore = calculateSocialDesirabilityScore(answers);
+
   return {
-    religiosity: calculateReligiosityDimension(answers),
-    aiOpenness: calculateAIOpennessDimension(answers),
-    sacredBoundary: calculateSacredBoundaryDimension(answers),
-    ethicalConcern: calculateEthicalConcernDimension(answers),
-    psychologicalPerception: calculatePsychologicalPerceptionDimension(answers),
-    communityInfluence: calculateCommunityInfluenceDimension(answers),
-    futureOrientation: calculateFutureOrientationDimension(answers),
+    religiosity: calculateReligiosityDimension(answers, biasScore),
+    aiOpenness: calculateAIOpennessDimension(answers, biasScore),
+    sacredBoundary: calculateSacredBoundaryDimension(answers, biasScore),
+    ethicalConcern: calculateEthicalConcernDimension(answers, biasScore),
+    psychologicalPerception: calculatePsychologicalPerceptionDimension(answers, biasScore),
+    communityInfluence: calculateCommunityInfluenceDimension(answers, biasScore),
+    futureOrientation: calculateFutureOrientationDimension(answers, biasScore),
   };
 }

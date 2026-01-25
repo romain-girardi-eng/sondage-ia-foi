@@ -85,6 +85,7 @@ export function QRCodeShare({ language, className }: QRCodeShareProps) {
               <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : qrCodeDataURL ? (
+            // eslint-disable-next-line @next/next/no-img-element -- Data URL generated locally
             <img
               src={qrCodeDataURL}
               alt="QR Code"

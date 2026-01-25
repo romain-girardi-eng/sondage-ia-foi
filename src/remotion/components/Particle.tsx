@@ -75,8 +75,13 @@ export const Particle: React.FC<ParticleProps> = ({
   );
 
   // Calculate target position during convergence
-  const targetX = centerX + (Math.random() - 0.5) * 200;
-  const targetY = centerY + (Math.random() - 0.5) * 150;
+  // Use deterministic values based on particle id instead of Math.random
+  const targetOffset = useMemo(() => ({
+    x: ((id * 17) % 200) - 100,
+    y: ((id * 23) % 150) - 75,
+  }), [id]);
+  const targetX = centerX + targetOffset.x;
+  const targetY = centerY + targetOffset.y;
 
   // Interpolate position
   const baseX = interpolate(

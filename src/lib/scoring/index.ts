@@ -31,6 +31,12 @@ export {
   calculateAllDimensions,
 } from './dimensions';
 
+// Bias calculations
+export {
+  calculateSocialDesirabilityScore,
+  getBiasConfidenceMultiplier,
+} from './bias';
+
 // Profile matching and spectrum
 export {
   calculateProfileSpectrum,
@@ -47,7 +53,7 @@ import type { Answers } from '@/data';
 import { calculateReligiosityDimension, calculateAIOpennessDimension } from './dimensions';
 import { calculateProfileSpectrum, getSimpleProfile } from './profiles';
 import { PROFILE_DEFINITIONS, SUB_PROFILE_DEFINITIONS } from './constants';
-import type { PrimaryProfile, SevenDimensions } from './types';
+import type { PrimaryProfile } from './types';
 
 // Legacy CRS-5 score (1-5)
 export function calculateCRS5Score(answers: Answers): number {

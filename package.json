@@ -24,6 +24,7 @@
     "remotion:preview": "remotion preview src/remotion/index.ts"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@gsap/react": "^2.1.2",
     "@react-pdf/renderer": "^4.3.2",
     "@react-three/drei": "^10.7.7",
@@ -73,6 +74,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
     "jsdom": "^27.4.0",
+    "pg": "^8.17.2",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.18"

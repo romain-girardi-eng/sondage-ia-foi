@@ -66,6 +66,7 @@ describe('getRateLimitHeaders', () => {
       success: true,
       remaining: 95,
       resetIn: 30000,
+      maxRequests: 100,
     };
 
     const headers = getRateLimitHeaders(result);
@@ -80,6 +81,7 @@ describe('getRateLimitHeaders', () => {
       success: true,
       remaining: 50,
       resetIn: 15500,
+      maxRequests: 100,
     };
 
     const headers = getRateLimitHeaders(result);

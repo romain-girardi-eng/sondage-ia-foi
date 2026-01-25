@@ -40,7 +40,7 @@ export function PDFDownloadButton({
 }: PDFDownloadButtonProps) {
   const { t } = useLanguage();
   const [isClient, setIsClient] = useState(false);
-  const [spectrum, setSpectrum] = useState<any>(null);
+  const [spectrum, setSpectrum] = useState<Record<string, unknown> | null>(null);
 
   const filename = language === "fr"
     ? `rapport-ia-foi-${anonymousId.slice(0, 8)}.pdf`
@@ -51,8 +51,8 @@ export function PDFDownloadButton({
     setIsClient(true);
     // Dynamically import the scoring function
     import("@/lib/scoring/profiles").then(({ calculateProfileSpectrum }) => {
-      const calculatedSpectrum = calculateProfileSpectrum(answers as any);
-      setSpectrum(calculatedSpectrum);
+      const calculatedSpectrum = calculateProfileSpectrum(answers as Record<string, string | number | string[]>);
+      setSpectrum(calculatedSpectrum as Record<string, unknown>);
     });
   }, [answers]);
 

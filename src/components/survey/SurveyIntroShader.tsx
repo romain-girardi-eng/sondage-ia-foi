@@ -12,7 +12,7 @@ interface SurveyIntroShaderProps {
 }
 
 export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = false }: SurveyIntroShaderProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   const scrollToFaq = () => {
     const faqSection = document.getElementById("faq-section");
@@ -58,6 +58,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
       <footer className="w-full py-10 border-t border-border glass">
         <div className="max-w-4xl mx-auto px-6 flex flex-col items-center gap-5">
           {/* Logo */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- Static logo */}
           <img
             src="/logo.png"
             alt="IA & Foi"

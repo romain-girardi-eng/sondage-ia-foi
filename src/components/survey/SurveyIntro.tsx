@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, Database, Clock, Lock, Sparkles, X } from "lucide-react";
 import { cn, useLanguage, useHasAnimated } from "@/lib";
@@ -18,7 +19,9 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
 
   // Show video after component mounts (avoid SSR issues)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
     setMounted(true);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
     setShowVideo(true);
   }, []);
 
@@ -172,12 +175,12 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
           className="text-center text-xs text-muted-foreground/30 max-w-md space-y-2"
         >
           <p>{t("intro.consent")}</p>
-          <a
+          <Link
             href="/faq"
             className="inline-block text-blue-400/60 hover:text-blue-400 transition-colors underline underline-offset-2"
           >
             {t("intro.faqLink")}
-          </a>
+          </Link>
         </motion.footer>
       </div>
 

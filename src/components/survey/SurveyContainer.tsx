@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { SURVEY_QUESTIONS } from "@/data";
 import { useLanguage } from "@/lib";
+import { useFingerprint } from "@/lib/hooks/useFingerprint";
 import { LazyResultsDashboard as ResultsDashboard } from "@/components/dashboard";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { SurveyIntroShader } from "./SurveyIntroShader";
@@ -10,15 +11,16 @@ import { QuestionCard } from "./QuestionCard";
 import { FeedbackScreen } from "./FeedbackScreen";
 import { ThankYouScreen } from "./ThankYouScreen";
 import { EmailCollectionScreen } from "./EmailCollectionScreen";
+import { AlreadySubmittedScreen } from "./AlreadySubmittedScreen";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Save, RotateCcw, PlayCircle } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
 
 type SurveyStep = "intro" | "questions" | "email" | "feedback" | "thanks" | "results";
 
 const STORAGE_KEY = "survey-progress";
 const SESSION_KEY = "survey-session";
 const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
+const SAVE_DEBOUNCE_MS = 1000; // 1 second debounce for localStorage writes
 
 interface SavedProgress {
   answers: Record<string, string | number | string[]>;
@@ -39,12 +41,12 @@ function getViewFromUrl(): SurveyStep | null {
   return null;
 }
 
-// Get or create session ID
+// Get or create session ID - using native crypto API instead of uuid package
 function getSessionId(): string {
   if (typeof window === "undefined") return "";
   let sessionId = localStorage.getItem(SESSION_KEY);
   if (!sessionId) {
-    sessionId = uuidv4();
+    sessionId = crypto.randomUUID();
     localStorage.setItem(SESSION_KEY, sessionId);
   }
   return sessionId;
@@ -56,11 +58,20 @@ function getAnonymousId(): string {
   const key = "survey-anonymous-id";
   let id = localStorage.getItem(key);
   if (!id) {
-    id = uuidv4();
+    id = crypto.randomUUID();
     localStorage.setItem(key, id);
   }
   return id;
 }
+
+// Hook to detect client-side rendering (SSR-safe) - kept for potential future use
+// function useIsClient() {
+//   return useSyncExternalStore(
+//     () => () => {},
+//     () => true,
+//     () => false
+//   );
+// }
 
 interface SurveyContainerProps {
   initialLanguage?: "fr" | "en";
@@ -69,6 +80,9 @@ interface SurveyContainerProps {
 export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) {
   const { t, language, setLanguage } = useLanguage();
   const hasInitializedLanguage = useRef(false);
+
+  // Browser fingerprint for duplicate detection
+  const { fingerprint } = useFingerprint();
 
   // Set initial language from URL ONLY on first mount (not on every language change)
   useEffect(() => {
@@ -87,19 +101,29 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   const [answers, setAnswers] = useState<Record<string, string | number | string[]>>({});
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [savedProgress, setSavedProgress] = useState<SavedProgress | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
   const [responseId, setResponseId] = useState<string | undefined>();
+  // Use state for IDs that are passed to child components (required during render)
+  const [anonymousIdState, setAnonymousIdState] = useState<string>("");
+  // Track when survey started for time spent calculation
+  const surveyStartTime = useRef<number>(0);
+  // Submission error state
+  const [submissionError, setSubmissionError] = useState<{ code: string; message: string } | null>(null);
 
+  // Use refs for values only used internally (not during render)
   const containerRef = useRef<HTMLDivElement>(null);
   const sessionId = useRef<string>("");
-  const anonymousId = useRef<string>("");
+  const isSavingRef = useRef(false);
+  const [savingIndicator, setSavingIndicator] = useState(false);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Handle hydration and URL-based navigation (dev mode)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
     setIsHydrated(true);
     const viewFromUrl = getViewFromUrl();
     if (viewFromUrl) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- URL-based dev navigation
       setStep(viewFromUrl);
     }
   }, []);
@@ -107,7 +131,8 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   // Initialize session and check for saved progress
   useEffect(() => {
     sessionId.current = getSessionId();
-    anonymousId.current = getAnonymousId();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
+    setAnonymousIdState(getAnonymousId());
 
     // Check for saved progress (only if not navigating via URL)
     const viewFromUrl = getViewFromUrl();
@@ -129,12 +154,56 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
     }
   }, []);
 
-  // Auto-save to localStorage
+  // Auto-save to localStorage with debouncing to reduce main-thread blocking
   useEffect(() => {
     if (step !== "questions" || Object.keys(answers).length === 0) return;
 
-    const saveProgress = () => {
-      setIsSaving(true);
+    // Debounced save function to prevent multiple rapid writes
+    const saveProgressDebounced = () => {
+      // Clear any pending debounce timer
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      debounceTimerRef.current = setTimeout(() => {
+        if (isSavingRef.current) return; // Skip if already saving
+        isSavingRef.current = true;
+        setSavingIndicator(true);
+
+        const progress: SavedProgress = {
+          answers,
+          currentIndex,
+          timestamp: Date.now(),
+          sessionId: sessionId.current,
+        };
+
+        // Use requestIdleCallback for non-blocking write when available
+        const performSave = () => {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+          } catch (e) {
+            console.error("Failed to save progress:", e);
+          }
+          isSavingRef.current = false;
+          // Keep indicator visible briefly for UX feedback
+          setTimeout(() => setSavingIndicator(false), 300);
+        };
+
+        if (typeof requestIdleCallback !== "undefined") {
+          requestIdleCallback(performSave, { timeout: 1000 });
+        } else {
+          performSave();
+        }
+      }, SAVE_DEBOUNCE_MS);
+    };
+
+    // Save on changes (debounced)
+    saveProgressDebounced();
+
+    // Also save periodically (direct, not debounced)
+    const interval = setInterval(() => {
+      if (isSavingRef.current) return;
+      isSavingRef.current = true;
       const progress: SavedProgress = {
         answers,
         currentIndex,
@@ -142,15 +211,15 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
         sessionId: sessionId.current,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-      setTimeout(() => setIsSaving(false), 500);
+      isSavingRef.current = false;
+    }, AUTO_SAVE_INTERVAL);
+
+    return () => {
+      clearInterval(interval);
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
     };
-
-    // Save immediately on changes
-    saveProgress();
-
-    // Also save periodically
-    const interval = setInterval(saveProgress, AUTO_SAVE_INTERVAL);
-    return () => clearInterval(interval);
   }, [answers, currentIndex, step]);
 
   // Beforeunload warning
@@ -197,6 +266,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   }, []);
 
   const handleStart = useCallback(() => {
+    surveyStartTime.current = Date.now();
     setStep("questions");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
@@ -214,6 +284,11 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
       // Survey complete - clear saved progress and submit
       localStorage.removeItem(STORAGE_KEY);
 
+      // Calculate time spent
+      const timeSpent = surveyStartTime.current > 0
+        ? Date.now() - surveyStartTime.current
+        : undefined;
+
       // Submit to API if consent given
       if (consentGiven) {
         try {
@@ -225,21 +300,34 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
               answers,
               metadata: {
                 completedAt: new Date().toISOString(),
+                startedAt: surveyStartTime.current > 0
+                  ? new Date(surveyStartTime.current).toISOString()
+                  : undefined,
+                timeSpent,
                 language,
               },
               consentGiven: true,
               consentVersion: "1.0",
-              anonymousId: anonymousId.current,
+              anonymousId: anonymousIdState,
+              fingerprint: fingerprint || undefined,
             }),
           });
 
-          // Store response ID for email submission
           const data = await response.json();
-          if (data.id) {
-            setResponseId(data.id);
+
+          // Check for duplicate submission error
+          if (response.status === 403 && data.code) {
+            setSubmissionError({ code: data.code, message: data.error });
+            return; // Don't proceed to next step
+          }
+
+          // Store response ID for email submission
+          if (data.responseId) {
+            setResponseId(data.responseId);
           }
         } catch (error) {
           console.error("Failed to submit survey:", error);
+          // Still proceed - don't block user for network errors
         }
       }
 
@@ -249,7 +337,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
     } else {
       setCurrentIndex((prev) => prev + 1);
     }
-  }, [currentIndex, totalQuestions, answers, consentGiven, language]);
+  }, [currentIndex, totalQuestions, answers, consentGiven, language, anonymousIdState, fingerprint]);
 
   const handlePrevious = useCallback(() => {
     if (currentIndex > 0) {
@@ -287,6 +375,11 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
         <div className="w-8 h-8 border-2 border-muted-foreground/20 border-t-muted-foreground/80 rounded-full animate-spin" />
       </div>
     );
+  }
+
+  // Show error screen if submission was blocked (duplicate detected)
+  if (submissionError) {
+    return <AlreadySubmittedScreen errorCode={submissionError.code} />;
   }
 
   // Resume Modal
@@ -347,7 +440,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
       <div className="w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
         <EmailCollectionScreen
           answers={answers}
-          anonymousId={anonymousId.current}
+          anonymousId={anonymousIdState}
           responseId={responseId}
           onSuccess={handleEmailSuccess}
         />
@@ -362,7 +455,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
         <FeedbackScreen
           answers={answers}
           onContinue={handleFeedbackContinue}
-          anonymousId={anonymousId.current}
+          anonymousId={anonymousIdState}
         />
       </div>
     );
@@ -372,7 +465,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   if (step === "thanks") {
     return (
       <div className="w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <ThankYouScreen onViewResults={handleViewResults} anonymousId={anonymousId.current} />
+        <ThankYouScreen onViewResults={handleViewResults} anonymousId={anonymousIdState} />
       </div>
     );
   }
@@ -405,7 +498,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
             {t("survey.questionOf", { current: currentIndex + 1, total: totalQuestions })}
           </span>
           <div className="flex items-center gap-3">
-            {isSaving && (
+            {savingIndicator && (
               <span className="text-xs text-blue-400 flex items-center gap-1">
                 <Save className="w-3 h-3 animate-pulse" />
                 {t("session.saving")}

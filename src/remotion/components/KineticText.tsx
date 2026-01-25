@@ -91,7 +91,8 @@ export const KineticText: React.FC<KineticTextProps> = ({
           case "glitch":
             const glitchOffset = Math.sin(frame * 0.5 + i) * (1 - progress) * 10;
             transform = `translate(${glitchOffset}px, ${(1 - springValue) * 30}px)`;
-            opacity = progress * (0.7 + Math.random() * 0.3);
+            // Use deterministic noise based on frame and index instead of Math.random
+            opacity = progress * (0.7 + (Math.sin(frame * 0.3 + i * 7) * 0.5 + 0.5) * 0.3);
             break;
           case "wave":
             const waveY = Math.sin((frame - charStart) * 0.1 + i * 0.3) * 8 * progress;

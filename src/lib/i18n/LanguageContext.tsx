@@ -50,8 +50,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem("survey-language") as Language | null;
     if (saved && (saved === "fr" || saved === "en")) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
       setLanguageState(saved);
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
     setIsHydrated(true);
   }, []);
 

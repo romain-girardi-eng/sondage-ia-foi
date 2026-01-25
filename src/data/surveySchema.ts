@@ -527,17 +527,42 @@ export const SURVEY_QUESTIONS: Question[] = [
   // BLOC 6: PSYCHOLOGIE - ANTHROPOMORPHISME & ANXIÉTÉ IA
   // ==========================================
   {
-    id: 'psych_anthropomorphisme',
+    id: 'psych_godspeed_nature',
     category: 'psychology',
-    text: "Selon vous, une IA peut-elle avoir une forme de 'conscience' ou de 'personnalité' ?",
+    text: "Sur une échelle de 1 à 5, comment percevez-vous la nature de l'IA actuelle ?",
     type: 'choice',
     options: [
-      { value: 'impossible', label: "Non, c'est impossible" },
-      { value: 'peu_probable', label: "C'est peu probable" },
-      { value: 'incertain', label: "Je suis incertain(e)" },
-      { value: 'possible', label: "C'est possible" },
-      { value: 'probable', label: "Oui, probablement" },
-      { value: 'ne_sait_pas', label: 'Je ne sais pas' }
+      { value: '1_machine', label: '1 - Purement machinique et froide' },
+      { value: '2_machine_plus', label: '2 - Machinique mais performante' },
+      { value: '3_neutre', label: '3 - Neutre' },
+      { value: '4_humain_moins', label: '4 - Simule bien les traits humains' },
+      { value: '5_humain', label: '5 - Presque humaine / Vivante' }
+    ]
+  },
+  {
+    id: 'psych_godspeed_conscience',
+    category: 'psychology',
+    text: "Pensez-vous qu'une IA puisse un jour développer une forme de conscience réelle ?",
+    type: 'choice',
+    options: [
+      { value: 'impossible', label: "Non, c'est ontologiquement impossible" },
+      { value: 'imitation', label: "Non, ce ne sera toujours qu'une imitation complexe" },
+      { value: 'incertain', label: "Je ne sais pas / C'est difficile à dire" },
+      { value: 'possible_emergence', label: "C'est possible (émergence d'une conscience artificielle)" },
+      { value: 'probable', label: "Oui, c'est probable ou déjà le cas" }
+    ]
+  },
+  {
+    id: 'psych_aias_opacity',
+    category: 'psychology',
+    text: "Le fait de ne pas comprendre comment l'IA prend ses décisions (effet 'boîte noire') vous inquiète-t-il ?",
+    type: 'choice',
+    options: [
+      { value: 'non_confiance', label: "Non, je fais confiance à la technologie" },
+      { value: 'non_indifferent', label: "Non, tant que ça fonctionne" },
+      { value: 'peu', label: "Un peu, mais sans plus" },
+      { value: 'oui_moderement', label: "Oui, c'est une préoccupation" },
+      { value: 'oui_fortement', label: "Oui, cette opacité est dangereuse/inacceptable" }
     ]
   },
   {

@@ -12,7 +12,6 @@ import {
   Sparkles,
   BarChart3,
   PieChart as PieChartIcon,
-  Filter,
   Zap,
   Target,
   Award,
@@ -59,26 +58,35 @@ function AnimatedNumber({ value, duration = 2 }: { value: number; duration?: num
   return <span ref={ref}>{displayValue.toLocaleString()}</span>;
 }
 
+// Pre-computed random values for particles to avoid calling Math.random during render
+const PARTICLE_CONFIGS = Array.from({ length: 20 }, (_, i) => ({
+  id: i,
+  initialX: (i * 5 + 7) % 100,
+  initialY: (i * 7 + 13) % 100,
+  duration: 10 + (i % 10),
+  delay: (i * 0.25) % 5,
+}));
+
 // Floating particles background
 function FloatingParticles() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(20)].map((_, i) => (
+      {PARTICLE_CONFIGS.map((config) => (
         <motion.div
-          key={i}
+          key={config.id}
           className="absolute w-1 h-1 bg-foreground/10 rounded-full"
           initial={{
-            x: Math.random() * 100 + "%",
-            y: Math.random() * 100 + "%",
+            x: config.initialX + "%",
+            y: config.initialY + "%",
           }}
           animate={{
             y: [null, "-20%", "120%"],
             opacity: [0, 1, 0],
           }}
           transition={{
-            duration: Math.random() * 10 + 10,
+            duration: config.duration,
             repeat: Infinity,
-            delay: Math.random() * 5,
+            delay: config.delay,
             ease: "linear",
           }}
         />
@@ -283,7 +291,16 @@ function DonutChart({
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
 
-  let currentOffset = 0;
+  // Pre-compute offsets to avoid mutation during render
+  const segmentsWithOffsets = useMemo(() => {
+    return data.reduce<Array<{ name: string; value: number; color: string; segmentLength: number; offset: number }>>((acc, segment, index) => {
+      const segmentPercentage = (segment.value / total) * 100;
+      const segmentLength = (segmentPercentage / 100) * circumference;
+      const offset = index === 0 ? 0 : acc[index - 1].offset + acc[index - 1].segmentLength;
+      acc.push({ ...segment, segmentLength, offset });
+      return acc;
+    }, []);
+  }, [data, total, circumference]);
 
   return (
     <div ref={ref} className="relative" style={{ width: size, height: size }}>
@@ -297,34 +314,27 @@ function DonutChart({
           strokeWidth={strokeWidth}
           className="text-muted-foreground/10"
         />
-        {data.map((segment, index) => {
-          const segmentPercentage = (segment.value / total) * 100;
-          const segmentLength = (segmentPercentage / 100) * circumference;
-          const offset = currentOffset;
-          currentOffset += segmentLength;
-
-          return (
-            <motion.circle
-              key={index}
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              fill="none"
-              stroke={segment.color}
-              strokeWidth={strokeWidth}
-              strokeLinecap="round"
-              strokeDasharray={`${segmentLength} ${circumference - segmentLength}`}
-              strokeDashoffset={-offset}
-              initial={{ opacity: 0, strokeDasharray: `0 ${circumference}` }}
-              animate={isInView ? {
-                opacity: 1,
-                strokeDasharray: `${segmentLength} ${circumference - segmentLength}`,
-              } : {}}
-              transition={{ delay: index * 0.15 + 0.3, duration: 0.8, ease: "easeOut" }}
-              style={{ filter: `drop-shadow(0 0 6px ${segment.color}40)` }}
-            />
-          );
-        })}
+        {segmentsWithOffsets.map((segment, index) => (
+          <motion.circle
+            key={index}
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={segment.color}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={`${segment.segmentLength} ${circumference - segment.segmentLength}`}
+            strokeDashoffset={-segment.offset}
+            initial={{ opacity: 0, strokeDasharray: `0 ${circumference}` }}
+            animate={isInView ? {
+              opacity: 1,
+              strokeDasharray: `${segment.segmentLength} ${circumference - segment.segmentLength}`,
+            } : {}}
+            transition={{ delay: index * 0.15 + 0.3, duration: 0.8, ease: "easeOut" }}
+            style={{ filter: `drop-shadow(0 0 6px ${segment.color}40)` }}
+          />
+        ))}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <motion.span
@@ -451,7 +461,7 @@ const CATEGORY_KEYS = [
 ];
 
 export function ResultsDashboard() {
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
   const [results, setResults] = useState<AggregatedResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -711,7 +721,6 @@ export function ResultsDashboard() {
                 index={index}
                 isExpanded={expandedCards.has(question.id)}
                 onToggle={() => toggleCard(question.id)}
-                language={language}
               />
             );
           })}
@@ -762,10 +771,9 @@ interface ModernChartCardProps {
   index: number;
   isExpanded: boolean;
   onToggle: () => void;
-  language: "fr" | "en";
 }
 
-function ModernChartCard({ question, data, index, isExpanded, onToggle, language }: ModernChartCardProps) {
+function ModernChartCard({ question, data, index, isExpanded, onToggle }: ModernChartCardProps) {
   const { t } = useLanguage();
   const chartData = useMemo(() => {
     return Object.entries(data.distribution)

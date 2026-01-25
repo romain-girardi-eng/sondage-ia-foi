@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from "react"
 
 type Theme = "dark" | "light"
 
@@ -16,26 +16,29 @@ const THEME_KEY = "ia-foi-theme"
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark")
-  const [mounted, setMounted] = useState(false)
+  const mounted = useRef(false)
 
+  // Hydrate theme from localStorage after mount
   useEffect(() => {
-    setMounted(true)
+    mounted.current = true
     const stored = localStorage.getItem(THEME_KEY) as Theme | null
     if (stored) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
       setThemeState(stored)
     } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
       setThemeState("light")
     }
   }, [])
 
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted.current) return
 
     const root = document.documentElement
     root.classList.remove("light", "dark")
     root.classList.add(theme)
     localStorage.setItem(THEME_KEY, theme)
-  }, [theme, mounted])
+  }, [theme])
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme)

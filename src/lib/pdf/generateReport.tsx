@@ -724,7 +724,8 @@ export async function generatePDFReportBuffer(data: ReportData): Promise<Buffer>
  * Legacy export for backward compatibility
  * Note: This now returns a simple object with an output method
  */
-export function generatePDFReport(data: ReportData): { output: (type: 'arraybuffer') => ArrayBuffer } {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Legacy compatibility function
+export function generatePDFReport(_data: ReportData): { output: (type: 'arraybuffer') => ArrayBuffer } {
   // This is a synchronous wrapper that doesn't actually work with @react-pdf/renderer
   // The actual generation should use generatePDFReportBuffer
   console.warn('generatePDFReport is deprecated, use generatePDFReportBuffer instead');

@@ -51,7 +51,9 @@ export const questionTranslations = {
       laic_conseil_spirituel: "Pourriez-vous envisager de demander un conseil spirituel à une IA ?",
 
       // === PSYCHOLOGIE ===
-      psych_anthropomorphisme: "Selon vous, une IA peut-elle avoir une forme de 'conscience' ou de 'personnalité' ?",
+      psych_godspeed_nature: "Sur une échelle de 1 à 5, comment percevez-vous la nature de l'IA actuelle ?",
+      psych_godspeed_conscience: "Pensez-vous qu'une IA puisse un jour développer une forme de conscience réelle ?",
+      psych_aias_opacity: "Le fait de ne pas comprendre comment l'IA prend ses décisions (effet 'boîte noire') vous inquiète-t-il ?",
       psych_imago_dei: "Selon vous, l'IA remet-elle en question ce qui fait la spécificité de l'être humain (créé à l'image de Dieu) ?",
       psych_anxiete_remplacement: "Pensez-vous que l'IA pourrait un jour remplacer certaines fonctions spirituelles humaines (prédication, accompagnement) ?",
 
@@ -310,7 +312,9 @@ export const questionTranslations = {
       laic_conseil_spirituel: "Could you consider asking AI for spiritual advice?",
 
       // === PSYCHOLOGY ===
-      psych_anthropomorphisme: "In your opinion, can an AI have a form of 'consciousness' or 'personality'?",
+      psych_godspeed_nature: "On a scale of 1 to 5, how do you perceive the nature of current AI?",
+      psych_godspeed_conscience: "Do you think AI could one day develop a form of real consciousness?",
+      psych_aias_opacity: "Does the fact that you don't understand how AI makes decisions ('black box' effect) worry you?",
       psych_imago_dei: "In your opinion, does AI challenge what makes human beings unique (created in the image of God)?",
       psych_anxiete_remplacement: "Do you think AI could one day replace certain human spiritual functions (preaching, pastoral care)?",
 

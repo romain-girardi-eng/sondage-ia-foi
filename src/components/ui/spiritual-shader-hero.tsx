@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useMemo, useSyncExternalStore } from 'react';
+import { useRef, useMemo, useSyncExternalStore, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
 import { shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
@@ -17,6 +17,79 @@ function useIsClient() {
     () => true,
     () => false
   );
+}
+
+// Hook to track visibility and idle state for shader optimization
+function useShaderPause(containerRef: React.RefObject<HTMLDivElement | null>) {
+  const [isPaused, setIsPaused] = useState(false);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isVisibleRef = useRef(true);
+  const IDLE_TIMEOUT = 10000; // 10 seconds of inactivity
+
+  // Reset idle timer on user interaction - doesn't set state directly
+  const handleInteraction = useCallback(() => {
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+    }
+    // Only unpause if visible
+    if (isVisibleRef.current) {
+      setIsPaused(false);
+    }
+    idleTimerRef.current = setTimeout(() => {
+      setIsPaused(true);
+    }, IDLE_TIMEOUT);
+  }, []);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // IntersectionObserver for visibility
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        isVisibleRef.current = entry.isIntersecting;
+        if (!entry.isIntersecting) {
+          setIsPaused(true);
+          if (idleTimerRef.current) {
+            clearTimeout(idleTimerRef.current);
+          }
+        } else {
+          // Trigger idle detection for visible state
+          handleInteraction();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(container);
+
+    // User interaction listeners for idle detection
+    const interactionEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+    interactionEvents.forEach((event) => {
+      window.addEventListener(event, handleInteraction, { passive: true });
+    });
+
+    // Start idle timer after a brief delay to avoid initial setState during render
+    const initialTimer = setTimeout(() => {
+      idleTimerRef.current = setTimeout(() => {
+        setIsPaused(true);
+      }, IDLE_TIMEOUT);
+    }, 100);
+
+    return () => {
+      observer.disconnect();
+      interactionEvents.forEach((event) => {
+        window.removeEventListener(event, handleInteraction);
+      });
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current);
+      }
+      clearTimeout(initialTimer);
+    };
+  }, [containerRef, handleInteraction]);
+
+  return isPaused;
 }
 
 // ===================== SPIRITUAL SHADER =====================
@@ -178,14 +251,25 @@ const SpiritualShaderMaterial = shaderMaterial(
 
 extend({ SpiritualShaderMaterial });
 
-function ShaderPlane() {
+interface ShaderPlaneProps {
+  isPaused?: boolean;
+}
+
+function ShaderPlane({ isPaused = false }: ShaderPlaneProps) {
   const meshRef = useRef<THREE.Mesh>(null!);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const materialRef = useRef<any>(null!);
+  const lastTimeRef = useRef(0);
 
   useFrame((state) => {
     if (!materialRef.current) return;
-    materialRef.current.iTime = state.clock.elapsedTime;
+
+    // Skip time updates when paused to reduce GPU usage
+    if (!isPaused) {
+      lastTimeRef.current = state.clock.elapsedTime;
+    }
+
+    materialRef.current.iTime = lastTimeRef.current;
     const { width, height } = state.size;
     materialRef.current.iResolution.set(width, height);
   });
@@ -201,6 +285,7 @@ function ShaderPlane() {
 function ShaderBackground() {
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const isClient = useIsClient();
+  const isPaused = useShaderPause(canvasRef);
 
   const camera = useMemo(() => ({
     position: [0, 0, 1] as [number, number, number],
@@ -244,8 +329,10 @@ function ShaderBackground() {
         gl={{ antialias: true, alpha: false }}
         dpr={[1, 1.5]}
         style={{ width: '100%', height: '100%' }}
+        // Reduce frame rate when paused for battery/GPU savings
+        frameloop={isPaused ? "demand" : "always"}
       >
-        <ShaderPlane />
+        <ShaderPlane isPaused={isPaused} />
       </Canvas>
       {/* Soft overlays for ethereal effect */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30" />

@@ -17,11 +17,12 @@ import type {
   GrowthArea,
 } from './types';
 import { calculateAllDimensions } from './dimensions';
+import { calculateSocialDesirabilityScore, getBiasConfidenceMultiplier } from './bias';
 import { PROFILE_DEFINITIONS, SUB_PROFILE_DEFINITIONS } from './constants';
 
-// ==========================================
+// ========================================== 
 // PROFILE MATCHING ALGORITHM
-// ==========================================
+// ========================================== 
 
 /**
  * Calculate the distance between actual dimension values and a profile's ideal range
@@ -30,7 +31,8 @@ import { PROFILE_DEFINITIONS, SUB_PROFILE_DEFINITIONS } from './constants';
 function calculateProfileDistance(
   dimensions: SevenDimensions,
   profileId: PrimaryProfile,
-  answers: Answers
+  answers: Answers,
+  biasScore: number
 ): number {
   const profile = PROFILE_DEFINITIONS[profileId];
   let totalDistance = 0;
@@ -56,12 +58,16 @@ function calculateProfileDistance(
     totalWeight += weight;
   }
 
-  // Apply theological orientation bonus/penalty
-  const theoBonus = getTheologicalOrientationBonus(profileId, answers);
+  // Calculate bias confidence - high bias reduces the weight of self-reported identity bonuses
+  const biasConfidence = getBiasConfidenceMultiplier(biasScore);
+
+  // Apply theological orientation bonus/penalty (weighted by bias confidence)
+  // If user has high social desirability bias, we trust their self-reported label less
+  const theoBonus = getTheologicalOrientationBonus(profileId, answers) * biasConfidence;
   totalDistance -= theoBonus;
 
-  // Apply special profile adjustments based on answer patterns
-  const specialBonus = getSpecialProfileBonus(profileId, dimensions, answers);
+  // Apply special profile adjustments based on answer patterns (weighted by bias confidence)
+  const specialBonus = getSpecialProfileBonus(profileId, dimensions, answers) * biasConfidence;
   totalDistance -= specialBonus;
 
   return Math.max(0, totalWeight > 0 ? totalDistance / totalWeight : 10);
@@ -215,7 +221,7 @@ function getSpecialProfileBonus(
 
     // Many "ne_sait_pas" answers indicate exploration
     let uncertaintyCount = 0;
-    const uncertaintyAnswers = ['psych_anthropomorphisme', 'psych_imago_dei', 'psych_anxiete_remplacement',
+    const uncertaintyAnswers = ['psych_godspeed_conscience', 'psych_imago_dei', 'psych_anxiete_remplacement',
                                 'theo_inspiration', 'theo_risque_futur', 'theo_utilite_percue'];
     for (const key of uncertaintyAnswers) {
       if (answers[key] === 'ne_sait_pas') uncertaintyCount++;
@@ -266,11 +272,15 @@ function distanceToMatchScore(distance: number): number {
 /**
  * Calculate match scores for all profiles
  */
-function calculateAllProfileMatches(dimensions: SevenDimensions, answers: Answers): ProfileMatch[] {
+function calculateAllProfileMatches(
+  dimensions: SevenDimensions, 
+  answers: Answers,
+  biasScore: number
+): ProfileMatch[] {
   const profiles = Object.keys(PROFILE_DEFINITIONS) as PrimaryProfile[];
 
   const matches: ProfileMatch[] = profiles.map(profileId => {
-    const distance = calculateProfileDistance(dimensions, profileId, answers);
+    const distance = calculateProfileDistance(dimensions, profileId, answers, biasScore);
     const matchScore = distanceToMatchScore(distance);
     return { profile: profileId, matchScore, distance };
   });
@@ -291,9 +301,9 @@ function calculateAllProfileMatches(dimensions: SevenDimensions, answers: Answer
   return matches;
 }
 
-// ==========================================
+// ========================================== 
 // SUB-PROFILE DETERMINATION
-// ==========================================
+// ========================================== 
 
 function determineSubProfile(
   dimensions: SevenDimensions,
@@ -438,9 +448,9 @@ function getSubProfileBonus(
   return bonus;
 }
 
-// ==========================================
+// ========================================== 
 // INTERPRETATION GENERATION
-// ==========================================
+// ========================================== 
 
 function generateInterpretation(
   dimensions: SevenDimensions,
@@ -525,14 +535,14 @@ function generateInterpretation(
   };
 }
 
-// ==========================================
+// ========================================== 
 // ADVANCED INSIGHTS
-// ==========================================
+// ========================================== 
 
 function generateAdvancedInsights(
   dimensions: SevenDimensions,
-  primary: ProfileMatch,
-  answers: Answers
+  _primary: ProfileMatch,
+  _answers: Answers
 ): AdvancedInsight[] {
   const insights: AdvancedInsight[] = [];
 
@@ -650,9 +660,9 @@ function generateAdvancedInsights(
   return insights.slice(0, 4);
 }
 
-// ==========================================
+// ========================================== 
 // TENSION POINTS
-// ==========================================
+// ========================================== 
 
 function identifyTensions(dimensions: SevenDimensions): TensionPoint[] {
   const tensions: TensionPoint[] = [];
@@ -700,13 +710,13 @@ function identifyTensions(dimensions: SevenDimensions): TensionPoint[] {
   return tensions.slice(0, 3);
 }
 
-// ==========================================
+// ========================================== 
 // GROWTH AREAS
-// ==========================================
+// ========================================== 
 
 function identifyGrowthAreas(
   dimensions: SevenDimensions,
-  primary: ProfileMatch
+  _primary: ProfileMatch
 ): GrowthArea[] {
   const growthAreas: GrowthArea[] = [];
 
@@ -760,16 +770,20 @@ function identifyGrowthAreas(
   return growthAreas.slice(0, 3);
 }
 
-// ==========================================
+// ========================================== 
 // MAIN FUNCTION: Calculate Complete Profile Spectrum
-// ==========================================
+// ========================================== 
 
 export function calculateProfileSpectrum(answers: Answers): ProfileSpectrum {
   // Step 1: Calculate all 7 dimensions
+  // This already computes bias internally for adjustment
+  // But we need the bias score specifically for profile matching adjustment too
+  const biasScore = calculateSocialDesirabilityScore(answers);
   const dimensions = calculateAllDimensions(answers);
 
   // Step 2: Calculate matches for all profiles
-  const allMatches = calculateAllProfileMatches(dimensions, answers);
+  // Now passing biasScore to allow confidence weighting
+  const allMatches = calculateAllProfileMatches(dimensions, answers, biasScore);
 
   // Step 3: Extract top 3 profiles
   const primary = allMatches[0];
@@ -805,9 +819,9 @@ export function calculateProfileSpectrum(answers: Answers): ProfileSpectrum {
   };
 }
 
-// ==========================================
+// ========================================== 
 // UTILITY FUNCTIONS FOR LEGACY COMPATIBILITY
-// ==========================================
+// ========================================== 
 
 /**
  * Get simple profile type (for backward compatibility)

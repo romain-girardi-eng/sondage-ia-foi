@@ -166,7 +166,6 @@ export const MockDashboard: React.FC<MockDashboardProps> = ({
   // ═══════════════════════════════════════════════════════════════════
 
   const breathe = 0;
-  const breatheSlow = 0;
 
   return (
     <div
@@ -321,7 +320,7 @@ export const MockDashboard: React.FC<MockDashboardProps> = ({
                     opacity: interpolate(f, [90, 115], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
                   }}
                 >
-                  Ouvert à l'innovation
+                  Ouvert à l&apos;innovation
                   <br />
                   tout en préservant vos valeurs
                 </div>

@@ -116,7 +116,8 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
 }
 
 // Convenience functions for common toast types
-export function toast(message: string, type: ToastType = "info") {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Kept for API compatibility
+export function toast(message: string, _type: ToastType = "info") {
   // This will be called from the hook
-  console.warn("Use useToast().addToast() instead");
+  console.warn(`Use useToast().addToast("${message}") instead`);
 }

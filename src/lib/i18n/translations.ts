@@ -261,6 +261,16 @@ export const translations = {
       title: "Oups ! Une erreur est survenue",
       description: "Nous rencontrons un problème technique. Notre équipe a été notifiée.",
       errorCode: "Code erreur",
+      // Duplicate submission errors
+      alreadySubmitted: "Vous avez déjà participé",
+      alreadySubmittedDesc: "Nos enregistrements indiquent que vous avez déjà complété ce sondage.",
+      alreadySubmittedHelp: "Si vous pensez qu'il s'agit d'une erreur (par exemple, ordinateur partagé), veuillez nous contacter.",
+      ipLimitExceeded: "Limite de participations atteinte",
+      ipLimitExceededDesc: "Trop de participations ont été enregistrées depuis ce réseau.",
+      contactUs: "Nous contacter",
+      contactEmail: "contact@ia-foi.fr",
+      legitimateUser: "Je suis un utilisateur légitime",
+      legitimateUserDesc: "Si vous partagez un ordinateur ou un réseau avec d'autres participants, contactez-nous avec votre situation et nous pourrons vous aider.",
     },
 
     // Not Found (404)
@@ -695,6 +705,16 @@ export const translations = {
       title: "Oops! An error occurred",
       description: "We're experiencing a technical issue. Our team has been notified.",
       errorCode: "Error code",
+      // Duplicate submission errors
+      alreadySubmitted: "You have already participated",
+      alreadySubmittedDesc: "Our records indicate that you have already completed this survey.",
+      alreadySubmittedHelp: "If you believe this is an error (e.g., shared computer), please contact us.",
+      ipLimitExceeded: "Participation limit reached",
+      ipLimitExceededDesc: "Too many submissions have been recorded from this network.",
+      contactUs: "Contact us",
+      contactEmail: "contact@ia-foi.fr",
+      legitimateUser: "I am a legitimate user",
+      legitimateUserDesc: "If you share a computer or network with other participants, contact us with your situation and we can help.",
     },
 
     // Not Found (404)

@@ -76,7 +76,7 @@ Cette enquête vise à cartographier les attitudes des chrétiens francophones f
 **Adaptation :** Plutôt que l'échelle complète, nous utilisons des proxies comportementaux :
 - `ctrl_ia_confort` : Niveau de confort général
 - `psych_anxiete_remplacement` : Peur du remplacement
-- `psych_anthropomorphisme` : Attribution de conscience à l'IA
+- `psych_godspeed_nature` / `psych_godspeed_conscience` : Perception de la nature de l'IA
 
 ---
 
@@ -301,7 +301,7 @@ Voir `src/lib/scoring/profiles.ts` pour l'implémentation détaillée.
 **Proxy :** `profil_education` + `profil_secteur === 'religieux'`
 
 #### H9 : Anxiété anthropomorphique
-> Les répondants qui attribuent une forme de conscience à l'IA (`psych_anthropomorphisme`) auront une frontière sacrée plus basse.
+> Les répondants qui attribuent une forme de conscience à l'IA (`psych_godspeed_conscience`) auront une frontière sacrée plus basse.
 
 #### H10 : Prédicteurs de l'adoption future
 > L'intention d'usage futur (`futur_intention_usage`) sera mieux prédite par `aiOpenness` que par `sacredBoundary`.
@@ -336,6 +336,17 @@ Voir `src/lib/scoring/profiles.ts` pour l'implémentation détaillée.
 ---
 
 ## 8. Changelog des révisions
+
+### v1.2.0 (2026-01-25) - Scientific Deepening
+
+#### Psychometric Enhancements
+- **Godspeed Questionnaire Integration** : Replacement of the single anthropomorphism question with a multi-item construct (Nature & Consciousness) inspired by the Godspeed Scale.
+- **AI Anxiety Scale (AIAS) Integration** : Addition of a question on "Sociotechnical Blindness" (fear of the black box) to better capture the "Learning" and "Opacity" dimensions of anxiety.
+
+#### Scoring Refinements
+- **Calculations Updated** : `calculatePsychologicalPerceptionDimension` and `calculateEthicalConcernDimension` now incorporate the new Godspeed and AIAS items respectively.
+- **Population Models** : Refined mock population parameters to reflect more realistic distributions (e.g. higher mean for religiosity in this target group).
+- **Bias Correction** : Full implementation of the Marlowe-Crowne weighting logic to adjust scores based on social desirability bias.
 
 ### v1.1.0 (2025-01-25)
 

@@ -66,8 +66,8 @@ function GlowCard({
   );
 }
 
-export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScreenProps) {
-  const { t, language } = useLanguage();
+export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
+  const { t } = useLanguage();
   const hasAnimated = useHasAnimated();
   const [isProfilesModalOpen, setIsProfilesModalOpen] = useState(false);
   const [selectedProfileForModal, setSelectedProfileForModal] = useState<string | null>(null);
@@ -109,11 +109,12 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
   const tensions = spectrum.tensions;
   const growthAreas = spectrum.growthAreas;
 
-  const getResistanceDescription = () => {
-    if (resistanceIndex > 1) return t("feedback.resistanceHigh");
-    if (resistanceIndex > 0) return t("feedback.resistanceMedium");
-    return t("feedback.resistanceLow");
-  };
+  // Resistance description helper - kept for potential future use
+  // const getResistanceDescription = () => {
+  //   if (resistanceIndex > 1) return t("feedback.resistanceHigh");
+  //   if (resistanceIndex > 0) return t("feedback.resistanceMedium");
+  //   return t("feedback.resistanceLow");
+  // };
 
   return (
     <AnimatedBackground variant="default" showGrid showOrbs>
@@ -175,14 +176,14 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                 </div>
                 <div className="space-y-3 mt-4">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-2xl md:text-3xl font-bold text-foreground">{t(`profiles.${primaryMatch.profile}` as any) || profileDef.title}</h2>
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground">{t(`profiles.${primaryMatch.profile}`) || profileDef.title}</h2>
                     <ChevronRight className="w-5 h-5 text-muted-foreground/50 group-hover:text-muted-foreground group-hover:translate-x-1 transition-all" />
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">{profileDef.shortDescription}</p>
                   {subProfileDef && (
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/20 dark:bg-purple-500/20 border border-purple-500/30">
                       <span>{subProfileDef.emoji}</span>
-                      <span className="text-xs font-medium text-purple-700 dark:text-purple-300">{t(`profiles.${subProfileMatch?.subProfile}` as any) || subProfileDef.title}</span>
+                      <span className="text-xs font-medium text-purple-700 dark:text-purple-300">{t(`profiles.${subProfileMatch?.subProfile}`) || subProfileDef.title}</span>
                     </div>
                   )}
                 </div>
@@ -302,7 +303,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                       <span className="text-2xl">{matchDef.emoji}</span>
                       <div className="flex-1 min-w-0">
                         <p className={cn("text-sm font-medium truncate", index === 0 ? "text-foreground" : "text-muted-foreground")}>
-                          {t(`profiles.${match.profile}` as any) || matchDef.title}
+                          {t(`profiles.${match.profile}`) || matchDef.title}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
@@ -338,7 +339,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                   const color = DIMENSION_COLORS[key as keyof typeof DIMENSION_COLORS];
                   const isHigh = dimension.value >= 3.5;
                   const isLow = dimension.value <= 2.5;
-                  const dimKey = `dimensions.${key}` as const;
+                  const dimKey = `dimensions.${key}`;
                   return (
                     <motion.div
                       key={key}
@@ -366,21 +367,21 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                           {dimension.value.toFixed(1)}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground leading-tight">{t(`${dimKey}.label` as any)}</p>
+                      <p className="text-xs text-muted-foreground leading-tight">{t(`${dimKey}.label`)}</p>
 
                       {/* Tooltip on hover - appears below */}
                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 p-3 rounded-xl bg-popover border border-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left pointer-events-none">
                         {/* Arrow pointing up */}
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-popover" />
-                        <p className="text-xs font-medium text-foreground mb-1">{t(`${dimKey}.label` as any)}</p>
-                        <p className="text-[11px] text-muted-foreground mb-2">{t(`${dimKey}.description` as any)}</p>
+                        <p className="text-xs font-medium text-foreground mb-1">{t(`${dimKey}.label`)}</p>
+                        <p className="text-[11px] text-muted-foreground mb-2">{t(`${dimKey}.description`)}</p>
                         <div className="pt-2 border-t border-border space-y-1.5">
                           <p className="text-[11px] font-medium" style={{ color }}>
-                            {isHigh ? t(`${dimKey}.high` as any) : isLow ? t(`${dimKey}.low` as any) : t("resultsExplain.balancedPosition")}
+                            {isHigh ? t(`${dimKey}.high`) : isLow ? t(`${dimKey}.low`) : t("resultsExplain.balancedPosition")}
                           </p>
                           {(isHigh || isLow) && (
                             <p className="text-[10px] text-muted-foreground leading-relaxed">
-                              {isHigh ? t(`${dimKey}.highDetail` as any) : t(`${dimKey}.lowDetail` as any)}
+                              {isHigh ? t(`${dimKey}.highDetail`) : t(`${dimKey}.lowDetail`)}
                             </p>
                           )}
                         </div>
@@ -392,7 +393,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             </GlowCard>
 
             {/* Insights */}
-            {insights.slice(0, 2).map((insight, index) => (
+            {insights.slice(0, 2).map((insight) => (
               <GlowCard key={insight.title} area="md:col-span-6">
                 <div className="flex items-start gap-3">
                   <span className="text-2xl shrink-0">{insight.icon}</span>
@@ -416,8 +417,8 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                 <div className="flex items-start gap-3">
                   <ChevronRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-sm font-medium text-foreground mb-1">{t(`growthAreas.${growthAreas[0].area}` as any)}</h4>
-                    <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80">{t(`growthAreas.${growthAreas[0].actionableStep}` as any)}</p>
+                    <h4 className="text-sm font-medium text-foreground mb-1">{t(`growthAreas.${growthAreas[0].area}`)}</h4>
+                    <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80">{t(`growthAreas.${growthAreas[0].actionableStep}`)}</p>
                   </div>
                 </div>
               </GlowCard>
@@ -433,11 +434,11 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                   </h3>
                 </div>
                 <div className="text-sm text-foreground mb-1">
-                  <span className="text-amber-600 dark:text-amber-400">{t(`dimensions.${tensions[0].dimension1}.label` as any)}</span>
+                  <span className="text-amber-600 dark:text-amber-400">{t(`dimensions.${tensions[0].dimension1}.label`)}</span>
                   <span className="text-muted-foreground"> vs </span>
-                  <span className="text-amber-600 dark:text-amber-400">{t(`dimensions.${tensions[0].dimension2}.label` as any)}</span>
+                  <span className="text-amber-600 dark:text-amber-400">{t(`dimensions.${tensions[0].dimension2}.label`)}</span>
                 </div>
-                <p className="text-xs text-muted-foreground">{t(`tensions.${tensions[0].description}` as any)}</p>
+                <p className="text-xs text-muted-foreground">{t(`tensions.${tensions[0].description}`)}</p>
               </GlowCard>
             )}
           </ul>
@@ -490,7 +491,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
         isOpen={isProfilesModalOpen}
         onClose={() => setIsProfilesModalOpen(false)}
         currentProfile={primaryMatch.profile}
-        initialSelectedProfile={selectedProfileForModal as any}
+        initialSelectedProfile={selectedProfileForModal ?? undefined}
       />
     </AnimatedBackground>
   );

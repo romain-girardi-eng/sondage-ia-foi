@@ -194,7 +194,7 @@ const FeatureBadge: React.FC<{
 
 export const LandingVideo: React.FC = () => {
   const frame = useCurrentFrame();
-  const { durationInFrames, fps } = useVideoConfig();
+  const { durationInFrames } = useVideoConfig();
 
   // ═══════════════════════════════════════════════════════════════════════════
   // GLOBAL CAMERA - DISABLED to prevent trembling

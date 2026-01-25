@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
 import { partialSaveSchema } from '@/lib/validation';
-import { rateLimit, getRateLimitHeaders } from '@/lib/rateLimit';
+import { rateLimitPartial, getRateLimitHeaders } from '@/lib/rateLimit';
 
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting (more lenient for partial saves)
-    const ip = request.headers.get('x-forwarded-for') || 'anonymous';
-    const rateLimitResult = rateLimit(`partial:${ip}`);
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous';
+    const rateLimitResult = rateLimitPartial(ip);
 
     if (!rateLimitResult.success) {
       return NextResponse.json(
