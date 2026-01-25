@@ -27,17 +27,16 @@ interface SavedProgress {
   sessionId: string;
 }
 
-// Check URL for direct navigation (dev mode)
-function getInitialStep(): SurveyStep {
-  if (typeof window !== "undefined") {
-    const params = new URLSearchParams(window.location.search);
-    const view = params.get("view");
-    if (view === "results") return "results";
-    if (view === "feedback") return "feedback";
-    if (view === "thanks") return "thanks";
-    if (view === "email") return "email";
-  }
-  return "intro";
+// Check URL for direct navigation (dev mode) - only call after mount
+function getViewFromUrl(): SurveyStep | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  const view = params.get("view");
+  if (view === "results") return "results";
+  if (view === "feedback") return "feedback";
+  if (view === "thanks") return "thanks";
+  if (view === "email") return "email";
+  return null;
 }
 
 // Get or create session ID
@@ -82,7 +81,8 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
       }
     }
   }, [initialLanguage, setLanguage]);
-  const [step, setStep] = useState<SurveyStep>(getInitialStep);
+  const [step, setStep] = useState<SurveyStep>("intro");
+  const [isHydrated, setIsHydrated] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | number | string[]>>({});
   const [showResumeModal, setShowResumeModal] = useState(false);
@@ -95,12 +95,24 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   const sessionId = useRef<string>("");
   const anonymousId = useRef<string>("");
 
+  // Handle hydration and URL-based navigation (dev mode)
+  useEffect(() => {
+    setIsHydrated(true);
+    const viewFromUrl = getViewFromUrl();
+    if (viewFromUrl) {
+      setStep(viewFromUrl);
+    }
+  }, []);
+
   // Initialize session and check for saved progress
   useEffect(() => {
     sessionId.current = getSessionId();
     anonymousId.current = getAnonymousId();
 
-    // Check for saved progress
+    // Check for saved progress (only if not navigating via URL)
+    const viewFromUrl = getViewFromUrl();
+    if (viewFromUrl) return; // Skip resume modal for dev mode URL navigation
+
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
@@ -267,6 +279,15 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [currentIndex, step]);
+
+  // Show loading state until hydrated (prevents hydration mismatch for dev mode URL navigation)
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   // Resume Modal
   if (showResumeModal && savedProgress) {
