@@ -220,6 +220,75 @@ export const translations = {
       termsLink: "Conditions d'utilisation",
     },
 
+    // Profiles Modal
+    profiles: {
+      title: "Les 8 profils",
+      subtitle: "Découvrez les différentes postures face à l'IA et la foi",
+      viewAll: "Voir tous les profils",
+      close: "Fermer",
+      yourProfile: "Votre profil",
+      coreMotivation: "Motivation principale",
+      primaryFear: "Préoccupation principale",
+      subProfiles: "Sous-profils",
+      // Profile explanations
+      gardien_tradition: {
+        title: "Gardien de la Tradition",
+        short: "Protecteur des pratiques spirituelles authentiques",
+        description: "Vous êtes un pilier de la tradition, convaincu que les pratiques spirituelles ont traversé les siècles pour de bonnes raisons. L'IA représente pour vous une technologie qui, mal utilisée, pourrait éroder l'authenticité de la vie spirituelle.",
+      },
+      prudent_eclaire: {
+        title: "Prudent Éclairé",
+        short: "Discernement équilibré entre tradition et innovation",
+        description: "Vous représentez la voie du discernement. Attaché aux valeurs traditionnelles, vous n'êtes pas fermé au progrès mais vous exigez que chaque nouveauté prouve sa valeur avant de l'adopter.",
+      },
+      innovateur_ancre: {
+        title: "Innovateur Ancré",
+        short: "Alliance rare entre tradition profonde et adoption technologique",
+        description: "Vous êtes un profil rare : profondément ancré dans la tradition, vous voyez dans la technologie non pas une menace mais un outil au service de la mission spirituelle.",
+      },
+      equilibriste: {
+        title: "Équilibriste Spirituel",
+        short: "Recherche constante du juste milieu",
+        description: "Vous incarnez la voie du milieu, cherchant toujours l'équilibre entre les extrêmes. Ni enthousiaste inconditionnel ni opposant farouche, vous pesez chaque décision.",
+      },
+      pragmatique_moderne: {
+        title: "Pragmatique Moderne",
+        short: "L'efficacité au service de la mission",
+        description: "Vous êtes orienté vers les résultats. Pour vous, l'IA est avant tout un outil pratique qui peut libérer du temps pour ce qui compte vraiment : les relations humaines.",
+      },
+      pionnier_spirituel: {
+        title: "Pionnier Spirituel",
+        short: "Explorateur des nouvelles frontières foi-technologie",
+        description: "Vous êtes à l'avant-garde, explorant avec enthousiasme les territoires inconnus où se rencontrent spiritualité et intelligence artificielle.",
+      },
+      progressiste_critique: {
+        title: "Progressiste Critique",
+        short: "Ouverture au changement avec vigilance éthique",
+        description: "Vous êtes ouvert au progrès et au changement, mais votre esprit critique reste en éveil permanent. L'enthousiasme technologique doit être tempéré par une réflexion éthique.",
+      },
+      explorateur: {
+        title: "Explorateur",
+        short: "En chemin, formant ses convictions",
+        description: "Vous êtes en phase d'exploration, aussi bien dans votre foi que dans votre rapport à la technologie. Cette position n'est pas une faiblesse mais une ouverture.",
+      },
+    },
+
+    // Results Explanation
+    resultsExplain: {
+      title: "Comprendre vos résultats",
+      intro: "Vos résultats sont basés sur l'analyse de vos réponses selon 7 dimensions clés qui définissent votre rapport à l'IA dans un contexte spirituel.",
+      dimensionsTitle: "Les 7 dimensions",
+      religiosity: "Intensité de votre pratique spirituelle",
+      aiOpenness: "Votre disposition à adopter l'IA",
+      sacredBoundary: "La distinction que vous faites entre sacré et profane pour l'IA",
+      ethicalConcern: "Votre niveau de préoccupation éthique face à l'IA",
+      psychologicalPerception: "Comment vous percevez la nature de l'IA",
+      communityInfluence: "L'importance de votre communauté dans vos choix",
+      futureOrientation: "Votre volonté d'évoluer dans votre rapport à l'IA",
+      matchExplain: "Le pourcentage de correspondance indique à quel point votre profil de réponses correspond au profil type. Un score élevé signifie une forte adéquation.",
+      disclaimer: "Ces profils sont des outils de réflexion, pas des catégories rigides. Vous pouvez évoluer et présenter des caractéristiques de plusieurs profils.",
+    },
+
     // Email Collection
     email: {
       title: "Recevez vos résultats",
@@ -456,6 +525,75 @@ export const translations = {
       required: "Your consent is required to participate",
       privacyLink: "Privacy policy",
       termsLink: "Terms of use",
+    },
+
+    // Profiles Modal
+    profiles: {
+      title: "The 8 Profiles",
+      subtitle: "Discover the different stances towards AI and faith",
+      viewAll: "View all profiles",
+      close: "Close",
+      yourProfile: "Your profile",
+      coreMotivation: "Core motivation",
+      primaryFear: "Primary concern",
+      subProfiles: "Sub-profiles",
+      // Profile explanations
+      gardien_tradition: {
+        title: "Tradition Guardian",
+        short: "Protector of authentic spiritual practices",
+        description: "You are a pillar of tradition, convinced that spiritual practices have endured through the ages for good reasons. AI represents a technology that, if misused, could erode the authenticity of spiritual life.",
+      },
+      prudent_eclaire: {
+        title: "Enlightened Prudent",
+        short: "Balanced discernment between tradition and innovation",
+        description: "You represent the path of discernment. Attached to traditional values, you are not closed to progress but require that each novelty prove its value before adopting it.",
+      },
+      innovateur_ancre: {
+        title: "Anchored Innovator",
+        short: "Rare alliance between deep tradition and technological adoption",
+        description: "You are a rare profile: deeply rooted in tradition, you see technology not as a threat but as a tool in service of the spiritual mission.",
+      },
+      equilibriste: {
+        title: "Spiritual Balancer",
+        short: "Constant search for the middle ground",
+        description: "You embody the middle way, always seeking balance between extremes. Neither unconditional enthusiast nor fierce opponent, you weigh each decision.",
+      },
+      pragmatique_moderne: {
+        title: "Modern Pragmatist",
+        short: "Efficiency in service of the mission",
+        description: "You are results-oriented. For you, AI is primarily a practical tool that can free up time for what really matters: human relationships.",
+      },
+      pionnier_spirituel: {
+        title: "Spiritual Pioneer",
+        short: "Explorer of new faith-technology frontiers",
+        description: "You are at the forefront, enthusiastically exploring unknown territories where spirituality and artificial intelligence meet.",
+      },
+      progressiste_critique: {
+        title: "Critical Progressive",
+        short: "Openness to change with ethical vigilance",
+        description: "You are open to progress and change, but your critical mind remains constantly alert. Technological enthusiasm must be tempered by ethical reflection.",
+      },
+      explorateur: {
+        title: "Explorer",
+        short: "On the path, forming convictions",
+        description: "You are in an exploration phase, both in your faith and in your relationship with technology. This position is not a weakness but an openness.",
+      },
+    },
+
+    // Results Explanation
+    resultsExplain: {
+      title: "Understanding your results",
+      intro: "Your results are based on the analysis of your responses across 7 key dimensions that define your relationship with AI in a spiritual context.",
+      dimensionsTitle: "The 7 dimensions",
+      religiosity: "Intensity of your spiritual practice",
+      aiOpenness: "Your willingness to adopt AI",
+      sacredBoundary: "The distinction you make between sacred and profane for AI",
+      ethicalConcern: "Your level of ethical concern about AI",
+      psychologicalPerception: "How you perceive the nature of AI",
+      communityInfluence: "The importance of your community in your choices",
+      futureOrientation: "Your willingness to evolve in your relationship with AI",
+      matchExplain: "The match percentage indicates how closely your response profile corresponds to the typical profile. A high score means strong alignment.",
+      disclaimer: "These profiles are reflection tools, not rigid categories. You can evolve and exhibit characteristics of multiple profiles.",
     },
 
     // Email Collection

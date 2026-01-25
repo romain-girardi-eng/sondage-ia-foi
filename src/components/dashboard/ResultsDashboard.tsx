@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef } from "react";
 import { SURVEY_QUESTIONS, type Question } from "@/data";
-import { getMockResults, type AggregatedResult, useLanguage, type Language } from "@/lib";
+import { getMockResults, type AggregatedResult, useLanguage } from "@/lib";
 import { motion, useInView, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import {
   RefreshCw,
@@ -440,14 +440,14 @@ function ScaleVisualization({
   );
 }
 
-// Category filter pills
-const CATEGORIES = [
-  { id: "all", label: "Tous", labelEn: "All", icon: Sparkles },
-  { id: "profile", label: "Profil", labelEn: "Profile", icon: Users },
-  { id: "religiosity", label: "Religiosité", labelEn: "Religiosity", icon: Church },
-  { id: "usage", label: "Usage IA", labelEn: "AI Usage", icon: Brain },
-  { id: "theology", label: "Théologie", labelEn: "Theology", icon: Heart },
-  { id: "psychology", label: "Psychologie", labelEn: "Psychology", icon: Target },
+// Category filter pills - use translation keys
+const CATEGORY_KEYS = [
+  { id: "all", translationKey: "dashboard.all", icon: Sparkles },
+  { id: "profile", translationKey: "dashboard.profile", icon: Users },
+  { id: "religiosity", translationKey: "dashboard.religiosity", icon: Church },
+  { id: "usage", translationKey: "dashboard.usage", icon: Brain },
+  { id: "theology", translationKey: "dashboard.theology", icon: Heart },
+  { id: "psychology", translationKey: "dashboard.psychology", icon: Target },
 ];
 
 export function ResultsDashboard() {
@@ -582,33 +582,33 @@ export function ResultsDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-6">
           <InsightCard
             icon={Users}
-            title={language === "fr" ? "Participants" : "Participants"}
+            title={t("dashboard.participants")}
             value={<AnimatedNumber value={1543} />}
-            subtitle={language === "fr" ? "réponses collectées" : "responses collected"}
+            subtitle={t("dashboard.responsesCollected")}
             color="#3b82f6"
             delay={0.2}
           />
           <InsightCard
             icon={Church}
-            title={language === "fr" ? "Catholiques" : "Catholics"}
+            title={t("dashboard.catholics")}
             value="67%"
-            subtitle={language === "fr" ? "confession majoritaire" : "majority denomination"}
+            subtitle={t("dashboard.majorityDenomination")}
             color="#8b5cf6"
             delay={0.3}
           />
           <InsightCard
             icon={Zap}
-            title={language === "fr" ? "Utilisateurs IA" : "AI Users"}
+            title={t("dashboard.aiUsers")}
             value="42%"
-            subtitle={language === "fr" ? "utilisent l'IA régulièrement" : "use AI regularly"}
+            subtitle={t("dashboard.useAIRegularly")}
             color="#10b981"
             delay={0.4}
           />
           <InsightCard
             icon={Award}
-            title={language === "fr" ? "Score moyen" : "Average score"}
+            title={t("dashboard.averageScore")}
             value="3.8/5"
-            subtitle={language === "fr" ? "religiosité CRS-5" : "CRS-5 religiosity"}
+            subtitle={t("dashboard.crs5Religiosity")}
             color="#f59e0b"
             delay={0.5}
           />
@@ -631,24 +631,20 @@ export function ResultsDashboard() {
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-emerald-400" />
                 <span className="text-sm text-emerald-400 font-medium">
-                  {language === "fr" ? "Insight principal" : "Key insight"}
+                  {t("dashboard.keyInsight")}
                 </span>
               </div>
               <h2 className="text-2xl md:text-3xl font-light text-white">
-                {language === "fr"
-                  ? "42% des chrétiens pratiquants utilisent déjà l'IA dans leur quotidien"
-                  : "42% of practicing Christians already use AI in their daily lives"}
+                {t("dashboard.insightTitle")}
               </h2>
               <p className="text-white/60">
-                {language === "fr"
-                  ? "Mais seulement 12% l'ont utilisée dans un contexte spirituel. Cette tension révèle une résistance spécifique au domaine religieux."
-                  : "But only 12% have used it in a spiritual context. This tension reveals a specific resistance in the religious domain."}
+                {t("dashboard.insightDescription")}
               </p>
               <motion.button
                 whileHover={{ x: 5 }}
                 className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
               >
-                <span>{language === "fr" ? "Explorer les données" : "Explore data"}</span>
+                <span>{t("dashboard.exploreData")}</span>
                 <ArrowRight className="w-4 h-4" />
               </motion.button>
             </div>
@@ -675,7 +671,7 @@ export function ResultsDashboard() {
         transition={{ delay: 0.7 }}
         className="flex items-center justify-center gap-2 flex-wrap mb-10"
       >
-        {CATEGORIES.map((cat, index) => {
+        {CATEGORY_KEYS.map((cat, index) => {
           const Icon = cat.icon;
           return (
             <motion.button
@@ -694,7 +690,7 @@ export function ResultsDashboard() {
               )}
             >
               <Icon className="w-4 h-4" />
-              {language === "fr" ? cat.label : cat.labelEn}
+              {t(cat.translationKey)}
             </motion.button>
           );
         })}
@@ -736,16 +732,14 @@ export function ResultsDashboard() {
           className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20 text-white font-medium transition-all duration-300 border border-white/10 hover:border-white/20"
         >
           <RefreshCw className="w-5 h-5" />
-          <span>{language === "fr" ? "Recommencer le sondage" : "Restart survey"}</span>
+          <span>{t("dashboard.restartSurvey")}</span>
         </motion.button>
 
         <p className="text-sm text-white/30">
-          {language === "fr"
-            ? "Merci pour votre contribution à cette recherche académique."
-            : "Thank you for your contribution to this academic research."}
+          {t("dashboard.thankYouFooter")}
         </p>
         <p className="text-xs text-white/20">
-          {language === "fr" ? "Étude menée par Romain Girardi" : "Study conducted by Romain Girardi"}
+          {t("dashboard.studyConductedBy")}
         </p>
       </motion.footer>
     </div>
@@ -763,6 +757,7 @@ interface ModernChartCardProps {
 }
 
 function ModernChartCard({ question, data, index, isExpanded, onToggle, language }: ModernChartCardProps) {
+  const { t } = useLanguage();
   const chartData = useMemo(() => {
     return Object.entries(data.distribution)
       .map(([key, value]) => {
@@ -853,7 +848,7 @@ function ModernChartCard({ question, data, index, isExpanded, onToggle, language
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10">
               <TrendingUp className="w-3 h-3 text-emerald-400" />
               <span className="text-xs text-emerald-400 font-medium">
-                {topPercentage.toFixed(0)}% {language === "fr" ? "majoritaire" : "majority"}
+                {topPercentage.toFixed(0)}% {t("dashboard.majority")}
               </span>
             </div>
           </div>
