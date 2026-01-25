@@ -1,178 +1,115 @@
 "use client";
 
-import { memo, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { animate } from "motion/react";
 
 interface GlowingEffectProps {
-  blur?: number;
-  inactiveZone?: number;
-  proximity?: number;
   spread?: number;
-  variant?: "default" | "white";
   glow?: boolean;
-  className?: string;
   disabled?: boolean;
-  movementDuration?: number;
+  proximity?: number;
+  inactiveZone?: number;
   borderWidth?: number;
+  className?: string;
 }
-const GlowingEffect = memo(
-  ({
-    blur = 0,
-    inactiveZone = 0.7,
-    proximity = 0,
-    spread = 20,
-    variant = "default",
-    glow = false,
-    className,
-    movementDuration = 2,
-    borderWidth = 1,
-    disabled = true,
-  }: GlowingEffectProps) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const lastPosition = useRef({ x: 0, y: 0 });
-    const animationFrameRef = useRef<number>(0);
 
-    const handleMove = useCallback(
-      (e?: MouseEvent | { x: number; y: number }) => {
-        if (!containerRef.current) return;
+export function GlowingEffect({
+  spread = 40,
+  glow = true,
+  disabled = false,
+  proximity = 64,
+  inactiveZone = 0.01,
+  borderWidth = 2,
+  className,
+}: GlowingEffectProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [opacity, setOpacity] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
-        }
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!containerRef.current || disabled) return;
 
-        animationFrameRef.current = requestAnimationFrame(() => {
-          const element = containerRef.current;
-          if (!element) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
 
-          const { left, top, width, height } = element.getBoundingClientRect();
-          const mouseX = e?.x ?? lastPosition.current.x;
-          const mouseY = e?.y ?? lastPosition.current.y;
+      // Check if mouse is within proximity
+      const isNear =
+        e.clientX >= rect.left - proximity &&
+        e.clientX <= rect.right + proximity &&
+        e.clientY >= rect.top - proximity &&
+        e.clientY <= rect.bottom + proximity;
 
-          if (e) {
-            lastPosition.current = { x: mouseX, y: mouseY };
-          }
+      if (isNear) {
+        setPosition({ x, y });
+        setOpacity(1);
+        setIsHovered(true);
+      } else {
+        setOpacity(0);
+        setIsHovered(false);
+      }
+    },
+    [disabled, proximity]
+  );
 
-          const center = [left + width * 0.5, top + height * 0.5];
-          const distanceFromCenter = Math.hypot(
-            mouseX - center[0],
-            mouseY - center[1]
-          );
-          const inactiveRadius = 0.5 * Math.min(width, height) * inactiveZone;
+  const handleMouseLeave = useCallback(() => {
+    setOpacity(0);
+    setIsHovered(false);
+  }, []);
 
-          if (distanceFromCenter < inactiveRadius) {
-            element.style.setProperty("--active", "0");
-            return;
-          }
+  useEffect(() => {
+    if (disabled) return;
 
-          const isActive =
-            mouseX > left - proximity &&
-            mouseX < left + width + proximity &&
-            mouseY > top - proximity &&
-            mouseY < top + height + proximity;
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [handleMouseMove, disabled]);
 
-          element.style.setProperty("--active", isActive ? "1" : "0");
+  if (disabled) return null;
 
-          if (!isActive) return;
+  return (
+    <div
+      ref={containerRef}
+      className={cn(
+        "pointer-events-none absolute inset-0 rounded-[inherit] overflow-hidden",
+        className
+      )}
+    >
+      {/* Gradient glow that follows cursor */}
+      <div
+        className="absolute transition-opacity duration-300"
+        style={{
+          opacity,
+          left: position.x - spread,
+          top: position.y - spread,
+          width: spread * 2,
+          height: spread * 2,
+          background: `radial-gradient(circle,
+            rgba(139, 92, 246, 0.4) 0%,
+            rgba(59, 130, 246, 0.3) 25%,
+            rgba(16, 185, 129, 0.2) 50%,
+            transparent 70%
+          )`,
+          filter: "blur(10px)",
+          transform: "translate(0, 0)",
+        }}
+      />
 
-          const currentAngle =
-            parseFloat(element.style.getPropertyValue("--start")) || 0;
-          let targetAngle =
-            (180 * Math.atan2(mouseY - center[1], mouseX - center[0])) /
-              Math.PI +
-            90;
-
-          const angleDiff = ((targetAngle - currentAngle + 180) % 360) - 180;
-          const newAngle = currentAngle + angleDiff;
-
-          animate(currentAngle, newAngle, {
-            duration: movementDuration,
-            ease: [0.16, 1, 0.3, 1],
-            onUpdate: (value) => {
-              element.style.setProperty("--start", String(value));
-            },
-          });
-        });
-      },
-      [inactiveZone, proximity, movementDuration]
-    );
-
-    useEffect(() => {
-      if (disabled) return;
-
-      const handleScroll = () => handleMove();
-      const handlePointerMove = (e: PointerEvent) => handleMove(e);
-
-      window.addEventListener("scroll", handleScroll, { passive: true });
-      document.body.addEventListener("pointermove", handlePointerMove, {
-        passive: true,
-      });
-
-      return () => {
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
-        }
-        window.removeEventListener("scroll", handleScroll);
-        document.body.removeEventListener("pointermove", handlePointerMove);
-      };
-    }, [handleMove, disabled]);
-
-    return (
-      <>
-        <div
-          className={cn(
-            "pointer-events-none absolute -inset-px hidden rounded-[inherit] border opacity-0 transition-opacity",
-            glow && "opacity-100",
-            variant === "white" && "border-white",
-            disabled && "!block"
-          )}
-        />
-        <div
-          ref={containerRef}
-          style={
-            {
-              "--blur": `${blur}px`,
-              "--spread": spread,
-              "--start": "0",
-              "--active": "0",
-              "--glowingeffect-border-width": `${borderWidth}px`,
-              "--repeating-conic-gradient-times": "5",
-              "--gradient":
-                variant === "white"
-                  ? `repeating-conic-gradient(
-                  from 236.84deg at 50% 50%,
-                  var(--black),
-                  var(--black) calc(25% / var(--repeating-conic-gradient-times))
-                )`
-                  : `radial-gradient(circle, #dd7bbb 10%, #dd7bbb00 20%),
-                radial-gradient(circle at 40% 40%, #d79f1e 5%, #d79f1e00 15%),
-                radial-gradient(circle at 60% 60%, #5a922c 10%, #5a922c00 20%),
-                radial-gradient(circle at 40% 60%, #4c7894 10%, #4c789400 20%),
-                repeating-conic-gradient(
-                  from 236.84deg at 50% 50%,
-                  #dd7bbb 0%,
-                  #d79f1e calc(25% / var(--repeating-conic-gradient-times)),
-                  #5a922c calc(50% / var(--repeating-conic-gradient-times)),
-                  #4c7894 calc(75% / var(--repeating-conic-gradient-times)),
-                  #dd7bbb calc(100% / var(--repeating-conic-gradient-times))
-                )`,
-            } as React.CSSProperties
-          }
-          className={cn(
-            "pointer-events-none absolute inset-0 rounded-[inherit] opacity-100 transition-opacity",
-            glow && "opacity-100",
-            blur > 0 && "blur-[var(--blur)] ",
-            className,
-            disabled && "!hidden"
-          )}
-        >
-          <div className="glow rounded-[inherit]" />
-        </div>
-      </>
-    );
-  }
-);
-
-GlowingEffect.displayName = "GlowingEffect";
-
-export { GlowingEffect };
+      {/* Border glow */}
+      <div
+        className="absolute inset-0 rounded-[inherit] transition-opacity duration-300"
+        style={{
+          opacity: isHovered ? 1 : 0,
+          boxShadow: `
+            inset 0 0 0 ${borderWidth}px rgba(139, 92, 246, 0.3),
+            0 0 20px rgba(139, 92, 246, 0.2),
+            0 0 40px rgba(59, 130, 246, 0.1)
+          `,
+        }}
+      />
+    </div>
+  );
+}
