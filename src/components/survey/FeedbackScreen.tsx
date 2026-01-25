@@ -337,7 +337,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                       initial={hasAnimated ? false : { opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 + index * 0.05 }}
-                      className="group relative text-center p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all cursor-help"
+                      className="group relative text-center p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all"
                     >
                       <div className="relative w-12 h-12 mx-auto mb-2">
                         <svg className="w-12 h-12 -rotate-90">
