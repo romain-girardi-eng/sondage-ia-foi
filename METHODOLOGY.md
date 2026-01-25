@@ -371,9 +371,9 @@ Voir `src/lib/scoring/profiles.ts` pour l'implémentation détaillée.
 
 ## Références
 
-1. Huber, S., & Huber, O. W. (2012). The Centrality of Religiosity Scale (CRS). *Religions*, 3(3), 710-724.
-2. Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability. *Journal of Consulting Psychology*, 24(4), 349-354.
-3. Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an artificial intelligence anxiety scale. *Interactive Learning Environments*.
+1. Huber, S., & Huber, O. W. (2012). The Centrality of Religiosity Scale (CRS). *Religions*, 3(3), 710-724. https://doi.org/10.3390/rel3030710
+2. Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability independent of psychopathology. *Journal of Consulting Psychology*, 24(4), 349-354. https://doi.org/10.1037/h0047358
+3. Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an artificial intelligence anxiety scale: An initial application in predicting motivated learning behavior. *Interactive Learning Environments*, 30(4), 619-634. https://doi.org/10.1080/10494820.2019.1674887
 
 ---
 

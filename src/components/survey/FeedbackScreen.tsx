@@ -360,15 +360,20 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                       <p className="text-xs text-muted-foreground leading-tight">{t(`${dimKey}.label` as any)}</p>
 
                       {/* Tooltip on hover - appears below */}
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-3 rounded-xl bg-popover border border-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left pointer-events-none">
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 p-3 rounded-xl bg-popover border border-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left pointer-events-none">
                         {/* Arrow pointing up */}
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-popover" />
                         <p className="text-xs font-medium text-foreground mb-1">{t(`${dimKey}.label` as any)}</p>
                         <p className="text-[11px] text-muted-foreground mb-2">{t(`${dimKey}.description` as any)}</p>
-                        <div className="pt-2 border-t border-border">
-                          <p className="text-[11px]" style={{ color }}>
+                        <div className="pt-2 border-t border-border space-y-1.5">
+                          <p className="text-[11px] font-medium" style={{ color }}>
                             {isHigh ? t(`${dimKey}.high` as any) : isLow ? t(`${dimKey}.low` as any) : t("resultsExplain.balancedPosition")}
                           </p>
+                          {(isHigh || isLow) && (
+                            <p className="text-[10px] text-muted-foreground leading-relaxed">
+                              {isHigh ? t(`${dimKey}.highDetail` as any) : t(`${dimKey}.lowDetail` as any)}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </motion.div>
