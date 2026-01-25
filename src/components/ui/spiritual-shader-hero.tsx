@@ -332,20 +332,17 @@ function ShaderBackground() {
 
   if (!isClient) {
     return (
-      <div
-        className="bg-gradient-to-br from-slate-100 via-purple-100/30 to-slate-100 dark:from-slate-950 dark:via-purple-950/30 dark:to-slate-950"
-        style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: -10, margin: 0, padding: 0 }}
-      />
+      <div className="shader-fullscreen bg-gradient-to-br from-slate-100 via-purple-100/30 to-slate-100 dark:from-slate-950 dark:via-purple-950/30 dark:to-slate-950" />
     );
   }
 
   return (
-    <div ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: -10, margin: 0, padding: 0 }} aria-hidden>
+    <div ref={canvasRef} className="shader-fullscreen" aria-hidden>
       <Canvas
         camera={camera}
         gl={{ antialias: true, alpha: false }}
         dpr={[1, 1.5]}
-        style={{ display: 'block', width: '100vw', height: '100vh', margin: 0, padding: 0 }}
+        style={{ display: 'block', width: '100%', height: '100%' }}
         // Reduce frame rate when paused for battery/GPU savings
         frameloop={isPaused ? "demand" : "always"}
       >

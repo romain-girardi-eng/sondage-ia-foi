@@ -26,16 +26,16 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "IA & Vie Spirituelle | Enquête Scientifique 2026",
+  title: "IA & Vie Spirituelle | Grande Enquête 2026",
   description:
-    "Participez à cette étude académique sur l'utilisation de l'intelligence artificielle dans les pratiques religieuses chrétiennes. Anonyme et confidentiel.",
+    "Participez à cette grande enquête sur l'utilisation de l'intelligence artificielle dans les pratiques religieuses chrétiennes. Anonyme et confidentiel.",
   keywords: [
     "intelligence artificielle",
     "religion",
     "christianisme",
     "église",
     "sondage",
-    "étude scientifique",
+    "grande enquête",
     "spiritualité",
     "IA",
   ],
@@ -44,9 +44,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    title: "IA & Vie Spirituelle | Enquête Scientifique 2026",
+    title: "IA & Vie Spirituelle | Grande Enquête 2026",
     description:
-      "Participez à cette étude académique sur l'utilisation de l'IA dans les pratiques religieuses chrétiennes.",
+      "Participez à cette grande enquête sur l'utilisation de l'IA dans les pratiques religieuses chrétiennes.",
     siteName: "IA & Foi",
     images: [
       {
@@ -59,9 +59,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "IA & Vie Spirituelle | Enquête Scientifique 2026",
+    title: "IA & Vie Spirituelle | Grande Enquête 2026",
     description:
-      "Participez à cette étude académique sur l'utilisation de l'IA dans les pratiques religieuses.",
+      "Participez à cette grande enquête sur l'utilisation de l'IA dans les pratiques religieuses.",
     images: ["/og-image.png"],
   },
 };
@@ -72,7 +72,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="scroll-smooth dark" suppressHydrationWarning>
+    <html lang="fr" className="scroll-smooth dark" suppressHydrationWarning style={{ margin: 0, padding: 0, width: '100%', overflowX: 'hidden' }}>
       <head>
         {/* Icons auto-detected from icon.png and apple-icon.png */}
         <script
@@ -96,6 +96,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased selection:bg-blue-500/30`}
+        style={{ margin: 0, padding: 0, width: '100%', minHeight: '100vh', overflowX: 'hidden' }}
       >
         <ThemeProvider>
           <LanguageProvider>
