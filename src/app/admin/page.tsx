@@ -992,7 +992,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       <span className="text-xs text-white/50">Last 30 days</span>
                     </div>
                     <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <AreaChart data={stats.timeline}>
                           <defs>
                             <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
@@ -1033,7 +1033,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
                     <h3 className="font-semibold text-white mb-6">By Language</h3>
                     <div className="h-48">
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <RechartsPieChart>
                           <Pie
                             data={Object.entries(stats.demographics.byLanguage).map(([name, value]) => ({
@@ -1083,7 +1083,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
                     <h3 className="font-semibold text-white mb-6">Spiritual-AI Profiles</h3>
                     <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <BarChart
                           data={Object.entries(stats.profiles).map(([id, value]) => ({
                             name: PROFILE_LABELS[id] || id,
@@ -1564,7 +1564,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
                       <h3 className="font-semibold text-white mb-6">Profile Distribution</h3>
                       <div className="h-72">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                           <RechartsPieChart>
                             <Pie
                               data={Object.entries(stats.profiles)
@@ -1639,7 +1639,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
                     <h3 className="font-semibold text-white mb-6">Religiosity Distribution</h3>
                     <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <BarChart
                           data={Object.entries(stats.scores.religiosityDistribution).map(([range, count]) => ({
                             range,
@@ -1666,7 +1666,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
                     <h3 className="font-semibold text-white mb-6">AI Adoption Distribution</h3>
                     <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <BarChart
                           data={Object.entries(stats.scores.aiAdoptionDistribution).map(([range, count]) => ({
                             range,
@@ -2733,7 +2733,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           <h3 className="font-semibold text-white mb-2">Les 7 Dimensions vs Population</h3>
                           <p className="text-xs text-white/50 mb-4">Blue: This response • Gray: Population average</p>
                           <div className="h-80">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                               <RadarChart
                                 data={Object.entries(responseDetail.dimensions).map(([key, dim]) => ({
                                   dimension: DIMENSION_LABELS[key] || key,
@@ -3363,7 +3363,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
                       <h3 className="font-semibold text-white mb-4">7 Dimensions Overlay</h3>
                       <div className="h-96">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                           <RadarChart
                             data={Object.keys(comparisonData[0]?.dimensions || {}).map((key) => ({
                               dimension: DIMENSION_LABELS[key] || key,
