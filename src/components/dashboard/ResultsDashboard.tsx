@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef } from "react";
 import { SURVEY_QUESTIONS, type Question } from "@/data";
-import { getMockResults, type AggregatedResult, useLanguage } from "@/lib";
+import { getMockResults, type AggregatedResult, useLanguage, type Language } from "@/lib";
 import { motion, useInView, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import {
   RefreshCw,
@@ -451,7 +451,7 @@ const CATEGORIES = [
 ];
 
 export function ResultsDashboard() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [results, setResults] = useState<AggregatedResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -522,10 +522,10 @@ export function ResultsDashboard() {
           className="text-center space-y-2"
         >
           <p className="text-white/80 font-medium">
-            {language === "fr" ? "Analyse des données" : "Analyzing data"}
+            {t("dashboard.analyzingData")}
           </p>
           <p className="text-white/40 text-sm">
-            {language === "fr" ? "Préparation des visualisations..." : "Preparing visualizations..."}
+            {t("dashboard.preparingViz")}
           </p>
         </motion.div>
       </div>
@@ -556,7 +556,7 @@ export function ResultsDashboard() {
               <Sparkles className="w-4 h-4 text-purple-400" />
             </motion.div>
             <span className="text-sm text-white/70">
-              {language === "fr" ? "Résultats en temps réel" : "Real-time results"}
+              {t("dashboard.realTimeResults")}
             </span>
           </div>
         </motion.div>
@@ -570,13 +570,11 @@ export function ResultsDashboard() {
         >
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-extralight tracking-tight">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-purple-200">
-              {language === "fr" ? "Tableau de Bord" : "Dashboard"}
+              {t("dashboard.dashboardTitle")}
             </span>
           </h1>
           <p className="text-white/50 max-w-2xl mx-auto text-lg font-light">
-            {language === "fr"
-              ? "Explorez les tendances et découvrez les insights de notre communauté"
-              : "Explore trends and discover insights from our community"}
+            {t("dashboard.exploreDescription")}
           </p>
         </motion.div>
 

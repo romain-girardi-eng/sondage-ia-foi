@@ -77,7 +77,7 @@ export function PDFDownloadButton({
         )}
       >
         <Loader2 className="w-5 h-5 animate-spin" />
-        {t.preparing}
+        {t("pdf.preparing")}
       </button>
     );
   }
@@ -97,12 +97,12 @@ export function PDFDownloadButton({
         loading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            {t.generating}
+            {t("pdf.generating")}
           </>
         ) : (
           <>
             <FileText className="w-5 h-5" />
-            {t.download}
+            {t("pdf.download")}
             <Download className="w-4 h-4" />
           </>
         )
