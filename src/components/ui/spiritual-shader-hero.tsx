@@ -334,18 +334,18 @@ function ShaderBackground() {
     return (
       <div
         className="bg-gradient-to-br from-slate-100 via-purple-100/30 to-slate-100 dark:from-slate-950 dark:via-purple-950/30 dark:to-slate-950"
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: -10 }}
+        style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: -10, margin: 0, padding: 0 }}
       />
     );
   }
 
   return (
-    <div ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: -10 }} aria-hidden>
+    <div ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: -10, margin: 0, padding: 0 }} aria-hidden>
       <Canvas
         camera={camera}
         gl={{ antialias: true, alpha: false }}
         dpr={[1, 1.5]}
-        style={{ width: '100%', height: '100%' }}
+        style={{ display: 'block', width: '100vw', height: '100vh', margin: 0, padding: 0 }}
         // Reduce frame rate when paused for battery/GPU savings
         frameloop={isPaused ? "demand" : "always"}
       >
