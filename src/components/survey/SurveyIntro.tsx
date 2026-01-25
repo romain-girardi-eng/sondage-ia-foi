@@ -189,7 +189,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
             onClick={() => setShowVideo(false)}
             className="absolute top-4 right-4 sm:top-6 sm:right-6 z-[10000] flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition-all border border-white/20"
           >
-            <span>Passer</span>
+            <span>{t("intro.skipVideo")}</span>
             <X className="w-4 h-4" />
           </button>
 
@@ -205,7 +205,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
             >
               <source src="/landing-video.webm" type="video/webm" />
               <source src="/landing-video.mp4" type="video/mp4" />
-              Your browser does not support video.
+              {t("intro.videoNotSupported")}
             </video>
           </div>
 

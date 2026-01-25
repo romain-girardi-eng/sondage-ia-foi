@@ -21,17 +21,11 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
     }
   };
 
-  const features = language === "fr"
-    ? [
-        { icon: "🔬", text: "Méthodologie scientifique" },
-        { icon: "🔒", text: "100% anonyme" },
-        { icon: "⏱️", text: "5-7 minutes" },
-      ]
-    : [
-        { icon: "🔬", text: "Scientific methodology" },
-        { icon: "🔒", text: "100% anonymous" },
-        { icon: "⏱️", text: "5-7 minutes" },
-      ];
+  const features = [
+    { icon: "🔬", text: t("intro.featureScientific") },
+    { icon: "🔒", text: t("intro.featureAnonymous") },
+    { icon: "⏱️", text: t("intro.featureDuration") },
+  ];
 
   return (
     <div className="relative w-screen max-w-full overflow-x-hidden">
@@ -71,13 +65,11 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
           />
           {/* Survey title */}
           <p className="text-sm text-white/40">
-            {language === "fr"
-              ? "Grande enquête sur l'IA et la vie spirituelle"
-              : "Major survey on AI and spiritual life"} - {new Date().getFullYear()}
+            {t("footer.tagline")} - {new Date().getFullYear()}
           </p>
           {/* Author and social */}
           <div className="flex items-center gap-4">
-            <span className="text-sm text-white/50">Créée par Romain Girardi</span>
+            <span className="text-sm text-white/50">{t("footer.createdBy")}</span>
             <a
               href="https://github.com/romain-girardi-eng"
               target="_blank"

@@ -46,12 +46,12 @@ function GlowCard({
     <li className={cn("min-h-[14rem] list-none", area)}>
       <div className="relative h-full rounded-[1.25rem] border-[0.75px] border-border p-2 md:rounded-[1.5rem] md:p-3">
         <GlowingEffect
-          spread={40}
+          spread={60}
           glow={true}
           disabled={false}
-          proximity={64}
+          proximity={100}
           inactiveZone={0.01}
-          borderWidth={3}
+          borderWidth={5}
         />
         <div className={cn(
           "relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-[0.75px] bg-background p-6 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)]",
@@ -135,7 +135,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                   <span className="text-4xl">{profileDef.emoji}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm text-muted-foreground">Match</span>
+                  <p className="text-xs text-muted-foreground">{t("feedback.match")}</p>
                   <p className="text-2xl font-bold text-purple-400">{primaryMatch.matchScore}%</p>
                 </div>
               </div>
@@ -168,7 +168,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                   <p className="text-sm text-blue-400">{RELIGIOSITY_LABELS[religiosityLevel]}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-muted-foreground flex items-center gap-1"><Users className="w-3 h-3" /> vs others</p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1"><Users className="w-3 h-3" /> {t("feedback.vsOthers")}</p>
                   <p className="text-lg font-semibold text-white">Top {100 - religiosityPercentile}%</p>
                 </div>
               </div>
@@ -199,7 +199,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                   <p className="text-sm text-emerald-400">{AI_ADOPTION_LABELS[aiLevel]}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-muted-foreground flex items-center gap-1"><Users className="w-3 h-3" /> vs others</p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1"><Users className="w-3 h-3" /> {t("feedback.vsOthers")}</p>
                   <p className="text-lg font-semibold text-white">Top {100 - aiPercentile}%</p>
                 </div>
               </div>
@@ -246,7 +246,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
               <div className="flex items-center gap-2 mb-4">
                 <Target className="w-4 h-4 text-muted-foreground" />
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                  {language === "fr" ? "Spectre de votre profil" : "Your Profile Spectrum"}
+                  {t("feedback.profileSpectrum")}
                 </h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -290,7 +290,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
               <div className="flex items-center gap-2 mb-4">
                 <Brain className="w-4 h-4 text-muted-foreground" />
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                  {language === "fr" ? "Vos 7 dimensions" : "Your 7 Dimensions"}
+                  {t("feedback.sevenDimensions")}
                 </h3>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
@@ -350,7 +350,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                 <div className="flex items-center gap-2 mb-3">
                   <Lightbulb className="w-4 h-4 text-emerald-400" />
                   <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider">
-                    {language === "fr" ? "Piste de croissance" : "Growth Area"}
+                    {t("feedback.growthArea")}
                   </h3>
                 </div>
                 <div className="flex items-start gap-3">
@@ -369,7 +369,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                 <div className="flex items-center gap-2 mb-3">
                   <AlertTriangle className="w-4 h-4 text-amber-400" />
                   <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-wider">
-                    {language === "fr" ? "Point de tension" : "Tension Point"}
+                    {t("feedback.tensionPoint")}
                   </h3>
                 </div>
                 <div className="text-sm text-white mb-1">

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/lib";
 
 export default function Error({
   error,
@@ -11,6 +12,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { t } = useLanguage();
+
   useEffect(() => {
     // Log the error to an error reporting service
     console.error("Application error:", error);
@@ -25,10 +28,10 @@ export default function Error({
 
         <div className="space-y-3">
           <h1 className="text-3xl font-bold text-white">
-            Oups ! Une erreur est survenue
+            {t("errors.title")}
           </h1>
           <p className="text-white/60 text-lg">
-            Nous rencontrons un problème technique. Notre équipe a été notifiée.
+            {t("errors.description")}
           </p>
         </div>
 
@@ -38,20 +41,20 @@ export default function Error({
             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-all border border-white/10"
           >
             <RefreshCw className="w-4 h-4" />
-            Réessayer
+            {t("errors.retry")}
           </button>
           <Link
             href="/"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all"
           >
             <Home className="w-4 h-4" />
-            Retour à l&apos;accueil
+            {t("errors.goHome")}
           </Link>
         </div>
 
         {error.digest && (
           <p className="text-xs text-white/30">
-            Code erreur : {error.digest}
+            {t("errors.errorCode")} : {error.digest}
           </p>
         )}
       </div>

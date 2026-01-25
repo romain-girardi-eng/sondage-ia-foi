@@ -37,7 +37,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
 
   const handleShare = async () => {
     const shareData = {
-      title: "Sondage IA & Vie Spirituelle",
+      title: t("thanks.shareTitle"),
       text: t("thanks.shareText"),
       url: window.location.href,
     };
@@ -134,7 +134,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
                 <Database className="w-5 h-5 text-purple-400" />
                 <div className="text-left">
                   <p className="text-xs text-muted-foreground">
-                    {language === "fr" ? "Votre identifiant anonyme" : "Your anonymous ID"}
+                    {t("thanks.anonymousIdTitle")}
                   </p>
                   <p className="text-sm font-mono text-white truncate max-w-[200px] sm:max-w-xs">
                     {anonymousId}
@@ -149,15 +149,13 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
               </button>
             </div>
             <p className="text-xs text-muted-foreground/60 mt-3">
-              {language === "fr"
-                ? "Conservez cet identifiant pour accéder à vos données ou les supprimer."
-                : "Keep this ID to access or delete your data."}
+              {t("thanks.anonymousIdNote")}
             </p>
             <Link
               href="/mes-donnees"
               className="inline-block mt-2 text-xs text-blue-400 hover:underline"
             >
-              {language === "fr" ? "Gérer mes données →" : "Manage my data →"}
+              {t("thanks.manageData")}
             </Link>
           </motion.div>
         )}

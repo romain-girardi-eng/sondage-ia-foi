@@ -197,16 +197,9 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
 
   const faqs = customFaqs || faqContent[language];
   const title = t("faq.title");
-  const subtitle = language === "fr"
-    ? "Tout ce que vous devez savoir sur cette étude"
-    : "Everything you need to know about this study";
-  const searchPlaceholder = language === "fr" ? "Rechercher..." : "Search...";
-  const noResults = language === "fr"
-    ? "Aucune question ne correspond à votre recherche."
-    : "No questions match your search.";
-  const footerText = language === "fr"
-    ? "Grande enquête sur l'IA et la vie spirituelle"
-    : "Major survey on AI and spiritual life";
+  const subtitle = t("faq.subtitle");
+  const searchPlaceholder = t("faq.searchPlaceholder");
+  const noResults = t("faq.noResults");
 
   const filtered = query
     ? faqs.filter(({ q, a }) => (q + a).toLowerCase().includes(query.toLowerCase()))

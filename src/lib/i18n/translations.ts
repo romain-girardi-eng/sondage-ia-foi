@@ -26,6 +26,11 @@ export const translations = {
       consent:
         "En cliquant sur \"J'accepte\", vous consentez à participer à cette étude dans le respect du RGPD.",
       faqLink: "Consulter la FAQ",
+      skipVideo: "Passer",
+      videoNotSupported: "Votre navigateur ne prend pas en charge la vidéo.",
+      featureScientific: "Méthodologie scientifique",
+      featureAnonymous: "100% anonyme",
+      featureDuration: "5-7 minutes",
     },
 
     // Survey Questions
@@ -68,6 +73,11 @@ export const translations = {
       viewGlobalResults: "Voir les résultats globaux",
       disclaimer:
         "Ce profil est généré à partir de vos réponses à des fins illustratives. Il ne constitue pas une évaluation psychologique ou spirituelle.",
+      match: "Correspondance",
+      profileSpectrum: "Spectre de votre profil",
+      sevenDimensions: "Vos 7 dimensions",
+      growthArea: "Piste de croissance",
+      tensionPoint: "Point de tension",
     },
 
     // Thank You Screen
@@ -85,12 +95,25 @@ export const translations = {
       shareText:
         "J'ai participé à cette étude sur l'IA dans les pratiques religieuses. Participez aussi !",
       linkCopied: "Lien copié dans le presse-papier !",
+      shareTitle: "Sondage IA & Vie Spirituelle",
+      anonymousIdTitle: "Votre identifiant anonyme",
+      anonymousIdNote: "Conservez cet identifiant pour accéder à vos données ou les supprimer.",
+      manageData: "Gérer mes données →",
     },
 
     // FAQ
     faq: {
       title: "Questions Fréquentes",
       backToSurvey: "Retour au sondage",
+      subtitle: "Tout ce que vous devez savoir sur cette étude",
+      searchPlaceholder: "Rechercher...",
+      noResults: "Aucune question ne correspond à votre recherche.",
+    },
+
+    // Footer
+    footer: {
+      tagline: "Grande enquête sur l'IA et la vie spirituelle",
+      createdBy: "Créée par Romain Girardi",
     },
 
     // Dashboard
@@ -139,6 +162,17 @@ export const translations = {
       notFound: "Page introuvable",
       retry: "Réessayer",
       goHome: "Retour à l'accueil",
+      title: "Oups ! Une erreur est survenue",
+      description: "Nous rencontrons un problème technique. Notre équipe a été notifiée.",
+      errorCode: "Code erreur",
+    },
+
+    // Not Found (404)
+    notFound: {
+      title: "Page introuvable",
+      description: "La page que vous recherchez n'existe pas ou a été déplacée.",
+      home: "Accueil",
+      back: "Retour",
     },
 
     // Consent
@@ -193,6 +227,11 @@ export const translations = {
       consent:
         "By clicking \"I agree\", you consent to participate in this study in compliance with GDPR.",
       faqLink: "View FAQ",
+      skipVideo: "Skip",
+      videoNotSupported: "Your browser does not support video.",
+      featureScientific: "Scientific methodology",
+      featureAnonymous: "100% anonymous",
+      featureDuration: "5-7 minutes",
     },
 
     // Survey Questions
@@ -235,6 +274,11 @@ export const translations = {
       viewGlobalResults: "View global results",
       disclaimer:
         "This profile is generated from your responses for illustrative purposes. It does not constitute a psychological or spiritual assessment.",
+      match: "Match",
+      profileSpectrum: "Your Profile Spectrum",
+      sevenDimensions: "Your 7 Dimensions",
+      growthArea: "Growth Area",
+      tensionPoint: "Tension Point",
     },
 
     // Thank You Screen
@@ -252,12 +296,25 @@ export const translations = {
       shareText:
         "I participated in this study on AI in religious practices. Join in!",
       linkCopied: "Link copied to clipboard!",
+      shareTitle: "AI & Spiritual Life Survey",
+      anonymousIdTitle: "Your anonymous ID",
+      anonymousIdNote: "Keep this ID to access or delete your data.",
+      manageData: "Manage my data →",
     },
 
     // FAQ
     faq: {
       title: "Frequently Asked Questions",
       backToSurvey: "Back to survey",
+      subtitle: "Everything you need to know about this study",
+      searchPlaceholder: "Search...",
+      noResults: "No questions match your search.",
+    },
+
+    // Footer
+    footer: {
+      tagline: "Major survey on AI and spiritual life",
+      createdBy: "Created by Romain Girardi",
     },
 
     // Dashboard
@@ -306,6 +363,17 @@ export const translations = {
       notFound: "Page not found",
       retry: "Retry",
       goHome: "Go home",
+      title: "Oops! An error occurred",
+      description: "We're experiencing a technical issue. Our team has been notified.",
+      errorCode: "Error code",
+    },
+
+    // Not Found (404)
+    notFound: {
+      title: "Page not found",
+      description: "The page you are looking for does not exist or has been moved.",
+      home: "Home",
+      back: "Back",
     },
 
     // Consent
