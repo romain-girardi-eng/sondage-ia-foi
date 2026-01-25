@@ -9,7 +9,7 @@ export const translations = {
       title2: "Vie Spirituelle",
       subtitle: "Comment l'IA transforme-t-elle les pratiques religieuses ?",
       description:
-        "De la rédaction de sermons à la prière assistée, l'IA transforme silencieusement les pratiques religieuses. Cette enquête académique vise à cartographier ces usages et à comprendre les enjeux éthiques qu'ils soulèvent.",
+        "De la rédaction de sermons à la prière assistée, l'IA transforme silencieusement les pratiques religieuses. Cette grande enquête vise à cartographier ces usages et à comprendre les enjeux éthiques qu'ils soulèvent.",
       privacyTitle: "Protocole de Confidentialité",
       privacyDescription:
         "Votre participation est essentielle pour la recherche. Nous garantissons la protection de vos droits :",
@@ -22,7 +22,7 @@ export const translations = {
       cta: "J'accepte et je commence",
       startButton: "Commencer le sondage",
       learnMore: "En savoir plus",
-      time: "Temps estimé : 3 à 5 minutes",
+      time: "Temps estimé : 5 à 7 minutes",
       consent:
         "En cliquant sur \"J'accepte\", vous consentez à participer à cette étude dans le respect du RGPD.",
       faqLink: "Consulter la FAQ",
@@ -292,6 +292,29 @@ export const translations = {
       back: "Retour",
     },
 
+    // Email Hash Verification
+    emailHash: {
+      title: "Vérification unique",
+      subtitle: "Pour garantir l'intégrité scientifique, nous vérifions que chaque participant ne répond qu'une seule fois.",
+      emailLabel: "Votre adresse email",
+      emailPlaceholder: "exemple@email.com",
+      yourHash: "Votre code unique (empreinte cryptographique)",
+      hashExplanation: "Ce code est généré à partir de votre email. Votre email réel n'est jamais stocké ni transmis.",
+      privacyTitle: "Protection de vos données",
+      privacy1: "Seule l'empreinte cryptographique est conservée (pas votre email)",
+      privacy2: "Impossible de retrouver votre email à partir du code",
+      privacy3: "Aucun démarchage commercial possible",
+      sendPdfLabel: "Recevoir mes résultats personnalisés par email",
+      sendPdfNote: "Votre email sera utilisé uniquement pour envoyer le PDF, puis immédiatement effacé (non stocké).",
+      continueButton: "Vérifier et continuer",
+      verifying: "Vérification...",
+      footerNote: "Cette vérification garantit l'unicité des réponses tout en préservant votre anonymat.",
+      invalidEmail: "Veuillez entrer une adresse email valide",
+      verificationFailed: "La vérification a échoué. Veuillez réessayer.",
+      networkError: "Erreur de connexion. Vérifiez votre connexion internet.",
+      alreadyUsed: "Cette adresse email a déjà été utilisée pour répondre au sondage.",
+    },
+
     // Consent
     consent: {
       checkbox: "J'accepte les conditions de participation et la politique de confidentialité",
@@ -464,7 +487,7 @@ export const translations = {
       title2: "Spiritual Life",
       subtitle: "How is AI transforming religious practices?",
       description:
-        "From sermon writing to AI-assisted prayer, AI is silently transforming religious practices. This academic survey aims to map these uses and understand the ethical issues they raise.",
+        "From sermon writing to AI-assisted prayer, AI is silently transforming religious practices. This major survey aims to map these uses and understand the ethical issues they raise.",
       privacyTitle: "Privacy Protocol",
       privacyDescription:
         "Your participation is essential for research. We guarantee the protection of your rights:",
@@ -477,7 +500,7 @@ export const translations = {
       cta: "I agree and start",
       startButton: "Start the survey",
       learnMore: "Learn more",
-      time: "Estimated time: 3 to 5 minutes",
+      time: "Estimated time: 5 to 7 minutes",
       consent:
         "By clicking \"I agree\", you consent to participate in this study in compliance with GDPR.",
       faqLink: "View FAQ",
@@ -745,6 +768,29 @@ export const translations = {
       description: "The page you are looking for does not exist or has been moved.",
       home: "Home",
       back: "Back",
+    },
+
+    // Email Hash Verification
+    emailHash: {
+      title: "Unique Verification",
+      subtitle: "To ensure scientific integrity, we verify that each participant responds only once.",
+      emailLabel: "Your email address",
+      emailPlaceholder: "example@email.com",
+      yourHash: "Your unique code (cryptographic fingerprint)",
+      hashExplanation: "This code is generated from your email. Your actual email is never stored or transmitted.",
+      privacyTitle: "Data Protection",
+      privacy1: "Only the cryptographic fingerprint is stored (not your email)",
+      privacy2: "Impossible to recover your email from the code",
+      privacy3: "No commercial solicitation possible",
+      sendPdfLabel: "Receive my personalized results by email",
+      sendPdfNote: "Your email will be used only to send the PDF, then immediately deleted (not stored).",
+      continueButton: "Verify and continue",
+      verifying: "Verifying...",
+      footerNote: "This verification ensures unique responses while preserving your anonymity.",
+      invalidEmail: "Please enter a valid email address",
+      verificationFailed: "Verification failed. Please try again.",
+      networkError: "Connection error. Check your internet connection.",
+      alreadyUsed: "This email address has already been used to complete the survey.",
     },
 
     // Consent

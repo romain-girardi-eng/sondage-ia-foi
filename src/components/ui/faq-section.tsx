@@ -136,7 +136,7 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
       },
       {
         q: "Combien de temps dure le sondage ?",
-        a: "Entre 3 et 5 minutes selon votre profil. Le nombre de questions varie : les membres du clergé répondent à des questions supplémentaires sur leur ministère.",
+        a: "Entre 5 et 7 minutes selon votre profil. Le nombre de questions varie : les membres du clergé répondent à des questions supplémentaires sur leur ministère.",
       },
       {
         q: "Qui peut participer ?",
@@ -170,7 +170,7 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
       },
       {
         q: "How long does the survey take?",
-        a: "Between 3 and 5 minutes depending on your profile. The number of questions varies: clergy members answer additional questions about their ministry.",
+        a: "Between 5 and 7 minutes depending on your profile. The number of questions varies: clergy members answer additional questions about their ministry.",
       },
       {
         q: "Who can participate?",
