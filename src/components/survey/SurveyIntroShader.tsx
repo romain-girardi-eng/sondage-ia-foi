@@ -28,7 +28,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
   ];
 
   return (
-    <div className="relative w-screen max-w-full overflow-x-hidden">
+    <div className="relative w-full overflow-x-hidden">
       <LanguageSwitcher />
 
       <SpiritualShaderHero

@@ -13,7 +13,7 @@ export default function Home() {
 
       <main
         id="main-content"
-        className="min-h-[100dvh] w-full relative overflow-hidden bg-background text-foreground flex items-center justify-center"
+        className="min-h-[100dvh] w-full relative overflow-x-hidden bg-background text-foreground"
       >
         {/* Decorative Background */}
         <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
@@ -26,7 +26,7 @@ export default function Home() {
         </div>
 
         {/* Main Content */}
-        <div className="relative z-10 w-full">
+        <div className="relative z-10">
           <SurveyContainer />
         </div>
       </main>
