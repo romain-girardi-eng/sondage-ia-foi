@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, TrendingUp, Users, Brain, Shield, Target, AlertTriangle, Lightbulb, ChevronRight } from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp, Users, Brain, Shield, Target, AlertTriangle, Lightbulb, ChevronRight, HelpCircle } from "lucide-react";
 import { cn, useLanguage, useHasAnimated } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
+import { ProfilesModal } from "./ProfilesModal";
 import type { Answers } from "@/data";
 import {
   calculateCRS5Score,
@@ -67,6 +69,7 @@ function GlowCard({
 export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScreenProps) {
   const { t, language } = useLanguage();
   const hasAnimated = useHasAnimated();
+  const [isProfilesModalOpen, setIsProfilesModalOpen] = useState(false);
 
   // Calculate all scores
   const spectrum: ProfileSpectrum = calculateProfileSpectrum(answers);
@@ -118,6 +121,16 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-gradient-animated">
             {t("feedback.title")}
           </h1>
+          <motion.button
+            initial={hasAnimated ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            onClick={() => setIsProfilesModalOpen(true)}
+            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/80 hover:text-white text-sm font-medium transition-all"
+          >
+            <HelpCircle className="w-4 h-4" />
+            {t("profiles.viewAll")}
+          </motion.button>
         </motion.header>
 
         {/* Dashboard Grid */}
@@ -416,6 +429,13 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
           {t("feedback.disclaimer")}
         </motion.p>
       </div>
+
+      {/* Profiles Modal */}
+      <ProfilesModal
+        isOpen={isProfilesModalOpen}
+        onClose={() => setIsProfilesModalOpen(false)}
+        currentProfile={primaryMatch.profile}
+      />
     </AnimatedBackground>
   );
 }
