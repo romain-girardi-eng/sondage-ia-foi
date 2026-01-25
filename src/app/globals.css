@@ -329,3 +329,10 @@ main {
   animation: gradient-shift 8s ease infinite;
 }
 
+/* Glowing effect component */
+.glow {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
