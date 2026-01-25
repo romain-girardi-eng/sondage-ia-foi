@@ -258,10 +258,6 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
           )}
         </section>
 
-        {/* Footer */}
-        <footer className="mt-16 border-t border-white/10 pt-6 text-xs text-muted-foreground/50 text-center">
-          {footerText} - {new Date().getFullYear()}
-        </footer>
       </div>
     </div>
   );
