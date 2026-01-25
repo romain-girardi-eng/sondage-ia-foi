@@ -3,8 +3,8 @@ import { Resend } from 'resend';
 // Check if Resend is configured
 export const isResendConfigured = Boolean(process.env.RESEND_API_KEY);
 
-// Email from address - uses custom domain if configured, otherwise Resend's default
-const EMAIL_FROM = process.env.EMAIL_FROM_ADDRESS || 'Sondage IA & Foi <onboarding@resend.dev>';
+// Email from address - uses custom domain
+const EMAIL_FROM = process.env.EMAIL_FROM_ADDRESS || 'IA & Foi <noreply@ia-foi.fr>';
 
 // Lazy-initialize Resend client to avoid errors during build
 let _resend: Resend | null = null;
