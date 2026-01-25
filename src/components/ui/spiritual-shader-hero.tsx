@@ -315,18 +315,16 @@ function ShaderBackground() {
       if (!canvasRef.current) return;
 
       gsap.set(canvasRef.current, {
-        filter: 'blur(30px)',
-        scale: 1.15,
+        filter: 'blur(20px)',
         autoAlpha: 0
       });
 
       gsap.to(canvasRef.current, {
         filter: 'blur(0px)',
-        scale: 1,
         autoAlpha: 1,
-        duration: 2,
+        duration: 1.5,
         ease: 'power2.out',
-        delay: 0.2
+        delay: 0.1
       });
     },
     { scope: canvasRef, dependencies: [isClient] }
