@@ -2,7 +2,7 @@
 
 Academic survey application studying AI usage in Christian religious practices.
 
-**Live Demo:** [https://sondage-ia-foi.vercel.app](https://sondage-ia-foi.vercel.app)
+**Live Demo:** [https://ia-foi.fr](https://ia-foi.fr)
 
 ## Features
 

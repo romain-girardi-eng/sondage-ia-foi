@@ -75,7 +75,7 @@ export async function generateQRCodeSVG(
  * Get the survey URL for sharing
  */
 export function getSurveyShareURL(language?: "fr" | "en"): string {
-  const baseURL = process.env.NEXT_PUBLIC_APP_URL || "https://sondage-ia-foi.vercel.app";
+  const baseURL = process.env.NEXT_PUBLIC_APP_URL || "https://ia-foi.fr";
   if (language) {
     return `${baseURL}/${language}`;
   }

@@ -293,7 +293,7 @@ export const SurveyResultsVideo: React.FC<SurveyResultsVideoProps> = ({
           fontSize: 18,
         }}
       >
-        sondage-ia-foi.vercel.app
+        ia-foi.fr
       </div>
     </AbsoluteFill>
   );
