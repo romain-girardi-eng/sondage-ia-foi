@@ -251,14 +251,14 @@ export function calculateSacredBoundaryDimension(answers: Answers): DimensionSco
   // Key indicator: uses AI but NOT for spiritual = high boundary
   if (usesAIGenerally && !usesAISpiritual) {
     scores.push(4.5);
-    weights.push(2);
+    weights.push(1.5);
   } else if (usesAISpiritual) {
     scores.push(2);
-    weights.push(2);
+    weights.push(1.5);
   } else if (!usesAIGenerally) {
     // Doesn't use AI at all - boundary is less relevant
     scores.push(3);
-    weights.push(1);
+    weights.push(0.8);
   }
 
   // Theo inspiration question: can AI transmit grace?
@@ -272,7 +272,44 @@ export function calculateSacredBoundaryDimension(answers: Answers): DimensionSco
   };
   if (theoInspiration && inspirationMap[theoInspiration]) {
     scores.push(inspirationMap[theoInspiration]);
+    weights.push(1.5);
+  }
+
+  // NEW: Liturgical AI acceptability (scale 1-5, inverted: low acceptance = high boundary)
+  const liturgieIA = getNumberAnswer(answers, 'theo_liturgie_ia');
+  if (liturgieIA !== null) {
+    // Invert: 1 (not acceptable) -> 5 (high boundary), 5 (acceptable) -> 1 (low boundary)
+    scores.push(6 - liturgieIA);
     weights.push(2);
+  }
+
+  // NEW: Sacred activities that should NEVER involve AI (more = higher boundary)
+  const activitesSacrees = getArrayAnswer(answers, 'theo_activites_sacrees');
+  if (activitesSacrees.length > 0) {
+    if (activitesSacrees.includes('aucune')) {
+      // "None - AI can help everywhere" = very low boundary
+      scores.push(1);
+      weights.push(2);
+    } else {
+      // More activities protected = higher boundary (max 5 items, excluding 'aucune')
+      const boundaryScore = Math.min(5, 1 + activitesSacrees.length * 0.9);
+      scores.push(boundaryScore);
+      weights.push(2);
+    }
+  }
+
+  // NEW: Human mediation requirement
+  const mediationHumaine = getStringAnswer(answers, 'theo_mediation_humaine');
+  const mediationMap: Record<string, number> = {
+    'oui_absolument': 5,
+    'oui_pour_essentiel': 4,
+    'partiellement': 3,
+    'non_pas_necessairement': 1.5,
+    'ne_sait_pas': 3,
+  };
+  if (mediationHumaine && mediationMap[mediationHumaine]) {
+    scores.push(mediationMap[mediationHumaine]);
+    weights.push(1.8);
   }
 
   // Clergy: sentiment when using AI for preaching (guilt = high boundary)
@@ -281,22 +318,22 @@ export function calculateSacredBoundaryDimension(answers: Answers): DimensionSco
     if (sentiment !== null) {
       // High sentiment = uncomfortable = high boundary
       scores.push(sentiment);
-      weights.push(1.8);
+      weights.push(1.2);
     }
 
     const predUsage = getStringAnswer(answers, 'min_pred_usage');
     if (predUsage === 'jamais') {
       scores.push(5);
-      weights.push(1.5);
+      weights.push(1);
     } else if (predUsage === 'systematique') {
       scores.push(1.5);
-      weights.push(1.5);
+      weights.push(1);
     }
 
     const careEmail = getStringAnswer(answers, 'min_care_email');
     if (careEmail === 'non_jamais') {
       scores.push(5);
-      weights.push(1.2);
+      weights.push(0.8);
     }
   }
 
@@ -305,19 +342,19 @@ export function calculateSacredBoundaryDimension(answers: Answers): DimensionSco
     const laicPriere = getStringAnswer(answers, 'laic_substitution_priere');
     if (laicPriere === 'non') {
       scores.push(4.5);
-      weights.push(1.5);
+      weights.push(1);
     } else if (laicPriere) {
       scores.push(2);
-      weights.push(1.5);
+      weights.push(1);
     }
 
     const laicConseil = getStringAnswer(answers, 'laic_conseil_spirituel');
     if (laicConseil === 'jamais') {
       scores.push(5);
-      weights.push(1.5);
+      weights.push(1);
     } else if (laicConseil === 'deja_fait') {
       scores.push(1);
-      weights.push(1.5);
+      weights.push(1);
     }
   }
 
@@ -330,7 +367,8 @@ export function calculateSacredBoundaryDimension(answers: Answers): DimensionSco
   }
 
   const value = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
-  const confidence = Math.min(1, scores.length / 4);
+  // Updated confidence: now targeting 6+ items for full confidence
+  const confidence = Math.min(1, scores.length / 6);
   const params = POPULATION_PARAMS.sacredBoundary;
 
   return {

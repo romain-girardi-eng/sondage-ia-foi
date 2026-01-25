@@ -290,6 +290,13 @@ export const translations = {
       balancedPosition: "Position équilibrée sur cette dimension",
     },
 
+    // Methodology
+    methodology: {
+      title: "Note méthodologique",
+      description: "Cette enquête utilise des versions adaptées d'échelles académiques validées (Centrality of Religiosity Scale, AI Anxiety Scale) optimisées pour l'engagement numérique. Bien que conçue avec rigueur scientifique, elle est destinée à la réflexion personnelle et à l'analyse sociologique, et non à une catégorisation définitive.",
+      learnMore: "En savoir plus sur la méthodologie",
+    },
+
     // Dimensions
     dimensions: {
       religiosity: {
@@ -642,6 +649,13 @@ export const translations = {
       matchExplain: "The match percentage indicates how closely your response profile corresponds to the typical profile. A high score means strong alignment.",
       disclaimer: "These profiles are reflection tools, not rigid categories. You can evolve and exhibit characteristics of multiple profiles.",
       balancedPosition: "Balanced position on this dimension",
+    },
+
+    // Methodology
+    methodology: {
+      title: "Methodological note",
+      description: "This survey uses adapted versions of validated academic scales (Centrality of Religiosity Scale, AI Anxiety Scale) optimized for digital engagement. While designed with scientific rigor, it is intended for self-reflection and sociological analysis, not definitive categorization.",
+      learnMore: "Learn more about methodology",
     },
 
     // Dimensions

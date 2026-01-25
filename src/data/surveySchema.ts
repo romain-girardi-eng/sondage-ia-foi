@@ -87,15 +87,38 @@ export const SURVEY_QUESTIONS: Question[] = [
     ]
   },
   {
+    id: 'profil_confession_catholique',
+    category: 'profile',
+    text: "Précisez votre sensibilité catholique :",
+    type: 'choice',
+    options: [
+      { value: 'catholique_paroissial', label: 'Paroissial classique' },
+      { value: 'catholique_charismatique', label: 'Charismatique (Renouveau, Emmanuel, Chemin Neuf...)' },
+      { value: 'catholique_traditionaliste', label: 'Traditionaliste (forme extraordinaire, messe en latin)' }
+    ],
+    condition: (answers) => getStringAnswer(answers, 'profil_confession') === 'catholique'
+  },
+  {
     id: 'profil_confession_protestante',
     category: 'profile',
     text: "Précisez votre sensibilité protestante :",
     type: 'choice',
     options: [
-      { value: 'protestant_reforme', label: 'Protestantisme historique (Luthéro-réformé)' },
-      { value: 'evangelique', label: 'Évangélique / Pentecôtiste' }
+      { value: 'protestant_reforme', label: 'Protestantisme historique (Luthérien, Réformé, Anglican)' },
+      { value: 'evangelique', label: 'Évangélique' }
     ],
     condition: (answers) => getStringAnswer(answers, 'profil_confession') === 'protestant'
+  },
+  {
+    id: 'profil_confession_evangelique',
+    category: 'profile',
+    text: "Précisez votre sensibilité évangélique :",
+    type: 'choice',
+    options: [
+      { value: 'evangelique_classique', label: 'Évangélique classique (Baptiste, Mennonite, Frères, etc.)' },
+      { value: 'pentecotiste', label: 'Pentecôtiste / Charismatique' }
+    ],
+    condition: (answers) => getStringAnswer(answers, 'profil_confession_protestante') === 'evangelique'
   },
   {
     id: 'profil_statut',
@@ -104,7 +127,7 @@ export const SURVEY_QUESTIONS: Question[] = [
     type: 'choice',
     options: [
       { value: 'clerge', label: 'Ministre ordonné (prêtre, pasteur, diacre...)' },
-      { value: 'religieux', label: 'Religieux/Religieuse (vie consacrée)' },
+      { value: 'religieux', label: 'Religieux/Religieuse (vie consacrée - catholiques/orthodoxes)' },
       { value: 'laic_engagé', label: 'Laïc engagé (catéchiste, animateur, responsable bénévole...)' },
       { value: 'laic_pratiquant', label: 'Fidèle pratiquant régulier' },
       { value: 'curieux', label: 'Pratiquant occasionnel ou sympathisant' }
@@ -200,7 +223,7 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'profil_anciennete_foi',
     category: 'profile',
-    text: "Depuis combien de temps vous considérez-vous comme croyant(e) / pratiquant(e) ?",
+    text: "Depuis combien de temps êtes-vous engagé(e) dans la foi chrétienne ?",
     type: 'choice',
     options: [
       { value: 'naissance', label: 'Depuis toujours (éducation chrétienne)' },
@@ -228,7 +251,7 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'profil_taille_communaute',
     category: 'profile',
-    text: "Quelle est la taille approximative de votre communauté / paroisse ?",
+    text: "Combien de personnes assistent régulièrement aux offices dans votre communauté ?",
     type: 'choice',
     options: [
       { value: 'tres_petite', label: 'Moins de 50 personnes' },
@@ -273,7 +296,7 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'crs_public_practice',
     category: 'religiosity',
-    text: "À quelle fréquence participez-vous à des offices religieux ?",
+    text: "À quelle fréquence participez-vous à des offices religieux (messe, culte, liturgie) ?",
     type: 'choice',
     options: [
       { value: 'jamais', label: 'Jamais' },
@@ -319,9 +342,9 @@ export const SURVEY_QUESTIONS: Question[] = [
     text: "Comment situeriez-vous votre sensibilité théologique ?",
     type: 'choice',
     options: [
-      { value: 'traditionaliste', label: 'Traditionaliste / Conservateur' },
-      { value: 'modere', label: 'Modéré / Centriste' },
-      { value: 'progressiste', label: 'Progressiste / Libéral' },
+      { value: 'traditionaliste', label: 'Conservateur (attaché aux formes traditionnelles)' },
+      { value: 'modere', label: 'Modéré (entre tradition et ouverture)' },
+      { value: 'progressiste', label: 'Progressiste (ouvert aux évolutions)' },
       { value: 'ne_sait_pas', label: 'Je ne sais pas / Sans opinion' }
     ]
   },
@@ -380,12 +403,12 @@ export const SURVEY_QUESTIONS: Question[] = [
     text: "Quels outils numériques utilisez-vous déjà dans votre vie spirituelle ? (plusieurs réponses possibles)",
     type: 'multiple',
     options: [
-      { value: 'bible_app', label: 'Application Bible (YouVersion, Bible.is, etc.)' },
-      { value: 'priere_app', label: 'Application de prière (Hozana, Pray, etc.)' },
+      { value: 'bible_app', label: 'Application Bible (YouVersion, Bible Gateway, etc.)' },
+      { value: 'priere_app', label: 'Application de prière ou méditation (Hozana, Pray, Abide, etc.)' },
       { value: 'podcast', label: 'Podcasts religieux / spirituels' },
-      { value: 'video', label: 'Vidéos en ligne (YouTube, messes en streaming)' },
+      { value: 'video', label: 'Vidéos en ligne (YouTube, cultes/messes en streaming)' },
       { value: 'reseaux_sociaux', label: 'Réseaux sociaux à contenu religieux' },
-      { value: 'site_paroisse', label: 'Site web de paroisse / communauté' },
+      { value: 'site_paroisse', label: 'Site web de paroisse / église locale' },
       { value: 'aucun', label: 'Aucun de ces outils' }
     ]
   },
@@ -428,7 +451,7 @@ export const SURVEY_QUESTIONS: Question[] = [
     type: 'multiple',
     options: [
       { value: 'plan', label: 'La structure / Le plan' },
-      { value: 'exegese', label: "L'exégèse et le contexte historique" },
+      { value: 'exegese', label: "La recherche biblique (commentaires, contexte historique)" },
       { value: 'illustration', label: "La recherche d'illustrations / anecdotes" },
       { value: 'redaction', label: 'La rédaction de paragraphes entiers' }
     ],
@@ -552,14 +575,49 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'theo_inspiration',
     category: 'theology',
-    text: "Un texte généré par une IA peut-il, selon vous, transmettre la grâce ou être 'inspiré' ?",
+    text: "Un texte généré par une IA peut-il, selon vous, être porteur d'un message spirituel authentique ?",
     type: 'choice',
     options: [
-      { value: 'impossible', label: "Non, c'est impossible" },
+      { value: 'impossible', label: "Non, c'est impossible - l'IA ne fait que reproduire" },
       { value: 'peu_probable', label: "C'est peu probable" },
       { value: 'possible_indirect', label: "Possible, si un humain s'en saisit spirituellement" },
-      { value: 'possible', label: "Oui, l'Esprit peut agir par tous les moyens" },
+      { value: 'possible', label: "Oui, Dieu peut agir par tous les moyens" },
       { value: 'ne_sait_pas', label: 'Je ne sais pas / Question trop complexe' }
+    ]
+  },
+  {
+    id: 'theo_liturgie_ia',
+    category: 'theology',
+    text: "L'utilisation de contenus générés par IA vous semble-t-elle acceptable dans un contexte liturgique (messe, culte, célébrations) ?",
+    type: 'scale',
+    minLabel: "Absolument pas",
+    maxLabel: "Tout à fait acceptable"
+  },
+  {
+    id: 'theo_activites_sacrees',
+    category: 'theology',
+    text: "Y a-t-il des activités spirituelles qui, selon vous, ne devraient JAMAIS faire intervenir l'IA ? (plusieurs réponses possibles)",
+    type: 'multiple',
+    options: [
+      { value: 'sacrements', label: 'Les sacrements (eucharistie/cène, confession/réconciliation, baptême...)' },
+      { value: 'predication', label: 'La prédication / homélie' },
+      { value: 'priere_personnelle', label: 'La prière personnelle' },
+      { value: 'accompagnement', label: "L'accompagnement spirituel / direction de conscience" },
+      { value: 'discernement', label: 'Le discernement vocationnel' },
+      { value: 'aucune', label: "Aucune - l'IA peut intervenir partout avec discernement" }
+    ]
+  },
+  {
+    id: 'theo_mediation_humaine',
+    category: 'theology',
+    text: "Pour vous, certains aspects de la vie spirituelle nécessitent-ils exclusivement une présence humaine ?",
+    type: 'choice',
+    options: [
+      { value: 'oui_absolument', label: "Oui, absolument - la vie spirituelle passe par l'humain" },
+      { value: 'oui_pour_essentiel', label: "Oui, pour l'essentiel (sacrements, accompagnement)" },
+      { value: 'partiellement', label: "Partiellement - cela dépend des domaines" },
+      { value: 'non_pas_necessairement', label: "Non, pas nécessairement - l'IA peut compléter" },
+      { value: 'ne_sait_pas', label: 'Je ne sais pas / Question complexe' }
     ]
   },
   {
@@ -673,14 +731,14 @@ export const SURVEY_QUESTIONS: Question[] = [
     text: "Quels domaines d'application de l'IA vous intéresseraient le plus dans un contexte religieux ? (plusieurs réponses possibles)",
     type: 'multiple',
     options: [
-      { value: 'etude_bible', label: 'Étude biblique / exégèse' },
+      { value: 'etude_bible', label: 'Étude biblique (commentaires, contexte historique)' },
       { value: 'preparation_predication', label: 'Préparation de prédications' },
-      { value: 'catechese', label: 'Catéchèse / éducation religieuse' },
+      { value: 'catechese', label: 'Enseignement religieux (catéchèse, école du dimanche, etc.)' },
       { value: 'priere_meditation', label: 'Prière / méditation guidée' },
       { value: 'accompagnement', label: 'Accompagnement pastoral' },
       { value: 'communication', label: 'Communication / réseaux sociaux' },
-      { value: 'administration', label: 'Administration / gestion paroissiale' },
-      { value: 'musique_liturgie', label: 'Musique / liturgie' },
+      { value: 'administration', label: 'Administration / gestion de la communauté' },
+      { value: 'musique_liturgie', label: 'Musique / liturgie / louange' },
       { value: 'aucun', label: 'Aucun de ces domaines' }
     ]
   },

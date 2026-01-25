@@ -121,7 +121,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             initial={hasAnimated ? false : { opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1, duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card-refined text-purple-300 text-xs font-medium uppercase tracking-wider mb-4"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card-refined text-purple-700 dark:text-purple-300 text-xs font-medium uppercase tracking-wider mb-4"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>{t("feedback.badge")}</span>
@@ -134,7 +134,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.4 }}
             onClick={() => openProfileModal()}
-            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/80 hover:text-white text-sm font-medium transition-all"
+            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 hover:bg-muted border border-border hover:border-border/80 text-muted-foreground hover:text-foreground text-sm font-medium transition-all"
           >
             <HelpCircle className="w-4 h-4" />
             {t("profiles.viewAll")}
@@ -156,7 +156,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                 className="w-full text-left group"
               >
                 <div className="flex items-start justify-between">
-                  <div className="w-fit rounded-lg border border-white/10 bg-white/5 p-3 group-hover:bg-white/10 transition-colors">
+                  <div className="w-fit rounded-lg border border-border bg-muted/50 p-3 group-hover:bg-muted transition-colors">
                     <span className="text-4xl">{profileDef.emoji}</span>
                   </div>
                   <div className="text-right">
@@ -166,14 +166,14 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                 </div>
                 <div className="space-y-3 mt-4">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-2xl md:text-3xl font-bold text-white">{profileDef.title}</h2>
-                    <ChevronRight className="w-5 h-5 text-white/30 group-hover:text-white/60 group-hover:translate-x-1 transition-all" />
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground">{profileDef.title}</h2>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground/50 group-hover:text-muted-foreground group-hover:translate-x-1 transition-all" />
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">{profileDef.shortDescription}</p>
                   {subProfileDef && (
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/20 border border-purple-500/30">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/20 dark:bg-purple-500/20 border border-purple-500/30">
                       <span>{subProfileDef.emoji}</span>
-                      <span className="text-xs font-medium text-purple-300">{subProfileDef.title}</span>
+                      <span className="text-xs font-medium text-purple-700 dark:text-purple-300">{subProfileDef.title}</span>
                     </div>
                   )}
                 </div>
@@ -187,21 +187,21 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                   <Brain className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white text-sm">{t("feedback.religiosity")}</h3>
+                  <h3 className="font-semibold text-foreground text-sm">{t("feedback.religiosity")}</h3>
                   <p className="text-xs text-muted-foreground">CRS-5</p>
                 </div>
               </div>
               <div className="flex items-end justify-between mt-auto">
                 <div>
-                  <p className="text-3xl font-bold text-white">{crsScore.toFixed(1)}<span className="text-lg text-muted-foreground">/5</span></p>
-                  <p className="text-sm text-blue-400">{RELIGIOSITY_LABELS[religiosityLevel]}</p>
+                  <p className="text-3xl font-bold text-foreground">{crsScore.toFixed(1)}<span className="text-lg text-muted-foreground">/5</span></p>
+                  <p className="text-sm text-blue-500 dark:text-blue-400">{RELIGIOSITY_LABELS[religiosityLevel]}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-muted-foreground flex items-center gap-1"><Users className="w-3 h-3" /> {t("feedback.vsOthers")}</p>
-                  <p className="text-lg font-semibold text-white">Top {100 - religiosityPercentile}%</p>
+                  <p className="text-lg font-semibold text-foreground">Top {100 - religiosityPercentile}%</p>
                 </div>
               </div>
-              <div className="mt-3 h-2 bg-white/5 rounded-full overflow-hidden">
+              <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
                 <motion.div
                   initial={hasAnimated ? false : { width: 0 }}
                   animate={{ width: `${(crsScore / 5) * 100}%` }}
@@ -218,21 +218,21 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                   <TrendingUp className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white text-sm">{t("feedback.aiAdoption")}</h3>
+                  <h3 className="font-semibold text-foreground text-sm">{t("feedback.aiAdoption")}</h3>
                   <p className="text-xs text-muted-foreground">{t("feedback.usageLevel")}</p>
                 </div>
               </div>
               <div className="flex items-end justify-between mt-auto">
                 <div>
-                  <p className="text-3xl font-bold text-white">{aiScore.toFixed(1)}<span className="text-lg text-muted-foreground">/5</span></p>
-                  <p className="text-sm text-emerald-400">{AI_ADOPTION_LABELS[aiLevel]}</p>
+                  <p className="text-3xl font-bold text-foreground">{aiScore.toFixed(1)}<span className="text-lg text-muted-foreground">/5</span></p>
+                  <p className="text-sm text-emerald-600 dark:text-emerald-400">{AI_ADOPTION_LABELS[aiLevel]}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-muted-foreground flex items-center gap-1"><Users className="w-3 h-3" /> {t("feedback.vsOthers")}</p>
-                  <p className="text-lg font-semibold text-white">Top {100 - aiPercentile}%</p>
+                  <p className="text-lg font-semibold text-foreground">Top {100 - aiPercentile}%</p>
                 </div>
               </div>
-              <div className="mt-3 h-2 bg-white/5 rounded-full overflow-hidden">
+              <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
                 <motion.div
                   initial={hasAnimated ? false : { width: 0 }}
                   animate={{ width: `${(aiScore / 5) * 100}%` }}
@@ -248,24 +248,24 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                 <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400">
                   <Shield className="w-5 h-5" />
                 </div>
-                <h3 className="font-semibold text-white text-sm">{t("feedback.spiritualResistance")}</h3>
+                <h3 className="font-semibold text-foreground text-sm">{t("feedback.spiritualResistance")}</h3>
               </div>
               <div className="flex items-center gap-4 mt-auto">
                 <div className="flex items-baseline gap-2">
                   <span className="text-xs text-muted-foreground">{t("feedback.generalAI")}</span>
-                  <span className="text-lg font-bold text-white">{generalAIScore.toFixed(1)}</span>
+                  <span className="text-lg font-bold text-foreground">{generalAIScore.toFixed(1)}</span>
                 </div>
                 <span className="text-xl text-muted-foreground">→</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-xs text-muted-foreground">{t("feedback.spiritualAI")}</span>
-                  <span className="text-lg font-bold text-white">{(generalAIScore - resistanceIndex).toFixed(1)}</span>
+                  <span className="text-lg font-bold text-foreground">{(generalAIScore - resistanceIndex).toFixed(1)}</span>
                 </div>
                 <span className="text-xl text-muted-foreground">=</span>
-                <div className={cn("text-xl font-bold", resistanceIndex > 0 ? "text-amber-400" : "text-emerald-400")}>
+                <div className={cn("text-xl font-bold", resistanceIndex > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400")}>
                   {resistanceIndex > 0 ? "+" : ""}{resistanceIndex.toFixed(1)}
                 </div>
               </div>
-              <p className={cn("text-sm mt-2", resistanceIndex > 1 ? "text-amber-400" : resistanceIndex > 0 ? "text-amber-300" : "text-emerald-400")}>
+              <p className={cn("text-sm mt-2", resistanceIndex > 1 ? "text-amber-600 dark:text-amber-400" : resistanceIndex > 0 ? "text-amber-500 dark:text-amber-300" : "text-emerald-600 dark:text-emerald-400")}>
                 {RESISTANCE_LABELS[resistanceLevel]}
               </p>
             </GlowCard>
@@ -288,28 +288,28 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.4 + index * 0.1 }}
                       onClick={() => openProfileModal(match.profile)}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all cursor-pointer text-left"
+                      className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 hover:border-border transition-all cursor-pointer text-left"
                     >
                       <span className="text-2xl">{matchDef.emoji}</span>
                       <div className="flex-1 min-w-0">
-                        <p className={cn("text-sm font-medium truncate", index === 0 ? "text-white" : "text-muted-foreground")}>
+                        <p className={cn("text-sm font-medium truncate", index === 0 ? "text-foreground" : "text-muted-foreground")}>
                           {matchDef.title}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                             <motion.div
                               initial={hasAnimated ? false : { width: 0 }}
                               animate={{ width: `${match.matchScore}%` }}
                               transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
-                              className={cn("h-full rounded-full", index === 0 ? "bg-purple-500" : "bg-white/20")}
+                              className={cn("h-full rounded-full", index === 0 ? "bg-purple-500" : "bg-muted-foreground/30")}
                             />
                           </div>
-                          <span className={cn("text-xs font-bold", index === 0 ? "text-purple-400" : "text-muted-foreground")}>
+                          <span className={cn("text-xs font-bold", index === 0 ? "text-purple-600 dark:text-purple-400" : "text-muted-foreground")}>
                             {match.matchScore}%
                           </span>
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-white/30" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
                     </motion.button>
                   );
                 })}
@@ -336,11 +336,11 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                       initial={hasAnimated ? false : { opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 + index * 0.05 }}
-                      className="group relative text-center p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all"
+                      className="group relative text-center p-3 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 hover:border-border transition-all"
                     >
                       <div className="relative w-12 h-12 mx-auto mb-2">
                         <svg className="w-12 h-12 -rotate-90">
-                          <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="4" />
+                          <circle cx="24" cy="24" r="20" fill="none" className="stroke-muted" strokeWidth="4" />
                           <motion.circle
                             cx="24" cy="24" r="20"
                             fill="none"
@@ -353,19 +353,19 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                             transition={{ delay: 0.6 + index * 0.05, duration: 0.8 }}
                           />
                         </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
+                        <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-foreground">
                           {dimension.value.toFixed(1)}
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground leading-tight">{t(`${dimKey}.label` as any)}</p>
 
                       {/* Tooltip on hover - appears below */}
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-3 rounded-xl bg-[#1a1f2e] border border-white/10 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left pointer-events-none">
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-3 rounded-xl bg-popover border border-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left pointer-events-none">
                         {/* Arrow pointing up */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-[#1a1f2e]" />
-                        <p className="text-xs font-medium text-white mb-1">{t(`${dimKey}.label` as any)}</p>
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-popover" />
+                        <p className="text-xs font-medium text-foreground mb-1">{t(`${dimKey}.label` as any)}</p>
                         <p className="text-[11px] text-muted-foreground mb-2">{t(`${dimKey}.description` as any)}</p>
-                        <div className="pt-2 border-t border-white/10">
+                        <div className="pt-2 border-t border-border">
                           <p className="text-[11px]" style={{ color }}>
                             {isHigh ? t(`${dimKey}.high` as any) : isLow ? t(`${dimKey}.low` as any) : t("resultsExplain.balancedPosition")}
                           </p>
@@ -383,7 +383,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                 <div className="flex items-start gap-3">
                   <span className="text-2xl shrink-0">{insight.icon}</span>
                   <div>
-                    <h4 className="font-semibold text-white mb-1">{insight.title}</h4>
+                    <h4 className="font-semibold text-foreground mb-1">{insight.title}</h4>
                     <p className="text-sm text-muted-foreground leading-relaxed">{insight.message}</p>
                   </div>
                 </div>
@@ -394,16 +394,16 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             {growthAreas.length > 0 && (
               <GlowCard area="md:col-span-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <Lightbulb className="w-4 h-4 text-emerald-400" />
-                  <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                  <Lightbulb className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <h3 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                     {t("feedback.growthArea")}
                   </h3>
                 </div>
                 <div className="flex items-start gap-3">
-                  <ChevronRight className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                  <ChevronRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-sm font-medium text-white mb-1">{growthAreas[0].area}</h4>
-                    <p className="text-xs text-emerald-400/80">{growthAreas[0].actionableStep}</p>
+                    <h4 className="text-sm font-medium text-foreground mb-1">{growthAreas[0].area}</h4>
+                    <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80">{growthAreas[0].actionableStep}</p>
                   </div>
                 </div>
               </GlowCard>
@@ -413,15 +413,15 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             {tensions.length > 0 && (
               <GlowCard area="md:col-span-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <AlertTriangle className="w-4 h-4 text-amber-400" />
-                  <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-wider">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <h3 className="text-sm font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
                     {t("feedback.tensionPoint")}
                   </h3>
                 </div>
-                <div className="text-sm text-white mb-1">
-                  <span className="text-amber-400">{t(`dimensions.${tensions[0].dimension1}.label` as any)}</span>
+                <div className="text-sm text-foreground mb-1">
+                  <span className="text-amber-600 dark:text-amber-400">{t(`dimensions.${tensions[0].dimension1}.label` as any)}</span>
                   <span className="text-muted-foreground"> vs </span>
-                  <span className="text-amber-400">{t(`dimensions.${tensions[0].dimension2}.label` as any)}</span>
+                  <span className="text-amber-600 dark:text-amber-400">{t(`dimensions.${tensions[0].dimension2}.label` as any)}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">{tensions[0].description}</p>
               </GlowCard>
@@ -439,10 +439,10 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
           <button
             onClick={onContinue}
             className={cn(
-              "group relative px-8 py-4 bg-white text-slate-900 rounded-full font-bold text-lg",
+              "group relative px-8 py-4 bg-primary text-primary-foreground rounded-full font-bold text-lg",
               "hover:scale-105 active:scale-[0.98] transition-all duration-300",
-              "shadow-lg shadow-white/10 flex items-center gap-3 mx-auto",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-white",
+              "shadow-lg shadow-primary/10 flex items-center gap-3 mx-auto",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               "btn-glow overflow-hidden"
             )}
           >
@@ -452,15 +452,23 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
           </button>
         </motion.div>
 
-        {/* Disclaimer */}
-        <motion.p
+        {/* Methodology & Disclaimer */}
+        <motion.div
           initial={hasAnimated ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
-          className="text-xs text-muted-foreground/50 text-center max-w-md mx-auto mt-8"
+          className="text-center max-w-2xl mx-auto mt-8 space-y-3"
         >
-          {t("feedback.disclaimer")}
-        </motion.p>
+          <p className="text-xs text-muted-foreground/50">
+            {t("feedback.disclaimer")}
+          </p>
+          <div className="pt-3 border-t border-border/50">
+            <p className="text-[10px] text-muted-foreground/40 leading-relaxed">
+              <span className="font-medium text-muted-foreground/50">{t("methodology.title")}:</span>{" "}
+              {t("methodology.description")}
+            </p>
+          </div>
+        </motion.div>
       </div>
 
       {/* Profiles Modal */}

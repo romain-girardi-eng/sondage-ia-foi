@@ -66,7 +66,7 @@ function FloatingParticles() {
       {[...Array(20)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-1 h-1 bg-white/10 rounded-full"
+          className="absolute w-1 h-1 bg-foreground/10 rounded-full"
           initial={{
             x: Math.random() * 100 + "%",
             y: Math.random() * 100 + "%",
@@ -135,7 +135,7 @@ function CircularProgress({
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-white/5"
+          className="text-muted-foreground/10"
         />
         <circle
           cx={size / 2}
@@ -182,8 +182,8 @@ function InsightCard({
       whileHover={{ y: -5, scale: 1.02 }}
       className="relative group"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <div className="relative p-6 rounded-3xl bg-gradient-to-br from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-xl overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-foreground/10 to-foreground/5 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="relative p-6 rounded-3xl glass-card-refined overflow-hidden">
         {/* Decorative gradient */}
         <div
           className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"
@@ -198,9 +198,9 @@ function InsightCard({
             <Icon className="w-6 h-6" style={{ color: color }} />
           </div>
 
-          <p className="text-xs text-white/50 uppercase tracking-wider mb-1">{title}</p>
-          <p className="text-3xl font-bold text-white mb-1">{value}</p>
-          <p className="text-sm text-white/60">{subtitle}</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{title}</p>
+          <p className="text-3xl font-bold text-foreground mb-1">{value}</p>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
       </div>
     </motion.div>
@@ -231,7 +231,7 @@ function AnimatedBarChart({
           className="group"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-white/70 truncate max-w-[60%] group-hover:text-white transition-colors">
+            <span className="text-sm text-muted-foreground truncate max-w-[60%] group-hover:text-foreground transition-colors">
               {item.name}
             </span>
             <motion.span
@@ -243,7 +243,7 @@ function AnimatedBarChart({
               {item.percentage.toFixed(1)}%
             </motion.span>
           </div>
-          <div className="relative h-3 bg-white/5 rounded-full overflow-hidden">
+          <div className="relative h-3 bg-muted rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={isInView ? { width: `${(item.value / maxValue) * 100}%` } : {}}
@@ -295,7 +295,7 @@ function DonutChart({
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-white/5"
+          className="text-muted-foreground/10"
         />
         {data.map((segment, index) => {
           const segmentPercentage = (segment.value / total) * 100;
@@ -331,11 +331,11 @@ function DonutChart({
           initial={{ scale: 0 }}
           animate={isInView ? { scale: 1 } : {}}
           transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-          className="text-3xl font-bold text-white"
+          className="text-3xl font-bold text-foreground"
         >
           {total}
         </motion.span>
-        <span className="text-xs text-white/50">réponses</span>
+        <span className="text-xs text-muted-foreground">réponses</span>
       </div>
     </div>
   );
@@ -382,11 +382,11 @@ function ScaleVisualization({
               initial={{ scale: 0 }}
               animate={isInView ? { scale: 1 } : {}}
               transition={{ delay: 0.5, type: "spring" }}
-              className="text-3xl font-bold text-white"
+              className="text-3xl font-bold text-foreground"
             >
               {average.toFixed(1)}
             </motion.div>
-            <div className="text-xs text-white/50">/5</div>
+            <div className="text-xs text-muted-foreground">/5</div>
           </div>
         </CircularProgress>
       </div>
@@ -425,14 +425,14 @@ function ScaleVisualization({
                   </motion.span>
                 </motion.div>
               </div>
-              <span className="text-base font-semibold text-white/70">{entry.name}</span>
+              <span className="text-base font-semibold text-muted-foreground">{entry.name}</span>
             </motion.div>
           );
         })}
       </div>
 
       {/* Labels */}
-      <div className="flex justify-between text-xs text-white/40 px-2">
+      <div className="flex justify-between text-xs text-muted-foreground/70 px-2">
         <span>{question.minLabel}</span>
         <span className="text-right">{question.maxLabel}</span>
       </div>
@@ -521,10 +521,10 @@ export function ResultsDashboard() {
           transition={{ delay: 0.3 }}
           className="text-center space-y-2"
         >
-          <p className="text-white/80 font-medium">
+          <p className="text-foreground/80 font-medium">
             {t("dashboard.analyzingData")}
           </p>
-          <p className="text-white/40 text-sm">
+          <p className="text-muted-foreground text-sm">
             {t("dashboard.preparingViz")}
           </p>
         </motion.div>
@@ -548,14 +548,14 @@ export function ResultsDashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="flex justify-center"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-white/10 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-border backdrop-blur-sm">
             <motion.div
               animate={{ rotate: [0, 360] }}
               transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
             >
               <Sparkles className="w-4 h-4 text-purple-400" />
             </motion.div>
-            <span className="text-sm text-white/70">
+            <span className="text-sm text-muted-foreground">
               {t("dashboard.realTimeResults")}
             </span>
           </div>
@@ -569,11 +569,11 @@ export function ResultsDashboard() {
           className="text-center space-y-4"
         >
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-extralight tracking-tight">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-purple-200">
+            <span className="text-gradient-animated">
               {t("dashboard.dashboardTitle")}
             </span>
           </h1>
-          <p className="text-white/50 max-w-2xl mx-auto text-lg font-light">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg font-light">
             {t("dashboard.exploreDescription")}
           </p>
         </motion.div>
@@ -622,27 +622,27 @@ export function ResultsDashboard() {
         transition={{ delay: 0.6 }}
         className="relative mb-12"
       >
-        <div className="relative p-8 rounded-3xl bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent border border-white/10 backdrop-blur-xl overflow-hidden">
+        <div className="relative p-8 rounded-3xl glass-card-refined overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
           <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8">
             <div className="flex-1 space-y-4">
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-emerald-400" />
-                <span className="text-sm text-emerald-400 font-medium">
+                <TrendingUp className="w-5 h-5 text-emerald-500" />
+                <span className="text-sm text-emerald-500 font-medium">
                   {t("dashboard.keyInsight")}
                 </span>
               </div>
-              <h2 className="text-2xl md:text-3xl font-light text-white">
+              <h2 className="text-2xl md:text-3xl font-light text-foreground">
                 {t("dashboard.insightTitle")}
               </h2>
-              <p className="text-white/60">
+              <p className="text-muted-foreground">
                 {t("dashboard.insightDescription")}
               </p>
               <motion.button
                 whileHover={{ x: 5 }}
-                className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+                className="flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors"
               >
                 <span>{t("dashboard.exploreData")}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -685,8 +685,8 @@ export function ResultsDashboard() {
               className={cn(
                 "flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all duration-300",
                 selectedCategory === cat.id
-                  ? "bg-white text-slate-900 shadow-lg shadow-white/20"
-                  : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/10"
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground border border-border"
               )}
             >
               <Icon className="w-4 h-4" />
@@ -729,16 +729,25 @@ export function ResultsDashboard() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => window.location.reload()}
-          className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20 text-white font-medium transition-all duration-300 border border-white/10 hover:border-white/20"
+          className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20 text-foreground font-medium transition-all duration-300 border border-border hover:border-primary/30"
         >
           <RefreshCw className="w-5 h-5" />
           <span>{t("dashboard.restartSurvey")}</span>
         </motion.button>
 
-        <p className="text-sm text-white/30">
+        <p className="text-sm text-muted-foreground/60">
           {t("dashboard.thankYouFooter")}
         </p>
-        <p className="text-xs text-white/20">
+
+        {/* Methodology note */}
+        <div className="max-w-2xl mx-auto pt-4 border-t border-border">
+          <p className="text-[10px] text-muted-foreground/50 leading-relaxed">
+            <span className="font-medium text-muted-foreground/70">{t("methodology.title")}:</span>{" "}
+            {t("methodology.description")}
+          </p>
+        </div>
+
+        <p className="text-xs text-muted-foreground/50">
           {t("dashboard.studyConductedBy")}
         </p>
       </motion.footer>
@@ -802,9 +811,7 @@ function ModernChartCard({ question, data, index, isExpanded, onToggle, language
 
       <div className={cn(
         "relative rounded-3xl overflow-hidden",
-        "bg-gradient-to-br from-white/[0.08] to-white/[0.02]",
-        "border border-white/10 group-hover:border-white/20",
-        "backdrop-blur-xl transition-all duration-300",
+        "glass-card-refined",
       )}>
         {/* Header */}
         <div className="p-6 pb-4">
@@ -812,15 +819,15 @@ function ModernChartCard({ question, data, index, isExpanded, onToggle, language
             <div className="flex-1 space-y-2">
               <div className="flex items-center gap-2">
                 {question.type === "scale" ? (
-                  <BarChart3 className="w-4 h-4 text-blue-400" />
+                  <BarChart3 className="w-4 h-4 text-blue-500" />
                 ) : (
-                  <PieChartIcon className="w-4 h-4 text-purple-400" />
+                  <PieChartIcon className="w-4 h-4 text-purple-500" />
                 )}
-                <span className="text-[10px] uppercase tracking-wider text-white/40 font-medium">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
                   {question.category.replace("_", " ")}
                 </span>
               </div>
-              <h2 className="text-base font-medium text-white leading-relaxed">
+              <h2 className="text-base font-medium text-foreground leading-relaxed">
                 {question.text}
               </h2>
             </div>
@@ -828,26 +835,26 @@ function ModernChartCard({ question, data, index, isExpanded, onToggle, language
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={onToggle}
-              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+              className="p-2.5 rounded-xl bg-muted hover:bg-accent transition-colors"
             >
               <motion.div
                 animate={{ rotate: isExpanded ? 180 : 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <ChevronDown className="w-4 h-4 text-white/50" />
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
               </motion.div>
             </motion.button>
           </div>
 
           {/* Quick stats */}
           <div className="flex items-center gap-4 mt-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5">
-              <Users className="w-3 h-3 text-white/40" />
-              <span className="text-xs text-white/60">{totalResponses}</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted">
+              <Users className="w-3 h-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">{totalResponses}</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10">
-              <TrendingUp className="w-3 h-3 text-emerald-400" />
-              <span className="text-xs text-emerald-400 font-medium">
+              <TrendingUp className="w-3 h-3 text-emerald-500" />
+              <span className="text-xs text-emerald-500 font-medium">
                 {topPercentage.toFixed(0)}% {t("dashboard.majority")}
               </span>
             </div>
