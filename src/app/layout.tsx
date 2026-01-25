@@ -47,13 +47,22 @@ export const metadata: Metadata = {
     title: "IA & Vie Spirituelle | Enquête Scientifique 2026",
     description:
       "Participez à cette étude académique sur l'utilisation de l'IA dans les pratiques religieuses chrétiennes.",
-    siteName: "Sondage IA & Foi",
+    siteName: "IA & Foi",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 1200,
+        alt: "IA & Foi - Enquête sur l'intelligence artificielle et la vie spirituelle",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "IA & Vie Spirituelle | Enquête Scientifique 2026",
     description:
       "Participez à cette étude académique sur l'utilisation de l'IA dans les pratiques religieuses.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -65,7 +74,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className="scroll-smooth">
       <head>
-        {/* Icons auto-detected from icon.svg and apple-icon.svg */}
+        {/* Icons auto-detected from icon.png and apple-icon.png */}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased selection:bg-blue-500/30`}
