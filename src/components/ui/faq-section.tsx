@@ -206,10 +206,10 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
     : faqs;
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden text-white bg-background">
+    <div className="relative min-h-screen w-full overflow-hidden text-foreground bg-background">
       {/* Background Spiral */}
       <div
-        className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-20 [mask-image:radial-gradient(circle_at_center,rgba(255,255,255,1),rgba(255,255,255,0.1)_60%,transparent_75%)]"
+        className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-20 dark:opacity-20 light:opacity-10 [mask-image:radial-gradient(circle_at_center,rgba(255,255,255,1),rgba(255,255,255,0.1)_60%,transparent_75%)]"
         style={{ mixBlendMode: "screen" }}
       >
         <div ref={spiralRef} />
@@ -218,9 +218,9 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
       {/* Layout */}
       <div className="relative mx-auto max-w-5xl px-6 py-16">
         {/* Header */}
-        <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between border-b border-white/20 pb-6 gap-4">
+        <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between border-b border-border pb-6 gap-4">
           <div>
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-blue-200">
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-gradient-animated">
               {title}
             </h1>
             <p className="mt-2 text-sm md:text-base text-muted-foreground">
@@ -232,7 +232,7 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={searchPlaceholder}
-              className="h-10 w-full md:w-56 rounded-xl border border-white/20 bg-white/5 px-4 text-sm outline-none transition focus:border-blue-500/60 focus:bg-white/10 placeholder:text-muted-foreground"
+              className="h-10 w-full md:w-56 rounded-xl border border-border bg-card px-4 text-sm text-foreground outline-none transition focus:border-blue-500/60 focus:bg-accent placeholder:text-muted-foreground"
             />
           </div>
         </header>
@@ -259,17 +259,17 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
 function FAQItemCard({ q, a, index }: { q: string; a: string; index: number }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 transition hover:border-white/20 hover:bg-white/[0.07]">
+    <div className="group relative overflow-hidden rounded-2xl glass-card-refined p-5 transition">
       <button
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between text-left"
         aria-expanded={open}
       >
         <div className="flex items-baseline gap-3">
-          <span className="text-xs text-blue-400/60 font-mono">{String(index).padStart(2, "0")}</span>
-          <h3 className="text-base md:text-lg font-semibold leading-tight text-white">{q}</h3>
+          <span className="text-xs text-blue-500 dark:text-blue-400/60 font-mono">{String(index).padStart(2, "0")}</span>
+          <h3 className="text-base md:text-lg font-semibold leading-tight text-foreground">{q}</h3>
         </div>
-        <span className="ml-4 text-white/40 transition group-hover:text-white text-xl font-light">
+        <span className="ml-4 text-muted-foreground transition group-hover:text-foreground text-xl font-light">
           {open ? "-" : "+"}
         </span>
       </button>

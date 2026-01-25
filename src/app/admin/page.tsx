@@ -594,7 +594,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
   // Login Page
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
@@ -606,31 +606,31 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
           transition={{ duration: 0.5 }}
           className="relative w-full max-w-md"
         >
-          <div className="bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+          <div className="bg-card backdrop-blur-2xl border border-border rounded-3xl p-8 shadow-2xl">
             {/* Logo */}
             <div className="flex items-center justify-center gap-3 mb-8">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
-                <p className="text-xs text-white/50">Sondage IA & Foi</p>
+                <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
+                <p className="text-xs text-muted-foreground">Sondage IA & Foi</p>
               </div>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-white/70 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-muted-foreground mb-2">
                   Admin Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="password"
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                    className="w-full pl-11 pr-4 py-3.5 bg-muted border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
                     placeholder="Enter password"
                     required
                   />
@@ -669,7 +669,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
               </button>
             </form>
 
-            <p className="text-xs text-white/30 text-center mt-6">
+            <p className="text-xs text-muted-foreground/50 text-center mt-6">
               Protected area. Authorized access only.
             </p>
           </div>
@@ -680,16 +680,16 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
   // Dashboard
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-background">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 bottom-0 w-64 bg-white/[0.02] border-r border-white/5 p-4 hidden lg:block">
+      <aside className="fixed left-0 top-0 bottom-0 w-64 bg-card border-r border-border p-4 hidden lg:block">
         <div className="flex items-center gap-3 px-2 mb-8">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
             <BarChart3 className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="font-bold text-white">Dashboard</h1>
-            <p className="text-xs text-white/50">Sondage IA & Foi</p>
+            <h1 className="font-bold text-foreground">Dashboard</h1>
+            <p className="text-xs text-muted-foreground">Sondage IA & Foi</p>
           </div>
         </div>
 
@@ -707,8 +707,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                 activeTab === item.id
-                  ? "bg-white/10 text-white"
-                  : "text-white/50 hover:bg-white/5 hover:text-white/80"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )}
             >
               <item.icon className="w-4 h-4" />
@@ -731,24 +731,24 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
       {/* Main Content */}
       <main className="lg:pl-64">
         {/* Top Bar */}
-        <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 px-4 lg:px-8 py-4">
+        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-4 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {/* Mobile menu */}
-              <button className="lg:hidden p-2 hover:bg-white/5 rounded-lg">
-                <BarChart3 className="w-5 h-5 text-white" />
+              <button className="lg:hidden p-2 hover:bg-accent rounded-lg">
+                <BarChart3 className="w-5 h-5 text-foreground" />
               </button>
 
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-semibold text-white capitalize">{activeTab}</h2>
+                  <h2 className="text-lg font-semibold text-foreground capitalize">{activeTab}</h2>
                   {stats?.demo && (
                     <span className="px-2 py-0.5 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-medium rounded-full">
                       Demo
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-white/50">
+                <p className="text-sm text-muted-foreground">
                   {lastRefresh
                     ? `Last updated: ${lastRefresh.toLocaleTimeString()}`
                     : "Loading..."}
@@ -761,7 +761,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
               <button
                 onClick={() => fetchStats(currentPage, searchQuery)}
                 disabled={isLoading}
-                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white text-sm transition-all"
+                className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-accent border border-border rounded-xl text-foreground text-sm transition-all"
               >
                 <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
                 <span className="hidden sm:inline">Refresh</span>
@@ -770,9 +770,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
               <div className="relative" data-notifications>
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
-                  className="relative p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
+                  className="relative p-2 bg-muted hover:bg-accent border border-border rounded-xl transition-all"
                 >
-                  <Bell className="w-4 h-4 text-white" />
+                  <Bell className="w-4 h-4 text-foreground" />
                   {stats && stats.recentResponses.length > 0 && (
                     <span className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full" />
                   )}
@@ -785,15 +785,15 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 top-full mt-2 w-80 bg-slate-900 border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden"
+                      className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-2xl z-50 overflow-hidden"
                     >
-                      <div className="p-3 border-b border-white/5 flex items-center justify-between">
-                        <h4 className="text-sm font-medium text-white">Recent Responses</h4>
-                        <span className="text-xs text-white/50">{stats.recentResponses.length} latest</span>
+                      <div className="p-3 border-b border-border flex items-center justify-between">
+                        <h4 className="text-sm font-medium text-foreground">Recent Responses</h4>
+                        <span className="text-xs text-muted-foreground">{stats.recentResponses.length} latest</span>
                       </div>
                       <div className="max-h-80 overflow-y-auto">
                         {stats.recentResponses.length === 0 ? (
-                          <div className="p-6 text-center text-white/40 text-sm">
+                          <div className="p-6 text-center text-muted-foreground text-sm">
                             No responses yet
                           </div>
                         ) : (
@@ -804,13 +804,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 handleOpenDetail(response.id);
                                 setShowNotifications(false);
                               }}
-                              className="w-full p-3 hover:bg-white/5 border-b border-white/5 last:border-0 text-left transition-colors"
+                              className="w-full p-3 hover:bg-accent border-b border-border last:border-0 text-left transition-colors"
                             >
                               <div className="flex items-center justify-between mb-1">
-                                <span className="font-mono text-xs text-white/70">
+                                <span className="font-mono text-xs text-foreground/70">
                                   #{response.id.slice(0, 8)}
                                 </span>
-                                <span className="text-xs text-white/40">
+                                <span className="text-xs text-muted-foreground">
                                   {new Date(response.createdAt).toLocaleDateString()}
                                 </span>
                               </div>
@@ -825,7 +825,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 >
                                   {response.completed ? "Complete" : "Partial"}
                                 </span>
-                                <span className="text-xs text-white/50">
+                                <span className="text-xs text-muted-foreground">
                                   {PROFILE_LABELS[response.profile] || response.profile}
                                 </span>
                               </div>
@@ -834,7 +834,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         )}
                       </div>
                       {stats.recentResponses.length > 0 && (
-                        <div className="p-2 border-t border-white/5">
+                        <div className="p-2 border-t border-border">
                           <button
                             onClick={() => {
                               setActiveTab("responses");
@@ -868,8 +868,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 className={cn(
                   "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all",
                   activeTab === item.id
-                    ? "bg-blue-600 text-white"
-                    : "bg-white/5 text-white/60 hover:text-white"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
                 )}
               >
                 <item.icon className="w-3.5 h-3.5" />
@@ -912,28 +912,28 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 {[...Array(4)].map((_, i) => (
                   <div
                     key={i}
-                    className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 animate-pulse"
+                    className="rounded-2xl border border-border bg-card p-5 animate-pulse"
                   >
                     <div className="flex items-start justify-between">
-                      <div className="w-10 h-10 rounded-lg bg-white/10" />
-                      <div className="w-16 h-4 rounded bg-white/10" />
+                      <div className="w-10 h-10 rounded-lg bg-muted" />
+                      <div className="w-16 h-4 rounded bg-muted" />
                     </div>
                     <div className="mt-4 space-y-2">
-                      <div className="w-20 h-8 rounded bg-white/10" />
-                      <div className="w-32 h-4 rounded bg-white/5" />
+                      <div className="w-20 h-8 rounded bg-muted" />
+                      <div className="w-32 h-4 rounded bg-muted/50" />
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Skeleton Chart */}
-              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 animate-pulse">
-                <div className="w-40 h-6 rounded bg-white/10 mb-6" />
+              <div className="rounded-2xl border border-border bg-card p-6 animate-pulse">
+                <div className="w-40 h-6 rounded bg-muted mb-6" />
                 <div className="h-64 flex items-end gap-2">
                   {[...Array(12)].map((_, i) => (
                     <div
                       key={i}
-                      className="flex-1 rounded-t bg-white/5"
+                      className="flex-1 rounded-t bg-muted/50"
                       style={{ height: `${Math.random() * 80 + 20}%` }}
                     />
                   ))}
@@ -986,10 +986,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 {/* Charts Row */}
                 <div className="grid lg:grid-cols-3 gap-6">
                   {/* Timeline Chart */}
-                  <div className="lg:col-span-2 bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                  <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-6">
                     <div className="flex items-center justify-between mb-6">
-                      <h3 className="font-semibold text-white">Response Timeline</h3>
-                      <span className="text-xs text-white/50">Last 30 days</span>
+                      <h3 className="font-semibold text-foreground">Response Timeline</h3>
+                      <span className="text-xs text-muted-foreground">Last 30 days</span>
                     </div>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
@@ -1000,18 +1000,19 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                           <XAxis
                             dataKey="date"
-                            stroke="#ffffff30"
+                            className="stroke-muted-foreground"
                             fontSize={11}
                             tickFormatter={(v) => new Date(v).getDate().toString()}
                           />
-                          <YAxis stroke="#ffffff30" fontSize={11} />
+                          <YAxis className="stroke-muted-foreground" fontSize={11} />
                           <Tooltip
                             contentStyle={{
-                              backgroundColor: "#1e293b",
-                              border: "1px solid rgba(255,255,255,0.1)",
+                              backgroundColor: "hsl(var(--card))",
+                              border: "1px solid hsl(var(--border))",
+                              color: "hsl(var(--foreground))",
                               borderRadius: "8px",
                             }}
                             labelFormatter={(v) => new Date(v).toLocaleDateString()}
@@ -1030,8 +1031,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   </div>
 
                   {/* Language Distribution */}
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                    <h3 className="font-semibold text-white mb-6">By Language</h3>
+                  <div className="bg-card border border-border rounded-2xl p-6">
+                    <h3 className="font-semibold text-foreground mb-6">By Language</h3>
                     <div className="h-48">
                       <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <RechartsPieChart>
@@ -1054,7 +1055,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           <Legend
                             verticalAlign="bottom"
                             height={36}
-                            formatter={(value) => <span className="text-white/70 text-xs">{value}</span>}
+                            formatter={(value) => <span className="text-muted-foreground text-xs">{value}</span>}
                           />
                         </RechartsPieChart>
                       </ResponsiveContainer>
@@ -1067,11 +1068,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               className="w-3 h-3 rounded-full"
                               style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }}
                             />
-                            <span className="text-sm text-white/70">
+                            <span className="text-sm text-muted-foreground">
                               {lang === "fr" ? "French" : lang === "en" ? "English" : lang}
                             </span>
                           </div>
-                          <span className="text-sm font-medium text-white">{count.toLocaleString()}</span>
+                          <span className="text-sm font-medium text-foreground">{count.toLocaleString()}</span>
                         </div>
                       ))}
                     </div>
@@ -1080,8 +1081,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                 {/* Profile Distribution */}
                 {Object.keys(stats.profiles).length > 0 && (
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                    <h3 className="font-semibold text-white mb-6">Spiritual-AI Profiles</h3>
+                  <div className="bg-card border border-border rounded-2xl p-6">
+                    <h3 className="font-semibold text-foreground mb-6">Spiritual-AI Profiles</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <BarChart
@@ -1092,19 +1093,20 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           }))}
                           layout="vertical"
                         >
-                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                          <XAxis type="number" stroke="#ffffff30" fontSize={11} />
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                          <XAxis type="number" className="stroke-muted-foreground" fontSize={11} />
                           <YAxis
                             type="category"
                             dataKey="name"
-                            stroke="#ffffff30"
+                            className="stroke-muted-foreground"
                             fontSize={11}
                             width={140}
                           />
                           <Tooltip
                             contentStyle={{
-                              backgroundColor: "#1e293b",
-                              border: "1px solid rgba(255,255,255,0.1)",
+                              backgroundColor: "hsl(var(--card))",
+                              border: "1px solid hsl(var(--border))",
+                              color: "hsl(var(--foreground))",
                               borderRadius: "8px",
                             }}
                           />
@@ -1120,27 +1122,27 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 )}
 
                 {/* Recent Responses */}
-                <div className="bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden">
-                  <div className="p-6 border-b border-white/5">
-                    <h3 className="font-semibold text-white">Recent Responses</h3>
+                <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                  <div className="p-6 border-b border-border">
+                    <h3 className="font-semibold text-foreground">Recent Responses</h3>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-white/5">
-                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-6">
+                        <tr className="border-b border-border">
+                          <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
                             ID
                           </th>
-                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-6">
+                          <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
                             Date
                           </th>
-                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-6">
+                          <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
                             Language
                           </th>
-                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-6">
+                          <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
                             Status
                           </th>
-                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-6">
+                          <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
                             Profile
                           </th>
                         </tr>
@@ -1150,18 +1152,18 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           <tr
                             key={response.id}
                             onClick={() => handleOpenDetail(response.id)}
-                            className={cn("border-b border-white/5 hover:bg-white/[0.04] transition-colors cursor-pointer")}
+                            className={cn("border-b border-border hover:bg-accent transition-colors cursor-pointer")}
                           >
                             <td className="py-4 px-6">
                               <div className="flex items-center gap-2">
-                                <Eye className="w-4 h-4 text-white/30" />
-                                <span className="font-mono text-sm text-white/70">{response.id.slice(0, 8)}...</span>
+                                <Eye className="w-4 h-4 text-muted-foreground" />
+                                <span className="font-mono text-sm text-foreground/70">{response.id.slice(0, 8)}...</span>
                               </div>
                             </td>
                             <td className="py-4 px-6">
-                              <span className="text-sm text-white/70">
+                              <span className="text-sm text-foreground/70">
                                 {new Date(response.createdAt).toLocaleDateString()}{" "}
-                                <span className="text-white/40">
+                                <span className="text-muted-foreground">
                                   {new Date(response.createdAt).toLocaleTimeString()}
                                 </span>
                               </span>
@@ -1202,7 +1204,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               </span>
                             </td>
                             <td className="py-4 px-6">
-                              <span className="text-sm text-white/50">
+                              <span className="text-sm text-muted-foreground">
                                 {PROFILE_LABELS[response.profile] || response.profile}
                               </span>
                             </td>
@@ -1227,14 +1229,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="relative flex-1 flex gap-2">
                     <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <input
                         type="text"
                         placeholder="Search by ID..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={handleSearchKeyDown}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        className="w-full pl-10 pr-4 py-2.5 bg-muted border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                       />
                     </div>
                     <button
@@ -1249,8 +1251,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     className={cn(
                       "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all",
                       showFilters
-                        ? "bg-blue-600 text-white"
-                        : "bg-white/5 text-white/70 hover:bg-white/10 border border-white/10"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-accent border border-border"
                     )}
                   >
                     <Filter className="w-4 h-4" />
@@ -1259,8 +1261,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 </div>
 
                 {/* Conversion Funnel */}
-                <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                  <h3 className="font-semibold text-white mb-6">Conversion Funnel</h3>
+                <div className="bg-card border border-border rounded-2xl p-6">
+                  <h3 className="font-semibold text-foreground mb-6">Conversion Funnel</h3>
                   <div className="grid grid-cols-5 gap-4">
                     {[
                       { label: "Started", value: stats.conversionFunnel.started, color: "#3b82f6" },
@@ -1284,10 +1286,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             }}
                           />
                         </div>
-                        <p className="text-lg font-bold text-white">{step.value.toLocaleString()}</p>
-                        <p className="text-xs text-white/50">{step.label}</p>
+                        <p className="text-lg font-bold text-foreground">{step.value.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">{step.label}</p>
                         {i > 0 && (
-                          <p className="text-xs text-white/30 mt-1">
+                          <p className="text-xs text-muted-foreground/50 mt-1">
                             {Math.round(
                               (step.value /
                                 [
@@ -1307,10 +1309,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 </div>
 
                 {/* All Responses Table */}
-                <div className="bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden">
-                  <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                    <h3 className="font-semibold text-white">All Responses</h3>
-                    <span className="text-sm text-white/50">
+                <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                  <div className="p-6 border-b border-border flex items-center justify-between">
+                    <h3 className="font-semibold text-foreground">All Responses</h3>
+                    <span className="text-sm text-muted-foreground">
                       {stats.pagination ? (
                         <>
                           Showing {((stats.pagination.page - 1) * stats.pagination.limit) + 1}-
@@ -1331,7 +1333,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         </span>
                         <button
                           onClick={handleClearSelection}
-                          className="text-xs text-white/60 hover:text-white transition-colors"
+                          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                         >
                           Clear
                         </button>
@@ -1343,7 +1345,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           "px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
                           selectedResponseIds.length >= 2
                             ? "bg-blue-600 hover:bg-blue-500 text-white"
-                            : "bg-white/10 text-white/30 cursor-not-allowed"
+                            : "bg-muted text-muted-foreground cursor-not-allowed"
                         )}
                       >
                         <GitCompare className="w-4 h-4" />
@@ -1355,26 +1357,26 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-white/5">
-                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-3 w-12">
+                        <tr className="border-b border-border">
+                          <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-3 w-12">
                             <span className="sr-only">Select</span>
                           </th>
-                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-6">
+                          <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
                             ID
                           </th>
-                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-6">
+                          <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
                             Date
                           </th>
-                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-6">
+                          <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
                             Language
                           </th>
-                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-6">
+                          <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
                             Status
                           </th>
-                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-6">
+                          <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
                             Religiosity
                           </th>
-                          <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-6">
+                          <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
                             AI Score
                           </th>
                         </tr>
@@ -1384,7 +1386,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           <tr
                             key={response.id}
                             className={cn(
-                              "border-b border-white/5 hover:bg-white/[0.04] transition-colors",
+                              "border-b border-border hover:bg-accent transition-colors",
                               selectedResponseIds.includes(response.id) && "bg-blue-500/10"
                             )}
                           >
@@ -1411,11 +1413,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               onClick={() => handleOpenDetail(response.id)}
                             >
                               <div className="flex items-center gap-2">
-                                <Eye className="w-4 h-4 text-white/30" />
-                                <span className="font-mono text-sm text-white/70">{response.id.slice(0, 8)}...</span>
+                                <Eye className="w-4 h-4 text-muted-foreground/50" />
+                                <span className="font-mono text-sm text-foreground/70">{response.id.slice(0, 8)}...</span>
                               </div>
                             </td>
-                            <td className="py-4 px-6 text-sm text-white/70">
+                            <td className="py-4 px-6 text-sm text-foreground/70">
                               {new Date(response.createdAt).toLocaleDateString()}
                             </td>
                             <td className="py-4 px-6">
@@ -1442,8 +1444,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 {response.completed ? "Complete" : "Partial"}
                               </span>
                             </td>
-                            <td className="py-4 px-6 text-sm text-white/70">{response.religiosityScore}</td>
-                            <td className="py-4 px-6 text-sm text-white/70">{response.aiScore}</td>
+                            <td className="py-4 px-6 text-sm text-foreground/70">{response.religiosityScore}</td>
+                            <td className="py-4 px-6 text-sm text-foreground/70">{response.aiScore}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1452,22 +1454,22 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                   {/* Pagination Controls */}
                   {stats.pagination && stats.pagination.totalPages > 1 && (
-                    <div className="p-4 border-t border-white/5 flex items-center justify-between">
-                      <p className="text-sm text-white/50">
+                    <div className="p-4 border-t border-border flex items-center justify-between">
+                      <p className="text-sm text-muted-foreground">
                         Page {stats.pagination.page} of {stats.pagination.totalPages}
                       </p>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handlePageChange(1)}
                           disabled={stats.pagination.page === 1}
-                          className="px-3 py-1.5 text-sm bg-white/5 hover:bg-white/10 text-white/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                          className="px-3 py-1.5 text-sm bg-muted hover:bg-accent text-foreground/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
                           First
                         </button>
                         <button
                           onClick={() => handlePageChange(stats.pagination.page - 1)}
                           disabled={stats.pagination.page === 1}
-                          className="px-3 py-1.5 text-sm bg-white/5 hover:bg-white/10 text-white/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                          className="px-3 py-1.5 text-sm bg-muted hover:bg-accent text-foreground/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
                           Previous
                         </button>
@@ -1497,7 +1499,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                   "w-8 h-8 text-sm rounded-lg transition-all",
                                   pageNum === currentPage
                                     ? "bg-blue-600 text-white"
-                                    : "bg-white/5 hover:bg-white/10 text-white/70"
+                                    : "bg-muted hover:bg-accent text-foreground/70"
                                 )}
                               >
                                 {pageNum}
@@ -1509,14 +1511,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         <button
                           onClick={() => handlePageChange(stats.pagination.page + 1)}
                           disabled={stats.pagination.page === stats.pagination.totalPages}
-                          className="px-3 py-1.5 text-sm bg-white/5 hover:bg-white/10 text-white/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                          className="px-3 py-1.5 text-sm bg-muted hover:bg-accent text-foreground/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
                           Next
                         </button>
                         <button
                           onClick={() => handlePageChange(stats.pagination.totalPages)}
                           disabled={stats.pagination.page === stats.pagination.totalPages}
-                          className="px-3 py-1.5 text-sm bg-white/5 hover:bg-white/10 text-white/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                          className="px-3 py-1.5 text-sm bg-muted hover:bg-accent text-foreground/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
                           Last
                         </button>
@@ -1561,8 +1563,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 {Object.keys(stats.profiles).some((k) => stats.profiles[k] > 0) && (
                   <div className="grid lg:grid-cols-2 gap-6">
                     {/* Profile Pie Chart */}
-                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                      <h3 className="font-semibold text-white mb-6">Profile Distribution</h3>
+                    <div className="bg-card border border-border rounded-2xl p-6">
+                      <h3 className="font-semibold text-foreground mb-6">Profile Distribution</h3>
                       <div className="h-72">
                         <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                           <RechartsPieChart>
@@ -1589,8 +1591,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             </Pie>
                             <Tooltip
                               contentStyle={{
-                                backgroundColor: "#1e293b",
-                                border: "1px solid rgba(255,255,255,0.1)",
+                                backgroundColor: "hsl(var(--card))",
+                                border: "1px solid hsl(var(--border))",
+                                color: "hsl(var(--foreground))",
                                 borderRadius: "8px",
                               }}
                             />
@@ -1606,18 +1609,18 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     </div>
 
                     {/* Profile Bar Chart */}
-                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                      <h3 className="font-semibold text-white mb-6">Profiles by Count</h3>
+                    <div className="bg-card border border-border rounded-2xl p-6">
+                      <h3 className="font-semibold text-foreground mb-6">Profiles by Count</h3>
                       <div className="space-y-3">
                         {Object.entries(stats.profiles)
                           .sort(([, a], [, b]) => b - a)
                           .map(([profile, count]) => (
                             <div key={profile}>
                               <div className="flex items-center justify-between text-sm mb-1">
-                                <span className="text-white/70">{PROFILE_LABELS[profile] || profile}</span>
-                                <span className="text-white font-medium">{count}</span>
+                                <span className="text-foreground/70">{PROFILE_LABELS[profile] || profile}</span>
+                                <span className="text-foreground font-medium">{count}</span>
                               </div>
-                              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                              <div className="h-2 bg-muted rounded-full overflow-hidden">
                                 <div
                                   className="h-full rounded-full transition-all"
                                   style={{
@@ -1636,8 +1639,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 {/* Distribution Charts */}
                 <div className="grid lg:grid-cols-2 gap-6">
                   {/* Religiosity Distribution */}
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                    <h3 className="font-semibold text-white mb-6">Religiosity Distribution</h3>
+                  <div className="bg-card border border-border rounded-2xl p-6">
+                    <h3 className="font-semibold text-foreground mb-6">Religiosity Distribution</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <BarChart
@@ -1646,13 +1649,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             count,
                           }))}
                         >
-                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                          <XAxis dataKey="range" stroke="#ffffff30" fontSize={11} />
-                          <YAxis stroke="#ffffff30" fontSize={11} />
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                          <XAxis dataKey="range" className="stroke-muted-foreground" fontSize={11} />
+                          <YAxis className="stroke-muted-foreground" fontSize={11} />
                           <Tooltip
                             contentStyle={{
-                              backgroundColor: "#1e293b",
-                              border: "1px solid rgba(255,255,255,0.1)",
+                              backgroundColor: "hsl(var(--card))",
+                              border: "1px solid hsl(var(--border))",
+                              color: "hsl(var(--foreground))",
                               borderRadius: "8px",
                             }}
                           />
@@ -1663,8 +1667,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   </div>
 
                   {/* AI Adoption Distribution */}
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                    <h3 className="font-semibold text-white mb-6">AI Adoption Distribution</h3>
+                  <div className="bg-card border border-border rounded-2xl p-6">
+                    <h3 className="font-semibold text-foreground mb-6">AI Adoption Distribution</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <BarChart
@@ -1673,13 +1677,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             count,
                           }))}
                         >
-                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                          <XAxis dataKey="range" stroke="#ffffff30" fontSize={11} />
-                          <YAxis stroke="#ffffff30" fontSize={11} />
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                          <XAxis dataKey="range" className="stroke-muted-foreground" fontSize={11} />
+                          <YAxis className="stroke-muted-foreground" fontSize={11} />
                           <Tooltip
                             contentStyle={{
-                              backgroundColor: "#1e293b",
-                              border: "1px solid rgba(255,255,255,0.1)",
+                              backgroundColor: "hsl(var(--card))",
+                              border: "1px solid hsl(var(--border))",
+                              color: "hsl(var(--foreground))",
                               borderRadius: "8px",
                             }}
                           />
@@ -1694,20 +1699,20 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 <div className="grid lg:grid-cols-2 gap-6">
                   {/* By Denomination */}
                   {Object.keys(stats.demographics.byDenomination).length > 0 && (
-                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                      <h3 className="font-semibold text-white mb-6">By Denomination</h3>
+                    <div className="bg-card border border-border rounded-2xl p-6">
+                      <h3 className="font-semibold text-foreground mb-6">By Denomination</h3>
                       <div className="space-y-3">
                         {Object.entries(stats.demographics.byDenomination)
                           .sort(([, a], [, b]) => b - a)
                           .map(([denomination, count], i) => (
                           <div key={denomination}>
                             <div className="flex items-center justify-between text-sm mb-1">
-                              <span className="text-white/70">
+                              <span className="text-foreground/70">
                                 {DENOMINATION_LABELS[denomination] || denomination}
                               </span>
-                              <span className="text-white font-medium">{count.toLocaleString()}</span>
+                              <span className="text-foreground font-medium">{count.toLocaleString()}</span>
                             </div>
-                            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
                               <div
                                 className="h-full rounded-full"
                                 style={{
@@ -1724,20 +1729,20 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                   {/* By Role */}
                   {Object.keys(stats.demographics.byRole).length > 0 && (
-                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                      <h3 className="font-semibold text-white mb-6">By Role</h3>
+                    <div className="bg-card border border-border rounded-2xl p-6">
+                      <h3 className="font-semibold text-foreground mb-6">By Role</h3>
                       <div className="space-y-3">
                         {Object.entries(stats.demographics.byRole)
                           .sort(([, a], [, b]) => b - a)
                           .map(([role, count], i) => (
                           <div key={role}>
                             <div className="flex items-center justify-between text-sm mb-1">
-                              <span className="text-white/70">
+                              <span className="text-foreground/70">
                                 {ROLE_LABELS[role] || role.replace(/_/g, " ")}
                               </span>
-                              <span className="text-white font-medium">{count.toLocaleString()}</span>
+                              <span className="text-foreground font-medium">{count.toLocaleString()}</span>
                             </div>
-                            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
                               <div
                                 className="h-full rounded-full"
                                 style={{
@@ -1757,8 +1762,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 <div className="grid lg:grid-cols-2 gap-6">
                   {/* By Age */}
                   {Object.keys(stats.demographics.byAge).length > 0 && (
-                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                      <h3 className="font-semibold text-white mb-6">By Age Group</h3>
+                    <div className="bg-card border border-border rounded-2xl p-6">
+                      <h3 className="font-semibold text-foreground mb-6">By Age Group</h3>
                       <div className="space-y-3">
                         {Object.entries(stats.demographics.byAge)
                           .sort(([a], [b]) => {
@@ -1768,10 +1773,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           .map(([age, count], i) => (
                           <div key={age}>
                             <div className="flex items-center justify-between text-sm mb-1">
-                              <span className="text-white/70">{AGE_LABELS[age] || age}</span>
-                              <span className="text-white font-medium">{count.toLocaleString()}</span>
+                              <span className="text-foreground/70">{AGE_LABELS[age] || age}</span>
+                              <span className="text-foreground font-medium">{count.toLocaleString()}</span>
                             </div>
-                            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
                               <div
                                 className="h-full rounded-full"
                                 style={{
@@ -1788,8 +1793,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                   {/* By Country */}
                   {stats.demographics.byCountry && Object.keys(stats.demographics.byCountry).length > 0 && (
-                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                      <h3 className="font-semibold text-white mb-6">By Country</h3>
+                    <div className="bg-card border border-border rounded-2xl p-6">
+                      <h3 className="font-semibold text-foreground mb-6">By Country</h3>
                       <div className="space-y-3">
                         {Object.entries(stats.demographics.byCountry)
                           .sort(([, a], [, b]) => b - a)
@@ -1797,10 +1802,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           .map(([country, count], i) => (
                           <div key={country}>
                             <div className="flex items-center justify-between text-sm mb-1">
-                              <span className="text-white/70 capitalize">{country.replace(/_/g, " ")}</span>
-                              <span className="text-white font-medium">{count.toLocaleString()}</span>
+                              <span className="text-foreground/70 capitalize">{country.replace(/_/g, " ")}</span>
+                              <span className="text-foreground font-medium">{count.toLocaleString()}</span>
                             </div>
-                            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
                               <div
                                 className="h-full rounded-full"
                                 style={{
@@ -1818,8 +1823,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                 {/* Cross-Segment Analysis */}
                 {stats.segmentedAnalysis && (
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                    <h3 className="font-semibold text-white mb-6 flex items-center gap-2">
+                  <div className="bg-card border border-border rounded-2xl p-6">
+                    <h3 className="font-semibold text-foreground mb-6 flex items-center gap-2">
                       <Users className="w-4 h-4 text-blue-400" />
                       Cross-Segment Analysis
                     </h3>
@@ -1827,26 +1832,26 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     {/* Clergy vs Laity Comparison */}
                     {stats.segmentedAnalysis.byRole?.clergy && stats.segmentedAnalysis.byRole?.laity && (
                       <div className="mb-6">
-                        <h4 className="text-sm font-medium text-white/70 mb-4">Clergy vs Laity Comparison</h4>
+                        <h4 className="text-sm font-medium text-foreground/70 mb-4">Clergy vs Laity Comparison</h4>
                         <div className="grid md:grid-cols-2 gap-4">
                           {/* Clergy */}
                           <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
                             <div className="flex items-center justify-between mb-3">
                               <span className="text-sm font-medium text-blue-400">Clergy</span>
-                              <span className="text-xs text-white/50">n={stats.segmentedAnalysis.byRole.clergy.count}</span>
+                              <span className="text-xs text-muted-foreground">n={stats.segmentedAnalysis.byRole.clergy.count}</span>
                             </div>
                             <div className="grid grid-cols-3 gap-2 text-center">
                               <div>
-                                <p className="text-lg font-bold text-white">{stats.segmentedAnalysis.byRole.clergy.avgReligiosity.toFixed(1)}</p>
-                                <p className="text-xs text-white/50">Religiosity</p>
+                                <p className="text-lg font-bold text-foreground">{stats.segmentedAnalysis.byRole.clergy.avgReligiosity.toFixed(1)}</p>
+                                <p className="text-xs text-muted-foreground">Religiosity</p>
                               </div>
                               <div>
-                                <p className="text-lg font-bold text-white">{stats.segmentedAnalysis.byRole.clergy.avgAiAdoption.toFixed(1)}</p>
-                                <p className="text-xs text-white/50">AI Adoption</p>
+                                <p className="text-lg font-bold text-foreground">{stats.segmentedAnalysis.byRole.clergy.avgAiAdoption.toFixed(1)}</p>
+                                <p className="text-xs text-muted-foreground">AI Adoption</p>
                               </div>
                               <div>
-                                <p className="text-lg font-bold text-white">{stats.segmentedAnalysis.byRole.clergy.avgResistance.toFixed(1)}</p>
-                                <p className="text-xs text-white/50">Resistance</p>
+                                <p className="text-lg font-bold text-foreground">{stats.segmentedAnalysis.byRole.clergy.avgResistance.toFixed(1)}</p>
+                                <p className="text-xs text-muted-foreground">Resistance</p>
                               </div>
                             </div>
                           </div>
@@ -1854,32 +1859,32 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
                             <div className="flex items-center justify-between mb-3">
                               <span className="text-sm font-medium text-green-400">Laity</span>
-                              <span className="text-xs text-white/50">n={stats.segmentedAnalysis.byRole.laity.count}</span>
+                              <span className="text-xs text-muted-foreground">n={stats.segmentedAnalysis.byRole.laity.count}</span>
                             </div>
                             <div className="grid grid-cols-3 gap-2 text-center">
                               <div>
-                                <p className="text-lg font-bold text-white">{stats.segmentedAnalysis.byRole.laity.avgReligiosity.toFixed(1)}</p>
-                                <p className="text-xs text-white/50">Religiosity</p>
+                                <p className="text-lg font-bold text-foreground">{stats.segmentedAnalysis.byRole.laity.avgReligiosity.toFixed(1)}</p>
+                                <p className="text-xs text-muted-foreground">Religiosity</p>
                               </div>
                               <div>
-                                <p className="text-lg font-bold text-white">{stats.segmentedAnalysis.byRole.laity.avgAiAdoption.toFixed(1)}</p>
-                                <p className="text-xs text-white/50">AI Adoption</p>
+                                <p className="text-lg font-bold text-foreground">{stats.segmentedAnalysis.byRole.laity.avgAiAdoption.toFixed(1)}</p>
+                                <p className="text-xs text-muted-foreground">AI Adoption</p>
                               </div>
                               <div>
-                                <p className="text-lg font-bold text-white">{stats.segmentedAnalysis.byRole.laity.avgResistance.toFixed(1)}</p>
-                                <p className="text-xs text-white/50">Resistance</p>
+                                <p className="text-lg font-bold text-foreground">{stats.segmentedAnalysis.byRole.laity.avgResistance.toFixed(1)}</p>
+                                <p className="text-xs text-muted-foreground">Resistance</p>
                               </div>
                             </div>
                           </div>
                         </div>
                         {/* Difference indicator */}
                         <div className="mt-3 flex items-center justify-center gap-4 text-xs">
-                          <span className="text-white/40">Difference:</span>
+                          <span className="text-muted-foreground/60">Difference:</span>
                           <span className={cn(
                             "font-medium",
                             Math.abs(stats.segmentedAnalysis.byRole.clergy.avgReligiosity - stats.segmentedAnalysis.byRole.laity.avgReligiosity) > 0.5
                               ? "text-amber-400"
-                              : "text-white/50"
+                              : "text-muted-foreground"
                           )}>
                             Δ Rel: {(stats.segmentedAnalysis.byRole.clergy.avgReligiosity - stats.segmentedAnalysis.byRole.laity.avgReligiosity).toFixed(1)}
                           </span>
@@ -1887,7 +1892,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             "font-medium",
                             Math.abs(stats.segmentedAnalysis.byRole.clergy.avgAiAdoption - stats.segmentedAnalysis.byRole.laity.avgAiAdoption) > 0.5
                               ? "text-amber-400"
-                              : "text-white/50"
+                              : "text-muted-foreground"
                           )}>
                             Δ AI: {(stats.segmentedAnalysis.byRole.clergy.avgAiAdoption - stats.segmentedAnalysis.byRole.laity.avgAiAdoption).toFixed(1)}
                           </span>
@@ -1898,17 +1903,17 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     {/* By Age Group */}
                     {Object.keys(stats.segmentedAnalysis.byAge || {}).length > 0 && (
                       <div className="mb-6">
-                        <h4 className="text-sm font-medium text-white/70 mb-4">Dimension Averages by Age Group</h4>
+                        <h4 className="text-sm font-medium text-foreground/70 mb-4">Dimension Averages by Age Group</h4>
                         <div className="overflow-x-auto">
                           <table className="w-full text-sm">
                             <thead>
-                              <tr className="border-b border-white/10">
-                                <th className="text-left py-2 px-3 text-white/50 font-medium">Age</th>
-                                <th className="text-center py-2 px-3 text-white/50 font-medium">n</th>
-                                <th className="text-center py-2 px-3 text-white/50 font-medium">Rel.</th>
-                                <th className="text-center py-2 px-3 text-white/50 font-medium">AI Open.</th>
-                                <th className="text-center py-2 px-3 text-white/50 font-medium">Sacred</th>
-                                <th className="text-center py-2 px-3 text-white/50 font-medium">Future</th>
+                              <tr className="border-b border-border">
+                                <th className="text-left py-2 px-3 text-muted-foreground font-medium">Age</th>
+                                <th className="text-center py-2 px-3 text-muted-foreground font-medium">n</th>
+                                <th className="text-center py-2 px-3 text-muted-foreground font-medium">Rel.</th>
+                                <th className="text-center py-2 px-3 text-muted-foreground font-medium">AI Open.</th>
+                                <th className="text-center py-2 px-3 text-muted-foreground font-medium">Sacred</th>
+                                <th className="text-center py-2 px-3 text-muted-foreground font-medium">Future</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -1918,9 +1923,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                   return order.indexOf(a) - order.indexOf(b);
                                 })
                                 .map(([age, data]) => (
-                                  <tr key={age} className="border-b border-white/5 hover:bg-white/[0.02]">
-                                    <td className="py-2 px-3 text-white">{AGE_LABELS[age] || age}</td>
-                                    <td className="py-2 px-3 text-center text-white/50">{data.count}</td>
+                                  <tr key={age} className="border-b border-border hover:bg-muted">
+                                    <td className="py-2 px-3 text-foreground">{AGE_LABELS[age] || age}</td>
+                                    <td className="py-2 px-3 text-center text-muted-foreground">{data.count}</td>
                                     <td className="py-2 px-3 text-center">
                                       <span className="text-blue-400 font-medium">{data.avgReligiosity.toFixed(1)}</span>
                                     </td>
@@ -1944,11 +1949,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     {/* Profile Distribution by Segment */}
                     {stats.segmentedAnalysis.byRole?.clergy && stats.segmentedAnalysis.byRole?.laity && (
                       <div>
-                        <h4 className="text-sm font-medium text-white/70 mb-4">Profile Distribution by Role</h4>
+                        <h4 className="text-sm font-medium text-foreground/70 mb-4">Profile Distribution by Role</h4>
                         <div className="grid md:grid-cols-2 gap-4">
                           {/* Clergy profiles */}
-                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
-                            <p className="text-xs text-white/50 mb-3">Clergy Top Profiles</p>
+                          <div className="bg-card border border-border rounded-xl p-4">
+                            <p className="text-xs text-muted-foreground mb-3">Clergy Top Profiles</p>
                             <div className="space-y-2">
                               {Object.entries(stats.segmentedAnalysis.byRole.clergy.profileDistribution)
                                 .sort(([, a], [, b]) => b - a)
@@ -1959,15 +1964,15 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                       className="w-2 h-2 rounded-full"
                                       style={{ backgroundColor: PROFILE_COLORS[profile] || '#3b82f6' }}
                                     />
-                                    <span className="text-xs text-white/70 flex-1">{PROFILE_LABELS[profile] || profile}</span>
-                                    <span className="text-xs text-white">{count}</span>
+                                    <span className="text-xs text-foreground/70 flex-1">{PROFILE_LABELS[profile] || profile}</span>
+                                    <span className="text-xs text-foreground">{count}</span>
                                   </div>
                                 ))}
                             </div>
                           </div>
                           {/* Laity profiles */}
-                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
-                            <p className="text-xs text-white/50 mb-3">Laity Top Profiles</p>
+                          <div className="bg-card border border-border rounded-xl p-4">
+                            <p className="text-xs text-muted-foreground mb-3">Laity Top Profiles</p>
                             <div className="space-y-2">
                               {Object.entries(stats.segmentedAnalysis.byRole.laity.profileDistribution)
                                 .sort(([, a], [, b]) => b - a)
@@ -1978,8 +1983,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                       className="w-2 h-2 rounded-full"
                                       style={{ backgroundColor: PROFILE_COLORS[profile] || '#3b82f6' }}
                                     />
-                                    <span className="text-xs text-white/70 flex-1">{PROFILE_LABELS[profile] || profile}</span>
-                                    <span className="text-xs text-white">{count}</span>
+                                    <span className="text-xs text-foreground/70 flex-1">{PROFILE_LABELS[profile] || profile}</span>
+                                    <span className="text-xs text-foreground">{count}</span>
                                   </div>
                                 ))}
                             </div>
@@ -1992,21 +1997,21 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                 {/* Full Correlation Matrix */}
                 {stats.correlationMatrix && (
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                    <h3 className="font-semibold text-white mb-6 flex items-center gap-2">
+                  <div className="bg-card border border-border rounded-2xl p-6">
+                    <h3 className="font-semibold text-foreground mb-6 flex items-center gap-2">
                       <GitCompare className="w-4 h-4 text-purple-400" />
                       7-Dimension Correlation Matrix
                     </h3>
-                    <p className="text-sm text-white/50 mb-4">
+                    <p className="text-sm text-muted-foreground mb-4">
                       Pearson correlation coefficients between the seven dimensions. Blue = positive, Red = negative.
                     </p>
                     <div className="overflow-x-auto">
                       <table className="w-full text-xs">
                         <thead>
                           <tr>
-                            <th className="p-2 text-left text-white/50"></th>
+                            <th className="p-2 text-left text-muted-foreground"></th>
                             {Object.keys(stats.correlationMatrix).map((dim) => (
-                              <th key={dim} className="p-2 text-center text-white/50 font-normal" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', height: '80px' }}>
+                              <th key={dim} className="p-2 text-center text-muted-foreground font-normal" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', height: '80px' }}>
                                 {DIMENSION_LABELS[dim]?.split(' ').slice(0, 2).join(' ') || dim}
                               </th>
                             ))}
@@ -2015,7 +2020,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         <tbody>
                           {Object.entries(stats.correlationMatrix).map(([dim1, row]) => (
                             <tr key={dim1}>
-                              <td className="p-2 text-white/70 whitespace-nowrap">
+                              <td className="p-2 text-foreground/70 whitespace-nowrap">
                                 {DIMENSION_LABELS[dim1]?.split(' ').slice(0, 2).join(' ') || dim1}
                               </td>
                               {Object.entries(row).map(([dim2, value]) => {
@@ -2028,12 +2033,12 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 return (
                                   <td
                                     key={dim2}
-                                    className="p-2 text-center border border-white/5"
+                                    className="p-2 text-center border border-border"
                                     style={{ backgroundColor: bgColor }}
                                   >
                                     <span className={cn(
                                       "font-medium",
-                                      dim1 === dim2 ? "text-white/30" : "text-white"
+                                      dim1 === dim2 ? "text-muted-foreground/50" : "text-white"
                                     )}>
                                       {dim1 === dim2 ? '1' : value.toFixed(2)}
                                     </span>
@@ -2046,13 +2051,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       </table>
                     </div>
                     {/* Legend */}
-                    <div className="flex items-center justify-center gap-6 mt-4 text-xs text-white/50">
+                    <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(239, 68, 68, 0.6)' }} />
                         <span>Negative correlation</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded bg-white/5" />
+                        <div className="w-4 h-4 rounded bg-muted" />
                         <span>No correlation</span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -2074,48 +2079,48 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 className="max-w-3xl mx-auto space-y-6"
               >
                 {/* Export Card */}
-                <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-8">
+                <div className="bg-card border border-border rounded-2xl p-8">
                   <div className="text-center mb-8">
                     <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                       <Download className="w-8 h-8 text-white" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white mb-2">Export Data</h2>
-                    <p className="text-white/60">
+                    <h2 className="text-2xl font-bold text-foreground mb-2">Export Data</h2>
+                    <p className="text-muted-foreground">
                       Download survey responses in JSON or CSV format. Only consented responses are included.
                     </p>
                   </div>
 
                   {/* Filters */}
-                  <div className="bg-white/5 rounded-xl p-6 mb-6">
-                    <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                  <div className="bg-muted rounded-xl p-6 mb-6">
+                    <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
                       <Filter className="w-4 h-4" />
                       Filter Options
                     </h3>
                     <div className="grid sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-xs text-white/50 mb-1.5">Start Date</label>
+                        <label className="block text-xs text-muted-foreground mb-1.5">Start Date</label>
                         <input
                           type="date"
                           value={filters.dateFrom}
                           onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                          className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-white/50 mb-1.5">End Date</label>
+                        <label className="block text-xs text-muted-foreground mb-1.5">End Date</label>
                         <input
                           type="date"
                           value={filters.dateTo}
                           onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                          className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-white/50 mb-1.5">Language</label>
+                        <label className="block text-xs text-muted-foreground mb-1.5">Language</label>
                         <select
                           value={filters.language}
                           onChange={(e) => setFilters({ ...filters, language: e.target.value as "" | "fr" | "en" })}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                          className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                         >
                           <option value="">All Languages</option>
                           <option value="fr">French</option>
@@ -2206,49 +2211,49 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/30 rounded-2xl p-6">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                      <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                         <Sparkles className="w-5 h-5 text-purple-400" />
                         Executive Summary
                       </h2>
-                      <p className="text-sm text-white/60 mt-1">
+                      <p className="text-sm text-muted-foreground mt-1">
                         Research-ready insights and statistical analysis
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-3xl font-bold text-white">{stats.overview.completedResponses.toLocaleString()}</p>
-                      <p className="text-xs text-white/50">Valid Responses</p>
+                      <p className="text-3xl font-bold text-foreground">{stats.overview.completedResponses.toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground">Valid Responses</p>
                     </div>
                   </div>
 
                   {/* Research Quality Metrics */}
                   <div className="grid grid-cols-4 gap-4 mt-6">
-                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                    <div className="bg-muted rounded-xl p-4 text-center">
                       <p className="text-2xl font-bold text-green-400">{stats.overview.completionRate}%</p>
-                      <p className="text-xs text-white/50 mt-1">Completion Rate</p>
+                      <p className="text-xs text-muted-foreground mt-1">Completion Rate</p>
                     </div>
-                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                    <div className="bg-muted rounded-xl p-4 text-center">
                       <p className="text-2xl font-bold text-blue-400">{stats.overview.avgCompletionTime}m</p>
-                      <p className="text-xs text-white/50 mt-1">Avg. Time</p>
+                      <p className="text-xs text-muted-foreground mt-1">Avg. Time</p>
                     </div>
-                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                    <div className="bg-muted rounded-xl p-4 text-center">
                       <p className="text-2xl font-bold text-purple-400">
                         {Object.keys(stats.demographics.byDenomination || {}).length}
                       </p>
-                      <p className="text-xs text-white/50 mt-1">Denominations</p>
+                      <p className="text-xs text-muted-foreground mt-1">Denominations</p>
                     </div>
-                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                    <div className="bg-muted rounded-xl p-4 text-center">
                       <p className="text-2xl font-bold text-amber-400">
                         {Object.keys(stats.demographics.byAge || {}).length}
                       </p>
-                      <p className="text-xs text-white/50 mt-1">Age Groups</p>
+                      <p className="text-xs text-muted-foreground mt-1">Age Groups</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Key Findings */}
                 {stats.keyFindings && stats.keyFindings.length > 0 && (
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                    <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                  <div className="bg-card border border-border rounded-2xl p-6">
+                    <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                       <Target className="w-4 h-4 text-amber-400" />
                       Key Research Findings
                     </h3>
@@ -2262,7 +2267,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               ? "bg-green-500/10 border-green-500/30"
                               : finding.significance === 'medium'
                               ? "bg-blue-500/10 border-blue-500/30"
-                              : "bg-white/5 border-white/10"
+                              : "bg-muted border-border"
                           )}
                         >
                           <div className="flex items-start justify-between mb-2">
@@ -2278,14 +2283,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             <span className={cn(
                               "text-xs",
                               finding.significance === 'high' ? "text-green-400" :
-                              finding.significance === 'medium' ? "text-blue-400" : "text-white/40"
+                              finding.significance === 'medium' ? "text-blue-400" : "text-muted-foreground/60"
                             )}>
                               {finding.significance === 'high' ? '●●●' :
                                finding.significance === 'medium' ? '●●○' : '●○○'}
                             </span>
                           </div>
-                          <h4 className="font-medium text-white text-sm">{finding.title}</h4>
-                          <p className="text-xs text-white/60 mt-1">{finding.description}</p>
+                          <h4 className="font-medium text-foreground text-sm">{finding.title}</h4>
+                          <p className="text-xs text-muted-foreground mt-1">{finding.description}</p>
                         </div>
                       ))}
                     </div>
@@ -2294,25 +2299,25 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                 {/* Profile Clusters Visualization */}
                 {stats.profileClusters && stats.profileClusters.length > 0 && (
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                    <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                  <div className="bg-card border border-border rounded-2xl p-6">
+                    <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                       <TrendingUp className="w-4 h-4 text-blue-400" />
                       Profile Clusters (Religiosity × AI Openness)
                     </h3>
                     <div className="h-80 relative">
                       {/* Axis labels */}
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 text-xs text-white/40 whitespace-nowrap">
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 text-xs text-muted-foreground/60 whitespace-nowrap">
                         AI Openness →
                       </div>
-                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xs text-white/40">
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/60">
                         Religiosity →
                       </div>
                       {/* Scatter/Bubble area */}
-                      <div className="ml-8 mb-6 h-full relative bg-white/[0.02] rounded-xl overflow-hidden">
+                      <div className="ml-8 mb-6 h-full relative bg-card rounded-xl overflow-hidden">
                         {/* Grid lines */}
                         <div className="absolute inset-0 grid grid-cols-5 grid-rows-5">
                           {[...Array(25)].map((_, i) => (
-                            <div key={i} className="border border-white/5" />
+                            <div key={i} className="border border-border" />
                           ))}
                         </div>
                         {/* Bubbles */}
@@ -2332,7 +2337,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               }}
                             >
                               <div
-                                className="rounded-full flex items-center justify-center text-xs font-medium text-white opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
+                                className="rounded-full flex items-center justify-center text-xs font-medium text-foreground opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
                                 style={{
                                   width: '100%',
                                   height: '100%',
@@ -2343,10 +2348,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               </div>
                               {/* Tooltip */}
                               <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block z-10">
-                                <div className="bg-slate-800 border border-white/10 rounded-lg px-3 py-2 text-xs whitespace-nowrap">
-                                  <p className="font-medium text-white">{PROFILE_LABELS[cluster.profile]}</p>
-                                  <p className="text-white/60">n={cluster.count}</p>
-                                  <p className="text-white/60">Rel: {cluster.avgReligiosity} | AI: {cluster.avgAiOpenness}</p>
+                                <div className="bg-card border border-border rounded-lg px-3 py-2 text-xs whitespace-nowrap">
+                                  <p className="font-medium text-foreground">{PROFILE_LABELS[cluster.profile]}</p>
+                                  <p className="text-muted-foreground">n={cluster.count}</p>
+                                  <p className="text-muted-foreground">Rel: {cluster.avgReligiosity} | AI: {cluster.avgAiOpenness}</p>
                                 </div>
                               </div>
                             </div>
@@ -2362,7 +2367,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             className="w-3 h-3 rounded-full"
                             style={{ backgroundColor: PROFILE_COLORS[cluster.profile] || '#3b82f6' }}
                           />
-                          <span className="text-xs text-white/60">{PROFILE_LABELS[cluster.profile]}</span>
+                          <span className="text-xs text-muted-foreground">{PROFILE_LABELS[cluster.profile]}</span>
                         </div>
                       ))}
                     </div>
@@ -2371,45 +2376,45 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                 {/* Dimension Statistics Table */}
                 {stats.dimensionStats && (
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                    <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                  <div className="bg-card border border-border rounded-2xl p-6">
+                    <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                       📊 Dimension Statistics
                     </h3>
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead>
-                          <tr className="border-b border-white/10">
-                            <th className="text-left text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-4">
+                          <tr className="border-b border-border">
+                            <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-4">
                               Dimension
                             </th>
-                            <th className="text-center text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-4">
+                            <th className="text-center text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-4">
                               Mean
                             </th>
-                            <th className="text-center text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-4">
+                            <th className="text-center text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-4">
                               Std Dev
                             </th>
-                            <th className="text-center text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-4">
+                            <th className="text-center text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-4">
                               Median
                             </th>
-                            <th className="text-center text-white/50 font-medium text-xs uppercase tracking-wider py-3 px-4">
+                            <th className="text-center text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-4">
                               Distribution
                             </th>
                           </tr>
                         </thead>
                         <tbody>
                           {Object.entries(stats.dimensionStats).map(([dim, stat]) => (
-                            <tr key={dim} className="border-b border-white/5 hover:bg-white/[0.02]">
+                            <tr key={dim} className="border-b border-border hover:bg-muted">
                               <td className="py-3 px-4">
-                                <span className="text-sm text-white">{DIMENSION_LABELS[dim] || dim}</span>
+                                <span className="text-sm text-foreground">{DIMENSION_LABELS[dim] || dim}</span>
                               </td>
                               <td className="py-3 px-4 text-center">
                                 <span className="text-sm font-medium text-blue-400">{stat.mean.toFixed(2)}</span>
                               </td>
                               <td className="py-3 px-4 text-center">
-                                <span className="text-sm text-white/60">±{stat.stdDev.toFixed(2)}</span>
+                                <span className="text-sm text-muted-foreground">±{stat.stdDev.toFixed(2)}</span>
                               </td>
                               <td className="py-3 px-4 text-center">
-                                <span className="text-sm text-white/60">{stat.median.toFixed(2)}</span>
+                                <span className="text-sm text-muted-foreground">{stat.median.toFixed(2)}</span>
                               </td>
                               <td className="py-3 px-4">
                                 {/* Mini sparkline/distribution */}
@@ -2438,12 +2443,12 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                 {/* Correlation Matrix Preview */}
                 {stats.correlationMatrix && (
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                    <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                  <div className="bg-card border border-border rounded-2xl p-6">
+                    <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                       <GitCompare className="w-4 h-4 text-purple-400" />
                       Correlation Matrix (7 Dimensions)
                     </h3>
-                    <p className="text-sm text-white/50 mb-4">
+                    <p className="text-sm text-muted-foreground mb-4">
                       See full matrix in Analytics tab
                     </p>
                     {/* Top correlations preview */}
@@ -2464,9 +2469,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
                           .slice(0, 6)
                           .map((c, i) => (
-                            <div key={i} className="bg-white/5 rounded-lg p-3">
+                            <div key={i} className="bg-muted rounded-lg p-3">
                               <div className="flex items-center justify-between mb-1">
-                                <span className="text-xs text-white/50">
+                                <span className="text-xs text-muted-foreground">
                                   {DIMENSION_LABELS[c.dim1]?.split(' ')[0] || c.dim1}
                                   {' × '}
                                   {DIMENSION_LABELS[c.dim2]?.split(' ')[0] || c.dim2}
@@ -2478,7 +2483,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                   {c.value > 0 ? '+' : ''}{c.value.toFixed(2)}
                                 </span>
                               </div>
-                              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                              <div className="h-2 bg-muted rounded-full overflow-hidden">
                                 <div
                                   className={cn(
                                     "h-full rounded-full",
@@ -2516,17 +2521,17 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="w-full max-w-4xl max-h-[90vh] overflow-hidden bg-slate-900 border border-white/10 rounded-2xl shadow-2xl"
+              className="w-full max-w-4xl max-h-[90vh] overflow-hidden bg-card border border-border rounded-2xl shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between p-6 border-b border-white/5">
+              <div className="flex items-center justify-between p-6 border-b border-border">
                 <div>
-                  <h2 className="text-xl font-semibold text-white">
+                  <h2 className="text-xl font-semibold text-foreground">
                     Réponse #{selectedResponseId.slice(0, 8)}...
                   </h2>
                   {responseDetail && (
-                    <p className="text-sm text-white/50 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
                       {new Date(responseDetail.createdAt).toLocaleDateString()} •{" "}
                       {responseDetail.language.toUpperCase()}
                     </p>
@@ -2534,14 +2539,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 </div>
                 <button
                   onClick={handleCloseDetail}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  className="p-2 hover:bg-accent rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-white/60" />
+                  <X className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
 
               {/* Modal Tabs */}
-              <div className="flex gap-1 p-2 border-b border-white/5 bg-white/[0.02]">
+              <div className="flex gap-1 p-2 border-b border-border bg-card">
                 {[
                   { id: "profil", label: "Profil" },
                   { id: "scores", label: "Scores" },
@@ -2555,7 +2560,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       "px-4 py-2 rounded-lg text-sm font-medium transition-all",
                       activeDetailTab === tab.id
                         ? "bg-blue-600 text-white"
-                        : "text-white/60 hover:bg-white/5 hover:text-white"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
                   >
                     {tab.label}
@@ -2568,7 +2573,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 {detailLoading ? (
                   <div className="flex flex-col items-center justify-center py-20 gap-3">
                     <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
-                    <p className="text-sm text-white/50">Loading response details...</p>
+                    <p className="text-sm text-muted-foreground">Loading response details...</p>
                   </div>
                 ) : detailError ? (
                   <div className="flex flex-col items-center justify-center py-20 gap-4">
@@ -2576,12 +2581,12 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       <AlertCircle className="w-8 h-8 text-red-400" />
                     </div>
                     <div className="text-center">
-                      <h3 className="font-medium text-white mb-1">Failed to Load</h3>
-                      <p className="text-sm text-white/50">{detailError}</p>
+                      <h3 className="font-medium text-foreground mb-1">Failed to Load</h3>
+                      <p className="text-sm text-muted-foreground">{detailError}</p>
                     </div>
                     <button
                       onClick={() => selectedResponseId && fetchResponseDetail(selectedResponseId)}
-                      className="px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg text-sm font-medium text-white transition-colors"
+                      className="px-4 py-2 bg-muted hover:bg-accent rounded-lg text-sm font-medium text-foreground transition-colors"
                     >
                       Try Again
                     </button>
@@ -2593,8 +2598,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       <div className="space-y-6">
                         <div className="grid md:grid-cols-2 gap-6">
                           {/* Demographics */}
-                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                            <h3 className="font-semibold text-white mb-4">Profil Démographique</h3>
+                          <div className="bg-card border border-border rounded-xl p-5">
+                            <h3 className="font-semibold text-foreground mb-4">Profil Démographique</h3>
                             <div className="space-y-3">
                               {[
                                 { label: "Confession", value: DENOMINATION_LABELS[responseDetail.answers.profil_confession as string] || responseDetail.answers.profil_confession },
@@ -2605,8 +2610,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 { label: "Orientation théo.", value: responseDetail.answers.theo_orientation },
                               ].map((item, i) => (
                                 <div key={i} className="flex justify-between">
-                                  <span className="text-white/50 text-sm">{item.label}</span>
-                                  <span className="text-white text-sm font-medium">
+                                  <span className="text-muted-foreground text-sm">{item.label}</span>
+                                  <span className="text-foreground text-sm font-medium">
                                     {typeof item.value === "string" ? item.value : "—"}
                                   </span>
                                 </div>
@@ -2615,8 +2620,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           </div>
 
                           {/* Profile Type */}
-                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                            <h3 className="font-semibold text-white mb-4">Profil Typologique</h3>
+                          <div className="bg-card border border-border rounded-xl p-5">
+                            <h3 className="font-semibold text-foreground mb-4">Profil Typologique</h3>
                             <div className="flex items-center gap-4 mb-4">
                               <div
                                 className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl"
@@ -2625,46 +2630,46 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 {responseDetail.profile.primary.emoji}
                               </div>
                               <div>
-                                <h4 className="text-lg font-semibold text-white">
+                                <h4 className="text-lg font-semibold text-foreground">
                                   {PROFILE_LABELS[responseDetail.profile.primary.name] || responseDetail.profile.primary.name}
                                 </h4>
-                                <p className="text-sm text-white/50">
+                                <p className="text-sm text-muted-foreground">
                                   Match: {responseDetail.profile.primary.score}%
                                 </p>
                               </div>
                             </div>
                             {responseDetail.profile.secondary && (
-                              <div className="pt-3 border-t border-white/5">
-                                <p className="text-sm text-white/50">
+                              <div className="pt-3 border-t border-border">
+                                <p className="text-sm text-muted-foreground">
                                   Profil secondaire:{" "}
-                                  <span className="text-white">
+                                  <span className="text-foreground">
                                     {PROFILE_LABELS[responseDetail.profile.secondary.name]} ({responseDetail.profile.secondary.score}%)
                                   </span>
                                 </p>
                               </div>
                             )}
-                            <div className="pt-3 mt-3 border-t border-white/5">
-                              <p className="text-sm text-white/50">
+                            <div className="pt-3 mt-3 border-t border-border">
+                              <p className="text-sm text-muted-foreground">
                                 Sous-profil:{" "}
-                                <span className="text-white">{responseDetail.profile.subProfile}</span>
+                                <span className="text-foreground">{responseDetail.profile.subProfile}</span>
                               </p>
                             </div>
                           </div>
                         </div>
 
                         {/* Profile Match Distribution */}
-                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                          <h3 className="font-semibold text-white mb-4">Distribution des Correspondances</h3>
+                        <div className="bg-card border border-border rounded-xl p-5">
+                          <h3 className="font-semibold text-foreground mb-4">Distribution des Correspondances</h3>
                           <div className="space-y-2">
                             {responseDetail.profile.allMatches.slice(0, 5).map((match) => (
                               <div key={match.name}>
                                 <div className="flex justify-between text-sm mb-1">
-                                  <span className="text-white/70">
+                                  <span className="text-foreground/70">
                                     {PROFILE_LABELS[match.name] || match.name}
                                   </span>
-                                  <span className="text-white">{match.score}%</span>
+                                  <span className="text-foreground">{match.score}%</span>
                                 </div>
-                                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                                <div className="h-2 bg-muted rounded-full overflow-hidden">
                                   <div
                                     className="h-full rounded-full transition-all"
                                     style={{
@@ -2687,11 +2692,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         <div className="grid md:grid-cols-3 gap-4">
                           <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-5">
                             <h4 className="text-sm text-blue-400 mb-2">CRS-5 (Religiosité)</h4>
-                            <p className="text-3xl font-bold text-white">
+                            <p className="text-3xl font-bold text-foreground">
                               {responseDetail.scores.crs5.value.toFixed(1)}
-                              <span className="text-lg text-white/50">/5</span>
+                              <span className="text-lg text-muted-foreground">/5</span>
                             </p>
-                            <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
+                            <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-blue-500 rounded-full"
                                 style={{ width: `${(responseDetail.scores.crs5.value / 5) * 100}%` }}
@@ -2700,11 +2705,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           </div>
                           <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-5">
                             <h4 className="text-sm text-green-400 mb-2">Adoption IA</h4>
-                            <p className="text-3xl font-bold text-white">
+                            <p className="text-3xl font-bold text-foreground">
                               {responseDetail.scores.aiAdoption.value.toFixed(1)}
-                              <span className="text-lg text-white/50">/5</span>
+                              <span className="text-lg text-muted-foreground">/5</span>
                             </p>
-                            <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
+                            <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-green-500 rounded-full"
                                 style={{ width: `${(responseDetail.scores.aiAdoption.value / 5) * 100}%` }}
@@ -2713,10 +2718,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           </div>
                           <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5">
                             <h4 className="text-sm text-amber-400 mb-2">Résistance Spirituelle</h4>
-                            <p className="text-3xl font-bold text-white">
+                            <p className="text-3xl font-bold text-foreground">
                               {responseDetail.scores.resistanceIndex.toFixed(1)}
                             </p>
-                            <p className="text-sm text-white/50 mt-1">
+                            <p className="text-sm text-muted-foreground mt-1">
                               {responseDetail.scores.resistanceIndex <= 0
                                 ? "Aucune résistance"
                                 : responseDetail.scores.resistanceIndex < 1
@@ -2729,9 +2734,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         </div>
 
                         {/* Radar Chart - 7 Dimensions with Population Comparison */}
-                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                          <h3 className="font-semibold text-white mb-2">Les 7 Dimensions vs Population</h3>
-                          <p className="text-xs text-white/50 mb-4">Blue: This response • Gray: Population average</p>
+                        <div className="bg-card border border-border rounded-xl p-5">
+                          <h3 className="font-semibold text-foreground mb-2">Les 7 Dimensions vs Population</h3>
+                          <p className="text-xs text-muted-foreground mb-4">Blue: This response • Gray: Population average</p>
                           <div className="h-80">
                             <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                               <RadarChart
@@ -2742,21 +2747,21 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                   fullMark: 5,
                                 }))}
                               >
-                                <PolarGrid stroke="#ffffff20" />
+                                <PolarGrid className="stroke-border" />
                                 <PolarAngleAxis
                                   dataKey="dimension"
-                                  tick={{ fill: "#ffffff70", fontSize: 11 }}
+                                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
                                 />
                                 <PolarRadiusAxis
                                   angle={30}
                                   domain={[0, 5]}
-                                  tick={{ fill: "#ffffff50", fontSize: 10 }}
+                                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
                                 />
                                 <Radar
                                   name="Population"
                                   dataKey="population"
-                                  stroke="#ffffff40"
-                                  fill="#ffffff"
+                                  stroke="hsl(var(--muted-foreground))"
+                                  fill="hsl(var(--muted-foreground))"
                                   fillOpacity={0.1}
                                   strokeDasharray="5 5"
                                 />
@@ -2770,8 +2775,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 <Legend />
                                 <Tooltip
                                   contentStyle={{
-                                    backgroundColor: "#1e293b",
-                                    border: "1px solid rgba(255,255,255,0.1)",
+                                    backgroundColor: "hsl(var(--card))",
+                                    border: "1px solid hsl(var(--border))",
+                                    color: "hsl(var(--foreground))",
                                     borderRadius: "8px",
                                   }}
                                 />
@@ -2781,39 +2787,39 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         </div>
 
                         {/* Enhanced Dimension Details with Percentile Visualization */}
-                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                          <h3 className="font-semibold text-white mb-4">Détail des Dimensions & Percentiles</h3>
+                        <div className="bg-card border border-border rounded-xl p-5">
+                          <h3 className="font-semibold text-foreground mb-4">Détail des Dimensions & Percentiles</h3>
                           <div className="space-y-4">
                             {Object.entries(responseDetail.dimensions).map(([key, dim]) => {
                               const popAvg = stats?.populationAverages?.[key] || 3;
                               const diff = dim.value - popAvg;
                               return (
-                                <div key={key} className="bg-white/[0.02] rounded-lg p-4">
+                                <div key={key} className="bg-card rounded-lg p-4">
                                   <div className="flex items-center justify-between mb-2">
                                     <div>
-                                      <p className="text-sm font-medium text-white">
+                                      <p className="text-sm font-medium text-foreground">
                                         {DIMENSION_LABELS[key] || key}
                                       </p>
-                                      <p className="text-xs text-white/50">
+                                      <p className="text-xs text-muted-foreground">
                                         vs Population: {diff > 0 ? '+' : ''}{diff.toFixed(1)}
                                       </p>
                                     </div>
                                     <div className="text-right">
-                                      <p className="text-lg font-bold text-white">{dim.value.toFixed(1)}</p>
+                                      <p className="text-lg font-bold text-foreground">{dim.value.toFixed(1)}</p>
                                       <p className={cn(
                                         "text-xs",
                                         dim.percentile > 70 ? "text-green-400" :
-                                        dim.percentile > 30 ? "text-white/50" : "text-amber-400"
+                                        dim.percentile > 30 ? "text-muted-foreground" : "text-amber-400"
                                       )}>
                                         Top {100 - dim.percentile}%
                                       </p>
                                     </div>
                                   </div>
                                   {/* Percentile visualization */}
-                                  <div className="relative h-3 bg-white/5 rounded-full overflow-hidden">
+                                  <div className="relative h-3 bg-muted rounded-full overflow-hidden">
                                     {/* Population marker */}
                                     <div
-                                      className="absolute top-0 bottom-0 w-0.5 bg-white/50 z-10"
+                                      className="absolute top-0 bottom-0 w-0.5 bg-muted0 z-10"
                                       style={{ left: `${(popAvg / 5) * 100}%` }}
                                     />
                                     {/* Score bar */}
@@ -2829,11 +2835,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                   <div className="relative h-1.5 mt-2">
                                     <div className="absolute inset-x-0 h-full bg-gradient-to-r from-red-500/30 via-yellow-500/30 to-green-500/30 rounded-full" />
                                     <div
-                                      className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-lg border border-white/50"
+                                      className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-lg border border-border"
                                       style={{ left: `${dim.percentile}%`, marginLeft: '-4px' }}
                                     />
                                   </div>
-                                  <div className="flex justify-between text-xs text-white/30 mt-1">
+                                  <div className="flex justify-between text-xs text-muted-foreground/50 mt-1">
                                     <span>0%</span>
                                     <span>50%</span>
                                     <span>100%</span>
@@ -2872,9 +2878,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           return categoryOrder
                             .filter((cat) => groupedAnswers[cat]?.length > 0)
                             .map((category) => (
-                              <div key={category} className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden">
-                                <div className="px-5 py-3 bg-white/[0.03] border-b border-white/5">
-                                  <h3 className="font-semibold text-white text-sm">
+                              <div key={category} className="bg-card border border-border rounded-xl overflow-hidden">
+                                <div className="px-5 py-3 bg-muted border-b border-border">
+                                  <h3 className="font-semibold text-foreground text-sm">
                                     {CATEGORY_LABELS[category] || category}
                                   </h3>
                                 </div>
@@ -2882,11 +2888,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                   {groupedAnswers[category].map(({ key, value }) => (
                                     <div key={key} className="px-5 py-4">
                                       <div className="flex flex-col gap-2">
-                                        <p className="text-sm text-white/90 font-medium">
+                                        <p className="text-sm text-foreground/90 font-medium">
                                           {getQuestionText(key)}
                                         </p>
                                         <div className="flex items-start gap-2">
-                                          <span className="text-xs text-white/30 font-mono bg-white/5 px-2 py-0.5 rounded">
+                                          <span className="text-xs text-muted-foreground/50 font-mono bg-muted px-2 py-0.5 rounded">
                                             {key}
                                           </span>
                                           <p className="text-sm text-blue-400 font-medium">
@@ -2906,28 +2912,28 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           <h4 className="text-sm font-medium text-blue-400 mb-3">📊 Résumé</h4>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                             <div>
-                              <p className="text-2xl font-bold text-white">
+                              <p className="text-2xl font-bold text-foreground">
                                 {Object.keys(responseDetail.answers).length}
                               </p>
-                              <p className="text-xs text-white/50">Questions répondues</p>
+                              <p className="text-xs text-muted-foreground">Questions répondues</p>
                             </div>
                             <div>
-                              <p className="text-2xl font-bold text-white">
+                              <p className="text-2xl font-bold text-foreground">
                                 {responseDetail.completionTime ? `${responseDetail.completionTime}m` : "—"}
                               </p>
-                              <p className="text-xs text-white/50">Temps de complétion</p>
+                              <p className="text-xs text-muted-foreground">Temps de complétion</p>
                             </div>
                             <div>
-                              <p className="text-2xl font-bold text-white">
+                              <p className="text-2xl font-bold text-foreground">
                                 {responseDetail.scores.crs5.value.toFixed(1)}
                               </p>
-                              <p className="text-xs text-white/50">Score CRS-5</p>
+                              <p className="text-xs text-muted-foreground">Score CRS-5</p>
                             </div>
                             <div>
-                              <p className="text-2xl font-bold text-white">
+                              <p className="text-2xl font-bold text-foreground">
                                 {responseDetail.scores.aiAdoption.value.toFixed(1)}
                               </p>
-                              <p className="text-xs text-white/50">Score IA</p>
+                              <p className="text-xs text-muted-foreground">Score IA</p>
                             </div>
                           </div>
                         </div>
@@ -2947,10 +2953,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               {responseDetail.profile.primary.emoji}
                             </div>
                             <div className="flex-1">
-                              <h2 className="text-xl font-bold text-white mb-1">
+                              <h2 className="text-xl font-bold text-foreground mb-1">
                                 {responseDetail.profile.primary.title}
                               </h2>
-                              <p className="text-sm text-white/70 mb-3">
+                              <p className="text-sm text-foreground/70 mb-3">
                                 {responseDetail.interpretation.headline}
                               </p>
                               <div className="flex flex-wrap gap-2">
@@ -2974,23 +2980,23 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         </div>
 
                         {/* Interpretation Narrative */}
-                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                          <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                        <div className="bg-card border border-border rounded-xl p-5">
+                          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                             <FileText className="w-4 h-4 text-blue-400" />
                             Analyse Narrative
                           </h3>
-                          <p className="text-white/80 text-sm leading-relaxed">
+                          <p className="text-foreground/80 text-sm leading-relaxed">
                             {responseDetail.interpretation.narrative}
                           </p>
                         </div>
 
                         {/* Why This Profile? Explainer */}
                         <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-5">
-                          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                          <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                             <Target className="w-4 h-4 text-purple-400" />
                             Pourquoi ce profil?
                           </h3>
-                          <p className="text-sm text-white/60 mb-4">
+                          <p className="text-sm text-muted-foreground mb-4">
                             Les réponses clés qui ont déterminé la classification:
                           </p>
                           <div className="space-y-3">
@@ -3003,7 +3009,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 const isLow = dim.value < 2.5;
                                 if (!isHigh && !isLow) return null;
                                 return (
-                                  <div key={key} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
+                                  <div key={key} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
                                     <div className={cn(
                                       "w-8 h-8 rounded-full flex items-center justify-center text-sm",
                                       isHigh ? "bg-green-500/20 text-green-400" : "bg-amber-500/20 text-amber-400"
@@ -3011,10 +3017,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                       {isHigh ? "↑" : "↓"}
                                     </div>
                                     <div className="flex-1">
-                                      <p className="text-sm font-medium text-white">
+                                      <p className="text-sm font-medium text-foreground">
                                         {DIMENSION_LABELS[key] || key}: {dim.value.toFixed(1)}/5
                                       </p>
-                                      <p className="text-xs text-white/50">
+                                      <p className="text-xs text-muted-foreground">
                                         {isHigh ? `Score élevé (Top ${100 - dim.percentile}%)` : `Score faible (Bottom ${dim.percentile}%)`}
                                       </p>
                                     </div>
@@ -3029,12 +3035,12 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               })}
                           </div>
                           {/* Profile match explanation */}
-                          <div className="mt-4 p-3 bg-white/5 rounded-lg">
-                            <p className="text-xs text-white/70">
+                          <div className="mt-4 p-3 bg-muted rounded-lg">
+                            <p className="text-xs text-foreground/70">
                               <span className="text-purple-400 font-medium">Match {responseDetail.profile.primary.score}%:</span>{" "}
                               Ce profil correspond le mieux au pattern de réponses observé.
                               {responseDetail.profile.secondary && (
-                                <span className="text-white/50">
+                                <span className="text-muted-foreground">
                                   {" "}Profil secondaire: {PROFILE_LABELS[responseDetail.profile.secondary.name]} ({responseDetail.profile.secondary.score}%)
                                 </span>
                               )}
@@ -3043,11 +3049,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         </div>
 
                         {/* Answer Influence Scoring */}
-                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                        <div className="bg-card border border-border rounded-xl p-5">
+                          <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                             📊 Réponses Clés par Impact
                           </h3>
-                          <p className="text-sm text-white/50 mb-4">
+                          <p className="text-sm text-muted-foreground mb-4">
                             Réponses qui ont le plus contribué à la classification du profil:
                           </p>
                           <div className="space-y-2">
@@ -3063,19 +3069,19 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               const dimValue = responseDetail.dimensions[item.dimension as keyof typeof responseDetail.dimensions]?.value || 3;
                               const impact = Math.abs(dimValue - 3) / 2;
                               return (
-                                <div key={item.key} className="flex items-center gap-3 p-2 bg-white/[0.02] rounded-lg">
-                                  <div className="w-24 text-xs text-white/40 truncate">{item.label}</div>
-                                  <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                                <div key={item.key} className="flex items-center gap-3 p-2 bg-card rounded-lg">
+                                  <div className="w-24 text-xs text-muted-foreground/60 truncate">{item.label}</div>
+                                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                                     <div
                                       className={cn(
                                         "h-full rounded-full",
-                                        impact > 0.6 ? "bg-purple-500" : impact > 0.3 ? "bg-blue-500" : "bg-white/20"
+                                        impact > 0.6 ? "bg-purple-500" : impact > 0.3 ? "bg-blue-500" : "bg-muted"
                                       )}
                                       style={{ width: `${Math.min(100, impact * 100 + 30)}%` }}
                                     />
                                   </div>
                                   <div className="w-20 text-right">
-                                    <span className="text-xs text-white/70 font-mono">
+                                    <span className="text-xs text-foreground/70 font-mono">
                                       {typeof answer === 'string' ? answer.slice(0, 12) : Array.isArray(answer) ? answer.length + ' items' : String(answer)}
                                     </span>
                                   </div>
@@ -3086,8 +3092,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         </div>
 
                         {/* CRS-5 Breakdown */}
-                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                        <div className="bg-card border border-border rounded-xl p-5">
+                          <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                             🙏 Détail CRS-5 (Religiosité)
                           </h3>
                           <div className="grid grid-cols-5 gap-2">
@@ -3100,10 +3106,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 experience: "Expérience",
                               };
                               return (
-                                <div key={key} className="text-center p-3 bg-white/[0.02] rounded-lg">
-                                  <p className="text-xs text-white/50 mb-1">{labels[key] || key}</p>
+                                <div key={key} className="text-center p-3 bg-card rounded-lg">
+                                  <p className="text-xs text-muted-foreground mb-1">{labels[key] || key}</p>
                                   <p className="text-2xl font-bold text-blue-400">{value}</p>
-                                  <div className="mt-2 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                  <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
                                     <div
                                       className="h-full bg-blue-500 rounded-full"
                                       style={{ width: `${(value / 5) * 100}%` }}
@@ -3116,8 +3122,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         </div>
 
                         {/* AI Adoption Breakdown */}
-                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                        <div className="bg-card border border-border rounded-xl p-5">
+                          <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                             🤖 Détail Adoption IA
                           </h3>
                           <div className="grid grid-cols-3 gap-4">
@@ -3133,13 +3139,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 contexts: "🎯",
                               };
                               return (
-                                <div key={key} className="p-4 bg-white/[0.02] rounded-lg">
+                                <div key={key} className="p-4 bg-card rounded-lg">
                                   <div className="flex items-center gap-2 mb-2">
                                     <span>{icons[key] || "📈"}</span>
-                                    <p className="text-xs text-white/50">{labels[key] || key}</p>
+                                    <p className="text-xs text-muted-foreground">{labels[key] || key}</p>
                                   </div>
                                   <p className="text-2xl font-bold text-green-400">{typeof value === 'number' ? value.toFixed(1) : value}</p>
-                                  <div className="mt-2 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                  <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
                                     <div
                                       className="h-full bg-green-500 rounded-full"
                                       style={{ width: `${(Number(value) / 5) * 100}%` }}
@@ -3160,13 +3166,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             <ul className="space-y-2">
                               {responseDetail.interpretation.uniqueAspects.length > 0 ? (
                                 responseDetail.interpretation.uniqueAspects.map((aspect, i) => (
-                                  <li key={i} className="flex items-start gap-2 text-sm text-white/70">
+                                  <li key={i} className="flex items-start gap-2 text-sm text-foreground/70">
                                     <span className="text-green-400 mt-0.5">✓</span>
                                     {aspect}
                                   </li>
                                 ))
                               ) : (
-                                <li className="text-sm text-white/50 italic">Aucun aspect unique identifié</li>
+                                <li className="text-sm text-muted-foreground italic">Aucun aspect unique identifié</li>
                               )}
                             </ul>
                           </div>
@@ -3177,13 +3183,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             <ul className="space-y-2">
                               {responseDetail.interpretation.blindSpots.length > 0 ? (
                                 responseDetail.interpretation.blindSpots.map((spot, i) => (
-                                  <li key={i} className="flex items-start gap-2 text-sm text-white/70">
+                                  <li key={i} className="flex items-start gap-2 text-sm text-foreground/70">
                                     <span className="text-amber-400 mt-0.5">!</span>
                                     {spot}
                                   </li>
                                 ))
                               ) : (
-                                <li className="text-sm text-white/50 italic">Aucun point d&apos;attention</li>
+                                <li className="text-sm text-muted-foreground italic">Aucun point d&apos;attention</li>
                               )}
                             </ul>
                           </div>
@@ -3191,18 +3197,18 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                         {/* Insights */}
                         {responseDetail.insights.length > 0 && (
-                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                          <div className="bg-card border border-border rounded-xl p-5">
+                            <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                               💡 Insights Clés
                             </h3>
                             <div className="grid md:grid-cols-2 gap-4">
                               {responseDetail.insights.map((insight, i) => (
-                                <div key={i} className="flex gap-3 p-4 bg-white/[0.03] rounded-lg border border-white/5">
+                                <div key={i} className="flex gap-3 p-4 bg-muted rounded-lg border border-border">
                                   <span className="text-2xl">{insight.icon}</span>
                                   <div>
-                                    <h5 className="text-sm font-medium text-white">{insight.title}</h5>
-                                    <p className="text-xs text-white/60 mt-1">{insight.message}</p>
-                                    <span className="inline-block mt-2 text-xs px-2 py-0.5 bg-white/5 rounded text-white/40">
+                                    <h5 className="text-sm font-medium text-foreground">{insight.title}</h5>
+                                    <p className="text-xs text-muted-foreground mt-1">{insight.message}</p>
+                                    <span className="inline-block mt-2 text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground/60">
                                       Priorité: {insight.priority}/10
                                     </span>
                                   </div>
@@ -3215,12 +3221,12 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         {/* Tensions */}
                         {responseDetail.tensions.length > 0 && (
                           <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-5">
-                            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                            <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                               ⚡ Points de Tension Identifiés
                             </h3>
                             <div className="space-y-4">
                               {responseDetail.tensions.map((tension, i) => (
-                                <div key={i} className="p-4 bg-white/[0.03] rounded-lg">
+                                <div key={i} className="p-4 bg-muted rounded-lg">
                                   <div className="flex items-center gap-2 mb-3">
                                     <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full font-medium">
                                       {DIMENSION_LABELS[tension.dimension1] || tension.dimension1}
@@ -3230,7 +3236,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                       {DIMENSION_LABELS[tension.dimension2] || tension.dimension2}
                                     </span>
                                   </div>
-                                  <p className="text-sm text-white/80 mb-2">{tension.description}</p>
+                                  <p className="text-sm text-foreground/80 mb-2">{tension.description}</p>
                                   <div className="flex items-start gap-2 p-2 bg-blue-500/10 rounded-lg">
                                     <span className="text-blue-400">💡</span>
                                     <p className="text-xs text-blue-300">{tension.suggestion}</p>
@@ -3243,19 +3249,19 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                         {/* Growth Areas */}
                         {responseDetail.growthAreas.length > 0 && (
-                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                          <div className="bg-card border border-border rounded-xl p-5">
+                            <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                               🌱 Axes de Développement
                             </h3>
                             <div className="space-y-4">
                               {responseDetail.growthAreas.map((area, i) => (
-                                <div key={i} className="p-4 bg-white/[0.03] rounded-lg border-l-4 border-green-500">
-                                  <h5 className="text-sm font-medium text-white mb-2">{area.area}</h5>
+                                <div key={i} className="p-4 bg-muted rounded-lg border-l-4 border-green-500">
+                                  <h5 className="text-sm font-medium text-foreground mb-2">{area.area}</h5>
                                   <div className="flex items-center gap-2 mb-3">
-                                    <span className="text-xs px-2 py-1 bg-white/10 text-white/60 rounded">
+                                    <span className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded">
                                       État actuel: {area.currentState}
                                     </span>
-                                    <span className="text-white/30">→</span>
+                                    <span className="text-muted-foreground/50">→</span>
                                     <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded">
                                       Potentiel: {area.potentialGrowth}
                                     </span>
@@ -3271,27 +3277,27 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         )}
 
                         {/* Profile Match Details */}
-                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                        <div className="bg-card border border-border rounded-xl p-5">
+                          <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                             📊 Correspondance des Profils
                           </h3>
                           <div className="space-y-2">
                             {responseDetail.profile.allMatches.slice(0, 5).map((match, i) => (
                               <div key={i} className="flex items-center gap-3">
-                                <span className="w-6 text-center text-sm text-white/40">{i + 1}</span>
+                                <span className="w-6 text-center text-sm text-muted-foreground/60">{i + 1}</span>
                                 <div className="flex-1">
                                   <div className="flex items-center justify-between mb-1">
-                                    <span className="text-sm text-white/80">
+                                    <span className="text-sm text-foreground/80">
                                       {PROFILE_LABELS[match.name] || match.name}
                                     </span>
-                                    <span className="text-sm text-white/60">{match.score}%</span>
+                                    <span className="text-sm text-muted-foreground">{match.score}%</span>
                                   </div>
-                                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                                  <div className="h-2 bg-muted rounded-full overflow-hidden">
                                     <div
                                       className="h-full rounded-full transition-all"
                                       style={{
                                         width: `${match.score}%`,
-                                        backgroundColor: i === 0 ? PROFILE_COLORS[match.name] : "#ffffff30",
+                                        backgroundColor: i === 0 ? PROFILE_COLORS[match.name] : "hsl(var(--muted-foreground) / 0.3)",
                                       }}
                                     />
                                   </div>
@@ -3304,7 +3310,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     )}
                   </>
                 ) : (
-                  <div className="text-center py-20 text-white/50">
+                  <div className="text-center py-20 text-muted-foreground">
                     Aucune donnée disponible
                   </div>
                 )}
@@ -3328,25 +3334,25 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="w-full max-w-6xl max-h-[90vh] overflow-hidden bg-slate-900 border border-white/10 rounded-2xl shadow-2xl"
+              className="w-full max-w-6xl max-h-[90vh] overflow-hidden bg-card border border-border rounded-2xl shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between p-6 border-b border-white/5">
+              <div className="flex items-center justify-between p-6 border-b border-border">
                 <div>
-                  <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                     <GitCompare className="w-5 h-5 text-blue-400" />
                     Response Comparison
                   </h2>
-                  <p className="text-sm text-white/50 mt-1">
+                  <p className="text-sm text-muted-foreground mt-1">
                     Comparing {comparisonData.length} responses
                   </p>
                 </div>
                 <button
                   onClick={() => setShowComparison(false)}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  className="p-2 hover:bg-accent rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-white/60" />
+                  <X className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
 
@@ -3355,13 +3361,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 {comparisonData.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 gap-3">
                     <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
-                    <p className="text-sm text-white/50">Loading comparison data...</p>
+                    <p className="text-sm text-muted-foreground">Loading comparison data...</p>
                   </div>
                 ) : (
                   <div className="space-y-6">
                     {/* Overlay Radar Chart */}
-                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
-                      <h3 className="font-semibold text-white mb-4">7 Dimensions Overlay</h3>
+                    <div className="bg-card border border-border rounded-xl p-6">
+                      <h3 className="font-semibold text-foreground mb-4">7 Dimensions Overlay</h3>
                       <div className="h-96">
                         <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                           <RadarChart
@@ -3374,9 +3380,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               fullMark: 5,
                             }))}
                           >
-                            <PolarGrid stroke="#ffffff20" />
-                            <PolarAngleAxis dataKey="dimension" tick={{ fill: "#ffffff70", fontSize: 11 }} />
-                            <PolarRadiusAxis angle={30} domain={[0, 5]} tick={{ fill: "#ffffff50", fontSize: 10 }} />
+                            <PolarGrid className="stroke-border" />
+                            <PolarAngleAxis dataKey="dimension" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
+                            <PolarRadiusAxis angle={30} domain={[0, 5]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} />
                             {comparisonData.map((d, i) => (
                               <Radar
                                 key={d.id}
@@ -3390,8 +3396,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             <Legend />
                             <Tooltip
                               contentStyle={{
-                                backgroundColor: "#1e293b",
-                                border: "1px solid rgba(255,255,255,0.1)",
+                                backgroundColor: "hsl(var(--card))",
+                                border: "1px solid hsl(var(--border))",
+                                color: "hsl(var(--foreground))",
                                 borderRadius: "8px",
                               }}
                             />
@@ -3405,7 +3412,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       {comparisonData.map((d, i) => (
                         <div
                           key={d.id}
-                          className="bg-white/[0.02] border rounded-xl p-4"
+                          className="bg-card border rounded-xl p-4"
                           style={{ borderColor: `${CHART_COLORS[i % CHART_COLORS.length]}50` }}
                         >
                           <div className="flex items-center gap-3 mb-3">
@@ -3413,7 +3420,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               className="w-3 h-3 rounded-full"
                               style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }}
                             />
-                            <span className="font-mono text-sm text-white/70">#{d.id.slice(0, 8)}</span>
+                            <span className="font-mono text-sm text-foreground/70">#{d.id.slice(0, 8)}</span>
                           </div>
                           <div className="flex items-center gap-3 mb-3">
                             <div
@@ -3423,20 +3430,20 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               {d.profile.primary.emoji}
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-white">
+                              <p className="text-sm font-medium text-foreground">
                                 {PROFILE_LABELS[d.profile.primary.name] || d.profile.primary.name}
                               </p>
-                              <p className="text-xs text-white/50">{d.profile.primary.score}% match</p>
+                              <p className="text-xs text-muted-foreground">{d.profile.primary.score}% match</p>
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-2 text-center">
-                            <div className="bg-white/5 rounded-lg p-2">
+                            <div className="bg-muted rounded-lg p-2">
                               <p className="text-lg font-bold text-blue-400">{d.scores.crs5.value.toFixed(1)}</p>
-                              <p className="text-xs text-white/40">CRS-5</p>
+                              <p className="text-xs text-muted-foreground/60">CRS-5</p>
                             </div>
-                            <div className="bg-white/5 rounded-lg p-2">
+                            <div className="bg-muted rounded-lg p-2">
                               <p className="text-lg font-bold text-green-400">{d.scores.aiAdoption.value.toFixed(1)}</p>
-                              <p className="text-xs text-white/40">AI Score</p>
+                              <p className="text-xs text-muted-foreground/60">AI Score</p>
                             </div>
                           </div>
                         </div>
@@ -3444,19 +3451,19 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     </div>
 
                     {/* Dimension Comparison Table */}
-                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
-                      <h3 className="font-semibold text-white mb-4">Dimension Comparison</h3>
+                    <div className="bg-card border border-border rounded-xl p-6">
+                      <h3 className="font-semibold text-foreground mb-4">Dimension Comparison</h3>
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
-                            <tr className="border-b border-white/10">
-                              <th className="text-left py-2 px-3 text-white/50 font-medium">Dimension</th>
+                            <tr className="border-b border-border">
+                              <th className="text-left py-2 px-3 text-muted-foreground font-medium">Dimension</th>
                               {comparisonData.map((d, i) => (
                                 <th key={d.id} className="text-center py-2 px-3 font-medium" style={{ color: CHART_COLORS[i % CHART_COLORS.length] }}>
                                   #{d.id.slice(0, 6)}
                                 </th>
                               ))}
-                              <th className="text-center py-2 px-3 text-white/50 font-medium">Δ Max</th>
+                              <th className="text-center py-2 px-3 text-muted-foreground font-medium">Δ Max</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -3464,10 +3471,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               const values = comparisonData.map(d => d.dimensions[dimKey as keyof typeof d.dimensions]?.value || 0);
                               const maxDiff = Math.max(...values) - Math.min(...values);
                               return (
-                                <tr key={dimKey} className="border-b border-white/5 hover:bg-white/[0.02]">
-                                  <td className="py-2 px-3 text-white/70">{DIMENSION_LABELS[dimKey] || dimKey}</td>
+                                <tr key={dimKey} className="border-b border-border hover:bg-muted">
+                                  <td className="py-2 px-3 text-foreground/70">{DIMENSION_LABELS[dimKey] || dimKey}</td>
                                   {values.map((val, i) => (
-                                    <td key={i} className="py-2 px-3 text-center text-white font-medium">
+                                    <td key={i} className="py-2 px-3 text-center text-foreground font-medium">
                                       {val.toFixed(1)}
                                     </td>
                                   ))}
@@ -3486,8 +3493,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     </div>
 
                     {/* Answer Diff View - Show only differing answers */}
-                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
-                      <h3 className="font-semibold text-white mb-4">Key Answer Differences</h3>
+                    <div className="bg-card border border-border rounded-xl p-6">
+                      <h3 className="font-semibold text-foreground mb-4">Key Answer Differences</h3>
                       <div className="space-y-3 max-h-80 overflow-y-auto">
                         {(() => {
                           // Find questions where answers differ
@@ -3504,8 +3511,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           });
 
                           return differingKeys.slice(0, 10).map(key => (
-                            <div key={key} className="bg-white/5 rounded-lg p-3">
-                              <p className="text-xs text-white/50 mb-2 font-mono">{key}</p>
+                            <div key={key} className="bg-muted rounded-lg p-3">
+                              <p className="text-xs text-muted-foreground mb-2 font-mono">{key}</p>
                               <div className="flex flex-wrap gap-2">
                                 {comparisonData.map((d, i) => (
                                   <span
@@ -3588,20 +3595,20 @@ function StatCard({
       />
       <div className="relative z-10">
         <div className="flex items-start justify-between">
-          <div className={cn("p-2 rounded-lg bg-white/10", iconColors[color])}>{icon}</div>
+          <div className={cn("p-2 rounded-lg bg-muted", iconColors[color])}>{icon}</div>
           {trend && (
             <div className="text-right">
               <span className={cn("text-sm font-medium", iconColors[color])}>
                 +{trend.value}
                 {trend.suffix}
               </span>
-              <p className="text-xs text-white/40">{trend.label}</p>
+              <p className="text-xs text-muted-foreground/60">{trend.label}</p>
             </div>
           )}
         </div>
         <div className="mt-4">
-          <p className="text-2xl lg:text-3xl font-bold text-white">{value}</p>
-          <p className="text-sm text-white/50 mt-1">{subtext || label}</p>
+          <p className="text-2xl lg:text-3xl font-bold text-foreground">{value}</p>
+          <p className="text-sm text-muted-foreground mt-1">{subtext || label}</p>
         </div>
       </div>
     </div>
@@ -3629,13 +3636,13 @@ function ScoreCard({
   };
 
   return (
-    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-      <h4 className="text-sm text-white/50 mb-2">{label}</h4>
+    <div className="bg-card border border-border rounded-2xl p-6">
+      <h4 className="text-sm text-muted-foreground mb-2">{label}</h4>
       <div className="flex items-end gap-2 mb-4">
         <span className={cn("text-4xl font-bold", colors[color].text)}>{score.toFixed(1)}</span>
-        <span className="text-white/30 text-lg mb-1">/ {maxScore}</span>
+        <span className="text-muted-foreground/50 text-lg mb-1">/ {maxScore}</span>
       </div>
-      <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+      <div className="h-2 bg-muted rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}

@@ -20,17 +20,17 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="text-center space-y-8 max-w-lg">
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-500/10 border border-red-500/20">
-          <AlertTriangle className="w-10 h-10 text-red-400" />
+          <AlertTriangle className="w-10 h-10 text-red-500" />
         </div>
 
         <div className="space-y-3">
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-foreground">
             {t("errors.title")}
           </h1>
-          <p className="text-white/60 text-lg">
+          <p className="text-muted-foreground text-lg">
             {t("errors.description")}
           </p>
         </div>
@@ -38,7 +38,7 @@ export default function Error({
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={reset}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-all border border-white/10"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-secondary hover:bg-secondary/80 text-secondary-foreground font-medium transition-all border border-border"
           >
             <RefreshCw className="w-4 h-4" />
             {t("errors.retry")}
@@ -53,7 +53,7 @@ export default function Error({
         </div>
 
         {error.digest && (
-          <p className="text-xs text-white/30">
+          <p className="text-xs text-muted-foreground/50">
             {t("errors.errorCode")} : {error.digest}
           </p>
         )}

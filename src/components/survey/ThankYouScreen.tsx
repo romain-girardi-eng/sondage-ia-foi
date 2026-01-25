@@ -75,7 +75,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
         >
           <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-3xl scale-150 animate-pulse" />
           <div className="relative p-6 glass-card-refined rounded-full">
-            <CheckCircle className="w-16 h-16 md:w-20 md:h-20 text-emerald-400" />
+            <CheckCircle className="w-16 h-16 md:w-20 md:h-20 text-emerald-500 dark:text-emerald-400" />
           </div>
         </motion.div>
 
@@ -109,10 +109,10 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
 
           <div className="relative">
             <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
-              <Heart className="w-4 h-4 text-red-400" />
+              <Heart className="w-4 h-4 text-red-500 dark:text-red-400" />
               <span className="text-sm">{t("thanks.community")}</span>
             </div>
-            <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+            <div className="text-4xl md:text-5xl font-bold text-foreground mb-2">
               {participantCount !== null ? participantCount.toLocaleString() : "1,500+"}
             </div>
             <p className="text-sm text-muted-foreground">
@@ -131,21 +131,21 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
           >
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <Database className="w-5 h-5 text-purple-400" />
+                <Database className="w-5 h-5 text-purple-500 dark:text-purple-400" />
                 <div className="text-left">
                   <p className="text-xs text-muted-foreground">
                     {t("thanks.anonymousIdTitle")}
                   </p>
-                  <p className="text-sm font-mono text-white truncate max-w-[200px] sm:max-w-xs">
+                  <p className="text-sm font-mono text-foreground truncate max-w-[200px] sm:max-w-xs">
                     {anonymousId}
                   </p>
                 </div>
               </div>
               <button
                 onClick={handleCopyId}
-                className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
               >
-                <Copy className={cn("w-4 h-4", copied ? "text-emerald-400" : "text-white/60")} />
+                <Copy className={cn("w-4 h-4", copied ? "text-emerald-500" : "text-muted-foreground")} />
               </button>
             </div>
             <p className="text-xs text-muted-foreground/60 mt-3">
@@ -153,7 +153,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
             </p>
             <Link
               href="/mes-donnees"
-              className="inline-block mt-2 text-xs text-blue-400 hover:underline"
+              className="inline-block mt-2 text-xs text-blue-500 dark:text-blue-400 hover:underline"
             >
               {t("thanks.manageData")}
             </Link>
@@ -170,9 +170,9 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
           <button
             onClick={onViewResults}
             className={cn(
-              "flex-1 group relative px-6 py-4 bg-white text-slate-900 rounded-2xl font-semibold",
+              "flex-1 group relative px-6 py-4 bg-primary text-primary-foreground rounded-2xl font-semibold",
               "hover:scale-[1.02] transition-all duration-300",
-              "shadow-lg shadow-white/10",
+              "shadow-lg shadow-primary/10",
               "flex items-center justify-center gap-3",
               "btn-glow overflow-hidden"
             )}
@@ -187,7 +187,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
             className={cn(
               "flex-1 px-6 py-4 glass-card-refined rounded-2xl font-semibold",
               "hover:scale-[1.02] transition-all duration-300",
-              "flex items-center justify-center gap-3 text-white"
+              "flex items-center justify-center gap-3 text-foreground"
             )}
           >
             <Share2 className="w-5 h-5" />
@@ -212,7 +212,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
           transition={{ delay: 0.8 }}
           className="mt-8 inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card-refined text-xs text-muted-foreground"
         >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
           <span>{t("thanks.profileAvailable")}</span>
         </motion.div>
 

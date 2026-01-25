@@ -146,9 +146,9 @@ export function EmailCollectionScreen({
             initial={hasAnimated ? false : { opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1, duration: 0.5 }}
-            className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-white/10"
+            className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-border"
           >
-            <Mail className="w-10 h-10 text-blue-400" />
+            <Mail className="w-10 h-10 text-blue-500" />
           </motion.div>
 
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
@@ -184,12 +184,12 @@ export function EmailCollectionScreen({
                 placeholder={t("email.placeholder")}
                 disabled={submissionState === "loading" || submissionState === "success"}
                 className={cn(
-                  "w-full px-5 py-4 rounded-xl bg-white/5 border text-white placeholder:text-white/40",
+                  "w-full px-5 py-4 rounded-xl bg-input border text-foreground placeholder:text-muted-foreground/50",
                   "focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50",
                   "transition-all duration-200",
                   submissionState === "error" || submissionState === "duplicate"
                     ? "border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50"
-                    : "border-white/10"
+                    : "border-border"
                 )}
                 autoComplete="email"
                 autoFocus
@@ -222,7 +222,7 @@ export function EmailCollectionScreen({
               <div
                 className={cn(
                   "w-5 h-5 rounded border-2 transition-all duration-200",
-                  "border-white/30 bg-white/5",
+                  "border-muted-foreground/30 bg-input",
                   "peer-checked:border-blue-500 peer-checked:bg-blue-500",
                   "peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500/50"
                 )}
@@ -236,7 +236,7 @@ export function EmailCollectionScreen({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <span className="text-sm text-white/70 group-hover:text-white/90 transition-colors">
+            <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
               {t("email.marketingConsent")}
             </span>
           </label>
@@ -251,7 +251,7 @@ export function EmailCollectionScreen({
           </button>
 
           {/* Privacy Note */}
-          <p className="text-xs text-center text-white/40">
+          <p className="text-xs text-center text-muted-foreground/60">
             {t("email.privacyNote")}
           </p>
         </motion.form>

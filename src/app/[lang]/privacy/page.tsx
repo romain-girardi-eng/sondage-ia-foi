@@ -125,32 +125,32 @@ export default async function PrivacyPage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-16 px-4">
+    <div className="min-h-screen bg-background py-16 px-4">
       <div className="max-w-3xl mx-auto">
         <header className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
-            <Shield className="w-8 h-8 text-blue-400" />
+            <Shield className="w-8 h-8 text-blue-500" />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             {content.title}
           </h1>
-          <p className="text-white/60">
+          <p className="text-muted-foreground">
             {content.lastUpdate}
           </p>
         </header>
 
-        <div className="space-y-8 text-white/80">
-          <section className="bg-white/5 rounded-2xl p-6 border border-white/10">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2 mb-4">
-              <Lock className="w-5 h-5 text-blue-400" />
+        <div className="space-y-8 text-foreground/80">
+          <section className="glass-card rounded-2xl p-6">
+            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 mb-4">
+              <Lock className="w-5 h-5 text-blue-500" />
               {content.controller.title}
             </h2>
             <p>{content.controller.text}</p>
           </section>
 
-          <section className="bg-white/5 rounded-2xl p-6 border border-white/10">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2 mb-4">
-              <Eye className="w-5 h-5 text-emerald-400" />
+          <section className="glass-card rounded-2xl p-6">
+            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 mb-4">
+              <Eye className="w-5 h-5 text-emerald-500" />
               {content.collected.title}
             </h2>
             <p className="mb-4">{content.collected.intro}</p>
@@ -160,10 +160,10 @@ export default async function PrivacyPage({ params }: Props) {
               ))}
             </ul>
             <div className="mt-4 p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-              <p className="text-emerald-400 font-medium">
+              <p className="text-emerald-600 dark:text-emerald-400 font-medium">
                 {content.collected.notCollected}
               </p>
-              <ul className="list-disc list-inside space-y-1 ml-4 mt-2 text-emerald-300/80">
+              <ul className="list-disc list-inside space-y-1 ml-4 mt-2 text-emerald-700/80 dark:text-emerald-300/80">
                 {content.collected.notItems.map((item, i) => (
                   <li key={i}>{item}</li>
                 ))}
@@ -171,37 +171,37 @@ export default async function PrivacyPage({ params }: Props) {
             </div>
           </section>
 
-          <section className="bg-white/5 rounded-2xl p-6 border border-white/10">
-            <h2 className="text-xl font-semibold text-white mb-4">
+          <section className="glass-card rounded-2xl p-6">
+            <h2 className="text-xl font-semibold text-foreground mb-4">
               {content.purpose.title}
             </h2>
             <p>{content.purpose.text}</p>
           </section>
 
-          <section className="bg-white/5 rounded-2xl p-6 border border-white/10">
-            <h2 className="text-xl font-semibold text-white mb-4">
+          <section className="glass-card rounded-2xl p-6">
+            <h2 className="text-xl font-semibold text-foreground mb-4">
               {content.legal.title}
             </h2>
             <p>{content.legal.text}</p>
           </section>
 
-          <section className="bg-white/5 rounded-2xl p-6 border border-white/10">
-            <h2 className="text-xl font-semibold text-white mb-4">
+          <section className="glass-card rounded-2xl p-6">
+            <h2 className="text-xl font-semibold text-foreground mb-4">
               {content.retention.title}
             </h2>
             <p>{content.retention.text}</p>
           </section>
 
-          <section className="bg-white/5 rounded-2xl p-6 border border-white/10">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2 mb-4">
-              <Download className="w-5 h-5 text-purple-400" />
+          <section className="glass-card rounded-2xl p-6">
+            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 mb-4">
+              <Download className="w-5 h-5 text-purple-500" />
               {content.rights.title}
             </h2>
             <p className="mb-4">{content.rights.intro}</p>
             <ul className="space-y-3">
               {content.rights.items.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="text-blue-400 mt-1">•</span>
+                  <span className="text-blue-500 mt-1">•</span>
                   <span><strong>{item.name}</strong> : {item.desc}</span>
                 </li>
               ))}
@@ -217,14 +217,14 @@ export default async function PrivacyPage({ params }: Props) {
             </div>
           </section>
 
-          <section className="bg-white/5 rounded-2xl p-6 border border-white/10">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2 mb-4">
-              <Mail className="w-5 h-5 text-amber-400" />
+          <section className="glass-card rounded-2xl p-6">
+            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 mb-4">
+              <Mail className="w-5 h-5 text-amber-500" />
               {content.contact.title}
             </h2>
             <p>
               {content.contact.text}{" "}
-              <Link href={`/${lang}/mes-donnees`} className="text-blue-400 hover:underline">
+              <Link href={`/${lang}/mes-donnees`} className="text-blue-500 hover:underline">
                 {content.contact.link}
               </Link>{" "}
               {content.contact.textEnd}
@@ -235,7 +235,7 @@ export default async function PrivacyPage({ params }: Props) {
         <footer className="mt-12 text-center">
           <Link
             href={`/${lang}`}
-            className="text-blue-400 hover:text-blue-300 transition-colors"
+            className="text-blue-500 hover:text-blue-400 transition-colors"
           >
             {content.back}
           </Link>

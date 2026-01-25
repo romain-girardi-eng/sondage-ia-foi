@@ -284,7 +284,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   if (!isHydrated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-muted-foreground/20 border-t-muted-foreground/80 rounded-full animate-spin" />
       </div>
     );
   }
@@ -297,21 +297,21 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="max-w-md w-full bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-8 text-center"
+            className="max-w-md w-full glass-card-refined rounded-3xl p-8 text-center"
           >
             <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-blue-500/10 flex items-center justify-center">
-              <PlayCircle className="w-8 h-8 text-blue-400" />
+              <PlayCircle className="w-8 h-8 text-blue-500" />
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">
+            <h2 className="text-2xl font-bold text-foreground mb-2">
               {t("session.resumeTitle")}
             </h2>
-            <p className="text-white/60 mb-8">
+            <p className="text-muted-foreground mb-8">
               {t("session.resumeDescription")}
             </p>
             <div className="flex gap-4">
               <button
                 onClick={handleRestart}
-                className="flex-1 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-all flex items-center justify-center gap-2"
+                className="flex-1 px-6 py-3 rounded-xl bg-secondary hover:bg-secondary/80 text-secondary-foreground font-medium transition-all flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
                 {t("session.restartButton")}
@@ -417,7 +417,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
           </div>
         </div>
         <div
-          className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"
+          className="w-full h-1.5 bg-muted rounded-full overflow-hidden"
           role="progressbar"
           aria-valuenow={progress}
           aria-valuemin={0}
@@ -461,7 +461,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
             onClick={handlePrevious}
             disabled={currentIndex === 0}
             aria-label={t("survey.previous")}
-            className="flex items-center gap-1.5 px-3 py-2 -ml-3 text-sm text-muted-foreground hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted-foreground disabled:hover:bg-transparent transition-all duration-200 rounded-lg hover:bg-white/5"
+            className="flex items-center gap-1.5 px-3 py-2 -ml-3 text-sm text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted-foreground disabled:hover:bg-transparent transition-all duration-200 rounded-lg hover:bg-accent"
           >
             <ChevronLeft className="w-4 h-4" />
             <span className="hidden sm:inline">{t("survey.previous")}</span>

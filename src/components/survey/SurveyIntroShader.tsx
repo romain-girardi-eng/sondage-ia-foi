@@ -55,7 +55,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
       </div>
 
       {/* Footer */}
-      <footer className="w-full py-10 border-t border-white/10 bg-black/20 backdrop-blur-sm">
+      <footer className="w-full py-10 border-t border-border glass">
         <div className="max-w-4xl mx-auto px-6 flex flex-col items-center gap-5">
           {/* Logo */}
           <img
@@ -64,17 +64,17 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
             className="w-14 h-14 rounded-full shadow-lg shadow-purple-500/20"
           />
           {/* Survey title */}
-          <p className="text-sm text-white/40">
+          <p className="text-sm text-muted-foreground">
             {t("footer.tagline")} - {new Date().getFullYear()}
           </p>
           {/* Author and social */}
           <div className="flex items-center gap-4">
-            <span className="text-sm text-white/50">{t("footer.createdBy")}</span>
+            <span className="text-sm text-muted-foreground">{t("footer.createdBy")}</span>
             <a
               href="https://github.com/romain-girardi-eng"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/50 hover:text-white transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
               aria-label="GitHub"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -85,7 +85,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
               href="https://www.linkedin.com/in/romain-girardi/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/50 hover:text-white transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
               aria-label="LinkedIn"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">

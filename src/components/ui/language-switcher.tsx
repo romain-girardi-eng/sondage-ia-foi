@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { cn } from "@/lib";
+import { ThemeToggle } from "./theme-toggle";
 
 interface LanguageSwitcherProps {
   className?: string;
@@ -12,21 +13,23 @@ export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
   const { language, setLanguage } = useLanguage();
 
   return (
-    <motion.button
+    <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.5, duration: 0.3 }}
-      onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
-      className={cn(
-        "fixed top-4 right-4 z-50",
-        "flex items-center gap-2 px-3 py-2 rounded-full",
-        "glass-card-refined hover:border-white/30",
-        "transition-all duration-300 hover:scale-105",
-        "text-sm font-medium text-white/80 hover:text-white",
-        className
-      )}
-      aria-label={language === "fr" ? "Switch to English" : "Passer en français"}
+      className={cn("fixed top-4 right-4 z-50 flex items-center gap-2", className)}
     >
+      <ThemeToggle />
+      <button
+        onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
+        className={cn(
+          "flex items-center gap-2 px-3 py-2 rounded-full",
+          "glass-card-refined hover:border-white/20",
+          "transition-all duration-300 hover:scale-105",
+          "text-sm font-medium text-muted-foreground hover:text-foreground"
+        )}
+        aria-label={language === "fr" ? "Switch to English" : "Passer en français"}
+      >
       {language === "fr" ? (
         <>
           {/* UK Flag */}
@@ -71,6 +74,7 @@ export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
           <span className="hidden sm:inline">FR</span>
         </>
       )}
-    </motion.button>
+      </button>
+    </motion.div>
   );
 }

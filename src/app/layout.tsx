@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { LanguageProvider } from "@/lib";
+import { LanguageProvider, ThemeProvider } from "@/lib";
 import { ToastProvider } from "@/components/ui";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 import { WebVitalsReporter } from "@/components/analytics/WebVitalsReporter";
@@ -72,16 +72,36 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="scroll-smooth">
+    <html lang="fr" className="scroll-smooth dark" suppressHydrationWarning>
       <head>
         {/* Icons auto-detected from icon.png and apple-icon.png */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('ia-foi-theme');
+                  if (theme === 'light') {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.classList.add('light');
+                  } else if (!theme && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.classList.add('light');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased selection:bg-blue-500/30`}
       >
-        <LanguageProvider>
-          <ToastProvider>{children}</ToastProvider>
-        </LanguageProvider>
+        <ThemeProvider>
+          <LanguageProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </LanguageProvider>
+        </ThemeProvider>
         <AnalyticsProvider />
         <WebVitalsReporter />
       </body>

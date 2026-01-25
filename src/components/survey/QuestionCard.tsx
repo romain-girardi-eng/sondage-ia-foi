@@ -133,8 +133,8 @@ export function QuestionCard({
                       "touch-manipulation active:scale-[0.98]",
                       "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                       isSelected
-                        ? "bg-white text-slate-900 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)] font-medium"
-                        : "glass-card-refined hover:border-white/20"
+                        ? "bg-primary text-primary-foreground border-primary shadow-lg font-medium"
+                        : "glass-card-refined text-foreground"
                     )}
                   >
                     {/* Hover glow effect */}
@@ -156,7 +156,7 @@ export function QuestionCard({
                           <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                         </motion.div>
                       ) : (
-                        <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-white/40 group-hover:translate-x-1 transition-all" />
+                        <ChevronRight className="w-5 h-5 text-muted-foreground/40 group-hover:text-muted-foreground group-hover:translate-x-1 transition-all" />
                       )}
                     </div>
                   </motion.button>
@@ -188,8 +188,8 @@ export function QuestionCard({
                       "touch-manipulation active:scale-[0.98]",
                       "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                       isSelected
-                        ? "bg-blue-500/20 text-white border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
-                        : "glass-card-refined hover:border-white/20"
+                        ? "bg-blue-500/20 text-foreground border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+                        : "glass-card-refined text-foreground"
                     )}
                   >
                     <div className="relative flex items-center gap-4">
@@ -198,7 +198,7 @@ export function QuestionCard({
                           "shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300",
                           isSelected
                             ? "bg-blue-500 border-blue-500 scale-110"
-                            : "border-white/30 group-hover:border-white/50"
+                            : "border-muted-foreground/30 group-hover:border-muted-foreground/50"
                         )}
                       >
                         <motion.div
@@ -232,8 +232,8 @@ export function QuestionCard({
                   "w-full py-4 rounded-2xl font-semibold text-lg transition-all duration-300 relative overflow-hidden",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
                   multipleSelected.length > 0
-                    ? "bg-white text-slate-900 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] btn-glow"
-                    : "bg-white/5 text-white/30 cursor-not-allowed border border-white/5"
+                    ? "bg-primary text-primary-foreground hover:shadow-lg btn-glow"
+                    : "bg-muted text-muted-foreground/50 cursor-not-allowed border border-border"
                 )}
               >
                 <span className="relative z-10">
@@ -295,8 +295,8 @@ export function QuestionCard({
                         "touch-manipulation active:scale-90",
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                         isSelected
-                          ? "bg-white text-slate-900 shadow-[0_0_40px_rgba(255,255,255,0.3)] scale-110 z-10"
-                          : "glass-card-refined hover:scale-105 hover:border-white/30"
+                          ? "bg-primary text-primary-foreground shadow-lg scale-110 z-10"
+                          : "glass-card-refined text-foreground hover:scale-105"
                       )}
                     >
                       {num}
@@ -328,9 +328,9 @@ export function QuestionCard({
               rows={5}
               className={cn(
                 "w-full p-4 md:p-5 rounded-2xl resize-none transition-all duration-300",
-                "bg-white/5 border border-white/10 text-white placeholder:text-white/30",
+                "bg-input border border-border text-foreground placeholder:text-muted-foreground/50",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                "focus:bg-white/10"
+                "focus:bg-accent"
               )}
             />
             <motion.div
@@ -343,7 +343,7 @@ export function QuestionCard({
                 className={cn(
                   "w-full py-4 rounded-2xl font-semibold text-lg transition-all duration-300 relative overflow-hidden",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
-                  "bg-white text-slate-900 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] btn-glow"
+                  "bg-primary text-primary-foreground hover:shadow-lg btn-glow"
                 )}
               >
                 <span className="relative z-10">
@@ -351,7 +351,7 @@ export function QuestionCard({
                 </span>
                 <span className="absolute inset-0 animate-shimmer" />
               </button>
-              <p className="text-center text-xs text-white/40 mt-3">
+              <p className="text-center text-xs text-muted-foreground/60 mt-3">
                 {t("survey.optionalQuestion")}
               </p>
             </motion.div>
