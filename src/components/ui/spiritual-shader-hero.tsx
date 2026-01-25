@@ -332,12 +332,12 @@ function ShaderBackground() {
 
   if (!isClient) {
     return (
-      <div className="absolute inset-0 -z-10 w-full h-full bg-gradient-to-br from-slate-100 via-purple-100/30 to-slate-100 dark:from-slate-950 dark:via-purple-950/30 dark:to-slate-950" />
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-100 via-purple-100/30 to-slate-100 dark:from-slate-950 dark:via-purple-950/30 dark:to-slate-950" />
     );
   }
 
   return (
-    <div ref={canvasRef} className="absolute inset-0 -z-10 w-full h-full" aria-hidden>
+    <div ref={canvasRef} className="fixed inset-0 -z-10" aria-hidden>
       <Canvas
         camera={camera}
         gl={{ antialias: true, alpha: false }}
