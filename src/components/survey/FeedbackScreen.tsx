@@ -357,8 +357,10 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                       </div>
                       <p className="text-xs text-muted-foreground leading-tight">{dimLabel.label}</p>
 
-                      {/* Tooltip on hover */}
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 rounded-xl bg-[#1a1f2e] border border-white/10 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left pointer-events-none">
+                      {/* Tooltip on hover - appears below */}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-3 rounded-xl bg-[#1a1f2e] border border-white/10 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left pointer-events-none">
+                        {/* Arrow pointing up */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-[#1a1f2e]" />
                         <p className="text-xs font-medium text-white mb-1">{dimLabel.label}</p>
                         <p className="text-[11px] text-muted-foreground mb-2">{dimLabel.description}</p>
                         <div className="pt-2 border-t border-white/10">
@@ -366,8 +368,6 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                             {isHigh ? dimLabel.highDescription : isLow ? dimLabel.lowDescription : t("resultsExplain.balancedPosition")}
                           </p>
                         </div>
-                        {/* Arrow */}
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-[#1a1f2e]" />
                       </div>
                     </motion.div>
                   );
