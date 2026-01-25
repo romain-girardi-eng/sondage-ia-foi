@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronRight, Info } from "lucide-react";
 import { useLanguage } from "@/lib";
@@ -11,6 +11,7 @@ interface ProfilesModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentProfile?: PrimaryProfile;
+  initialSelectedProfile?: PrimaryProfile | null;
 }
 
 const PROFILE_ORDER: PrimaryProfile[] = [
@@ -24,9 +25,18 @@ const PROFILE_ORDER: PrimaryProfile[] = [
   "explorateur",
 ];
 
-export function ProfilesModal({ isOpen, onClose, currentProfile }: ProfilesModalProps) {
+export function ProfilesModal({ isOpen, onClose, currentProfile, initialSelectedProfile }: ProfilesModalProps) {
   const { t, language } = useLanguage();
   const [selectedProfile, setSelectedProfile] = useState<PrimaryProfile | null>(null);
+
+  // Set initial selected profile when modal opens
+  useEffect(() => {
+    if (isOpen && initialSelectedProfile) {
+      setSelectedProfile(initialSelectedProfile);
+    } else if (!isOpen) {
+      setSelectedProfile(null);
+    }
+  }, [isOpen, initialSelectedProfile]);
 
   const getProfileTranslation = (profileId: PrimaryProfile) => {
     const key = `profiles.${profileId}` as const;

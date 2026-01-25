@@ -70,6 +70,12 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
   const { t, language } = useLanguage();
   const hasAnimated = useHasAnimated();
   const [isProfilesModalOpen, setIsProfilesModalOpen] = useState(false);
+  const [selectedProfileForModal, setSelectedProfileForModal] = useState<string | null>(null);
+
+  const openProfileModal = (profileId?: string) => {
+    setSelectedProfileForModal(profileId || null);
+    setIsProfilesModalOpen(true);
+  };
 
   // Calculate all scores
   const spectrum: ProfileSpectrum = calculateProfileSpectrum(answers);
@@ -125,7 +131,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
             initial={hasAnimated ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.4 }}
-            onClick={() => setIsProfilesModalOpen(true)}
+            onClick={() => openProfileModal()}
             className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/80 hover:text-white text-sm font-medium transition-all"
           >
             <HelpCircle className="w-4 h-4" />
@@ -143,25 +149,33 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
           <ul className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5">
             {/* Main Profile Card - Large */}
             <GlowCard area="md:col-span-8 lg:col-span-5" className="justify-between">
-              <div className="flex items-start justify-between">
-                <div className="w-fit rounded-lg border border-white/10 bg-white/5 p-3">
-                  <span className="text-4xl">{profileDef.emoji}</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">{t("feedback.match")}</p>
-                  <p className="text-2xl font-bold text-purple-400">{primaryMatch.matchScore}%</p>
-                </div>
-              </div>
-              <div className="space-y-3 mt-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-white">{profileDef.title}</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">{profileDef.shortDescription}</p>
-                {subProfileDef && (
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/20 border border-purple-500/30">
-                    <span>{subProfileDef.emoji}</span>
-                    <span className="text-xs font-medium text-purple-300">{subProfileDef.title}</span>
+              <button
+                onClick={() => openProfileModal(primaryMatch.profile)}
+                className="w-full text-left group"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="w-fit rounded-lg border border-white/10 bg-white/5 p-3 group-hover:bg-white/10 transition-colors">
+                    <span className="text-4xl">{profileDef.emoji}</span>
                   </div>
-                )}
-              </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">{t("feedback.match")}</p>
+                    <p className="text-2xl font-bold text-purple-400">{primaryMatch.matchScore}%</p>
+                  </div>
+                </div>
+                <div className="space-y-3 mt-4">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-2xl md:text-3xl font-bold text-white">{profileDef.title}</h2>
+                    <ChevronRight className="w-5 h-5 text-white/30 group-hover:text-white/60 group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{profileDef.shortDescription}</p>
+                  {subProfileDef && (
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/20 border border-purple-500/30">
+                      <span>{subProfileDef.emoji}</span>
+                      <span className="text-xs font-medium text-purple-300">{subProfileDef.title}</span>
+                    </div>
+                  )}
+                </div>
+              </button>
             </GlowCard>
 
             {/* CRS-5 Score */}
@@ -266,12 +280,13 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                 {spectrum.allMatches.slice(0, 3).map((match, index) => {
                   const matchDef = PROFILE_DEFINITIONS[match.profile];
                   return (
-                    <motion.div
+                    <motion.button
                       key={match.profile}
                       initial={hasAnimated ? false : { opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.4 + index * 0.1 }}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5"
+                      onClick={() => openProfileModal(match.profile)}
+                      className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all cursor-pointer text-left"
                     >
                       <span className="text-2xl">{matchDef.emoji}</span>
                       <div className="flex-1 min-w-0">
@@ -292,7 +307,8 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
                           </span>
                         </div>
                       </div>
-                    </motion.div>
+                      <ChevronRight className="w-4 h-4 text-white/30" />
+                    </motion.button>
                   );
                 })}
               </div>
@@ -435,6 +451,7 @@ export function FeedbackScreen({ answers, onContinue, anonymousId }: FeedbackScr
         isOpen={isProfilesModalOpen}
         onClose={() => setIsProfilesModalOpen(false)}
         currentProfile={primaryMatch.profile}
+        initialSelectedProfile={selectedProfileForModal as any}
       />
     </AnimatedBackground>
   );
