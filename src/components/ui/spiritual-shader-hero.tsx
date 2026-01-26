@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useMemo, useSyncExternalStore, useState, useEffect, useCallback } from 'react';
-import { Canvas, useFrame, extend } from '@react-three/fiber';
+import { Canvas, useFrame, extend, useThree } from '@react-three/fiber';
 import { shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import { useGSAP } from '@gsap/react';
@@ -273,6 +273,7 @@ function ShaderPlane({ isPaused = false, isDarkMode = true }: ShaderPlaneProps) 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const materialRef = useRef<any>(null!);
   const lastTimeRef = useRef(0);
+  const { viewport } = useThree();
 
   useFrame((state) => {
     if (!materialRef.current) return;
@@ -289,8 +290,8 @@ function ShaderPlane({ isPaused = false, isDarkMode = true }: ShaderPlaneProps) 
   });
 
   return (
-    <mesh ref={meshRef} position={[0, 0, -0.5]}>
-      <planeGeometry args={[4, 4]} />
+    <mesh ref={meshRef} position={[0, 0, 0]} scale={[viewport.width, viewport.height, 1]}>
+      <planeGeometry args={[1, 1]} />
       <spiritualShaderMaterial ref={materialRef} side={THREE.DoubleSide} />
     </mesh>
   );
@@ -330,14 +331,28 @@ function ShaderBackground() {
     { scope: canvasRef, dependencies: [isClient] }
   );
 
+  const shaderStyle: React.CSSProperties = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    margin: 0,
+    padding: 0,
+    zIndex: -10,
+  };
+
   if (!isClient) {
     return (
-      <div className="shader-fullscreen bg-gradient-to-br from-slate-100 via-purple-100/30 to-slate-100 dark:from-slate-950 dark:via-purple-950/30 dark:to-slate-950" />
+      <div
+        className="bg-gradient-to-br from-slate-100 via-purple-100/30 to-slate-100 dark:from-slate-950 dark:via-purple-950/30 dark:to-slate-950"
+        style={shaderStyle}
+      />
     );
   }
 
   return (
-    <div ref={canvasRef} className="shader-fullscreen" aria-hidden>
+    <div ref={canvasRef} style={shaderStyle} aria-hidden>
       <Canvas
         camera={camera}
         gl={{ antialias: true, alpha: false }}
@@ -480,7 +495,7 @@ export default function SpiritualShaderHero({
   );
 
   return (
-    <section ref={sectionRef} className="relative min-h-[100dvh] w-full overflow-hidden">
+    <section ref={sectionRef} className="relative min-h-[100dvh] w-full">
       <ShaderBackground />
 
       <div className="relative mx-auto flex min-h-[100dvh] max-w-4xl flex-col items-center justify-center gap-6 px-6 py-24 text-center">
