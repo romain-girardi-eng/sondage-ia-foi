@@ -117,12 +117,134 @@ export interface Database {
           last_error?: string | null;
         };
       };
+      security_audit_log: {
+        Row: {
+          id: string;
+          created_at: string;
+          operation: string;
+          table_name: string | null;
+          record_id: string | null;
+          anonymous_id: string | null;
+          ip_hash: string | null;
+          user_agent_hash: string | null;
+          success: boolean;
+          error_message: string | null;
+          metadata: Json;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          operation: string;
+          table_name?: string | null;
+          record_id?: string | null;
+          anonymous_id?: string | null;
+          ip_hash?: string | null;
+          user_agent_hash?: string | null;
+          success?: boolean;
+          error_message?: string | null;
+          metadata?: Json;
+        };
+        Update: {
+          id?: string;
+          created_at?: string;
+          operation?: string;
+          table_name?: string | null;
+          record_id?: string | null;
+          anonymous_id?: string | null;
+          ip_hash?: string | null;
+          user_agent_hash?: string | null;
+          success?: boolean;
+          error_message?: string | null;
+          metadata?: Json;
+        };
+      };
     };
     Views: {
-      [_ in never]: never;
+      security_dashboard: {
+        Row: {
+          hour: string;
+          operation: string;
+          event_count: number;
+          unique_users: number;
+          unique_ips: number;
+          failure_count: number;
+        };
+      };
     };
     Functions: {
-      [_ in never]: never;
+      get_aggregated_results: {
+        Args: Record<string, never>;
+        Returns: {
+          question_id: string;
+          distribution: Json;
+          total_responses: number;
+        }[];
+      };
+      get_participant_count: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      check_submission_allowed: {
+        Args: {
+          p_fingerprint_id: string | null;
+          p_ip_address: string | null;
+          p_anonymous_id: string;
+        };
+        Returns: {
+          allowed: boolean;
+          reason: string | null;
+          previous_submission_at: string | null;
+        }[];
+      };
+      record_submission_attempt: {
+        Args: {
+          p_fingerprint_id: string | null;
+          p_ip_address: string | null;
+          p_anonymous_id: string;
+          p_session_id: string | null;
+          p_is_successful: boolean;
+          p_blocked_reason?: string | null;
+          p_user_agent?: string | null;
+        };
+        Returns: string;
+      };
+      check_email_hash_exists: {
+        Args: {
+          p_email_hash: string;
+        };
+        Returns: boolean;
+      };
+      record_email_hash: {
+        Args: {
+          p_email_hash: string;
+          p_response_id?: string | null;
+          p_ip_hash?: string | null;
+        };
+        Returns: string | null;
+      };
+      get_user_responses: {
+        Args: {
+          p_anonymous_id: string;
+          p_ip_hash?: string | null;
+        };
+        Returns: {
+          id: string;
+          created_at: string;
+          answers: Json;
+          metadata: Json;
+        }[];
+      };
+      delete_user_data: {
+        Args: {
+          p_anonymous_id: string;
+          p_ip_hash?: string | null;
+        };
+        Returns: {
+          deleted_responses: number;
+          deleted_sessions: number;
+          deleted_email_submissions: number;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

@@ -1,8 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
+import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase';
 import { userDataSchema } from '@/lib/validation';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rateLimit';
 import { validateCSRF, csrfErrorResponse } from '@/lib/csrf';
+import { createHash } from 'crypto';
+import type { Json } from '@/lib/supabase/types';
+
+// Response types for RPC functions
+interface UserResponseData {
+  id: string;
+  created_at: string;
+  answers: Json;
+  metadata: Json;
+}
+
+interface DeleteUserDataResult {
+  deleted_responses: number;
+  deleted_sessions: number;
+  deleted_email_submissions: number;
+}
+
+// Hash IP for audit logging (privacy-preserving)
+function hashIP(ip: string): string {
+  return createHash('sha256').update(ip + (process.env.IP_HASH_SALT || 'default-salt')).digest('hex');
+}
 
 // GET: Export user's own data (GDPR right to access)
 export async function GET(request: NextRequest) {
@@ -34,15 +55,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check if Supabase is configured
-    if (!isSupabaseConfigured) {
+    // Check if Supabase is configured (requires service role for GDPR operations)
+    if (!isServiceRoleConfigured) {
       return NextResponse.json(
         { data: [], demo: true },
         { status: 200, headers: getRateLimitHeaders(rateLimitResult) }
       );
     }
 
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceRoleClient();
     if (!supabase) {
       return NextResponse.json(
         { data: [], demo: true },
@@ -50,11 +71,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Use secure RPC function with audit logging
+    const ipHash = hashIP(ip);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
-      .from('responses')
-      .select('id, created_at, answers, metadata')
-      .eq('anonymous_id', anonymousId);
+    const { data, error } = await (supabase.rpc as any)('get_user_responses', {
+      p_anonymous_id: anonymousId,
+      p_ip_hash: ipHash,
+    }) as { data: UserResponseData[] | null; error: Error | null };
 
     if (error) {
       console.error('User data retrieval error:', error);
@@ -108,15 +131,15 @@ export async function DELETE(request: NextRequest) {
 
     const { anonymousId } = validationResult.data;
 
-    // Check if Supabase is configured
-    if (!isSupabaseConfigured) {
+    // Check if Supabase is configured (requires service role for GDPR operations)
+    if (!isServiceRoleConfigured) {
       return NextResponse.json(
         { success: true, deletedCount: 0, demo: true },
         { status: 200, headers: getRateLimitHeaders(rateLimitResult) }
       );
     }
 
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceRoleClient();
     if (!supabase) {
       return NextResponse.json(
         { success: true, deletedCount: 0, demo: true },
@@ -124,41 +147,34 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Get the session IDs first to delete sessions too
+    // Use secure RPC function with audit logging
+    const ipHash = hashIP(ip);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: responses } = await (supabase as any)
-      .from('responses')
-      .select('session_id')
-      .eq('anonymous_id', anonymousId);
+    const { data, error } = await (supabase.rpc as any)('delete_user_data', {
+      p_anonymous_id: anonymousId,
+      p_ip_hash: ipHash,
+    }) as { data: DeleteUserDataResult[] | null; error: Error | null };
 
-    const sessionIds = (responses as Array<{ session_id: string }> | null)?.map(r => r.session_id) || [];
-
-    // Delete responses
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: responseError, count } = await (supabase as any)
-      .from('responses')
-      .delete()
-      .eq('anonymous_id', anonymousId);
-
-    if (responseError) {
-      console.error('Response deletion error:', responseError);
+    if (error) {
+      console.error('User data deletion error:', error);
       return NextResponse.json(
         { error: 'Failed to delete data' },
         { status: 500 }
       );
     }
 
-    // Delete associated sessions
-    if (sessionIds.length > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any)
-        .from('sessions')
-        .delete()
-        .in('id', sessionIds);
-    }
+    const result = data?.[0] || { deleted_responses: 0, deleted_sessions: 0, deleted_email_submissions: 0 };
 
     return NextResponse.json(
-      { success: true, deletedCount: count || 0 },
+      {
+        success: true,
+        deletedCount: result.deleted_responses,
+        details: {
+          responses: result.deleted_responses,
+          sessions: result.deleted_sessions,
+          emailSubmissions: result.deleted_email_submissions,
+        },
+      },
       { status: 200, headers: getRateLimitHeaders(rateLimitResult) }
     );
   } catch (error) {
