@@ -16,7 +16,7 @@ export const translations = {
       anonymity: "Anonymat total :",
       anonymityDesc:
         "Aucune donnée personnelle identifiante (nom, email, IP) n'est enregistrée.",
-      academic: "Usage académique :",
+      academic: "Usage des données :",
       academicDesc:
         "Les réponses sont agrégées uniquement à des fins statistiques.",
       cta: "J'accepte et je commence",
@@ -193,7 +193,7 @@ export const translations = {
       responses: "réponses",
       majority: "majoritaire",
       restartSurvey: "Recommencer le sondage",
-      thankYouFooter: "Merci pour votre contribution à cette recherche académique.",
+      thankYouFooter: "Merci pour votre contribution à cette étude.",
       all: "Tous",
       profile: "Profil",
       religiosity: "Religiosité",
@@ -396,7 +396,7 @@ export const translations = {
     // Methodology
     methodology: {
       title: "Note méthodologique",
-      description: "Cette enquête utilise des versions adaptées d'échelles académiques validées (Centrality of Religiosity Scale, AI Anxiety Scale) optimisées pour l'engagement numérique. Bien que conçue avec rigueur scientifique, elle est destinée à la réflexion personnelle et à l'analyse sociologique, et non à une catégorisation définitive.",
+      description: "Cette enquête utilise des versions adaptées d'échelles validées (Centrality of Religiosity Scale, AI Anxiety Scale) optimisées pour l'engagement numérique. Bien que conçue avec rigueur scientifique, elle est destinée à la réflexion personnelle et à l'analyse sociologique, et non à une catégorisation définitive.",
       learnMore: "En savoir plus sur la méthodologie",
     },
 
@@ -494,7 +494,7 @@ export const translations = {
       anonymity: "Complete anonymity:",
       anonymityDesc:
         "No personally identifiable data (name, email, IP) is recorded.",
-      academic: "Academic use:",
+      academic: "Data usage:",
       academicDesc:
         "Responses are aggregated solely for statistical purposes.",
       cta: "I agree and start",
@@ -671,7 +671,7 @@ export const translations = {
       responses: "responses",
       majority: "majority",
       restartSurvey: "Restart survey",
-      thankYouFooter: "Thank you for your contribution to this academic research.",
+      thankYouFooter: "Thank you for your contribution to this study.",
       all: "All",
       profile: "Profile",
       religiosity: "Religiosity",
@@ -874,7 +874,7 @@ export const translations = {
     // Methodology
     methodology: {
       title: "Methodological note",
-      description: "This survey uses adapted versions of validated academic scales (Centrality of Religiosity Scale, AI Anxiety Scale) optimized for digital engagement. While designed with scientific rigor, it is intended for self-reflection and sociological analysis, not definitive categorization.",
+      description: "This survey uses adapted versions of validated scales (Centrality of Religiosity Scale, AI Anxiety Scale) optimized for digital engagement. While designed with scientific rigor, it is intended for self-reflection and sociological analysis, not definitive categorization.",
       learnMore: "Learn more about methodology",
     },
 

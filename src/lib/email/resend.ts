@@ -36,7 +36,7 @@ const EMAIL_CONTENT = {
     note: 'Ce rapport est confidentiel et généré à partir de vos réponses au sondage.',
     closing: 'Cordialement,',
     team: 'L\'équipe de recherche IA & Foi',
-    footer: 'Cette étude est menée dans un cadre académique. Vos données sont protégées conformément au RGPD.',
+    footer: 'Cette grande enquête respecte la protection de vos données conformément au RGPD.',
   },
   en: {
     greeting: 'Hello,',
@@ -44,7 +44,7 @@ const EMAIL_CONTENT = {
     note: 'This report is confidential and generated from your survey responses.',
     closing: 'Best regards,',
     team: 'The AI & Faith Research Team',
-    footer: 'This study is conducted in an academic context. Your data is protected in accordance with GDPR.',
+    footer: 'This major survey respects data protection in accordance with GDPR.',
   },
 };
 

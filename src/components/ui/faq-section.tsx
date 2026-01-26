@@ -128,7 +128,7 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
     fr: [
       {
         q: "Pourquoi cette étude ?",
-        a: "L'intelligence artificielle transforme silencieusement les pratiques religieuses, de la rédaction de sermons à la prière assistée. Cette recherche académique vise à cartographier ces usages et comprendre les enjeux éthiques qu'ils soulèvent pour les communautés chrétiennes.",
+        a: "L'intelligence artificielle transforme silencieusement les pratiques religieuses, de la rédaction de sermons à la prière assistée. Cette grande enquête vise à cartographier ces usages et comprendre les enjeux éthiques qu'ils soulèvent pour les communautés chrétiennes.",
       },
       {
         q: "Mes réponses sont-elles anonymes ?",
@@ -144,11 +144,11 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
       },
       {
         q: "Comment mes données seront-elles utilisées ?",
-        a: "Les résultats seront publiés sous forme agrégée dans des publications académiques et présentés lors de conférences. Aucune réponse individuelle ne sera jamais divulguée.",
+        a: "Les résultats seront publiés sous forme agrégée dans des rapports publics et présentés lors de conférences. Aucune réponse individuelle ne sera jamais divulguée.",
       },
       {
         q: "Qu'est-ce que le score CRS-5 ?",
-        a: "Le CRS-5 (Centrality of Religiosity Scale) est une échelle scientifique validée par Huber & Huber (2012) qui mesure 5 dimensions de la religiosité : intellect, idéologie, pratique publique, pratique privée et expérience spirituelle.",
+        a: "Le CRS-5 (Centrality of Religiosity Scale) est une échelle validée par Huber & Huber (2012) qui mesure 5 dimensions de la religiosité : intellect, idéologie, pratique publique, pratique privée et expérience spirituelle.",
       },
       {
         q: "Qu'est-ce que l'indice de résistance spirituelle ?",
@@ -162,7 +162,7 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
     en: [
       {
         q: "Why this study?",
-        a: "Artificial intelligence is silently transforming religious practices, from sermon writing to AI-assisted prayer. This academic research aims to map these uses and understand the ethical issues they raise for Christian communities.",
+        a: "Artificial intelligence is silently transforming religious practices, from sermon writing to AI-assisted prayer. This major survey aims to map these uses and understand the ethical issues they raise for Christian communities.",
       },
       {
         q: "Are my responses anonymous?",
@@ -178,11 +178,11 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
       },
       {
         q: "How will my data be used?",
-        a: "Results will be published in aggregated form in academic publications and presented at conferences. No individual responses will ever be disclosed.",
+        a: "Results will be published in aggregated form in public reports and presented at conferences. No individual responses will ever be disclosed.",
       },
       {
         q: "What is the CRS-5 score?",
-        a: "The CRS-5 (Centrality of Religiosity Scale) is a scientifically validated scale by Huber & Huber (2012) that measures 5 dimensions of religiosity: intellect, ideology, public practice, private practice, and spiritual experience.",
+        a: "The CRS-5 (Centrality of Religiosity Scale) is a validated scale by Huber & Huber (2012) that measures 5 dimensions of religiosity: intellect, ideology, public practice, private practice, and spiritual experience.",
       },
       {
         q: "What is the spiritual resistance index?",
