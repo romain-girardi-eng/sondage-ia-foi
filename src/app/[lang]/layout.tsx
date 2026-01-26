@@ -12,6 +12,8 @@ interface Props {
   params: Promise<{ lang: string }>;
 }
 
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   return SUPPORTED_LOCALES.map((lang) => ({ lang }));
 }
