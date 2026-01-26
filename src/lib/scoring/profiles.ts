@@ -656,6 +656,18 @@ function generateAdvancedInsights(
 
   // Sort by priority and take top 4
   insights.sort((a, b) => b.priority - a.priority);
+  
+  // Add fallback insight if empty
+  if (insights.length === 0) {
+    insights.push({
+      category: 'developmental',
+      icon: '✨',
+      title: 'Profil Équilibré',
+      message: 'Votre profil présente un équilibre remarquable entre les différentes dimensions. C\'est une excellente base pour approfondir votre réflexion personnelle.',
+      priority: 1
+    });
+  }
+
   return insights.slice(0, 4);
 }
 
