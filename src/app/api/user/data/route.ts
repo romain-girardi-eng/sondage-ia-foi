@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
 import { userDataSchema } from '@/lib/validation';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rateLimit';
+import { validateCSRF, csrfErrorResponse } from '@/lib/csrf';
 
 // GET: Export user's own data (GDPR right to access)
 export async function GET(request: NextRequest) {
@@ -79,6 +80,12 @@ export async function GET(request: NextRequest) {
 // DELETE: Delete user's data (GDPR right to erasure)
 export async function DELETE(request: NextRequest) {
   try {
+    // Validate CSRF token for destructive operations
+    const csrfResult = await validateCSRF(request);
+    if (!csrfResult.valid) {
+      return csrfErrorResponse(csrfResult.error || 'Invalid CSRF token');
+    }
+
     const ip = request.headers.get('x-forwarded-for') || 'anonymous';
     const rateLimitResult = rateLimit(`user-delete:${ip}`);
 

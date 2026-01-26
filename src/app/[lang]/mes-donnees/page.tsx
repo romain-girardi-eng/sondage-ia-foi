@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Database, Download, Trash2, Search, AlertTriangle, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { useCSRF } from "@/hooks/useCSRF";
 
 const content = {
   en: {
@@ -86,6 +87,7 @@ export default function MesDonneesPage() {
   const params = useParams();
   const lang = (params.lang as string) === "en" ? "en" : "fr";
   const t = content[lang];
+  const { fetchWithCSRF } = useCSRF();
 
   const [anonymousId, setAnonymousId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -147,7 +149,7 @@ export default function MesDonneesPage() {
     setResult(null);
 
     try {
-      const response = await fetch("/api/user/data", {
+      const response = await fetchWithCSRF("/api/user/data", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ anonymousId }),
