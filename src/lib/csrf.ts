@@ -3,7 +3,18 @@ import { NextRequest, NextResponse } from "next/server";
 
 const CSRF_TOKEN_NAME = "csrf_token";
 const CSRF_HEADER_NAME = "x-csrf-token";
-const CSRF_SECRET = process.env.CSRF_SECRET || "default-csrf-secret-change-in-production";
+// In production, CSRF_SECRET must be set. In development, use a fallback for convenience.
+const CSRF_SECRET = (() => {
+  const secret = process.env.CSRF_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("CSRF_SECRET environment variable is required in production");
+    }
+    // Development-only fallback - never used in production
+    return "dev-only-csrf-secret-not-for-production";
+  }
+  return secret;
+})();
 
 /**
  * Generate a CSRF token using Web Crypto API
