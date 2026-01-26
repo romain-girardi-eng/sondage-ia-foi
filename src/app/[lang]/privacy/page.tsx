@@ -142,130 +142,130 @@ export default async function PrivacyPage({ params }: Props) {
     },
     back: "Back to survey"
   } : {
-    title: "Politique de Confidentialite",
-    lastUpdate: "Derniere mise a jour : 26 janvier 2026",
+    title: "Politique de Confidentialité",
+    lastUpdate: "Dernière mise à jour : 26 janvier 2026",
     controller: {
       title: "Responsable du traitement",
-      text: "Cette etude est menee dans un cadre academique. Le responsable du traitement des donnees est le chercheur principal de l'etude.",
+      text: "Cette étude est menée dans un cadre académique. Le responsable du traitement des données est le chercheur principal de l'étude.",
       contact: "Contact : contact@ia-foi.fr"
     },
     collected: {
-      title: "Donnees collectees",
-      subtitle: "Types de donnees et leur nature",
+      title: "Données collectées",
+      subtitle: "Types de données et leur nature",
       anonymous: {
-        title: "Donnees anonymes (non personnelles)",
+        title: "Données anonymes (non personnelles)",
         items: [
-          "Vos reponses au questionnaire (sans lien avec votre identite)",
+          "Vos réponses au questionnaire (sans lien avec votre identité)",
           "Date et heure de participation",
-          "Langue de l'interface utilisee",
+          "Langue de l'interface utilisée",
         ]
       },
       pseudonymous: {
-        title: "Donnees pseudonymisees (donnees personnelles au sens du RGPD)",
-        description: "Les donnees suivantes sont considerees comme des donnees personnelles au sens du RGPD car elles pourraient theoriquement etre liees a vous, meme si nous ne pouvons pas les utiliser pour vous contacter ou vous identifier directement :",
+        title: "Données pseudonymisées (données personnelles au sens du RGPD)",
+        description: "Les données suivantes sont considérées comme des données personnelles au sens du RGPD car elles pourraient théoriquement être liées à vous, même si nous ne pouvons pas les utiliser pour vous contacter ou vous identifier directement :",
         items: [
           {
             name: "Empreinte cryptographique de votre email",
-            detail: "Une transformation mathematique irreversible de votre email. Nous ne pouvons pas retrouver votre email a partir de cette empreinte, mais quelqu'un possedant votre email pourrait verifier la correspondance. Utilisee uniquement pour empecher les participations multiples."
+            detail: "Une transformation mathématique irréversible de votre email. Nous ne pouvons pas retrouver votre email à partir de cette empreinte, mais quelqu'un possédant votre email pourrait vérifier la correspondance. Utilisée uniquement pour empêcher les participations multiples."
           },
           {
             name: "Empreinte de navigateur",
-            detail: "Un identifiant technique de votre navigateur/appareil. Utilise uniquement pour empecher les participations multiples depuis le meme appareil."
+            detail: "Un identifiant technique de votre navigateur/appareil. Utilisé uniquement pour empêcher les participations multiples depuis le même appareil."
           },
           {
-            name: "Identifiant anonyme aleatoire",
-            detail: "Un identifiant genere aleatoirement stocke dans votre navigateur, lie a vos reponses pour la gestion des donnees."
+            name: "Identifiant anonyme aléatoire",
+            detail: "Un identifiant généré aléatoirement stocké dans votre navigateur, lié à vos réponses pour la gestion des données."
           }
         ]
       },
       notCollected: "Nous ne collectons PAS et ne stockons PAS :",
       notItems: [
-        "Votre adresse email reelle (uniquement son empreinte irreversible)",
+        "Votre adresse email réelle (uniquement son empreinte irréversible)",
         "Votre adresse IP",
         "Votre nom ou tout identifiant direct",
-        "Donnees de geolocalisation",
+        "Données de géolocalisation",
         "Cookies de suivi ou publicitaires"
       ],
-      pdfNote: "Si vous choisissez de recevoir vos resultats par email, votre adresse email est utilisee uniquement pour l'envoi immediat du PDF et n'est stockee dans aucune base de donnees. Elle est traitee en memoire uniquement et supprimee immediatement apres l'envoi."
+      pdfNote: "Si vous choisissez de recevoir vos résultats par email, votre adresse email est utilisée uniquement pour l'envoi immédiat du PDF et n'est stockée dans aucune base de données. Elle est traitée en mémoire uniquement et supprimée immédiatement après l'envoi."
     },
     legal: {
-      title: "Base legale (Article 6 du RGPD)",
-      intro: "Nous traitons vos donnees sur les fondements juridiques suivants :",
+      title: "Base légale (Article 6 du RGPD)",
+      intro: "Nous traitons vos données sur les fondements juridiques suivants :",
       items: [
         {
           basis: "Consentement (Art. 6.1.a)",
-          scope: "Reponses au sondage et envoi optionnel du PDF",
-          detail: "Vous donnez votre consentement explicite en cliquant sur \"J'accepte et je commence\". Vous pouvez retirer ce consentement a tout moment."
+          scope: "Réponses au sondage et envoi optionnel du PDF",
+          detail: "Vous donnez votre consentement explicite en cliquant sur \"J'accepte et je commence\". Vous pouvez retirer ce consentement à tout moment."
         },
         {
-          basis: "Interet legitime (Art. 6.1.f)",
+          basis: "Intérêt légitime (Art. 6.1.f)",
           scope: "Mesures anti-fraude (empreinte email, empreinte navigateur)",
-          detail: "Nous avons un interet legitime a garantir l'integrite scientifique de notre etude en empechant les participations multiples. Cet interet est equilibre avec vos droits par la minimisation des donnees (seules les empreintes sont stockees, pas les donnees reelles)."
+          detail: "Nous avons un intérêt légitime à garantir l'intégrité scientifique de notre étude en empêchant les participations multiples. Cet intérêt est équilibré avec vos droits par la minimisation des données (seules les empreintes sont stockées, pas les données réelles)."
         }
       ]
     },
     purpose: {
-      title: "Finalites du traitement",
+      title: "Finalités du traitement",
       items: [
         {
-          purpose: "Recherche academique",
-          detail: "Comprendre l'utilisation de l'IA dans les pratiques religieuses chretiennes. Resultats publies uniquement sous forme agregee."
+          purpose: "Recherche académique",
+          detail: "Comprendre l'utilisation de l'IA dans les pratiques religieuses chrétiennes. Résultats publiés uniquement sous forme agrégée."
         },
         {
-          purpose: "Integrite scientifique",
-          detail: "S'assurer que chaque personne ne participe qu'une seule fois pour maintenir la validite des donnees."
+          purpose: "Intégrité scientifique",
+          detail: "S'assurer que chaque personne ne participe qu'une seule fois pour maintenir la validité des données."
         },
         {
           purpose: "Service utilisateur",
-          detail: "Envoi de vos resultats personnalises par email si vous le demandez."
+          detail: "Envoi de vos résultats personnalisés par email si vous le demandez."
         }
       ]
     },
     retention: {
-      title: "Duree de conservation",
-      text: "Les donnees sont conservees pendant une duree maximale de 3 ans apres la fin de l'etude, conformement aux standards de recherche academique. Apres cette periode, toutes les donnees sont definitivement et irreversiblement supprimees.",
+      title: "Durée de conservation",
+      text: "Les données sont conservées pendant une durée maximale de 3 ans après la fin de l'étude, conformément aux standards de recherche académique. Après cette période, toutes les données sont définitivement et irréversiblement supprimées.",
       details: [
-        "Reponses au sondage : 3 ans",
-        "Empreintes email : 3 ans (ou jusqu'a votre demande de suppression)",
+        "Réponses au sondage : 3 ans",
+        "Empreintes email : 3 ans (ou jusqu'à votre demande de suppression)",
         "Empreintes navigateur : 3 ans",
-        "Email pour PDF : Non stocke (traitement immediat uniquement)"
+        "Email pour PDF : Non stocké (traitement immédiat uniquement)"
       ]
     },
     rights: {
       title: "Vos droits (Articles 15-22 du RGPD)",
-      intro: "Vous disposez des droits suivants concernant vos donnees personnelles :",
+      intro: "Vous disposez des droits suivants concernant vos données personnelles :",
       items: [
-        { name: "Droit d'acces (Art. 15)", desc: "Obtenir une copie de vos donnees grace a votre identifiant anonyme" },
-        { name: "Droit de rectification (Art. 16)", desc: "Corriger des donnees inexactes" },
-        { name: "Droit a l'effacement (Art. 17)", desc: "Demander la suppression de vos donnees" },
-        { name: "Droit a la limitation (Art. 18)", desc: "Limiter le traitement de vos donnees" },
-        { name: "Droit a la portabilite (Art. 20)", desc: "Exporter vos donnees dans un format standard" },
-        { name: "Droit de retrait du consentement", desc: "A tout moment, sans affecter le traitement anterieur" }
+        { name: "Droit d'accès (Art. 15)", desc: "Obtenir une copie de vos données grâce à votre identifiant anonyme" },
+        { name: "Droit de rectification (Art. 16)", desc: "Corriger des données inexactes" },
+        { name: "Droit à l'effacement (Art. 17)", desc: "Demander la suppression de vos données" },
+        { name: "Droit à la limitation (Art. 18)", desc: "Limiter le traitement de vos données" },
+        { name: "Droit à la portabilité (Art. 20)", desc: "Exporter vos données dans un format standard" },
+        { name: "Droit de retrait du consentement", desc: "À tout moment, sans affecter le traitement antérieur" }
       ],
-      limitation: "Note : En raison de la nature pseudonymisee des donnees, nous ne pouvons traiter les demandes que si vous fournissez votre identifiant anonyme (affiche a la fin du sondage). Sans cet identifiant, nous ne pouvons pas localiser vos donnees.",
-      button: "Gerer mes donnees"
+      limitation: "Note : En raison de la nature pseudonymisée des données, nous ne pouvons traiter les demandes que si vous fournissez votre identifiant anonyme (affiché à la fin du sondage). Sans cet identifiant, nous ne pouvons pas localiser vos données.",
+      button: "Gérer mes données"
     },
     security: {
-      title: "Securite des donnees",
+      title: "Sécurité des données",
       items: [
-        "Donnees chiffrees en transit (HTTPS/TLS)",
-        "Base de donnees hebergee sur infrastructure securisee (Supabase, region UE)",
-        "Acces restreint aux chercheurs autorises uniquement",
-        "Audits de securite reguliers"
+        "Données chiffrées en transit (HTTPS/TLS)",
+        "Base de données hébergée sur infrastructure sécurisée (Supabase, région UE)",
+        "Accès restreint aux chercheurs autorisés uniquement",
+        "Audits de sécurité réguliers"
       ]
     },
     transfers: {
       title: "Transferts internationaux",
-      text: "Vos donnees sont stockees sur des serveurs situes dans l'Union europeenne (AWS eu-west-2). Nos fournisseurs d'hebergement (Vercel, Supabase) peuvent traiter des donnees conformement au EU-US Data Privacy Framework le cas echeant. Aucune donnee n'est vendue ou partagee avec des tiers."
+      text: "Vos données sont stockées sur des serveurs situés dans l'Union européenne (AWS eu-west-2). Nos fournisseurs d'hébergement (Vercel, Supabase) peuvent traiter des données conformément au EU-US Data Privacy Framework le cas échéant. Aucune donnée n'est vendue ou partagée avec des tiers."
     },
     contact: {
-      title: "Contact & Reclamations",
-      text: "Pour exercer vos droits ou pour toute question concernant le traitement des donnees :",
+      title: "Contact & Réclamations",
+      text: "Pour exercer vos droits ou pour toute question concernant le traitement des données :",
       email: "Email : contact@ia-foi.fr",
       page: "Ou utilisez la page",
-      link: "Mes donnees",
+      link: "Mes données",
       pageEnd: ".",
-      authority: "Si vous estimez que vos droits ne sont pas respectes, vous pouvez deposer une reclamation aupres de la CNIL (Commission Nationale de l'Informatique et des Libertes) : www.cnil.fr"
+      authority: "Si vous estimez que vos droits ne sont pas respectés, vous pouvez déposer une réclamation auprès de la CNIL (Commission Nationale de l'Informatique et des Libertés) : www.cnil.fr"
     },
     back: "Retour au sondage"
   };
