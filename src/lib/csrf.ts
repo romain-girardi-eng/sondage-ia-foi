@@ -3,18 +3,24 @@ import { NextRequest, NextResponse } from "next/server";
 
 const CSRF_TOKEN_NAME = "csrf_token";
 const CSRF_HEADER_NAME = "x-csrf-token";
-// In production, CSRF_SECRET must be set. In development, use a fallback for convenience.
-const CSRF_SECRET = (() => {
+
+// Lazy-loaded CSRF secret to avoid build-time evaluation
+let _csrfSecret: string | null = null;
+function getCSRFSecret(): string {
+  if (_csrfSecret !== null) return _csrfSecret;
+
   const secret = process.env.CSRF_SECRET;
   if (!secret) {
     if (process.env.NODE_ENV === "production") {
       throw new Error("CSRF_SECRET environment variable is required in production");
     }
     // Development-only fallback - never used in production
-    return "dev-only-csrf-secret-not-for-production";
+    _csrfSecret = "dev-only-csrf-secret-not-for-production";
+  } else {
+    _csrfSecret = secret;
   }
-  return secret;
-})();
+  return _csrfSecret;
+}
 
 /**
  * Generate a CSRF token using Web Crypto API
@@ -38,7 +44,7 @@ export async function createSignedToken(): Promise<string> {
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",
-    encoder.encode(CSRF_SECRET),
+    encoder.encode(getCSRFSecret()),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"]
@@ -76,7 +82,7 @@ export async function verifySignedToken(signedToken: string): Promise<boolean> {
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
       "raw",
-      encoder.encode(CSRF_SECRET),
+      encoder.encode(getCSRFSecret()),
       { name: "HMAC", hash: "SHA-256" },
       false,
       ["verify"]
