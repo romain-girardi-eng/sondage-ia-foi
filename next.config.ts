@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
         destination: '/fr/privacy',
         permanent: false,
       },
+      {
+        source: '/mes-donnees',
+        destination: '/fr/mes-donnees',
+        permanent: false,
+      },
     ];
   },
   async headers() {
