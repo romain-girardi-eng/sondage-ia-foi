@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
+import { createServiceRoleClient, isServiceRoleConfigured } from "@/lib/supabase";
 import {
   calculateProfileSpectrum,
   calculateCRS5Score,
@@ -394,11 +394,11 @@ export async function GET(request: NextRequest) {
 
   try {
     // Check if Supabase is configured
-    if (!isSupabaseConfigured) {
+    if (!isServiceRoleConfigured) {
       return NextResponse.json(generateMockStats());
     }
 
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceRoleClient();
     if (!supabase) {
       return NextResponse.json(generateMockStats());
     }
