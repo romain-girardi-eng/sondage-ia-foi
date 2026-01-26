@@ -66,7 +66,8 @@ function clergyUsesAI(answers: Answers): boolean {
 }
 
 // --- CONTENU DU SONDAGE COMPLET ---
-// Structure: ~15-18 questions selon le parcours (clergé vs laïc)
+// Structure: 55 questions totales, ~35-45 affichées selon le parcours (clergé vs laïc)
+// Durée estimée: 5-7 minutes
 // Hypothèses de corrélation testables: H1-H6 (voir méthodologie)
 
 export const SURVEY_QUESTIONS: Question[] = [

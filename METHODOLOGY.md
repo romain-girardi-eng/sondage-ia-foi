@@ -36,7 +36,7 @@ Cette enquête vise à cartographier les attitudes des chrétiens francophones f
 | Aspect | Choix académique pur | Notre choix | Justification |
 |--------|---------------------|-------------|---------------|
 | CRS (religiosité) | CRS-15 (15 questions) | CRS-5 (5 questions) | Taux de complétion vs. fiabilité |
-| Nombre de questions | 40-60 questions | 20-25 questions | Optimisé pour mobile, <7 min |
+| Nombre de questions | 40-60 questions | 55 total (35-45 par répondant) | Optimisé pour mobile, 5-7 min |
 | Échelles Likert | 7 points | 5 points | Simplicité cognitive |
 
 ---
@@ -388,4 +388,4 @@ Voir `src/lib/scoring/profiles.ts` pour l'implémentation détaillée.
 
 ---
 
-*Document généré le 25 janvier 2025. Dernière mise à jour : v1.1.0*
+*Document généré le 25 janvier 2025. Dernière mise à jour : v1.2.1 (26 janvier 2026)*

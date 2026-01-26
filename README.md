@@ -7,7 +7,7 @@ Academic survey application studying AI usage in Christian religious practices.
 ## Features
 
 - **Immersive Landing Page** - Custom CPPN shader with Three.js for a spiritual, meditative visual experience
-- **48 Survey Questions** - Comprehensive questionnaire covering religiosity, AI usage, theology, and psychology
+- **55 Survey Questions** - Comprehensive questionnaire with conditional logic (35-45 shown per respondent based on profile)
 - **Conditional Logic** - Questions adapt based on previous answers
 - **i18n Support** - Full French and English translations with language switcher
 - **Modern Dashboard** - Custom SVG-based visualizations with animated radial charts
@@ -84,7 +84,7 @@ src/
 │       ├── language-switcher.tsx
 │       └── spiritual-shader-hero.tsx
 ├── data/
-│   └── surveySchema.ts         # 48 survey questions with types
+│   └── surveySchema.ts         # 55 survey questions with conditional logic
 └── lib/
     ├── utils.ts                # Utility functions (cn)
     ├── dataService.ts          # Mock data service
@@ -95,14 +95,20 @@ src/
 
 ## Survey Categories
 
-The survey covers 6 main categories:
+The survey covers 12 categories across 55 questions:
 
-1. **Profile** - Religious denomination, age, community involvement
-2. **Religiosity** - CRS-5 scale measuring religious commitment
-3. **AI Usage** - General AI tool usage patterns
-4. **Spiritual AI** - AI usage in spiritual contexts
-5. **Theology** - Theological perspectives on AI
-6. **Psychology** - Psychological aspects of AI-faith intersection
+1. **Profile** - Religious denomination, status, demographics (14 questions)
+2. **Religiosity** - CRS-5 scale measuring religious commitment (5 questions)
+3. **Theology** - Theological orientation and perspectives on AI (8 questions)
+4. **AI Usage** - General AI tool usage patterns (3 questions)
+5. **Digital Spiritual** - Existing digital tools in spiritual life (2 questions)
+6. **Ministry** - Clergy-only questions on preaching, pastoral care, administration (5 questions)
+7. **Spirituality** - Layperson-only questions on AI in prayer and counsel (2 questions)
+8. **Psychology** - Anthropomorphism, anxiety, and perception of AI (5 questions)
+9. **Community** - Church positions and peer attitudes (3 questions)
+10. **Future** - Intentions and training interests (3 questions)
+11. **Open** - Free-text comments (1 question)
+12. **Social Desirability** - Marlowe-Crowne control items (5 questions)
 
 ## Dashboard Visualizations
 
