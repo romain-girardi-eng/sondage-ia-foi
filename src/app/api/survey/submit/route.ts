@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { sessionId, answers, metadata, consentGiven, consentVersion, anonymousId, fingerprint } = validationResult.data;
+    const { sessionId, answers, metadata, consentGiven, consentVersion, anonymousId, fingerprint, emailHash } = validationResult.data;
 
     // Consent is required
     if (!consentGiven) {
@@ -125,6 +125,27 @@ export async function POST(request: NextRequest) {
         path: '/',
       });
       return response;
+    }
+
+    // Check email hash for duplicates (if provided)
+    if (emailHash) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: emailExists, error: emailCheckError } = await (supabase as any)
+        .from('email_hashes')
+        .select('id')
+        .eq('email_hash', emailHash)
+        .maybeSingle();
+
+      if (!emailCheckError && emailExists) {
+        return NextResponse.json(
+          {
+            error: 'This email has already been used to complete the survey.',
+            code: 'EMAIL_ALREADY_USED',
+            helpText: 'Each email can only be used once. If you believe this is an error, please contact us at contact@ia-foi.fr'
+          },
+          { status: 403 }
+        );
+      }
     }
 
     // Check for duplicate submissions using the database function
@@ -231,6 +252,16 @@ export async function POST(request: NextRequest) {
       p_blocked_reason: null,
       p_user_agent: userAgent,
     });
+
+    // Store email hash if provided (for future duplicate detection)
+    if (emailHash) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).rpc('record_email_hash', {
+        p_email_hash: emailHash,
+        p_response_id: data.id,
+        p_ip_hash: null,
+      });
+    }
 
     // Create response with cookie
     const response = NextResponse.json(

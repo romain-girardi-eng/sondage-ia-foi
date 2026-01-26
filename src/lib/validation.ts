@@ -19,6 +19,8 @@ export const surveySubmissionSchema = z.object({
   anonymousId: z.string().uuid(),
   // Fingerprint for duplicate detection
   fingerprint: z.string().min(1).max(100).optional(),
+  // Email hash for verification (SHA-256, 64 hex chars)
+  emailHash: z.string().length(64).optional(),
 });
 
 // Email submission schema

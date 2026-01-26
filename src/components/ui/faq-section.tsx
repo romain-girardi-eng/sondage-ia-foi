@@ -132,7 +132,7 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
       },
       {
         q: "Mes réponses sont-elles anonymes ?",
-        a: "Oui, totalement. Aucune donnée personnelle identifiante (nom, email, adresse IP) n'est enregistrée. Les réponses sont agrégées uniquement à des fins statistiques, dans le respect du RGPD.",
+        a: "Oui. Nous utilisons une empreinte cryptographique (hash) de votre email pour garantir qu'une personne ne réponde qu'une seule fois, mais votre email réel n'est jamais stocké. Si vous choisissez de recevoir vos résultats par email, celui-ci est utilisé uniquement pour l'envoi puis immédiatement effacé. Vos réponses sont agrégées à des fins statistiques, dans le respect du RGPD.",
       },
       {
         q: "Combien de temps dure le sondage ?",
@@ -166,7 +166,7 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
       },
       {
         q: "Are my responses anonymous?",
-        a: "Yes, completely. No personally identifiable data (name, email, IP address) is recorded. Responses are aggregated solely for statistical purposes, in compliance with GDPR.",
+        a: "Yes. We use a cryptographic hash of your email to ensure each person only responds once, but your actual email is never stored. If you choose to receive your results by email, it is used only for sending then immediately deleted. Responses are aggregated for statistical purposes, in compliance with GDPR.",
       },
       {
         q: "How long does the survey take?",

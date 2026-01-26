@@ -5,3 +5,4 @@ export { FeedbackScreen } from "./FeedbackScreen";
 export { ThankYouScreen } from "./ThankYouScreen";
 export { EmailCollectionScreen } from "./EmailCollectionScreen";
 export { AlreadySubmittedScreen } from "./AlreadySubmittedScreen";
+export { EmailHashVerification } from "./EmailHashVerification";

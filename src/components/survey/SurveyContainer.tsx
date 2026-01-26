@@ -12,10 +12,11 @@ import { FeedbackScreen } from "./FeedbackScreen";
 import { ThankYouScreen } from "./ThankYouScreen";
 import { EmailCollectionScreen } from "./EmailCollectionScreen";
 import { AlreadySubmittedScreen } from "./AlreadySubmittedScreen";
+import { EmailHashVerification } from "./EmailHashVerification";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Save, RotateCcw, PlayCircle } from "lucide-react";
 
-type SurveyStep = "intro" | "questions" | "email" | "feedback" | "thanks" | "results";
+type SurveyStep = "intro" | "questions" | "verify-email" | "email" | "feedback" | "thanks" | "results";
 
 const STORAGE_KEY = "survey-progress";
 const SESSION_KEY = "survey-session";
@@ -109,6 +110,8 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   const surveyStartTime = useRef<number>(0);
   // Submission error state
   const [submissionError, setSubmissionError] = useState<{ code: string; message: string } | null>(null);
+  // Email hash for verification (stored only as hash, never the actual email)
+  const [emailHash, setEmailHash] = useState<string | null>(null);
 
   // Use refs for values only used internally (not during render)
   const containerRef = useRef<HTMLDivElement>(null);
@@ -281,63 +284,104 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
 
   const handleNext = useCallback(async () => {
     if (currentIndex >= totalQuestions - 1) {
-      // Survey complete - clear saved progress and submit
+      // Survey questions complete - go to email verification first
       localStorage.removeItem(STORAGE_KEY);
-
-      // Calculate time spent
-      const timeSpent = surveyStartTime.current > 0
-        ? Date.now() - surveyStartTime.current
-        : undefined;
-
-      // Submit to API if consent given
-      if (consentGiven) {
-        try {
-          const response = await fetch("/api/survey/submit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sessionId: sessionId.current,
-              answers,
-              metadata: {
-                completedAt: new Date().toISOString(),
-                startedAt: surveyStartTime.current > 0
-                  ? new Date(surveyStartTime.current).toISOString()
-                  : undefined,
-                timeSpent,
-                language,
-              },
-              consentGiven: true,
-              consentVersion: "1.0",
-              anonymousId: anonymousIdState,
-              fingerprint: fingerprint || undefined,
-            }),
-          });
-
-          const data = await response.json();
-
-          // Check for duplicate submission error
-          if (response.status === 403 && data.code) {
-            setSubmissionError({ code: data.code, message: data.error });
-            return; // Don't proceed to next step
-          }
-
-          // Store response ID for email submission
-          if (data.responseId) {
-            setResponseId(data.responseId);
-          }
-        } catch (error) {
-          console.error("Failed to submit survey:", error);
-          // Still proceed - don't block user for network errors
-        }
-      }
-
-      // Go to email collection step instead of feedback
-      setStep("email");
+      setStep("verify-email");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       setCurrentIndex((prev) => prev + 1);
     }
-  }, [currentIndex, totalQuestions, answers, consentGiven, language, anonymousIdState, fingerprint]);
+  }, [currentIndex, totalQuestions]);
+
+  // Handle email hash verification - submits survey after verification
+  // email parameter is only provided if user wants PDF results (not stored, only used to send)
+  const handleEmailHashVerified = useCallback(async (hash: string, email: string | null) => {
+    setEmailHash(hash);
+
+    // Calculate time spent
+    const timeSpent = surveyStartTime.current > 0
+      ? Date.now() - surveyStartTime.current
+      : undefined;
+
+    let submittedResponseId: string | undefined;
+
+    // Submit to API with email hash
+    if (consentGiven) {
+      try {
+        const response = await fetch("/api/survey/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId: sessionId.current,
+            answers,
+            metadata: {
+              completedAt: new Date().toISOString(),
+              startedAt: surveyStartTime.current > 0
+                ? new Date(surveyStartTime.current).toISOString()
+                : undefined,
+              timeSpent,
+              language,
+            },
+            consentGiven: true,
+            consentVersion: "1.0",
+            anonymousId: anonymousIdState,
+            fingerprint: fingerprint || undefined,
+            emailHash: hash,
+          }),
+        });
+
+        const data = await response.json();
+
+        // Check for duplicate submission error
+        if (response.status === 403 && data.code) {
+          setSubmissionError({ code: data.code, message: data.error });
+          return;
+        }
+
+        // Store response ID
+        if (data.responseId) {
+          setResponseId(data.responseId);
+          submittedResponseId = data.responseId;
+        }
+      } catch (error) {
+        console.error("Failed to submit survey:", error);
+        // Still proceed - don't block user for network errors
+      }
+    }
+
+    // Send PDF immediately if email provided (email is NOT stored, only used to send)
+    if (email) {
+      try {
+        await fetch("/api/email/send-pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            submissionId: submittedResponseId || "demo-" + Date.now(),
+            email,
+            language,
+            anonymousId: anonymousIdState,
+            answers,
+          }),
+        });
+        // Don't wait for response or handle errors - best effort delivery
+      } catch (error) {
+        console.error("Failed to send PDF:", error);
+        // Don't block user - PDF sending is best effort
+      }
+    }
+
+    // Go directly to feedback (skip email collection step)
+    setStep("feedback");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [consentGiven, answers, language, anonymousIdState, fingerprint]);
+
+  // Handle when email already used (from hash verification)
+  const handleEmailAlreadyUsed = useCallback(() => {
+    setSubmissionError({
+      code: "EMAIL_ALREADY_USED",
+      message: "This email has already been used to complete the survey."
+    });
+  }, []);
 
   const handlePrevious = useCallback(() => {
     if (currentIndex > 0) {
@@ -434,7 +478,17 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
     );
   }
 
-  // Email collection screen
+  // Email hash verification screen (required, after last question)
+  if (step === "verify-email") {
+    return (
+      <EmailHashVerification
+        onVerified={handleEmailHashVerified}
+        onAlreadySubmitted={handleEmailAlreadyUsed}
+      />
+    );
+  }
+
+  // Email collection screen (optional, for contact)
   if (step === "email") {
     return (
       <div className="w-full animate-in fade-in slide-in-from-bottom-8 duration-700">

@@ -85,9 +85,13 @@ export default function LegalPage() {
             </h2>
             <p className="text-muted-foreground">
               Ce site n&apos;utilise aucun cookie de traçage publicitaire. Seuls des cookies
-              techniques essentiels au fonctionnement du site peuvent être utilisés
-              (préférences de langue, session anonyme).
+              techniques essentiels au fonctionnement du site sont utilisés :
             </p>
+            <ul className="mt-3 space-y-2 text-muted-foreground list-disc list-inside ml-4">
+              <li>Préférences de langue</li>
+              <li>Cookie de soumission (empêche les participations multiples)</li>
+              <li>Session anonyme</li>
+            </ul>
           </section>
 
           <section className="glass-card rounded-2xl p-6">

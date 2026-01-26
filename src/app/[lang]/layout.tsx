@@ -22,14 +22,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
   const metadata = {
     fr: {
-      title: "IA & Vie Spirituelle | Enquête Scientifique 2026",
+      title: "IA & Vie Spirituelle | Grande Enquête 2026",
       description:
-        "Participez à cette étude académique sur l'utilisation de l'intelligence artificielle dans les pratiques religieuses chrétiennes.",
+        "Participez à cette grande enquête sur l'utilisation de l'intelligence artificielle dans les pratiques religieuses chrétiennes.",
     },
     en: {
-      title: "AI & Spiritual Life | Scientific Survey 2026",
+      title: "AI & Spiritual Life | Great Survey 2026",
       description:
-        "Participate in this academic study on the use of artificial intelligence in Christian religious practices.",
+        "Participate in this major survey on the use of artificial intelligence in Christian religious practices.",
     },
   };
 
