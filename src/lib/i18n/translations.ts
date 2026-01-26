@@ -172,7 +172,7 @@ export const translations = {
     // Footer
     footer: {
       tagline: "Grande enquête sur l'IA et la vie spirituelle",
-      createdBy: "Créée par Romain Girardi",
+      createdBy: "Créée par",
     },
 
     // Dashboard
@@ -650,7 +650,7 @@ export const translations = {
     // Footer
     footer: {
       tagline: "Major survey on AI and spiritual life",
-      createdBy: "Created by Romain Girardi",
+      createdBy: "Created by",
     },
 
     // Dashboard
