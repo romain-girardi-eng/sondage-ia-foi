@@ -49,7 +49,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
         privacyLinkText={t("intro.learnMore")}
         authorLabel={t("footer.createdBy")}
         authorName="Romain Girardi"
-        githubUrl="https://github.com/romain-girardi-eng"
+        githubUrl="https://github.com/romain-girardi-eng/sondage-ia-foi"
         linkedinUrl="https://www.linkedin.com/in/romain-girardi/"
       />
 
