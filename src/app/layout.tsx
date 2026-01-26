@@ -84,10 +84,8 @@ export default function RootLayout({
                   if (theme === 'light') {
                     document.documentElement.classList.remove('dark');
                     document.documentElement.classList.add('light');
-                  } else if (!theme && window.matchMedia('(prefers-color-scheme: light)').matches) {
-                    document.documentElement.classList.remove('dark');
-                    document.documentElement.classList.add('light');
                   }
+                  // Default: dark mode (no system preference check)
                 } catch (e) {}
               })();
             `,

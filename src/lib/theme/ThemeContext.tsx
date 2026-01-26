@@ -18,17 +18,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark")
   const mounted = useRef(false)
 
-  // Hydrate theme from localStorage after mount
+  // Hydrate theme from localStorage after mount (default: dark)
   useEffect(() => {
     mounted.current = true
     const stored = localStorage.getItem(THEME_KEY) as Theme | null
     if (stored) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
       setThemeState(stored)
-    } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
-       
-      setThemeState("light")
     }
+    // Default to dark mode - no system preference check
   }, [])
 
   useEffect(() => {
