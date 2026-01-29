@@ -36,10 +36,44 @@ function isLayperson(answers: Answers): boolean {
   return ['laic_engagé', 'laic_pratiquant', 'curieux'].includes(statut);
 }
 
-// Calculate percentile using normal distribution approximation
+/**
+ * Standard normal cumulative distribution function (CDF)
+ * Uses Abramowitz & Stegun approximation for the error function (erf)
+ * Reference: Handbook of Mathematical Functions, Formula 7.1.26
+ * Maximum error: 1.5×10^-7
+ */
+function normalCDF(z: number): number {
+  // Coefficients for Abramowitz & Stegun approximation
+  const a1 =  0.254829592;
+  const a2 = -0.284496736;
+  const a3 =  1.421413741;
+  const a4 = -1.453152027;
+  const a5 =  1.061405429;
+  const p  =  0.3275911;
+
+  // Handle sign
+  const sign = z < 0 ? -1 : 1;
+  const absZ = Math.abs(z) / Math.sqrt(2);
+
+  // Approximation formula
+  const t = 1.0 / (1.0 + p * absZ);
+  const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absZ * absZ);
+
+  return 0.5 * (1.0 + sign * y);
+}
+
+/**
+ * Calculate percentile using proper normal distribution CDF
+ * Converts a raw score to a percentile based on population parameters
+ */
 function calculatePercentile(score: number, mean: number, stdDev: number): number {
+  // Guard against division by zero
+  if (stdDev === 0) return 50;
+
   const zScore = (score - mean) / stdDev;
-  const percentile = Math.round(50 * (1 + Math.tanh(zScore * 0.8)));
+  const percentile = Math.round(normalCDF(zScore) * 100);
+
+  // Clamp to 1-99 range (avoid claiming perfect 0 or 100)
   return Math.max(1, Math.min(99, percentile));
 }
 

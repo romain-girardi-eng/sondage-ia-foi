@@ -8,6 +8,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { SplitText } from 'gsap/SplitText';
 import { useTheme } from '@/lib/theme/ThemeContext';
+import Link from 'next/link';
 
 gsap.registerPlugin(SplitText, useGSAP);
 
@@ -368,6 +369,12 @@ function ShaderBackground() {
 }
 
 // ===================== SPIRITUAL HERO COMPONENT =====================
+interface FeatureItem {
+  icon: string;
+  text: string;
+  link?: string;
+}
+
 interface SpiritualHeroProps {
   title: string;
   subtitle?: string;
@@ -378,7 +385,7 @@ interface SpiritualHeroProps {
   secondaryButtonText?: string;
   onPrimaryClick: () => void;
   onSecondaryClick?: () => void;
-  features?: Array<{ icon: string; text: string }>;
+  features?: FeatureItem[];
   consentGiven?: boolean;
   onConsentChange?: (consent: boolean) => void;
   consentLabel?: string;
@@ -627,10 +634,33 @@ export default function SpiritualShaderHero({
             {features.length > 0 && (
               <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm font-light text-muted-foreground">
                 {features.map((feature, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <span className="text-base">{feature.icon}</span>
-                    <span>{feature.text}</span>
-                  </div>
+                  feature.link ? (
+                    <Link
+                      key={index}
+                      href={feature.link}
+                      className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-400/30 bg-blue-500/10 text-blue-400 hover:text-blue-300 hover:border-blue-400/50 hover:bg-blue-500/20 transition-all duration-300 overflow-hidden"
+                    >
+                      {/* Shimmer effect */}
+                      <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                      {/* Pulse glow */}
+                      <span className="absolute inset-0 rounded-full animate-pulse-glow opacity-50" />
+                      <span className="relative text-base">{feature.icon}</span>
+                      <span className="relative">{feature.text}</span>
+                      <svg
+                        className="relative w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  ) : (
+                    <div key={index} className="flex items-center gap-2">
+                      <span className="text-base">{feature.icon}</span>
+                      <span>{feature.text}</span>
+                    </div>
+                  )
                 ))}
               </div>
             )}

@@ -83,7 +83,8 @@ export const SURVEY_QUESTIONS: Question[] = [
       { value: 'catholique', label: 'Catholique' },
       { value: 'protestant', label: 'Protestant' },
       { value: 'orthodoxe', label: 'Orthodoxe' },
-      { value: 'autre', label: 'Autre sensibilité chrétienne' },
+      { value: 'anglican', label: 'Anglican' },
+      { value: 'autre_chretien', label: 'Autre chrétien' },
       { value: 'sans_religion', label: 'Sans religion / Autre (Fin du sondage)' }
     ]
   },
@@ -105,21 +106,36 @@ export const SURVEY_QUESTIONS: Question[] = [
     text: "Précisez votre sensibilité protestante :",
     type: 'choice',
     options: [
-      { value: 'protestant_reforme', label: 'Protestantisme historique (Luthérien, Réformé, Anglican)' },
-      { value: 'evangelique', label: 'Évangélique' }
+      { value: 'protestant_historique', label: 'Protestantisme historique / mainline (Luthérien, Réformé, Méthodiste, Presbytérien)' },
+      { value: 'evangelique', label: 'Évangélique non-charismatique (Baptiste, Mennonite, Frères, Églises libres...)' },
+      { value: 'pentecotiste', label: 'Évangélique pentecôtiste / charismatique' }
     ],
     condition: (answers) => getStringAnswer(answers, 'profil_confession') === 'protestant'
   },
   {
-    id: 'profil_confession_evangelique',
+    id: 'profil_confession_orthodoxe',
     category: 'profile',
-    text: "Précisez votre sensibilité évangélique :",
+    text: "Précisez votre tradition orthodoxe :",
     type: 'choice',
     options: [
-      { value: 'evangelique_classique', label: 'Évangélique classique (Baptiste, Mennonite, Frères, etc.)' },
-      { value: 'pentecotiste', label: 'Pentecôtiste / Charismatique' }
+      { value: 'orthodoxe_oriental', label: 'Orthodoxe oriental (Grec, Russe, Serbe, Roumain, Bulgare, Géorgien...)' },
+      { value: 'orthodoxe_ancien', label: 'Orthodoxe oriental ancien (Copte, Éthiopien, Arménien, Syriaque)' }
     ],
-    condition: (answers) => getStringAnswer(answers, 'profil_confession_protestante') === 'evangelique'
+    condition: (answers) => getStringAnswer(answers, 'profil_confession') === 'orthodoxe'
+  },
+  {
+    id: 'profil_confession_autre',
+    category: 'profile',
+    text: "Précisez votre tradition chrétienne :",
+    type: 'choice',
+    options: [
+      { value: 'adventiste', label: 'Adventiste' },
+      { value: 'quaker', label: 'Quaker (Société des Amis)' },
+      { value: 'vieux_catholique', label: 'Vieux-catholique' },
+      { value: 'non_denominationnel', label: 'Non-dénominationnel / Interconfessionnel' },
+      { value: 'autre', label: 'Autre' }
+    ],
+    condition: (answers) => getStringAnswer(answers, 'profil_confession') === 'autre_chretien'
   },
   {
     id: 'profil_statut',

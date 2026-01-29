@@ -12,7 +12,7 @@ interface SurveyIntroShaderProps {
 }
 
 export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = false }: SurveyIntroShaderProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const scrollToFaq = () => {
     const faqSection = document.getElementById("faq-section");
@@ -22,7 +22,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
   };
 
   const features = [
-    { icon: "🔬", text: t("intro.featureScientific") },
+    { icon: "🔬", text: t("intro.featureScientific"), link: `/${language}/methodology` },
     { icon: "🔒", text: t("intro.featureAnonymous") },
     { icon: "⏱️", text: t("intro.featureDuration") },
   ];

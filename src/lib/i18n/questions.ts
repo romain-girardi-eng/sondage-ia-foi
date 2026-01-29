@@ -127,10 +127,21 @@ export const questionTranslations = {
       catholique: "Catholique",
       protestant: "Protestant",
       orthodoxe: "Orthodoxe",
-      autre_chretien: "Autre sensibilité chrétienne",
+      anglican: "Anglican",
+      autre_chretien: "Autre chrétien",
       sans_religion: "Sans religion / Autre",
-      protestant_reforme: "Protestantisme historique (Luthéro-réformé)",
-      evangelique: "Évangélique / Pentecôtiste",
+      // Protestant sub-categories
+      protestant_historique: "Protestantisme historique / mainline (Luthérien, Réformé, Méthodiste, Presbytérien)",
+      evangelique: "Évangélique non-charismatique (Baptiste, Mennonite, Frères, Églises libres...)",
+      pentecotiste: "Évangélique pentecôtiste / charismatique",
+      // Orthodox sub-categories
+      orthodoxe_oriental: "Orthodoxe oriental (Grec, Russe, Serbe, Roumain, Bulgare, Géorgien...)",
+      orthodoxe_ancien: "Orthodoxe oriental ancien (Copte, Éthiopien, Arménien, Syriaque)",
+      // Other Christian sub-categories
+      adventiste: "Adventiste",
+      quaker: "Quaker (Société des Amis)",
+      vieux_catholique: "Vieux-catholique",
+      non_denominationnel: "Non-dénominationnel / Interconfessionnel",
 
       // Statut
       clerge: "Ministre ordonné (prêtre, pasteur, diacre...)",
@@ -392,10 +403,21 @@ export const questionTranslations = {
       catholique: "Catholic",
       protestant: "Protestant",
       orthodoxe: "Orthodox",
-      autre_chretien: "Other Christian denomination",
+      anglican: "Anglican",
+      autre_chretien: "Other Christian",
       sans_religion: "No religion / Other",
-      protestant_reforme: "Historic Protestantism (Lutheran-Reformed)",
-      evangelique: "Evangelical / Pentecostal",
+      // Protestant sub-categories
+      protestant_historique: "Historic / Mainline Protestant (Lutheran, Reformed, Methodist, Presbyterian)",
+      evangelique: "Non-charismatic Evangelical (Baptist, Mennonite, Brethren, Free Churches...)",
+      pentecotiste: "Pentecostal / Charismatic Evangelical",
+      // Orthodox sub-categories
+      orthodoxe_oriental: "Eastern Orthodox (Greek, Russian, Serbian, Romanian, Bulgarian, Georgian...)",
+      orthodoxe_ancien: "Oriental Orthodox (Coptic, Ethiopian, Armenian, Syriac)",
+      // Other Christian sub-categories
+      adventiste: "Adventist",
+      quaker: "Quaker (Society of Friends)",
+      vieux_catholique: "Old Catholic",
+      non_denominationnel: "Non-denominational / Interdenominational",
 
       // Status
       clerge: "Ordained minister (priest, pastor, deacon...)",

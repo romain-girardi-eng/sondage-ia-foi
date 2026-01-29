@@ -475,6 +475,164 @@ export const translations = {
       skipEmail: "Continuer sans email",
       privacyNote: "Votre email est chiffré et ne sera utilisé que pour vous envoyer votre rapport.",
     },
+
+    // Methodology Page
+    methodologyPage: {
+      // Hero
+      title: "Notre Méthodologie",
+      subtitle: "Comprendre la science derrière vos résultats",
+      heroDescription: "Cette étude combine des échelles psychométriques validées avec une approche exploratoire pour cartographier les attitudes face à l'IA dans les contextes spirituels.",
+      scrollToExplore: "Défiler pour explorer",
+
+      // Badge
+      badge: "Outil d'engagement • Recherche exploratoire",
+
+      // Scientific Context
+      scientificContextTitle: "Positionnement Scientifique",
+      whatItIs: "Ce que cette étude est",
+      whatItIsNot: "Ce qu'elle n'est pas",
+      whatItIsPoints: [
+        "Un outil d'engagement pour la réflexion personnelle",
+        "Une recherche exploratoire sur les attitudes",
+        "Une cartographie des postures face à l'IA et la foi",
+        "Un point de départ pour le dialogue communautaire",
+      ],
+      whatItIsNotPoints: [
+        "Un diagnostic psychologique clinique",
+        "Une évaluation spirituelle définitive",
+        "Un test validé à grande échelle",
+        "Une catégorisation rigide de votre foi",
+      ],
+
+      // Validated Scales
+      validatedScalesTitle: "Échelles Validées",
+      crs5Title: "CRS-5 : Centrality of Religiosity Scale",
+      crs5Description: "Échelle à 5 dimensions développée par Huber & Huber (2012) pour mesurer la centralité de la religion dans la vie quotidienne. Couvre : l'intellect religieux, l'idéologie, la pratique publique, la pratique privée et l'expérience religieuse.",
+      crs5Citation: "Huber, S., & Huber, O. W. (2012). The Centrality of Religiosity Scale (CRS). Religions, 3(3), 710-724.",
+
+      marloweCrowneTitle: "Marlowe-Crowne : Désirabilité Sociale",
+      marloweCrowneDescription: "Version courte (5 items) pour détecter le biais de désirabilité sociale. Permet d'ajuster les scores pour les réponses potentiellement biaisées vers ce qui est socialement attendu.",
+      marloweCrowneCitation: "Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability independent of psychopathology. Journal of Consulting Psychology, 24(4), 349-354.",
+
+      aiasTitle: "AIAS : AI Anxiety Scale (Proxies)",
+      aiasDescription: "Inspiré de Wang & Wang (2022) pour mesurer l'anxiété face à l'IA. Notre version utilise des proxies adaptés au contexte religieux : opacité algorithmique, peur du remplacement, perception de la conscience IA.",
+      aiasCitation: "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an AI anxiety scale. Interactive Learning Environments.",
+
+      // 7 Dimensions
+      dimensionsTitle: "Les 7 Dimensions",
+      dimensionsDescription: "Chaque profil est calculé à partir de 7 dimensions indépendantes, mesurées sur une échelle de 1 à 5.",
+      clickToExplore: "Cliquez sur une dimension pour en savoir plus",
+
+      dimensionReligiosity: "Intensité Spirituelle",
+      dimensionReligiosityDesc: "Centralité de la foi dans la vie quotidienne (CRS-5)",
+      dimensionAiOpenness: "Ouverture à l'IA",
+      dimensionAiOpennessDesc: "Disposition à adopter l'IA dans différents domaines",
+      dimensionSacredBoundary: "Frontière Sacrée",
+      dimensionSacredBoundaryDesc: "Résistance à l'IA dans les contextes spirituels",
+      dimensionEthicalConcern: "Préoccupation Éthique",
+      dimensionEthicalConcernDesc: "Inquiétude face aux implications éthiques",
+      dimensionPsychPerception: "Perception de l'IA",
+      dimensionPsychPerceptionDesc: "Vision de la nature de l'IA et du rapport à l'humain",
+      dimensionCommunity: "Ancrage Communautaire",
+      dimensionCommunityDesc: "Influence de la communauté sur les convictions",
+      dimensionFuture: "Orientation Future",
+      dimensionFutureDesc: "Volonté d'évolution du rapport à l'IA",
+
+      // 8 Profiles
+      profilesTitle: "Les 8 Profils",
+      profilesDescription: "Les profils représentent des postures-types face à l'IA dans un contexte de foi. Ils ne sont pas des catégories rigides mais des tendances dominantes.",
+
+      // Statistical Methods
+      statsTitle: "Méthodes Statistiques",
+      weightedAverageTitle: "Moyenne Pondérée",
+      weightedAverageDesc: "Chaque dimension est calculée comme une moyenne pondérée des réponses pertinentes. Les poids reflètent l'importance de chaque question pour cette dimension.",
+      weightedAverageFormula: "Score = Σ(réponse × poids) / Σ(poids)",
+
+      percentileTitle: "Calcul des Percentiles",
+      percentileDesc: "Les percentiles sont calculés en utilisant la fonction de distribution cumulative normale (CDF) pour situer votre score par rapport à la population de référence.",
+      percentileFormula: "Percentile = Φ((score - μ) / σ) × 100",
+
+      profileMatchingTitle: "Matching de Profil",
+      profileMatchingDesc: "Le profil est assigné en mesurant la distance euclidienne pondérée entre vos dimensions et les plages idéales de chaque profil. Le profil avec la plus petite distance (meilleure correspondance) est sélectionné.",
+
+      biasAdjustmentTitle: "Ajustement pour le Biais",
+      biasAdjustmentDesc: "Les scores des dimensions sensibles à la désirabilité sociale (ex: religiosité) sont ajustés à la baisse si un biais élevé est détecté via l'échelle Marlowe-Crowne.",
+
+      // Transparency
+      transparencyTitle: "Transparence Méthodologique",
+      tradeoffsTitle: "Compromis Engagement vs Rigueur",
+      tradeoffs: [
+        { aspect: "Longueur du questionnaire", engagement: "Court (5-7 min)", rigor: "Long (30+ min)" },
+        { aspect: "Validation statistique", engagement: "Échelles adaptées", rigor: "Échelles complètes" },
+        { aspect: "Objectif", engagement: "Réflexion personnelle", rigor: "Diagnostic clinique" },
+        { aspect: "Échantillon", engagement: "Auto-sélectionné", rigor: "Randomisé" },
+      ],
+
+      limitationsTitle: "Limitations Connues",
+      limitations: [
+        "Échantillon auto-sélectionné (non représentatif de la population générale)",
+        "Échelles adaptées pour la brièveté (validité réduite vs versions complètes)",
+        "Biais de désirabilité sociale (partiellement corrigé par Marlowe-Crowne)",
+        "Contexte culturel franco-anglophone (généralisabilité limitée)",
+      ],
+
+      suitableFor: "Cette enquête convient pour...",
+      suitableForPoints: [
+        "La réflexion personnelle et le dialogue communautaire",
+        "L'exploration des attitudes et tendances",
+        "Le point de départ d'une recherche plus approfondie",
+      ],
+
+      notSuitableFor: "Nécessiterait des améliorations pour...",
+      notSuitableForPoints: [
+        "Publication académique peer-reviewed",
+        "Prise de décision clinique ou pastorale",
+        "Comparaisons interculturelles rigoureuses",
+      ],
+
+      // Confessional Structure
+      confessionalTitle: "Structure Confessionnelle",
+      confessionalDesc: "L'enquête distingue les grandes traditions chrétiennes pour permettre des analyses croisées tout en préservant l'anonymat.",
+      catholic: "Catholique",
+      protestantMainline: "Historique / Mainline",
+      protestantEvangelical: "Évangélique",
+      protestantPentecostal: "Pentecôtiste",
+      orthodox: "Orthodoxe",
+      orthodoxEastern: "Oriental (Grec, Russe...)",
+      orthodoxOriental: "Oriental ancien (Copte...)",
+      anglican: "Anglican",
+      otherChristian: "Autre chrétien",
+
+      // Research Hypotheses
+      hypothesesTitle: "Hypothèses de Recherche",
+      hypothesesDesc: "Cette étude explore les hypothèses suivantes (à vérifier avec les données collectées) :",
+      hypotheses: [
+        { id: "H1", text: "La religiosité élevée est associée à une frontière sacrée plus stricte" },
+        { id: "H2", text: "L'ouverture à l'IA diminue avec l'âge" },
+        { id: "H3", text: "Le clergé présente une résistance spirituelle plus élevée que les laïcs" },
+        { id: "H4", text: "L'orientation progressiste est associée à une plus grande ouverture à l'IA" },
+        { id: "H5", text: "La préoccupation éthique est corrélée négativement avec l'adoption de l'IA" },
+        { id: "H6", text: "L'ancrage communautaire influence la position face à l'IA" },
+        { id: "H7", text: "Les plus jeunes ont une perception plus anthropomorphique de l'IA" },
+        { id: "H8", text: "La confession (catholique/protestant/orthodoxe) influence la frontière sacrée" },
+        { id: "H9", text: "L'usage quotidien de l'IA réduit la préoccupation éthique" },
+        { id: "H10", text: "Les profils extrêmes (gardien/pionnier) sont minoritaires" },
+      ],
+      statusToVerify: "À vérifier",
+
+      // Citations
+      citationsTitle: "Références",
+      citations: [
+        "Huber, S., & Huber, O. W. (2012). The Centrality of Religiosity Scale (CRS). Religions, 3(3), 710-724.",
+        "Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability. Journal of Consulting Psychology, 24(4), 349.",
+        "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an AI anxiety scale. Interactive Learning Environments.",
+        "Bartneck, C., et al. (2009). Measurement instruments for the anthropomorphism, animacy, likeability, perceived intelligence, and perceived safety of robots. IJSR, 1(1), 71-81.",
+      ],
+
+      // Navigation
+      backToSurvey: "Retour au sondage",
+      backToResults: "Retour aux résultats",
+    },
   },
 
   en: {
@@ -952,6 +1110,164 @@ export const translations = {
       marketingConsent: "Receive study updates",
       skipEmail: "Continue without email",
       privacyNote: "Your email is encrypted and will only be used to send your report.",
+    },
+
+    // Methodology Page
+    methodologyPage: {
+      // Hero
+      title: "Our Methodology",
+      subtitle: "Understanding the science behind your results",
+      heroDescription: "This study combines validated psychometric scales with an exploratory approach to map attitudes toward AI in spiritual contexts.",
+      scrollToExplore: "Scroll to explore",
+
+      // Badge
+      badge: "Engagement Tool • Exploratory Research",
+
+      // Scientific Context
+      scientificContextTitle: "Scientific Positioning",
+      whatItIs: "What this study is",
+      whatItIsNot: "What it is not",
+      whatItIsPoints: [
+        "An engagement tool for personal reflection",
+        "Exploratory research on attitudes",
+        "A mapping of stances toward AI and faith",
+        "A starting point for community dialogue",
+      ],
+      whatItIsNotPoints: [
+        "A clinical psychological diagnosis",
+        "A definitive spiritual assessment",
+        "A large-scale validated test",
+        "A rigid categorization of your faith",
+      ],
+
+      // Validated Scales
+      validatedScalesTitle: "Validated Scales",
+      crs5Title: "CRS-5: Centrality of Religiosity Scale",
+      crs5Description: "A 5-dimension scale developed by Huber & Huber (2012) to measure the centrality of religion in daily life. Covers: religious intellect, ideology, public practice, private practice, and religious experience.",
+      crs5Citation: "Huber, S., & Huber, O. W. (2012). The Centrality of Religiosity Scale (CRS). Religions, 3(3), 710-724.",
+
+      marloweCrowneTitle: "Marlowe-Crowne: Social Desirability",
+      marloweCrowneDescription: "Short version (5 items) to detect social desirability bias. Allows score adjustment for responses potentially biased toward what is socially expected.",
+      marloweCrowneCitation: "Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability independent of psychopathology. Journal of Consulting Psychology, 24(4), 349-354.",
+
+      aiasTitle: "AIAS: AI Anxiety Scale (Proxies)",
+      aiasDescription: "Inspired by Wang & Wang (2022) to measure AI anxiety. Our version uses proxies adapted to the religious context: algorithmic opacity, fear of replacement, perception of AI consciousness.",
+      aiasCitation: "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an AI anxiety scale. Interactive Learning Environments.",
+
+      // 7 Dimensions
+      dimensionsTitle: "The 7 Dimensions",
+      dimensionsDescription: "Each profile is calculated from 7 independent dimensions, measured on a scale of 1 to 5.",
+      clickToExplore: "Click on a dimension to learn more",
+
+      dimensionReligiosity: "Spiritual Intensity",
+      dimensionReligiosityDesc: "Centrality of faith in daily life (CRS-5)",
+      dimensionAiOpenness: "AI Openness",
+      dimensionAiOpennessDesc: "Willingness to adopt AI in different domains",
+      dimensionSacredBoundary: "Sacred Boundary",
+      dimensionSacredBoundaryDesc: "Resistance to AI in spiritual contexts",
+      dimensionEthicalConcern: "Ethical Concern",
+      dimensionEthicalConcernDesc: "Worry about ethical implications",
+      dimensionPsychPerception: "AI Perception",
+      dimensionPsychPerceptionDesc: "View of AI's nature and relation to humanity",
+      dimensionCommunity: "Community Anchoring",
+      dimensionCommunityDesc: "Community influence on convictions",
+      dimensionFuture: "Future Orientation",
+      dimensionFutureDesc: "Willingness to evolve relationship with AI",
+
+      // 8 Profiles
+      profilesTitle: "The 8 Profiles",
+      profilesDescription: "Profiles represent typical stances toward AI in a faith context. They are not rigid categories but dominant tendencies.",
+
+      // Statistical Methods
+      statsTitle: "Statistical Methods",
+      weightedAverageTitle: "Weighted Average",
+      weightedAverageDesc: "Each dimension is calculated as a weighted average of relevant responses. Weights reflect the importance of each question for that dimension.",
+      weightedAverageFormula: "Score = Σ(response × weight) / Σ(weights)",
+
+      percentileTitle: "Percentile Calculation",
+      percentileDesc: "Percentiles are calculated using the normal cumulative distribution function (CDF) to position your score relative to the reference population.",
+      percentileFormula: "Percentile = Φ((score - μ) / σ) × 100",
+
+      profileMatchingTitle: "Profile Matching",
+      profileMatchingDesc: "The profile is assigned by measuring the weighted Euclidean distance between your dimensions and the ideal ranges of each profile. The profile with the smallest distance (best match) is selected.",
+
+      biasAdjustmentTitle: "Bias Adjustment",
+      biasAdjustmentDesc: "Scores for dimensions sensitive to social desirability (e.g., religiosity) are adjusted downward if high bias is detected via the Marlowe-Crowne scale.",
+
+      // Transparency
+      transparencyTitle: "Methodological Transparency",
+      tradeoffsTitle: "Engagement vs Rigor Trade-offs",
+      tradeoffs: [
+        { aspect: "Questionnaire length", engagement: "Short (5-7 min)", rigor: "Long (30+ min)" },
+        { aspect: "Statistical validation", engagement: "Adapted scales", rigor: "Full scales" },
+        { aspect: "Objective", engagement: "Personal reflection", rigor: "Clinical diagnosis" },
+        { aspect: "Sample", engagement: "Self-selected", rigor: "Randomized" },
+      ],
+
+      limitationsTitle: "Known Limitations",
+      limitations: [
+        "Self-selected sample (not representative of the general population)",
+        "Scales adapted for brevity (reduced validity vs. full versions)",
+        "Social desirability bias (partially corrected by Marlowe-Crowne)",
+        "French-English cultural context (limited generalizability)",
+      ],
+
+      suitableFor: "This survey is suitable for...",
+      suitableForPoints: [
+        "Personal reflection and community dialogue",
+        "Exploring attitudes and trends",
+        "A starting point for deeper research",
+      ],
+
+      notSuitableFor: "Would need enhancement for...",
+      notSuitableForPoints: [
+        "Peer-reviewed academic publication",
+        "Clinical or pastoral decision-making",
+        "Rigorous cross-cultural comparisons",
+      ],
+
+      // Confessional Structure
+      confessionalTitle: "Confessional Structure",
+      confessionalDesc: "The survey distinguishes major Christian traditions to enable cross-analysis while preserving anonymity.",
+      catholic: "Catholic",
+      protestantMainline: "Historic / Mainline",
+      protestantEvangelical: "Evangelical",
+      protestantPentecostal: "Pentecostal",
+      orthodox: "Orthodox",
+      orthodoxEastern: "Eastern (Greek, Russian...)",
+      orthodoxOriental: "Oriental (Coptic...)",
+      anglican: "Anglican",
+      otherChristian: "Other Christian",
+
+      // Research Hypotheses
+      hypothesesTitle: "Research Hypotheses",
+      hypothesesDesc: "This study explores the following hypotheses (to be verified with collected data):",
+      hypotheses: [
+        { id: "H1", text: "High religiosity is associated with a stricter sacred boundary" },
+        { id: "H2", text: "AI openness decreases with age" },
+        { id: "H3", text: "Clergy show higher spiritual resistance than laity" },
+        { id: "H4", text: "Progressive orientation is associated with greater AI openness" },
+        { id: "H5", text: "Ethical concern is negatively correlated with AI adoption" },
+        { id: "H6", text: "Community anchoring influences stance toward AI" },
+        { id: "H7", text: "Younger people have a more anthropomorphic perception of AI" },
+        { id: "H8", text: "Confession (Catholic/Protestant/Orthodox) influences sacred boundary" },
+        { id: "H9", text: "Daily AI use reduces ethical concern" },
+        { id: "H10", text: "Extreme profiles (guardian/pioneer) are in the minority" },
+      ],
+      statusToVerify: "To be verified",
+
+      // Citations
+      citationsTitle: "References",
+      citations: [
+        "Huber, S., & Huber, O. W. (2012). The Centrality of Religiosity Scale (CRS). Religions, 3(3), 710-724.",
+        "Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability. Journal of Consulting Psychology, 24(4), 349.",
+        "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an AI anxiety scale. Interactive Learning Environments.",
+        "Bartneck, C., et al. (2009). Measurement instruments for the anthropomorphism, animacy, likeability, perceived intelligence, and perceived safety of robots. IJSR, 1(1), 71-81.",
+      ],
+
+      // Navigation
+      backToSurvey: "Back to survey",
+      backToResults: "Back to results",
     },
   },
 } as const;

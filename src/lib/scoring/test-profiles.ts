@@ -166,7 +166,7 @@ const MOCK_SCENARIOS: MockScenario[] = [
     expectedProfile: "progressiste_critique",
     answers: {
       profil_confession: 'protestant',
-      profil_confession_protestante: 'protestant_reforme',
+      profil_confession_protestante: 'protestant_historique',
       profil_statut: 'laic_engagé',
       profil_age: '36-50',
       profil_education: 'doctorat',
@@ -388,6 +388,7 @@ const MOCK_SCENARIOS: MockScenario[] = [
     expectedProfile: "gardien_tradition",
     answers: {
       profil_confession: 'orthodoxe',
+      profil_confession_orthodoxe: 'orthodoxe_oriental',
       profil_statut: 'religieux',
       profil_age: '51-65',
       profil_anciennete_foi: 'naissance',
@@ -561,7 +562,7 @@ const MOCK_SCENARIOS: MockScenario[] = [
     expectedProfile: "progressiste_critique",
     answers: {
       profil_confession: 'protestant',
-      profil_confession_protestante: 'protestant_reforme',
+      profil_confession_protestante: 'protestant_historique',
       profil_statut: 'laic_engagé',
       profil_age: '36-50',
       profil_secteur: 'sante',
@@ -827,7 +828,7 @@ const MOCK_SCENARIOS: MockScenario[] = [
     expectedProfile: "progressiste_critique",
     answers: {
       profil_confession: 'protestant',
-      profil_confession_protestante: 'protestant_reforme',
+      profil_confession_protestante: 'protestant_historique',
       profil_statut: 'laic_pratiquant',
       profil_age: '18-35',
       profil_secteur: 'etudiant',

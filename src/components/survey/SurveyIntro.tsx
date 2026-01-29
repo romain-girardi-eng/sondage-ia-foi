@@ -175,12 +175,21 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
           className="text-center text-xs text-muted-foreground/30 max-w-md space-y-2"
         >
           <p>{t("intro.consent")}</p>
-          <Link
-            href="/faq"
-            className="inline-block text-blue-400/60 hover:text-blue-400 transition-colors underline underline-offset-2"
-          >
-            {t("intro.faqLink")}
-          </Link>
+          <div className="flex items-center justify-center gap-4">
+            <Link
+              href="/faq"
+              className="inline-block text-blue-400/60 hover:text-blue-400 transition-colors underline underline-offset-2"
+            >
+              {t("intro.faqLink")}
+            </Link>
+            <span className="text-muted-foreground/20">|</span>
+            <Link
+              href="/fr/methodology"
+              className="inline-block text-blue-400/60 hover:text-blue-400 transition-colors underline underline-offset-2"
+            >
+              {t("methodology.learnMore")}
+            </Link>
+          </div>
         </motion.footer>
       </div>
 

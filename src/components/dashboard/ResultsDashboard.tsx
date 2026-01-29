@@ -468,11 +468,48 @@ export function ResultsDashboard() {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setResults(getMockResults());
-      setIsLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
+    let isMounted = true;
+
+    async function loadResults() {
+      setIsLoading(true);
+      try {
+        const response = await fetch("/api/results/aggregated", {
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch results: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (Array.isArray(data?.results) && data.results.length > 0) {
+          setResults(data.results);
+        } else {
+          setResults(getMockResults());
+        }
+      } catch (error) {
+        console.error("Unable to load aggregated results, falling back to mock data:", error);
+        if (isMounted) {
+          setResults(getMockResults());
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadResults();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const filteredQuestions = useMemo(() => {

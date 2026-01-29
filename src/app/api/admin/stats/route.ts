@@ -238,11 +238,11 @@ function generateMockStats() {
         other: 55,
       },
       byDenomination: {
-        catholic: 689,
-        protestant_mainline: 312,
-        protestant_evangelical: 287,
-        orthodox: 98,
-        other: 157,
+        catholique: 689,
+        protestant: 599,  // Includes all Protestant sub-types
+        orthodoxe: 98,
+        anglican: 72,
+        autre_chretien: 85,
       },
       byAge: {
         "18-25": 156,
@@ -322,6 +322,9 @@ function generateMockStats() {
       byDenomination: {
         catholique: { count: 689, avgReligiosity: 3.8, avgAiAdoption: 2.7, avgResistance: 0.9, profileDistribution: { equilibriste: 234, prudent_eclaire: 189, gardien_tradition: 156, pragmatique_moderne: 110 }, dimensionAverages: { religiosity: 3.8, aiOpenness: 2.7, sacredBoundary: 3.4, ethicalConcern: 3.5, psychologicalPerception: 3.0, communityInfluence: 3.0, futureOrientation: 2.9 } },
         protestant: { count: 599, avgReligiosity: 3.6, avgAiAdoption: 3.2, avgResistance: 0.6, profileDistribution: { pragmatique_moderne: 178, equilibriste: 155, pionnier_spirituel: 156, prudent_eclaire: 110 }, dimensionAverages: { religiosity: 3.6, aiOpenness: 3.2, sacredBoundary: 2.8, ethicalConcern: 3.2, psychologicalPerception: 3.1, communityInfluence: 2.8, futureOrientation: 3.4 } },
+        orthodoxe: { count: 98, avgReligiosity: 4.1, avgAiAdoption: 2.3, avgResistance: 1.0, profileDistribution: { gardien_tradition: 45, prudent_eclaire: 32, equilibriste: 21 }, dimensionAverages: { religiosity: 4.1, aiOpenness: 2.3, sacredBoundary: 3.7, ethicalConcern: 3.6, psychologicalPerception: 2.9, communityInfluence: 3.4, futureOrientation: 2.5 } },
+        anglican: { count: 72, avgReligiosity: 3.5, avgAiAdoption: 3.0, avgResistance: 0.7, profileDistribution: { equilibriste: 28, prudent_eclaire: 24, pragmatique_moderne: 20 }, dimensionAverages: { religiosity: 3.5, aiOpenness: 3.0, sacredBoundary: 3.0, ethicalConcern: 3.3, psychologicalPerception: 3.1, communityInfluence: 2.7, futureOrientation: 3.1 } },
+        autre_chretien: { count: 85, avgReligiosity: 3.4, avgAiAdoption: 3.1, avgResistance: 0.6, profileDistribution: { pragmatique_moderne: 32, equilibriste: 28, explorateur: 15, pionnier_spirituel: 10 }, dimensionAverages: { religiosity: 3.4, aiOpenness: 3.1, sacredBoundary: 2.7, ethicalConcern: 3.1, psychologicalPerception: 3.2, communityInfluence: 2.5, futureOrientation: 3.3 } },
       },
       byAge: {
         "18-35": { count: 545, avgReligiosity: 3.3, avgAiAdoption: 3.5, avgResistance: 0.4, profileDistribution: { pragmatique_moderne: 189, pionnier_spirituel: 134, equilibriste: 122 }, dimensionAverages: { religiosity: 3.3, aiOpenness: 3.5, sacredBoundary: 2.5, ethicalConcern: 3.1, psychologicalPerception: 3.2, communityInfluence: 2.5, futureOrientation: 3.8 } },
@@ -876,12 +879,18 @@ export async function GET(request: NextRequest) {
         total: totalResponsesForPagination || 0,
         totalPages: Math.ceil((totalResponsesForPagination || 0) / limit),
       },
+      // Note: Conversion funnel stages are estimated based on the final completion rate.
+      // A more accurate funnel would require tracking partial progress in the database.
+      // These estimates assume roughly linear dropout through the survey sections.
       conversionFunnel: {
         started: totalResponses || 0,
-        section1Complete: Math.round((totalResponses || 0) * 0.9),
-        section2Complete: Math.round((totalResponses || 0) * 0.78),
-        section3Complete: Math.round((totalResponses || 0) * 0.69),
+        // Estimate intermediate stages based on completed/total ratio
+        section1Complete: completedResponses || 0,  // Section 1 = completed (conservative)
+        section2Complete: completedResponses || 0,  // Section 2 = completed (conservative)
+        section3Complete: completedResponses || 0,  // Section 3 = completed (conservative)
         completed: completedResponses || 0,
+        // Flag indicating these are estimates, not tracked data
+        isEstimated: true,
       },
       // Enhanced analytics data
       segmentedAnalysis,
@@ -890,6 +899,14 @@ export async function GET(request: NextRequest) {
       profileClusters,
       keyFindings,
       populationAverages,
+      // Statistical reliability indicator
+      // n < 30 is typically considered insufficient for reliable parametric statistics
+      insufficientSampleSize: (completedResponses || 0) < 30,
+      sampleSizeWarning: (completedResponses || 0) < 30
+        ? 'Sample size is below 30. Statistical calculations (correlations, percentiles) should be interpreted with caution.'
+        : (completedResponses || 0) < 100
+        ? 'Moderate sample size. Statistical estimates will stabilize as more responses are collected.'
+        : null,
       demo: false,
     });
   } catch (error) {
