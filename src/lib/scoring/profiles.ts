@@ -288,12 +288,11 @@ function calculateAllProfileMatches(
   // Sort by match score (highest first)
   matches.sort((a, b) => b.matchScore - a.matchScore);
 
-  // Normalize so top 3-4 profiles sum to 100%
-  const topMatches = matches.slice(0, 4);
-  const totalScore = topMatches.reduce((sum, m) => sum + m.matchScore, 0);
+  // Normalize ALL profiles so they sum to 100%
+  const totalScore = matches.reduce((sum, m) => sum + m.matchScore, 0);
 
   if (totalScore > 0) {
-    topMatches.forEach(m => {
+    matches.forEach(m => {
       m.matchScore = Math.round((m.matchScore / totalScore) * 100);
     });
   }
