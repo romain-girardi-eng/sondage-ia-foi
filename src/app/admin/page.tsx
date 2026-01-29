@@ -3297,7 +3297,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                       className="h-full rounded-full transition-all"
                                       style={{
                                         width: `${match.score}%`,
-                                        backgroundColor: i === 0 ? PROFILE_COLORS[match.name] : "hsl(var(--muted-foreground) / 0.3)",
+                                        backgroundColor: PROFILE_COLORS[match.name] || "#3b82f6",
+                                        opacity: i === 0 ? 1 : 0.6,
                                       }}
                                     />
                                   </div>
