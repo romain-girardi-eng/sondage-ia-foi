@@ -312,7 +312,7 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
                               initial={hasAnimated ? false : { width: 0 }}
                               animate={{ width: `${match.matchScore}%` }}
                               transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
-                              className={cn("h-full rounded-full", index === 0 ? "bg-purple-500" : "bg-muted-foreground/30")}
+                              className={cn("h-full rounded-full bg-purple-500", index === 0 ? "opacity-100" : "opacity-50")}
                             />
                           </div>
                           <span className={cn("text-xs font-bold", index === 0 ? "text-purple-600 dark:text-purple-400" : "text-muted-foreground")}>
