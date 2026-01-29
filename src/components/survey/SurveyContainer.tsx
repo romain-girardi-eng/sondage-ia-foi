@@ -303,22 +303,22 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
       : undefined;
 
     let submittedResponseId: string | undefined;
+    
+    // Get CSRF token first (needed for both submission and PDF sending)
+    let csrfToken: string | null = null;
+    try {
+      const csrfResponse = await fetch("/api/csrf");
+      if (csrfResponse.ok) {
+        const csrfData = await csrfResponse.json();
+        csrfToken = csrfData.token;
+      }
+    } catch (csrfError) {
+      console.warn("Failed to get CSRF token:", csrfError);
+    }
 
     // Submit to API with email hash
     if (consentGiven) {
       try {
-        // Get CSRF token first
-        let csrfToken: string | null = null;
-        try {
-          const csrfResponse = await fetch("/api/csrf");
-          if (csrfResponse.ok) {
-            const csrfData = await csrfResponse.json();
-            csrfToken = csrfData.token;
-          }
-        } catch (csrfError) {
-          console.warn("Failed to get CSRF token:", csrfError);
-        }
-
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (csrfToken) {
           headers["x-csrf-token"] = csrfToken;

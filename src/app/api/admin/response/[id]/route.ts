@@ -207,7 +207,7 @@ export async function GET(
       })),
     };
 
-    const completionMinutes = computeCompletionMinutes(response.metadata, response.created_at, response.updated_at);
+    const completionMinutes = computeCompletionMinutes(response.metadata, response.created_at, response.created_at);
 
     return NextResponse.json({
       // Metadata

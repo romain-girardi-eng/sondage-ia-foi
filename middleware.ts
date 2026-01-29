@@ -179,9 +179,7 @@ export function middleware(request: NextRequest) {
   const newUrl = new URL(`/${locale}${pathname}`, request.url);
   newUrl.search = request.nextUrl.search;
 
-  const response = NextResponse.redirect(newUrl, {
-    request: { headers: requestHeaders },
-  });
+  const response = NextResponse.redirect(newUrl);
   response.cookies.set(LOCALE_COOKIE, locale, {
     path: "/",
     maxAge: 31536000,

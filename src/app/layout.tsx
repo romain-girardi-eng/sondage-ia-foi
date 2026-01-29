@@ -76,12 +76,16 @@ function isSupportedLanguage(lang: string | undefined): lang is Language {
 
 interface RootLayoutProps {
   children: React.ReactNode;
-  params?: { lang?: string };
+  params: Promise<{ lang?: string }>;
 }
 
-export default function RootLayout({ children, params }: Readonly<RootLayoutProps>) {
-  const cookieStore = cookies();
-  const routeLang = params?.lang;
+export default async function RootLayout({ children, params }: Readonly<RootLayoutProps>) {
+  const [resolvedParams, cookieStore, headersList] = await Promise.all([
+    params,
+    cookies(),
+    headers(),
+  ]);
+  const routeLang = resolvedParams?.lang;
   const cookieLang = cookieStore.get("NEXT_LOCALE")?.value;
   const resolvedLang: Language = isSupportedLanguage(routeLang)
     ? routeLang
@@ -89,7 +93,7 @@ export default function RootLayout({ children, params }: Readonly<RootLayoutProp
       ? (cookieLang as Language)
       : "fr";
   const initialSource: "route" | "default" = isSupportedLanguage(routeLang) ? "route" : "default";
-  const nonce = headers().get("x-nonce") || undefined;
+  const nonce = headersList.get("x-nonce") || undefined;
 
   return (
     <html
