@@ -1000,19 +1000,20 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                           <XAxis
                             dataKey="date"
-                            className="stroke-muted-foreground"
+                            stroke="#6b7280"
+                            tick={{ fill: "#a1a1aa" }}
                             fontSize={11}
                             tickFormatter={(v) => new Date(v).getDate().toString()}
                           />
-                          <YAxis className="stroke-muted-foreground" fontSize={11} />
+                          <YAxis stroke="#6b7280" tick={{ fill: "#a1a1aa" }} fontSize={11} />
                           <Tooltip
                             contentStyle={{
-                              backgroundColor: "hsl(var(--card))",
-                              border: "1px solid hsl(var(--border))",
-                              color: "hsl(var(--foreground))",
+                              backgroundColor: "#1f2937",
+                              border: "1px solid #374151",
+                              color: "#f3f4f6",
                               borderRadius: "8px",
                             }}
                             labelFormatter={(v) => new Date(v).toLocaleDateString()}
@@ -1055,7 +1056,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           <Legend
                             verticalAlign="bottom"
                             height={36}
-                            formatter={(value) => <span className="text-muted-foreground text-xs">{value}</span>}
+                            wrapperStyle={{ color: "#a1a1aa" }}
+                            formatter={(value) => <span style={{ color: "#a1a1aa", fontSize: "12px" }}>{value}</span>}
                           />
                         </RechartsPieChart>
                       </ResponsiveContainer>
@@ -1093,20 +1095,21 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           }))}
                           layout="vertical"
                         >
-                          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                          <XAxis type="number" className="stroke-muted-foreground" fontSize={11} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                          <XAxis type="number" stroke="#6b7280" tick={{ fill: "#a1a1aa" }} fontSize={11} />
                           <YAxis
                             type="category"
                             dataKey="name"
-                            className="stroke-muted-foreground"
+                            stroke="#6b7280"
+                            tick={{ fill: "#a1a1aa" }}
                             fontSize={11}
                             width={140}
                           />
                           <Tooltip
                             contentStyle={{
-                              backgroundColor: "hsl(var(--card))",
-                              border: "1px solid hsl(var(--border))",
-                              color: "hsl(var(--foreground))",
+                              backgroundColor: "#1f2937",
+                              border: "1px solid #374151",
+                              color: "#f3f4f6",
                               borderRadius: "8px",
                             }}
                           />
@@ -1591,9 +1594,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             </Pie>
                             <Tooltip
                               contentStyle={{
-                                backgroundColor: "hsl(var(--card))",
-                                border: "1px solid hsl(var(--border))",
-                                color: "hsl(var(--foreground))",
+                                backgroundColor: "#1f2937",
+                                border: "1px solid #374151",
+                                color: "#f3f4f6",
                                 borderRadius: "8px",
                               }}
                             />
@@ -1601,7 +1604,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               layout="vertical"
                               align="right"
                               verticalAlign="middle"
-                              wrapperStyle={{ fontSize: "11px" }}
+                              wrapperStyle={{ fontSize: "11px", color: "#a1a1aa" }}
                             />
                           </RechartsPieChart>
                         </ResponsiveContainer>
@@ -1649,14 +1652,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             count,
                           }))}
                         >
-                          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                          <XAxis dataKey="range" className="stroke-muted-foreground" fontSize={11} />
-                          <YAxis className="stroke-muted-foreground" fontSize={11} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                          <XAxis dataKey="range" stroke="#6b7280" tick={{ fill: "#a1a1aa" }} fontSize={11} />
+                          <YAxis stroke="#6b7280" tick={{ fill: "#a1a1aa" }} fontSize={11} />
                           <Tooltip
                             contentStyle={{
-                              backgroundColor: "hsl(var(--card))",
-                              border: "1px solid hsl(var(--border))",
-                              color: "hsl(var(--foreground))",
+                              backgroundColor: "#1f2937",
+                              border: "1px solid #374151",
+                              color: "#f3f4f6",
                               borderRadius: "8px",
                             }}
                           />
@@ -1677,14 +1680,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             count,
                           }))}
                         >
-                          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                          <XAxis dataKey="range" className="stroke-muted-foreground" fontSize={11} />
-                          <YAxis className="stroke-muted-foreground" fontSize={11} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                          <XAxis dataKey="range" stroke="#6b7280" tick={{ fill: "#a1a1aa" }} fontSize={11} />
+                          <YAxis stroke="#6b7280" tick={{ fill: "#a1a1aa" }} fontSize={11} />
                           <Tooltip
                             contentStyle={{
-                              backgroundColor: "hsl(var(--card))",
-                              border: "1px solid hsl(var(--border))",
-                              color: "hsl(var(--foreground))",
+                              backgroundColor: "#1f2937",
+                              border: "1px solid #374151",
+                              color: "#f3f4f6",
                               borderRadius: "8px",
                             }}
                           />
@@ -2747,7 +2750,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                   fullMark: 5,
                                 }))}
                               >
-                                <PolarGrid className="stroke-border" />
+                                <PolarGrid stroke="#374151" />
                                 <PolarAngleAxis
                                   dataKey="dimension"
                                   tick={{ fill: "#a1a1aa", fontSize: 11 }}
@@ -2775,9 +2778,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 <Legend wrapperStyle={{ color: "#a1a1aa" }} />
                                 <Tooltip
                                   contentStyle={{
-                                    backgroundColor: "hsl(var(--card))",
-                                    border: "1px solid hsl(var(--border))",
-                                    color: "hsl(var(--foreground))",
+                                    backgroundColor: "#1f2937",
+                                    border: "1px solid #374151",
+                                    color: "#f3f4f6",
                                     borderRadius: "8px",
                                   }}
                                 />
@@ -3381,7 +3384,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               fullMark: 5,
                             }))}
                           >
-                            <PolarGrid className="stroke-border" />
+                            <PolarGrid stroke="#374151" />
                             <PolarAngleAxis dataKey="dimension" tick={{ fill: "#a1a1aa", fontSize: 11 }} />
                             <PolarRadiusAxis angle={30} domain={[0, 5]} tick={{ fill: "#a1a1aa", fontSize: 10 }} />
                             {comparisonData.map((d, i) => (
@@ -3397,9 +3400,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             <Legend wrapperStyle={{ color: "#a1a1aa" }} />
                             <Tooltip
                               contentStyle={{
-                                backgroundColor: "hsl(var(--card))",
-                                border: "1px solid hsl(var(--border))",
-                                color: "hsl(var(--foreground))",
+                                backgroundColor: "#1f2937",
+                                border: "1px solid #374151",
+                                color: "#f3f4f6",
                                 borderRadius: "8px",
                               }}
                             />
