@@ -308,9 +308,27 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
     // Submit to API with email hash
     if (consentGiven) {
       try {
+        // Get CSRF token first
+        let csrfToken: string | null = null;
+        try {
+          const csrfResponse = await fetch("/api/csrf");
+          if (csrfResponse.ok) {
+            const csrfData = await csrfResponse.json();
+            csrfToken = csrfData.token;
+          }
+        } catch (csrfError) {
+          console.warn("Failed to get CSRF token:", csrfError);
+        }
+
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (csrfToken) {
+          headers["x-csrf-token"] = csrfToken;
+        }
+
         const response = await fetch("/api/survey/submit", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
+          credentials: "include", // Include cookies for CSRF validation
           body: JSON.stringify({
             sessionId: sessionId.current,
             answers,
@@ -332,9 +350,21 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
 
         const data = await response.json();
 
-        // Check for duplicate submission error
-        if (response.status === 403 && data.code) {
-          setSubmissionError({ code: data.code, message: data.error });
+        // Check for any 403 error (duplicate submission OR CSRF failure)
+        if (response.status === 403) {
+          if (data.code) {
+            setSubmissionError({ code: data.code, message: data.error });
+          } else {
+            // CSRF or other validation error
+            setSubmissionError({ code: "SUBMISSION_FAILED", message: data.error || "Submission failed" });
+          }
+          return;
+        }
+
+        // Check for other errors
+        if (!response.ok) {
+          console.error("Survey submission failed:", data);
+          setSubmissionError({ code: "SUBMISSION_ERROR", message: data.error || "Failed to save survey" });
           return;
         }
 
