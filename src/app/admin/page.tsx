@@ -2750,12 +2750,12 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 <PolarGrid className="stroke-border" />
                                 <PolarAngleAxis
                                   dataKey="dimension"
-                                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+                                  tick={{ fill: "#a1a1aa", fontSize: 11 }}
                                 />
                                 <PolarRadiusAxis
                                   angle={30}
                                   domain={[0, 5]}
-                                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+                                  tick={{ fill: "#a1a1aa", fontSize: 10 }}
                                 />
                                 <Radar
                                   name="Population"
@@ -2772,7 +2772,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                   fill="#3b82f6"
                                   fillOpacity={0.4}
                                 />
-                                <Legend />
+                                <Legend wrapperStyle={{ color: "#a1a1aa" }} />
                                 <Tooltip
                                   contentStyle={{
                                     backgroundColor: "hsl(var(--card))",
@@ -3381,8 +3381,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             }))}
                           >
                             <PolarGrid className="stroke-border" />
-                            <PolarAngleAxis dataKey="dimension" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
-                            <PolarRadiusAxis angle={30} domain={[0, 5]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} />
+                            <PolarAngleAxis dataKey="dimension" tick={{ fill: "#a1a1aa", fontSize: 11 }} />
+                            <PolarRadiusAxis angle={30} domain={[0, 5]} tick={{ fill: "#a1a1aa", fontSize: 10 }} />
                             {comparisonData.map((d, i) => (
                               <Radar
                                 key={d.id}
@@ -3393,7 +3393,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 fillOpacity={0.2}
                               />
                             ))}
-                            <Legend />
+                            <Legend wrapperStyle={{ color: "#a1a1aa" }} />
                             <Tooltip
                               contentStyle={{
                                 backgroundColor: "hsl(var(--card))",
