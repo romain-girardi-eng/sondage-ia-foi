@@ -6,6 +6,7 @@ import { Mail, Send, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn, useLanguage, useHasAnimated } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import type { Answers } from "@/data";
+import { useCSRF } from "@/hooks/useCSRF";
 
 interface EmailCollectionScreenProps {
   answers: Answers;
@@ -28,6 +29,7 @@ export function EmailCollectionScreen({
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [submissionState, setSubmissionState] = useState<SubmissionState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const { fetchWithCSRF, token: csrfToken, isLoading: isCsrfLoading } = useCSRF();
 
   // Simple email validation
   const isValidEmail = useCallback((email: string) => {
@@ -47,8 +49,14 @@ export function EmailCollectionScreen({
     setSubmissionState("loading");
     setErrorMessage("");
 
+    if (!csrfToken) {
+      setSubmissionState("error");
+      setErrorMessage(t("email.error"));
+      return;
+    }
+
     try {
-      const response = await fetch("/api/email/submit", {
+      const response = await fetchWithCSRF("/api/email/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -244,7 +252,13 @@ export function EmailCollectionScreen({
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={!email || submissionState === "loading" || submissionState === "success"}
+            disabled={
+              !email ||
+              submissionState === "loading" ||
+              submissionState === "success" ||
+              isCsrfLoading ||
+              !csrfToken
+            }
             className={getButtonClasses()}
           >
             {getButtonContent()}

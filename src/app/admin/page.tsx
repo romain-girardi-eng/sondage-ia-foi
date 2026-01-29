@@ -138,7 +138,7 @@ interface AdminStats {
     completedResponses: number;
     partialResponses: number;
     completionRate: number;
-    avgCompletionTime: number;
+    avgCompletionTime: number | null;
     todayResponses: number;
     weekResponses: number;
     monthResponses: number;
@@ -363,6 +363,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
       setIsLoading(true);
       setStatsError(null);
       const token = sessionStorage.getItem("admin_token");
+      if (!token) {
+        setIsAuthenticated(false);
+        setStatsError("Session expirée. Veuillez vous reconnecter.");
+        return;
+      }
       const params = new URLSearchParams({
         page: page.toString(),
         limit: responsesPerPage.toString(),
@@ -392,6 +397,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
       setDetailLoading(true);
       setDetailError(null);
       const token = sessionStorage.getItem("admin_token");
+      if (!token) {
+        setDetailError("Session expirée. Veuillez vous reconnecter.");
+        setIsAuthenticated(false);
+        return;
+      }
       const response = await fetch(`/api/admin/response/${responseId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -517,14 +527,24 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/admin/stats", {
-        headers: { Authorization: `Bearer ${password}` },
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
       });
 
       if (response.ok) {
+        const data = await response.json();
+        if (!data.token) {
+          setAuthError("Réponse de connexion invalide");
+          setIsLoading(false);
+          return;
+        }
         setIsAuthenticated(true);
         sessionStorage.setItem("admin_authenticated", "true");
-        sessionStorage.setItem("admin_token", password);
+        sessionStorage.setItem("admin_token", data.token);
+        setPassword("");
+        fetchStats();
       } else if (response.status === 401) {
         setAuthError("Mot de passe incorrect");
       } else {
@@ -551,6 +571,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
     try {
       const token = sessionStorage.getItem("admin_token");
+      if (!token) {
+        setExportLoading(null);
+        setExportSuccess(null);
+        setStatsError("Session expirée. Veuillez vous reconnecter.");
+        setIsAuthenticated(false);
+        return;
+      }
       const params = new URLSearchParams({ format });
 
       if (filters.dateFrom) {
@@ -970,8 +997,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <StatCard
                     icon={<Timer className="w-5 h-5" />}
                     label="Avg. Time"
-                    value={`${stats.overview.avgCompletionTime}m`}
-                    subtext="to complete"
+                    value={
+                      stats.overview.avgCompletionTime !== null
+                        ? `${stats.overview.avgCompletionTime}m`
+                        : "—"
+                    }
+                    subtext={
+                      stats.overview.avgCompletionTime !== null ? "to complete" : "No data yet"
+                    }
                     color="purple"
                   />
                   <StatCard

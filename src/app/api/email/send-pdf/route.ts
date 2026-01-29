@@ -10,6 +10,7 @@ import {
   PROFILE_DATA,
 } from '@/lib/scoring/index';
 import type { Answers } from '@/data';
+import { validateCSRF, csrfErrorResponse } from '@/lib/csrf';
 
 const sendPdfSchema = z.object({
   submissionId: z.string(),
@@ -25,6 +26,11 @@ const sendPdfSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const csrfResult = await validateCSRF(request);
+    if (!csrfResult.valid) {
+      return csrfErrorResponse(csrfResult.error || 'Invalid CSRF token');
+    }
+
     const body = await request.json();
 
     // Validate input

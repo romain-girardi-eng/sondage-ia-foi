@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase';
 import { exportRequestSchema } from '@/lib/validation';
+import { authorizeAdminRequest } from '@/lib/security/adminAuth';
 
 // Admin-only endpoint for exporting data
 export async function GET(request: NextRequest) {
   try {
     // Check admin authentication
-    const authHeader = request.headers.get('authorization');
-    const adminPassword = process.env.ADMIN_PASSWORD;
-
-    if (!adminPassword || authHeader !== `Bearer ${adminPassword}`) {
+    if (!authorizeAdminRequest(request.headers.get('authorization'))) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -17,14 +15,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Parse query params
-    const format = request.nextUrl.searchParams.get('format') || 'json';
-    const dateFrom = request.nextUrl.searchParams.get('dateFrom');
-    const dateTo = request.nextUrl.searchParams.get('dateTo');
+    const rawFormat = request.nextUrl.searchParams.get('format') || 'json';
+    const rawDateFrom = request.nextUrl.searchParams.get('dateFrom');
+    const rawDateTo = request.nextUrl.searchParams.get('dateTo');
+    const rawLanguage = request.nextUrl.searchParams.get('language');
 
     const validationResult = exportRequestSchema.safeParse({
-      format,
-      dateFrom: dateFrom || undefined,
-      dateTo: dateTo || undefined,
+      format: rawFormat,
+      dateFrom: rawDateFrom || undefined,
+      dateTo: rawDateTo || undefined,
+      language: rawLanguage || undefined,
     });
 
     if (!validationResult.success) {
@@ -33,6 +33,8 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const { format, dateFrom, dateTo, language } = validationResult.data;
 
     // Check if Supabase is configured
     if (!isServiceRoleConfigured) {
@@ -62,6 +64,10 @@ export async function GET(request: NextRequest) {
     }
     if (dateTo) {
       query = query.lte('created_at', dateTo);
+    }
+
+    if (language) {
+      query = query.filter('metadata->>language', 'eq', language);
     }
 
     const { data, error } = await query;

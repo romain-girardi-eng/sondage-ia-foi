@@ -8,6 +8,7 @@ import {
   calculateAllDimensions,
 } from "@/lib/scoring";
 import type { Answers } from "@/data";
+import { authorizeAdminRequest } from "@/lib/security/adminAuth";
 
 // Types for enhanced stats
 interface SegmentStats {
@@ -38,14 +39,6 @@ interface ProfileCluster {
   count: number;
   avgReligiosity: number;
   avgAiOpenness: number;
-}
-
-// Verify admin password
-function verifyAdmin(request: NextRequest): boolean {
-  const authHeader = request.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) return false;
-  const token = authHeader.slice(7);
-  return token === process.env.ADMIN_PASSWORD;
 }
 
 // Calculate standard deviation
@@ -384,7 +377,7 @@ function generateMockStats() {
 
 export async function GET(request: NextRequest) {
   // Verify admin access
-  if (!verifyAdmin(request)) {
+  if (!authorizeAdminRequest(request.headers.get("Authorization"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -556,13 +549,51 @@ export async function GET(request: NextRequest) {
     const profileClusterData: Record<string, { count: number; religiositySum: number; aiOpennessSum: number }> = {};
 
     // Process all responses for statistics
-    interface AllResponseItem {
-      id: string;
-      answers: Record<string, unknown> | null;
-      metadata: { language?: string; completionTime?: number } | null;
-      created_at: string;
-      updated_at: string;
+interface AllResponseItem {
+  id: string;
+  answers: Record<string, unknown> | null;
+  metadata: {
+    language?: string;
+    completionTime?: number;
+    timeSpent?: number;
+    startedAt?: string;
+    completedAt?: string;
+  } | null;
+  created_at: string;
+  updated_at: string;
+}
+
+function getCompletionMinutes(
+  metadata: AllResponseItem["metadata"],
+  createdAt?: string,
+  updatedAt?: string
+): number | null {
+  if (metadata?.completionTime && metadata.completionTime > 0) {
+    return metadata.completionTime;
+  }
+
+  if (typeof metadata?.timeSpent === "number" && metadata.timeSpent > 0) {
+    return Math.round((metadata.timeSpent / 60000) * 10) / 10;
+  }
+
+  if (metadata?.startedAt && metadata?.completedAt) {
+    const start = Date.parse(metadata.startedAt);
+    const end = Date.parse(metadata.completedAt);
+    if (!Number.isNaN(start) && !Number.isNaN(end) && end > start) {
+      return Math.round(((end - start) / 60000) * 10) / 10;
     }
+  }
+
+  if (createdAt && updatedAt) {
+    const created = Date.parse(createdAt);
+    const updated = Date.parse(updatedAt);
+    if (!Number.isNaN(created) && !Number.isNaN(updated) && updated > created) {
+      return Math.round(((updated - created) / 60000) * 10) / 10;
+    }
+  }
+
+  return null;
+}
 
     const completionTimes: number[] = [];
 
@@ -571,16 +602,9 @@ export async function GET(request: NextRequest) {
       const answers = r.answers as Answers;
 
       // Calculate completion time (from metadata or from created_at to updated_at)
-      if (r.metadata?.completionTime) {
-        completionTimes.push(r.metadata.completionTime);
-      } else if (r.created_at && r.updated_at) {
-        const created = new Date(r.created_at).getTime();
-        const updated = new Date(r.updated_at).getTime();
-        const diffMinutes = (updated - created) / (1000 * 60);
-        // Only count reasonable completion times (1-60 minutes)
-        if (diffMinutes >= 1 && diffMinutes <= 60) {
-          completionTimes.push(diffMinutes);
-        }
+      const completionMinutes = getCompletionMinutes(r.metadata, r.created_at, r.updated_at);
+      if (completionMinutes && completionMinutes >= 1 && completionMinutes <= 120) {
+        completionTimes.push(completionMinutes);
       }
 
       // Demographics from answers
@@ -857,7 +881,7 @@ export async function GET(request: NextRequest) {
         completedResponses: completedResponses || 0,
         partialResponses,
         completionRate,
-        avgCompletionTime: avgCompletionTime || 8.5, // Fallback to estimate if no data
+        avgCompletionTime: Number.isFinite(avgCompletionTime) ? avgCompletionTime : null,
         todayResponses: todayResponses || 0,
         weekResponses: weekResponses || 0,
         monthResponses: totalResponses || 0,

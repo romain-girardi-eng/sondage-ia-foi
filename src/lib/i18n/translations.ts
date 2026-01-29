@@ -214,9 +214,12 @@ export const translations = {
       crs5Religiosity: "religiosité CRS-5",
       keyInsight: "Insight principal",
       insightTitle: "42% des chrétiens pratiquants utilisent déjà l'IA dans leur quotidien",
+      insightTitleDynamic: "{percent}% des participants utilisent déjà l'IA dans leur quotidien",
       insightDescription: "Mais seulement 12% l'ont utilisée dans un contexte spirituel. Cette tension révèle une résistance spécifique au domaine religieux.",
+      insightDescriptionDynamic: "Seuls {percent}% déclarent l'avoir utilisée dans un cadre spirituel, révélant une tension propre aux usages religieux.",
       exploreData: "Explorer les données",
       studyConductedBy: "Étude menée par Romain Girardi",
+      lastUpdated: "Mise à jour {date}",
     },
 
     // Sharing
@@ -850,9 +853,12 @@ export const translations = {
       crs5Religiosity: "CRS-5 religiosity",
       keyInsight: "Key insight",
       insightTitle: "42% of practicing Christians already use AI in their daily lives",
+      insightTitleDynamic: "{percent}% of participants already use AI in their daily lives",
       insightDescription: "But only 12% have used it in a spiritual context. This tension reveals a specific resistance in the religious domain.",
+      insightDescriptionDynamic: "Only {percent}% say they use it in a spiritual context, highlighting a unique tension in religious settings.",
       exploreData: "Explore data",
       studyConductedBy: "Study conducted by Romain Girardi",
+      lastUpdated: "Last updated {date}",
     },
 
     // Sharing

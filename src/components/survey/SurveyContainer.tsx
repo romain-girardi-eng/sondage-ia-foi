@@ -22,6 +22,7 @@ const STORAGE_KEY = "survey-progress";
 const SESSION_KEY = "survey-session";
 const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
 const SAVE_DEBOUNCE_MS = 1000; // 1 second debounce for localStorage writes
+const ALLOW_VIEW_OVERRIDE = process.env.NEXT_PUBLIC_ENABLE_SURVEY_VIEW_OVERRIDE === "true" || process.env.NODE_ENV !== "production";
 
 interface SavedProgress {
   answers: Record<string, string | number | string[]>;
@@ -33,6 +34,7 @@ interface SavedProgress {
 // Check URL for direct navigation (dev mode) - only call after mount
 function getViewFromUrl(): SurveyStep | null {
   if (typeof window === "undefined") return null;
+  if (!ALLOW_VIEW_OVERRIDE) return null;
   const params = new URLSearchParams(window.location.search);
   const view = params.get("view");
   if (view === "results") return "results";
@@ -111,7 +113,6 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   // Submission error state
   const [submissionError, setSubmissionError] = useState<{ code: string; message: string } | null>(null);
   // Email hash for verification (stored only as hash, never the actual email)
-  const [emailHash, setEmailHash] = useState<string | null>(null);
 
   // Use refs for values only used internally (not during render)
   const containerRef = useRef<HTMLDivElement>(null);
@@ -296,8 +297,6 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   // Handle email hash verification - submits survey after verification
   // email parameter is only provided if user wants PDF results (not stored, only used to send)
   const handleEmailHashVerified = useCallback(async (hash: string, email: string | null) => {
-    setEmailHash(hash);
-
     // Calculate time spent
     const timeSpent = surveyStartTime.current > 0
       ? Date.now() - surveyStartTime.current
@@ -380,11 +379,17 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
     }
 
     // Send PDF immediately if email provided (email is NOT stored, only used to send)
-    if (email) {
+    if (email && csrfToken) {
       try {
+        const pdfHeaders: Record<string, string> = { "Content-Type": "application/json" };
+        if (csrfToken) {
+          pdfHeaders["x-csrf-token"] = csrfToken;
+        }
+
         await fetch("/api/email/send-pdf", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: pdfHeaders,
+          credentials: "include",
           body: JSON.stringify({
             submissionId: submittedResponseId || "demo-" + Date.now(),
             email,
@@ -398,6 +403,8 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
         console.error("Failed to send PDF:", error);
         // Don't block user - PDF sending is best effort
       }
+    } else if (email && !csrfToken) {
+      console.warn("Skipping PDF send because CSRF token is unavailable");
     }
 
     // Go directly to feedback (skip email collection step)

@@ -3,6 +3,7 @@ import { emailSubmissionSchema } from '@/lib/validation';
 import { hashEmail, encryptEmail, isEncryptionConfigured } from '@/lib/crypto';
 import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase';
 import { isResendConfigured } from '@/lib/email/resend';
+import { validateCSRF, csrfErrorResponse } from '@/lib/csrf';
 
 // Helper function to trigger PDF sending
 async function triggerPdfSend(
@@ -14,9 +15,16 @@ async function triggerPdfSend(
   answers: Record<string, unknown>
 ) {
   try {
+    const csrfToken = request.headers.get('x-csrf-token');
+    const cookieHeader = request.headers.get('cookie');
     const pdfResponse = await fetch(new URL('/api/email/send-pdf', request.url), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+        ...(cookieHeader ? { cookie: cookieHeader } : {}),
+      },
+      credentials: 'include',
       body: JSON.stringify({
         submissionId,
         email,
@@ -39,6 +47,11 @@ async function triggerPdfSend(
 
 export async function POST(request: NextRequest) {
   try {
+    const csrfResult = await validateCSRF(request);
+    if (!csrfResult.valid) {
+      return csrfErrorResponse(csrfResult.error || 'Invalid CSRF token');
+    }
+
     const body = await request.json();
 
     // Validate input

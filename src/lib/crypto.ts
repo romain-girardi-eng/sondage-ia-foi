@@ -10,13 +10,38 @@ export const isEncryptionConfigured = Boolean(process.env.EMAIL_ENCRYPTION_KEY);
  * Hash an email address using SHA-256
  * Normalizes email (lowercase, trimmed) before hashing
  */
+const EMAIL_HASH_SECRET =
+  process.env.EMAIL_HASH_SECRET ||
+  (process.env.NODE_ENV !== "production" ? "dev-only-email-hash-secret" : undefined);
+
+let cachedEmailHashKey: Promise<CryptoKey> | null = null;
+
+async function getEmailHashKey(): Promise<CryptoKey> {
+  if (!EMAIL_HASH_SECRET) {
+    throw new Error("EMAIL_HASH_SECRET environment variable is required in production");
+  }
+
+  if (!cachedEmailHashKey) {
+    const encoder = new TextEncoder();
+    cachedEmailHashKey = crypto.subtle.importKey(
+      "raw",
+      encoder.encode(EMAIL_HASH_SECRET),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+  }
+
+  return cachedEmailHashKey;
+}
+
 export async function hashEmail(email: string): Promise<string> {
   const normalized = email.toLowerCase().trim();
   const encoder = new TextEncoder();
-  const data = encoder.encode(normalized);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const key = await getEmailHashKey();
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(normalized));
+  const hashArray = Array.from(new Uint8Array(signature));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 /**

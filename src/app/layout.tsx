@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies, headers } from "next/headers";
 import { LanguageProvider, ThemeProvider } from "@/lib";
 import { ToastProvider } from "@/components/ui";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 import { WebVitalsReporter } from "@/components/analytics/WebVitalsReporter";
+import type { Language } from "@/lib/i18n/translations";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -66,42 +68,46 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+const SUPPORTED_LANGUAGES: Language[] = ["fr", "en"];
+
+function isSupportedLanguage(lang: string | undefined): lang is Language {
+  return Boolean(lang && SUPPORTED_LANGUAGES.includes(lang as Language));
+}
+
+interface RootLayoutProps {
   children: React.ReactNode;
-}>) {
+  params?: { lang?: string };
+}
+
+export default function RootLayout({ children, params }: Readonly<RootLayoutProps>) {
+  const cookieStore = cookies();
+  const routeLang = params?.lang;
+  const cookieLang = cookieStore.get("NEXT_LOCALE")?.value;
+  const resolvedLang: Language = isSupportedLanguage(routeLang)
+    ? routeLang
+    : isSupportedLanguage(cookieLang)
+      ? (cookieLang as Language)
+      : "fr";
+  const initialSource: "route" | "default" = isSupportedLanguage(routeLang) ? "route" : "default";
+  const nonce = headers().get("x-nonce") || undefined;
+
   return (
-    <html lang="fr" className="scroll-smooth dark" suppressHydrationWarning style={{ margin: 0, padding: 0, width: '100%', overflowX: 'hidden' }}>
-      <head>
-        {/* Icons auto-detected from icon.png and apple-icon.png */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('ia-foi-theme');
-                  if (theme === 'light') {
-                    document.documentElement.classList.remove('dark');
-                    document.documentElement.classList.add('light');
-                  }
-                  // Default: dark mode (no system preference check)
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
-      </head>
+    <html
+      lang={resolvedLang}
+      className="scroll-smooth dark"
+      suppressHydrationWarning
+      style={{ margin: 0, padding: 0, width: "100%", overflowX: "hidden" }}
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased selection:bg-blue-500/30`}
         style={{ margin: 0, padding: 0, width: '100%', minHeight: '100vh', overflowX: 'hidden' }}
       >
         <ThemeProvider>
-          <LanguageProvider>
+          <LanguageProvider initialLanguage={resolvedLang} initialSource={initialSource}>
             <ToastProvider>{children}</ToastProvider>
           </LanguageProvider>
         </ThemeProvider>
-        <AnalyticsProvider />
+        <AnalyticsProvider nonce={nonce} />
         <WebVitalsReporter />
       </body>
     </html>

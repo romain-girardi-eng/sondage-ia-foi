@@ -32,6 +32,135 @@ const COLORS = [
   { bg: "from-cyan-500 to-cyan-600", text: "text-cyan-400", glow: "shadow-cyan-500/20", hex: "#06b6d4" },
 ];
 
+const RELIGIOSITY_QUESTION_IDS = [
+  "crs_intellect",
+  "crs_ideology",
+  "crs_public_practice",
+  "crs_private_practice",
+  "crs_experience",
+];
+
+const SPIRITUAL_CONTEXT_OPTION = "spirituel";
+
+type SummaryStats = {
+  catholicShare: number | null;
+  aiRegularShare: number | null;
+  crsAverage: number | null;
+  spiritualUsageShare: number | null;
+};
+
+const INITIAL_SUMMARY_STATS: SummaryStats = {
+  catholicShare: null,
+  aiRegularShare: null,
+  crsAverage: null,
+  spiritualUsageShare: null,
+};
+
+function findAggregatedResult(results: AggregatedResult[], questionId: string) {
+  return results.find((result) => result.questionId === questionId);
+}
+
+function calculatePercentage(
+  result: AggregatedResult | undefined,
+  predicate: (value: string) => boolean
+): number | null {
+  if (!result) return null;
+  const total = Object.values(result.distribution).reduce((sum, count) => sum + count, 0);
+  if (!total) return null;
+  const matched = Object.entries(result.distribution).reduce((sum, [key, count]) => {
+    return predicate(key) ? sum + count : sum;
+  }, 0);
+  return (matched / total) * 100;
+}
+
+function computeAverageScore(questionId: string, results: AggregatedResult[]): number | null {
+  const aggregated = findAggregatedResult(results, questionId);
+  if (!aggregated) return null;
+  const question = SURVEY_QUESTIONS.find((q) => q.id === questionId);
+  if (!question) return null;
+
+  let totalResponses = 0;
+  let weightedSum = 0;
+
+  if (question.options && question.options.length > 0) {
+    question.options.forEach((option, idx) => {
+      const count = aggregated.distribution[option.value] ?? 0;
+      totalResponses += count;
+      weightedSum += count * (idx + 1);
+    });
+  } else {
+    Object.entries(aggregated.distribution).forEach(([key, count]) => {
+      const numericKey = Number(key);
+      if (!Number.isNaN(numericKey)) {
+        totalResponses += count;
+        weightedSum += count * numericKey;
+      }
+    });
+  }
+
+  if (!totalResponses) return null;
+  return weightedSum / totalResponses;
+}
+
+function calculateOptionShare(
+  result: AggregatedResult | undefined,
+  optionValue: string,
+  participantCount: number | null
+): number | null {
+  if (!result) return null;
+  const optionCount = result.distribution[optionValue] ?? 0;
+  if (participantCount && participantCount > 0) {
+    return (optionCount / participantCount) * 100;
+  }
+  const totalSelections = Object.values(result.distribution).reduce((sum, count) => sum + count, 0);
+  if (!totalSelections) return null;
+  return (optionCount / totalSelections) * 100;
+}
+
+function calculateSummary(results: AggregatedResult[], participantCount: number | null): SummaryStats {
+  const confessionResult = findAggregatedResult(results, "profil_confession");
+  const catholicShare = calculatePercentage(confessionResult, (value) => value === "catholique");
+
+  const aiFrequencyResult = findAggregatedResult(results, "ctrl_ia_frequence");
+  const aiRegularShare = calculatePercentage(
+    aiFrequencyResult,
+    (value) => value === "regulier" || value === "quotidien"
+  );
+
+  const aiContextResult = findAggregatedResult(results, "ctrl_ia_contextes");
+  const spiritualUsageShare = calculateOptionShare(
+    aiContextResult,
+    SPIRITUAL_CONTEXT_OPTION,
+    participantCount
+  );
+
+  const religiosityScores = RELIGIOSITY_QUESTION_IDS.map((id) =>
+    computeAverageScore(id, results)
+  ).filter((value): value is number => typeof value === "number");
+
+  const crsAverage =
+    religiosityScores.length > 0
+      ? religiosityScores.reduce((sum, value) => sum + value, 0) / religiosityScores.length
+      : null;
+
+  return {
+    catholicShare,
+    aiRegularShare,
+    crsAverage,
+    spiritualUsageShare,
+  };
+}
+
+function estimateParticipantCount(results: AggregatedResult[]): number | null {
+  for (const result of results) {
+    const total = Object.values(result.distribution).reduce((sum, value) => sum + value, 0);
+    if (total > 0) {
+      return total;
+    }
+  }
+  return null;
+}
+
 // Animated counter with spring physics
 function AnimatedNumber({ value, duration = 2 }: { value: number; duration?: number }) {
   const motionValue = useMotionValue(0);
@@ -461,11 +590,15 @@ const CATEGORY_KEYS = [
 ];
 
 export function ResultsDashboard() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [results, setResults] = useState<AggregatedResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [participantCount, setParticipantCount] = useState<number | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [summaryStats, setSummaryStats] = useState<SummaryStats>(INITIAL_SUMMARY_STATS);
+  const [isDemoData, setIsDemoData] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -489,15 +622,31 @@ export function ResultsDashboard() {
           return;
         }
 
-        if (Array.isArray(data?.results) && data.results.length > 0) {
-          setResults(data.results);
-        } else {
-          setResults(getMockResults());
-        }
+        const hasValidResults = Array.isArray(data?.results) && data.results.length > 0;
+        const resolvedResults = hasValidResults ? data.results : getMockResults();
+        const derivedCount =
+          typeof data?.participantCount === "number" && data.participantCount > 0
+            ? data.participantCount
+            : estimateParticipantCount(resolvedResults);
+        const summary = calculateSummary(resolvedResults, derivedCount);
+
+        if (!isMounted) return;
+
+        setResults(resolvedResults);
+        setSummaryStats(summary);
+        setParticipantCount(derivedCount);
+        setLastUpdated(data?.lastUpdated ?? null);
+        setIsDemoData(Boolean(data?.demo) || !hasValidResults);
       } catch (error) {
         console.error("Unable to load aggregated results, falling back to mock data:", error);
         if (isMounted) {
-          setResults(getMockResults());
+          const mockResults = getMockResults();
+          const derivedCount = estimateParticipantCount(mockResults);
+          setResults(mockResults);
+          setSummaryStats(calculateSummary(mockResults, derivedCount));
+          setParticipantCount(derivedCount);
+          setLastUpdated(new Date().toISOString());
+          setIsDemoData(true);
         }
       } finally {
         if (isMounted) {
@@ -579,6 +728,35 @@ export function ResultsDashboard() {
     );
   }
 
+  const participantValue =
+    participantCount !== null ? <AnimatedNumber value={participantCount} /> : "—";
+  const catholicValue =
+    summaryStats.catholicShare !== null ? `${summaryStats.catholicShare.toFixed(0)}%` : "—";
+  const aiValue =
+    summaryStats.aiRegularShare !== null ? `${summaryStats.aiRegularShare.toFixed(0)}%` : "—";
+  const crsValue =
+    summaryStats.crsAverage !== null ? `${summaryStats.crsAverage.toFixed(1)}/5` : "—";
+  const aiShareText = summaryStats.aiRegularShare !== null ? summaryStats.aiRegularShare.toFixed(0) : null;
+  const spiritualShareText =
+    summaryStats.spiritualUsageShare !== null ? summaryStats.spiritualUsageShare.toFixed(0) : null;
+
+  const formattedLastUpdated =
+    lastUpdated && !isDemoData
+      ? new Date(lastUpdated).toLocaleString(language === "fr" ? "fr-FR" : "en-US", {
+          dateStyle: "medium",
+          timeStyle: "short",
+        })
+      : null;
+
+  const insightTitleText =
+    aiShareText !== null
+      ? t("dashboard.insightTitleDynamic", { percent: aiShareText })
+      : t("dashboard.insightTitle");
+  const insightDescriptionText =
+    spiritualShareText !== null
+      ? t("dashboard.insightDescriptionDynamic", { percent: spiritualShareText })
+      : t("dashboard.insightDescription");
+
   return (
     <div className="relative w-full max-w-7xl mx-auto px-4 pb-20">
       <FloatingParticles />
@@ -593,7 +771,7 @@ export function ResultsDashboard() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-center"
+          className="flex flex-wrap items-center justify-center gap-2"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-border backdrop-blur-sm">
             <motion.div
@@ -606,6 +784,12 @@ export function ResultsDashboard() {
               {t("dashboard.realTimeResults")}
             </span>
           </div>
+
+          {isDemoData && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 text-sm">
+              {t("dashboard.demoData")}
+            </div>
+          )}
         </motion.div>
 
         {/* Title */}
@@ -623,6 +807,12 @@ export function ResultsDashboard() {
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg font-light">
             {t("dashboard.exploreDescription")}
           </p>
+
+          {formattedLastUpdated && (
+            <p className="text-xs text-muted-foreground/70">
+              {t("dashboard.lastUpdated", { date: formattedLastUpdated })}
+            </p>
+          )}
         </motion.div>
 
         {/* Key Insights Grid */}
@@ -630,15 +820,15 @@ export function ResultsDashboard() {
           <InsightCard
             icon={Users}
             title={t("dashboard.participants")}
-            value={<AnimatedNumber value={1543} />}
-            subtitle={t("dashboard.responsesCollected")}
+            value={participantValue}
+            subtitle={`${t("dashboard.responsesCollected")}${isDemoData ? ` • ${t("dashboard.demoData")}` : ""}`}
             color="#3b82f6"
             delay={0.2}
           />
           <InsightCard
             icon={Church}
             title={t("dashboard.catholics")}
-            value="67%"
+            value={catholicValue}
             subtitle={t("dashboard.majorityDenomination")}
             color="#8b5cf6"
             delay={0.3}
@@ -646,7 +836,7 @@ export function ResultsDashboard() {
           <InsightCard
             icon={Zap}
             title={t("dashboard.aiUsers")}
-            value="42%"
+            value={aiValue}
             subtitle={t("dashboard.useAIRegularly")}
             color="#10b981"
             delay={0.4}
@@ -654,7 +844,7 @@ export function ResultsDashboard() {
           <InsightCard
             icon={Award}
             title={t("dashboard.averageScore")}
-            value="3.8/5"
+            value={crsValue}
             subtitle={t("dashboard.crs5Religiosity")}
             color="#f59e0b"
             delay={0.5}
@@ -682,10 +872,10 @@ export function ResultsDashboard() {
                 </span>
               </div>
               <h2 className="text-2xl md:text-3xl font-light text-foreground">
-                {t("dashboard.insightTitle")}
+                {insightTitleText}
               </h2>
               <p className="text-muted-foreground">
-                {t("dashboard.insightDescription")}
+                {insightDescriptionText}
               </p>
               <motion.button
                 whileHover={{ x: 5 }}

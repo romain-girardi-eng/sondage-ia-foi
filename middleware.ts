@@ -36,14 +36,24 @@ function getPreferredLocale(request: NextRequest): string {
   return DEFAULT_LOCALE;
 }
 
-function addSecurityHeaders(response: NextResponse): void {
+const DEFAULT_PLAUSIBLE_SRC = "https://plausible.io/js/script.js";
+const configuredPlausibleSrc = process.env.NEXT_PUBLIC_PLAUSIBLE_SRC || DEFAULT_PLAUSIBLE_SRC;
+let PLAUSIBLE_ORIGIN = "https://plausible.io";
+
+try {
+  PLAUSIBLE_ORIGIN = new URL(configuredPlausibleSrc).origin;
+} catch {
+  PLAUSIBLE_ORIGIN = "https://plausible.io";
+}
+
+function addSecurityHeaders(response: NextResponse, nonce: string): void {
   // Content Security Policy - Strict but allows necessary features
   const cspDirectives = [
     "default-src 'self'",
-    // Scripts: self + inline for Next.js hydration + unsafe-eval for development
+    // Scripts: self + Plausible + nonce and optional unsafe-eval for dev tooling
     process.env.NODE_ENV === "development"
-      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-      : "script-src 'self' 'unsafe-inline'",
+      ? `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' ${PLAUSIBLE_ORIGIN}`
+      : `script-src 'self' 'nonce-${nonce}' ${PLAUSIBLE_ORIGIN}`,
     // Styles: self + inline for CSS-in-JS and Tailwind
     "style-src 'self' 'unsafe-inline'",
     // Images: self + data URIs + blob for canvas + external trusted sources
@@ -51,7 +61,7 @@ function addSecurityHeaders(response: NextResponse): void {
     // Fonts: self + data URIs
     "font-src 'self' data:",
     // Connect: API endpoints + external services
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.resend.com",
+    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.resend.com ${PLAUSIBLE_ORIGIN}`,
     // Frame ancestors: prevent clickjacking
     "frame-ancestors 'none'",
     // Form actions: only self
@@ -115,8 +125,17 @@ function addSecurityHeaders(response: NextResponse): void {
   });
 }
 
+function createResponse(response: NextResponse, nonce: string) {
+  addSecurityHeaders(response, nonce);
+  response.headers.set("x-nonce", nonce);
+  return response;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const nonce = crypto.randomUUID().replace(/-/g, "");
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
 
   // Skip middleware for static files, API routes, and admin
   if (
@@ -126,9 +145,10 @@ export function middleware(request: NextRequest) {
     pathname.includes(".") ||
     pathname === "/favicon.ico"
   ) {
-    const response = NextResponse.next();
-    addSecurityHeaders(response);
-    return response;
+    const response = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+    return createResponse(response, nonce);
   }
 
   // Check if pathname starts with a locale
@@ -141,14 +161,15 @@ export function middleware(request: NextRequest) {
     const locale = pathname.split("/")[1];
 
     // Set cookie and continue
-    const response = NextResponse.next();
+    const response = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
     response.cookies.set(LOCALE_COOKIE, locale, {
       path: "/",
       maxAge: 31536000, // 1 year
       sameSite: "lax",
     });
-    addSecurityHeaders(response);
-    return response;
+    return createResponse(response, nonce);
   }
 
   // No locale in pathname - redirect to preferred locale
@@ -158,15 +179,15 @@ export function middleware(request: NextRequest) {
   const newUrl = new URL(`/${locale}${pathname}`, request.url);
   newUrl.search = request.nextUrl.search;
 
-  const response = NextResponse.redirect(newUrl);
+  const response = NextResponse.redirect(newUrl, {
+    request: { headers: requestHeaders },
+  });
   response.cookies.set(LOCALE_COOKIE, locale, {
     path: "/",
     maxAge: 31536000,
     sameSite: "lax",
   });
-  addSecurityHeaders(response);
-
-  return response;
+  return createResponse(response, nonce);
 }
 
 export const config = {

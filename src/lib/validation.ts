@@ -56,6 +56,7 @@ export const exportRequestSchema = z.object({
   format: z.enum(['csv', 'json']),
   dateFrom: z.string().datetime().optional(),
   dateTo: z.string().datetime().optional(),
+  language: z.enum(['fr', 'en']).optional(),
 });
 
 // User data deletion/export schema

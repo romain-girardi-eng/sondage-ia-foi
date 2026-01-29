@@ -7,6 +7,7 @@ import {
   useCallback,
   useMemo,
   useEffect,
+  startTransition,
   type ReactNode,
 } from "react";
 import { translations, type Language } from "./translations";
@@ -41,21 +42,40 @@ function getNestedValue(obj: Record<string, unknown>, path: string): string {
   return typeof value === "string" ? value : path;
 }
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  // Always start with "fr" for SSR consistency, then hydrate from localStorage
-  const [language, setLanguageState] = useState<Language>("fr");
+interface LanguageProviderProps {
+  children: ReactNode;
+  initialLanguage?: Language;
+  initialSource?: "route" | "default";
+}
+
+export function LanguageProvider({
+  children,
+  initialLanguage = "fr",
+  initialSource = "default",
+}: LanguageProviderProps) {
+  const [language, setLanguageState] = useState<Language>(initialLanguage);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Hydrate language from localStorage after mount
   useEffect(() => {
     const saved = localStorage.getItem("survey-language") as Language | null;
-    if (saved && (saved === "fr" || saved === "en")) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
-      setLanguageState(saved);
+    if (initialSource === "route") {
+      startTransition(() => {
+        setLanguageState(initialLanguage);
+      });
+      localStorage.setItem("survey-language", initialLanguage);
+    } else if (saved && (saved === "fr" || saved === "en")) {
+      startTransition(() => {
+        setLanguageState(saved);
+      });
+    } else {
+      startTransition(() => {
+        setLanguageState(initialLanguage);
+      });
     }
-     
-    setIsHydrated(true);
-  }, []);
+    startTransition(() => {
+      setIsHydrated(true);
+    });
+  }, [initialLanguage, initialSource]);
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);

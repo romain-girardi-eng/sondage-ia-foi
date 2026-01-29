@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rateLimit';
 import { z } from 'zod';
+import { hashEmail } from '@/lib/crypto';
 
-const emailHashSchema = z.object({
-  emailHash: z.string().length(64), // SHA-256 produces 64 hex characters
+const emailVerificationSchema = z.object({
+  email: z.string().email(),
 });
 
 export async function POST(request: NextRequest) {
@@ -23,23 +24,24 @@ export async function POST(request: NextRequest) {
 
     // Parse and validate body
     const body = await request.json();
-    const validationResult = emailHashSchema.safeParse(body);
+    const validationResult = emailVerificationSchema.safeParse(body);
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Invalid email hash format' },
+        { error: 'Invalid email format' },
         { status: 400 }
       );
     }
 
-    const { emailHash } = validationResult.data;
+    const { email } = validationResult.data;
+    const emailHash = await hashEmail(email);
 
     // Check if Supabase is configured
     if (!isServiceRoleConfigured) {
       // Demo mode - always allow
       console.log('Demo mode: Email hash verification', { emailHash: emailHash.substring(0, 16) + '...' });
       return NextResponse.json(
-        { valid: true, demo: true },
+        { valid: true, demo: true, emailHash },
         { status: 200, headers: getRateLimitHeaders(rateLimitResult) }
       );
     }
@@ -47,7 +49,7 @@ export async function POST(request: NextRequest) {
     const supabase = createServiceRoleClient();
     if (!supabase) {
       return NextResponse.json(
-        { valid: true, demo: true },
+        { valid: true, demo: true, emailHash },
         { status: 200, headers: getRateLimitHeaders(rateLimitResult) }
       );
     }
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
       console.error('Email hash check error:', checkError);
       // Don't block on error - allow submission
       return NextResponse.json(
-        { valid: true },
+        { valid: true, emailHash },
         { status: 200, headers: getRateLimitHeaders(rateLimitResult) }
       );
     }
@@ -83,7 +85,7 @@ export async function POST(request: NextRequest) {
     // Email hash is valid and not used - return success
     // The actual storage happens when survey is submitted
     return NextResponse.json(
-      { valid: true },
+      { valid: true, emailHash },
       { status: 200, headers: getRateLimitHeaders(rateLimitResult) }
     );
 

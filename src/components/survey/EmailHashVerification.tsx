@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Mail, Shield, Lock, ChevronRight, AlertCircle, Loader2 } from "lucide-react";
 import { useLanguage } from "@/lib";
@@ -10,19 +10,6 @@ interface EmailHashVerificationProps {
   onVerified: (emailHash: string, email: string | null) => void;
   onAlreadySubmitted: () => void;
 }
-
-// Simple hash function using Web Crypto API
-async function hashEmail(email: string, salt: string): Promise<string> {
-  const normalized = email.toLowerCase().trim();
-  const data = new TextEncoder().encode(normalized + salt);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-// Public salt - the security comes from the one-way nature of the hash,
-// not from hiding the salt. This allows users to verify the hash themselves.
-const PUBLIC_SALT = "ia-foi-survey-2024-verification";
 
 export function EmailHashVerification({
   onVerified,
@@ -35,23 +22,8 @@ export function EmailHashVerification({
   const [error, setError] = useState<string | null>(null);
   const [wantsPdf, setWantsPdf] = useState(true); // Default to true
 
-  // Compute hash as user types (debounced)
-  useEffect(() => {
-    if (!email || !email.includes("@")) {
-      setHash("");
-      return;
-    }
-
-    const timer = setTimeout(async () => {
-      const computed = await hashEmail(email, PUBLIC_SALT);
-      setHash(computed);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [email]);
-
   const handleSubmit = useCallback(async () => {
-    if (!email || !hash) return;
+    if (!email) return;
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -67,7 +39,7 @@ export function EmailHashVerification({
       const response = await fetch("/api/survey/verify-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ emailHash: hash }),
+        body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
@@ -83,16 +55,22 @@ export function EmailHashVerification({
         return;
       }
 
+      if (!data.emailHash) {
+        setError(t("emailHash.verificationFailed"));
+        return;
+      }
+
       // Success - proceed with the hash
+      setHash(data.emailHash);
       // Pass email only if user wants PDF results (email not stored, only used to send)
-      onVerified(hash, wantsPdf ? email : null);
+      onVerified(data.emailHash, wantsPdf ? email : null);
     } catch (err) {
       console.error("Email verification error:", err);
       setError(t("emailHash.networkError"));
     } finally {
       setIsChecking(false);
     }
-  }, [email, hash, wantsPdf, onVerified, onAlreadySubmitted, t]);
+  }, [email, wantsPdf, onVerified, onAlreadySubmitted, t]);
 
   const isValidEmail = email.includes("@") && email.includes(".");
 
@@ -138,7 +116,12 @@ export function EmailHashVerification({
                   type="email"
                   id="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (hash) {
+                      setHash("");
+                    }
+                  }}
                   placeholder={t("emailHash.emailPlaceholder")}
                   className="w-full pl-10 pr-4 py-3 rounded-xl bg-background/50 border border-border focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-foreground placeholder:text-muted-foreground"
                   autoComplete="email"

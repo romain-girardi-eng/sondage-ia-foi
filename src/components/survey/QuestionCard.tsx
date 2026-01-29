@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { type Question } from "@/data";
 import { cn, useLanguage } from "@/lib";
@@ -20,8 +20,9 @@ export function QuestionCard({
   onNext,
 }: QuestionCardProps) {
   const { t, tQuestion, tOption, tScale, language } = useLanguage();
-  const [multipleSelected, setMultipleSelected] = useState<string[]>(
-    Array.isArray(value) ? value : []
+  const multipleSelected = useMemo(
+    () => (Array.isArray(value) ? value : []),
+    [value]
   );
 
   // Get translated question text (fall back to original if not found)
@@ -54,15 +55,12 @@ export function QuestionCard({
 
   const handleMultipleToggle = useCallback(
     (optionValue: string) => {
-      setMultipleSelected((prev) => {
-        const newSelection = prev.includes(optionValue)
-          ? prev.filter((v) => v !== optionValue)
-          : [...prev, optionValue];
-        onChange(newSelection);
-        return newSelection;
-      });
+      const newSelection = multipleSelected.includes(optionValue)
+        ? multipleSelected.filter((v) => v !== optionValue)
+        : [...multipleSelected, optionValue];
+      onChange(newSelection);
     },
-    [onChange]
+    [multipleSelected, onChange]
   );
 
   const handleScaleClick = useCallback(

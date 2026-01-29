@@ -42,18 +42,31 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
       url: window.location.href,
     };
 
-    if (navigator.share && navigator.canShare(shareData)) {
-      try {
-        await navigator.share(shareData);
-      } catch {
-        // User cancelled or error
+    const canInvokeShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
+    if (canInvokeShare) {
+      const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
+      const canShareData = typeof nav.canShare === "function" ? nav.canShare(shareData) : true;
+
+      if (canShareData) {
+        try {
+          await nav.share(shareData);
+          return;
+        } catch {
+          // User cancelled or native share unavailable
+        }
       }
-    } else {
-      await navigator.clipboard.writeText(window.location.href);
-      alert(t("thanks.linkCopied"));
+    }
+
+    if (navigator?.clipboard) {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        alert(t("thanks.linkCopied"));
+        return;
+      } catch {
+        // clipboard write failed silently
+      }
     }
   };
-
   const handleCopyId = async () => {
     if (anonymousId) {
       await navigator.clipboard.writeText(anonymousId);

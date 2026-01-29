@@ -9,14 +9,7 @@ import {
   PROFILE_DATA,
 } from "@/lib/scoring";
 import type { Answers } from "@/data";
-
-// Verify admin password
-function verifyAdmin(request: NextRequest): boolean {
-  const authHeader = request.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) return false;
-  const token = authHeader.slice(7);
-  return token === process.env.ADMIN_PASSWORD;
-}
+import { authorizeAdminRequest } from "@/lib/security/adminAuth";
 
 // Generate interpretation based on profile spectrum
 function generateInterpretation(
@@ -40,7 +33,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   // Verify admin access
-  if (!verifyAdmin(request)) {
+  if (!authorizeAdminRequest(request.headers.get("Authorization"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -88,7 +81,7 @@ export async function GET(
     const response = responseData as {
       id: string;
       created_at: string;
-      metadata: { language?: string; completionTime?: number } | null;
+      metadata: { language?: string; completionTime?: number; timeSpent?: number; startedAt?: string; completedAt?: string } | null;
       consent_given: boolean | null;
       answers: Record<string, unknown> | null;
     };
@@ -214,12 +207,14 @@ export async function GET(
       })),
     };
 
+    const completionMinutes = computeCompletionMinutes(response.metadata, response.created_at, response.updated_at);
+
     return NextResponse.json({
       // Metadata
       id: response.id,
       createdAt: response.created_at,
       language: response.metadata?.language || "unknown",
-      completionTime: response.metadata?.completionTime || null,
+      completionTime: completionMinutes,
 
       // All raw answers
       answers,
@@ -258,4 +253,35 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+function computeCompletionMinutes(
+  metadata: { completionTime?: number; timeSpent?: number; startedAt?: string; completedAt?: string } | null,
+  createdAt?: string,
+  updatedAt?: string
+): number | null {
+  if (metadata?.completionTime && metadata.completionTime > 0) {
+    return metadata.completionTime;
+  }
+
+  if (typeof metadata?.timeSpent === "number" && metadata.timeSpent > 0) {
+    return Math.round((metadata.timeSpent / 60000) * 10) / 10;
+  }
+
+  if (metadata?.startedAt && metadata?.completedAt) {
+    const start = Date.parse(metadata.startedAt);
+    const end = Date.parse(metadata.completedAt);
+    if (!Number.isNaN(start) && !Number.isNaN(end) && end > start) {
+      return Math.round(((end - start) / 60000) * 10) / 10;
+    }
+  }
+
+  if (createdAt && updatedAt) {
+    const created = Date.parse(createdAt);
+    const updated = Date.parse(updatedAt);
+    if (!Number.isNaN(created) && !Number.isNaN(updated) && updated > created) {
+      return Math.round(((updated - created) / 60000) * 10) / 10;
+    }
+  }
+
+  return null;
 }
