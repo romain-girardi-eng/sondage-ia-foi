@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Share2, BarChart3, Heart, Sparkles, Copy, Database } from "lucide-react";
-import { cn, useLanguage, useHasAnimated } from "@/lib";
+import { cn, useLanguage, useHasAnimated, getLocalizedPath } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { QRCodeShare } from "@/components/sharing";
 import Link from "next/link";
@@ -164,8 +164,8 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
             <p className="text-xs text-muted-foreground/60 mt-3">
               {t("thanks.anonymousIdNote")}
             </p>
-            <Link
-              href="/mes-donnees"
+              <Link
+                href={getLocalizedPath(language, "/mes-donnees")}
               className="inline-block mt-2 text-xs text-blue-500 dark:text-blue-400 hover:underline"
             >
               {t("thanks.manageData")}

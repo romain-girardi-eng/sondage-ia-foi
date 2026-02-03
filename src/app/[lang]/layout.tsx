@@ -40,8 +40,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     description: metadata[lang].description,
     alternates: {
       languages: {
-        fr: "/fr",
-        en: "/en",
+        fr: "/",
+        en: "/eng",
       },
     },
   };

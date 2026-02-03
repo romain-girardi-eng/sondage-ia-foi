@@ -1,6 +1,6 @@
 "use client";
 
-import { useLanguage } from "@/lib";
+import { useLanguage, getLocalizedPath } from "@/lib";
 import { LanguageSwitcher } from "@/components/ui";
 import SpiritualShaderHero from "@/components/ui/spiritual-shader-hero";
 import FAQSection from "@/components/ui/faq-section";
@@ -21,8 +21,11 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
     }
   };
 
+  const methodologyLink = getLocalizedPath(language, "/methodology");
+  const privacyLink = getLocalizedPath(language, "/privacy");
+
   const features = [
-    { icon: "🔬", text: t("intro.featureScientific"), link: `/${language}/methodology` },
+    { icon: "🔬", text: t("intro.featureScientific"), link: methodologyLink },
     { icon: "🔒", text: t("intro.featureAnonymous") },
     { icon: "⏱️", text: t("intro.featureDuration") },
   ];
@@ -45,7 +48,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
         consentGiven={consentGiven}
         onConsentChange={onConsentChange}
         consentLabel={t("consent.checkbox")}
-        privacyLink="/privacy"
+        privacyLink={privacyLink}
         privacyLinkText={t("intro.learnMore")}
         authorLabel={t("footer.createdBy")}
         authorName="Romain Girardi"

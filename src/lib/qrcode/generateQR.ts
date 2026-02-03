@@ -76,8 +76,13 @@ export async function generateQRCodeSVG(
  */
 export function getSurveyShareURL(language?: "fr" | "en"): string {
   const baseURL = process.env.NEXT_PUBLIC_APP_URL || "https://ia-foi.fr";
-  if (language) {
-    return `${baseURL}/${language}`;
+  if (!language) {
+    return baseURL;
   }
+
+  if (language === "en") {
+    return `${baseURL}/eng`;
+  }
+
   return baseURL;
 }

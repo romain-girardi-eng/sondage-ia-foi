@@ -1,18 +1,39 @@
 import { Shield, Lock, Eye, Trash2, Download, Mail, Scale, Fingerprint } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
+import { getLocalizedPath } from "@/lib";
 
-export const metadata = {
-  title: "Politique de Confidentialité - Sondage IA & Foi",
-  description: "Notre politique de confidentialité et de protection des données personnelles.",
-};
+type SupportedLang = "fr" | "en";
+
+const PRIVACY_METADATA = {
+  fr: {
+    title: "Politique de Confidentialité - Sondage IA & Foi",
+    description: "Notre politique de confidentialité et de protection des données personnelles.",
+  },
+  en: {
+    title: "Privacy Policy - IA & Faith Survey",
+    description: "Our privacy policy and approach to protecting personal data.",
+  },
+} satisfies Record<SupportedLang, Metadata>;
+
+function resolveLang(value?: string): SupportedLang {
+  return value === "en" ? "en" : "fr";
+}
+
+export function getPrivacyMetadata(lang: SupportedLang): Metadata {
+  return PRIVACY_METADATA[lang];
+}
 
 interface Props {
   params: Promise<{ lang: string }>;
 }
 
-export default async function PrivacyPage({ params }: Props) {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
+  return getPrivacyMetadata(resolveLang(lang));
+}
 
+export function PrivacyContent({ lang }: { lang: SupportedLang }) {
   // Content based on language
   const content = lang === "en" ? {
     title: "Privacy Policy",
@@ -269,6 +290,8 @@ export default async function PrivacyPage({ params }: Props) {
     },
     back: "Retour au sondage"
   };
+  const myDataLink = getLocalizedPath(lang, "/mes-donnees");
+  const backLink = getLocalizedPath(lang);
 
   return (
     <div className="min-h-screen bg-background py-16 px-4">
@@ -462,7 +485,7 @@ export default async function PrivacyPage({ params }: Props) {
             </div>
             <div className="mt-6">
               <Link
-                href={`/${lang}/mes-donnees`}
+                href={myDataLink}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all"
               >
                 <Trash2 className="w-4 h-4" />
@@ -481,7 +504,7 @@ export default async function PrivacyPage({ params }: Props) {
             <p className="text-sm font-medium text-blue-500 mb-2">{content.contact.email}</p>
             <p className="text-sm">
               {content.contact.page}{" "}
-              <Link href={`/${lang}/mes-donnees`} className="text-blue-500 hover:underline">
+              <Link href={myDataLink} className="text-blue-500 hover:underline">
                 {content.contact.link}
               </Link>
               {content.contact.pageEnd}
@@ -494,7 +517,7 @@ export default async function PrivacyPage({ params }: Props) {
 
         <footer className="mt-12 text-center">
           <Link
-            href={`/${lang}`}
+            href={backLink}
             className="text-blue-500 hover:text-blue-400 transition-colors"
           >
             &larr; {content.back}
@@ -503,4 +526,9 @@ export default async function PrivacyPage({ params }: Props) {
       </div>
     </div>
   );
+}
+
+export default async function PrivacyPage({ params }: Props) {
+  const { lang } = await params;
+  return <PrivacyContent lang={resolveLang(lang)} />;
 }

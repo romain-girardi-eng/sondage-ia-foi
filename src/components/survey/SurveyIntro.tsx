@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, Database, Clock, Lock, Sparkles, X } from "lucide-react";
-import { cn, useLanguage, useHasAnimated } from "@/lib";
+import { cn, useLanguage, useHasAnimated, getLocalizedPath } from "@/lib";
 import { AnimatedBackground, Spotlight, LanguageSwitcher } from "@/components/ui";
 
 interface SurveyIntroProps {
@@ -12,7 +12,7 @@ interface SurveyIntroProps {
 }
 
 export function SurveyIntro({ onStart }: SurveyIntroProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const hasAnimated = useHasAnimated();
   const [showVideo, setShowVideo] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -184,7 +184,7 @@ export function SurveyIntro({ onStart }: SurveyIntroProps) {
             </Link>
             <span className="text-muted-foreground/20">|</span>
             <Link
-              href="/fr/methodology"
+              href={getLocalizedPath(language, "/methodology")}
               className="inline-block text-blue-400/60 hover:text-blue-400 transition-colors underline underline-offset-2"
             >
               {t("methodology.learnMore")}

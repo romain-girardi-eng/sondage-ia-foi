@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { Database, Download, Trash2, Search, AlertTriangle, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useCSRF } from "@/hooks/useCSRF";
+import { getLocalizedPath } from "@/lib";
 
 const content = {
   en: {
@@ -88,6 +89,8 @@ export default function MesDonneesPage() {
   const lang = (params.lang as string) === "en" ? "en" : "fr";
   const t = content[lang];
   const { fetchWithCSRF } = useCSRF();
+  const privacyLink = getLocalizedPath(lang, "/privacy");
+  const homeLink = getLocalizedPath(lang);
 
   const [anonymousId, setAnonymousId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -289,14 +292,14 @@ export default function MesDonneesPage() {
         </div>
 
         <footer className="mt-12 text-center space-x-6">
-          <Link
-            href={`/${lang}/privacy`}
+            <Link
+              href={privacyLink}
             className="text-blue-400 hover:text-blue-300 transition-colors"
           >
             {t.footer.privacy}
           </Link>
-          <Link
-            href={`/${lang}`}
+            <Link
+              href={homeLink}
             className="text-blue-400 hover:text-blue-300 transition-colors"
           >
             {t.footer.back}

@@ -3,17 +3,15 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
-  async redirects() {
+  async rewrites() {
     return [
       {
-        source: '/privacy',
-        destination: '/fr/privacy',
-        permanent: false,
+        source: '/eng',
+        destination: '/en',
       },
       {
-        source: '/mes-donnees',
-        destination: '/fr/mes-donnees',
-        permanent: false,
+        source: '/eng/:path*',
+        destination: '/en/:path*',
       },
     ];
   },

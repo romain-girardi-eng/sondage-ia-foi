@@ -22,6 +22,7 @@ import {
   FormulaDisplay,
   ConfessionalTree,
 } from "@/components/methodology";
+import { getLocalizedPath } from "@/lib";
 
 type Language = "fr" | "en";
 
@@ -29,6 +30,7 @@ export default function MethodologyPage() {
   const params = useParams();
   const lang = (params.lang as Language) || "fr";
   const t = translations[lang].methodologyPage;
+  const homeLink = getLocalizedPath(lang);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
@@ -44,7 +46,7 @@ export default function MethodologyPage() {
         <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg bg-background/80 border-b border-white/10">
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <Link
-              href={`/${lang}`}
+              href={homeLink}
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -284,8 +286,8 @@ export default function MethodologyPage() {
 
           {/* Back to survey CTA */}
           <motion.div {...fadeInUp} className="text-center">
-            <Link
-              href={`/${lang}`}
+              <Link
+                href={homeLink}
               className="inline-flex items-center gap-2 px-8 py-4 bg-white text-slate-900 rounded-full font-bold text-lg hover:scale-105 transition-transform"
             >
               <ArrowLeft className="w-5 h-5" />
