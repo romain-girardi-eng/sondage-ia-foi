@@ -45,25 +45,7 @@ export function MatrixQuestion({
     <fieldset className="border-0">
       <legend className="sr-only">{questionText}</legend>
       <div className="space-y-4 pb-4">
-        {/* Column headers - desktop */}
-        <div className="hidden md:grid md:grid-cols-[1fr,repeat(4,80px)] gap-2 items-end pb-4 mb-2">
-          <div className="text-sm font-medium text-muted-foreground">&nbsp;</div>
-          {matrixCols.map((col, idx) => (
-            <motion.div
-              key={col.value}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 * idx, duration: 0.3 }}
-              className="text-center"
-            >
-              <span className="text-sm text-foreground font-semibold leading-tight block px-1">
-                {getMatrixColumnLabel(col)}
-              </span>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Rows */}
+        {/* Rows - each with labeled buttons */}
         {matrixRows.map((row, rowIdx) => {
           const selectedValue = matrixValue[row.value];
           return (
@@ -72,18 +54,15 @@ export function MatrixQuestion({
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.08 * rowIdx, duration: 0.4 }}
-              className="glass-card-refined rounded-2xl p-4 space-y-3 md:space-y-0"
+              className="glass-card-refined rounded-2xl p-4 space-y-4"
             >
               {/* Row label */}
-              <div className="md:hidden text-sm font-medium text-foreground mb-3">
+              <div className="text-base font-medium text-foreground">
                 {getMatrixRowLabel(row)}
               </div>
 
-              {/* Desktop layout: row label + radio buttons in grid */}
-              <div className="hidden md:grid md:grid-cols-[1fr,repeat(4,80px)] gap-2 items-center">
-                <div className="text-sm font-medium text-foreground pr-4">
-                  {getMatrixRowLabel(row)}
-                </div>
+              {/* Buttons with labels - same on mobile and desktop */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2" role="radiogroup">
                 {matrixCols.map((col) => {
                   const isSelected = selectedValue === col.value;
                   return (
@@ -94,48 +73,17 @@ export function MatrixQuestion({
                       aria-checked={isSelected}
                       onClick={() => handleMatrixCellClick(row.value, col.value)}
                       className={cn(
-                        "w-full aspect-square max-w-[48px] mx-auto rounded-xl flex items-center justify-center transition-all duration-200",
+                        "flex flex-col items-center justify-center gap-2 p-3 md:p-4 rounded-xl transition-all duration-200 min-h-[80px]",
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
                         isSelected
-                          ? "bg-blue-500 text-white shadow-lg scale-110"
-                          : "bg-muted hover:bg-accent border border-border hover:border-blue-500/50"
+                          ? "bg-blue-500 text-white shadow-lg scale-[1.02]"
+                          : "bg-muted/50 hover:bg-accent border border-border hover:border-blue-500/50"
                       )}
                     >
-                      {isSelected && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                        >
-                          <Check className="w-4 h-4" strokeWidth={3} />
-                        </motion.div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Mobile layout: horizontal button group */}
-              <div className="md:hidden flex justify-between gap-2" role="radiogroup">
-                {matrixCols.map((col) => {
-                  const isSelected = selectedValue === col.value;
-                  return (
-                    <button
-                      key={col.value}
-                      type="button"
-                      role="radio"
-                      aria-checked={isSelected}
-                      aria-label={getMatrixColumnLabel(col)}
-                      onClick={() => handleMatrixCellClick(row.value, col.value)}
-                      className={cn(
-                        "flex-1 flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200",
-                        "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
-                        isSelected
-                          ? "bg-blue-500 text-white shadow-lg"
-                          : "bg-muted hover:bg-accent border border-border"
-                      )}
-                    >
-                      <span className="text-[10px] leading-tight text-center font-medium">
+                      <span className={cn(
+                        "text-xs md:text-sm font-medium text-center leading-tight",
+                        isSelected ? "text-white" : "text-foreground"
+                      )}>
                         {getMatrixColumnLabel(col)}
                       </span>
                       {isSelected && (
@@ -144,7 +92,7 @@ export function MatrixQuestion({
                           animate={{ scale: 1 }}
                           transition={{ type: "spring", stiffness: 300, damping: 20 }}
                         >
-                          <Check className="w-3 h-3" strokeWidth={3} />
+                          <Check className="w-5 h-5" strokeWidth={3} />
                         </motion.div>
                       )}
                     </button>
