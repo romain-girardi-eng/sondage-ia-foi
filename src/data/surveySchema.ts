@@ -464,6 +464,7 @@ export const SURVEY_QUESTIONS: Question[] = [
       { value: 'plan', label: 'La structure / Le plan' },
       { value: 'exegese', label: 'Recherche biblique (commentaires, contexte historique)' },
       { value: 'illustration', label: "Recherche d'illustrations / anecdotes" },
+      { value: 'images', label: 'Génération d\'images pour les slides' },
       { value: 'redaction', label: 'Rédaction de paragraphes entiers' }
     ],
     columns: [

@@ -271,6 +271,7 @@ export const questionTranslations = {
       plan: "La structure / Le plan",
       exegese: "Recherche biblique (commentaires, contexte historique)",
       illustration: "Recherche d'illustrations / anecdotes",
+      images: "Génération d'images pour les slides",
       redaction: "Rédaction de paragraphes entiers",
     },
 
@@ -564,6 +565,7 @@ export const questionTranslations = {
       plan: "Structure / Outline",
       exegese: "Biblical research (commentaries, historical context)",
       illustration: "Finding illustrations / anecdotes",
+      images: "Generating images for slides",
       redaction: "Writing entire paragraphs",
     },
 
