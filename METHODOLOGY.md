@@ -9,7 +9,9 @@
 5. [Les 8 profils](#5-les-8-profils)
 6. [Hypothèses de recherche](#6-hypothèses-de-recherche)
 7. [Limites méthodologiques](#7-limites-méthodologiques)
-8. [Changelog des révisions](#8-changelog-des-révisions)
+8. [Conformité FAIR et Transparence Méthodologique](#8-conformité-fair-et-transparence-méthodologique)
+9. [Changelog des révisions](#9-changelog-des-révisions)
+10. [Références](#10-références)
 
 ---
 
@@ -335,7 +337,140 @@ Voir `src/lib/scoring/profiles.ts` pour l'implémentation détaillée.
 
 ---
 
-## 8. Changelog des révisions
+## 8. Conformité FAIR et Transparence Méthodologique
+
+Cette section documente la conformité du système de scoring aux principes FAIR (Findable, Accessible, Interoperable, Reusable) et fournit une transparence complète sur les limites méthodologiques.
+
+### 8.1 Matrice de Conformité FAIR
+
+| Principe | Critère | Score | Statut | Action Requise |
+|----------|---------|-------|--------|----------------|
+| **F1** | Identifiant unique | 1/4 | ❌ | Attribuer DOI via Zenodo/OSF |
+| **F2** | Métadonnées riches | 3/4 | ⚠️ | `docs/codebook.json` disponible |
+| **F3** | Enregistrement | 1/4 | ❌ | Enregistrer sur OSF Registries |
+| **F4** | Indexation | 1/4 | ❌ | Soumettre aux registres académiques |
+| **A1** | Protocole ouvert | 4/4 | ✅ | Conforme (HTTPS, API REST) |
+| **A2** | Métadonnées durables | 3/4 | ⚠️ | `docs/codebook.json` séparé du code |
+| **I1** | Langage formel | 3/4 | ⚠️ | Mapper vers ontologies (PROV-O, DDI) |
+| **I2** | Vocabulaire FAIR | 3/4 | ⚠️ | `docs/data-dictionary.csv` disponible |
+| **I3** | Références croisées | 2/4 | ⚠️ | Lier sources dans métadonnées |
+| **R1** | Attributs riches | 3/4 | ⚠️ | Compléter provenance des données |
+| **R2** | Licence claire | 4/4 | ✅ | MIT (code) + CC-BY-4.0 (données) dans `/LICENSE` |
+| **R3** | Standards domaine | 2/4 | ⚠️ | Alignment PsychDS |
+
+**Score Global FAIR : 30/48 (63%) - "Partiellement conforme"**
+
+### 8.1.1 Fichiers FAIR disponibles
+
+| Fichier | Description | Format |
+|---------|-------------|--------|
+| `/LICENSE` | Licence duale MIT + CC-BY-4.0 | Texte |
+| `/docs/codebook.json` | Codebook complet exporté | JSON |
+| `/docs/data-dictionary.csv` | Dictionnaire des variables | CSV |
+| `/src/lib/scoring/codebook.ts` | Codebook source avec logique | TypeScript |
+
+### 8.2 Paramètres de Population : Statut Provisoire
+
+Les paramètres suivants sont des **estimations provisoires** basées sur des hypothèses raisonnées, **non des données empiriques**. Ils seront recalibrés après collecte de N≥500 réponses.
+
+| Dimension | Moyenne | Écart-type | Justification de l'estimation |
+|-----------|---------|------------|-------------------------------|
+| Religiosité | 3.8 | 0.9 | Population cible religieuse → distribution asymétrique haute |
+| Ouverture IA | 2.4 | 1.1 | Contexte religieux → ouverture modérée, forte variance |
+| Frontière Sacrée | 3.5 | 1.0 | Tendance à protéger le sacré attendue |
+| Préoccupation Éthique | 3.8 | 0.8 | Préoccupation élevée normative en contexte religieux |
+| Perception Psychologique | 3.0 | 0.9 | Position neutre/incertaine attendue |
+| Influence Communautaire | 2.8 | 0.9 | Influence modérée attendue |
+| Orientation Future | 3.2 | 1.0 | Légère asymétrie positive |
+
+**Impact :** Les percentiles affichés aux répondants peuvent être biaisés si la population réelle diffère significativement de ces estimations.
+
+**Plan de recalibration :**
+1. Après N=200 : Analyse exploratoire des distributions
+2. Après N=500 : Recalcul des moyennes et écarts-types empiriques
+3. Communication transparente du statut "provisoire → empirique"
+
+### 8.3 Seuils et Pondérations Non Validés Empiriquement
+
+#### Seuils de l'Algorithme de Matching
+
+| Paramètre | Valeur | Validé | Justification |
+|-----------|--------|--------|---------------|
+| `EXPONENTIAL_DECAY` | 0.5 | ❌ | Choix expert : distance 2 ≈ 50% match |
+| `SECONDARY_PROFILE_THRESHOLD` | 10% | ❌ | Éviter les correspondances très faibles |
+| `TERTIARY_PROFILE_THRESHOLD` | 5% | ❌ | Afficher uniquement les pertinentes |
+| `BIAS_ADJUSTMENT_THRESHOLD` | 4/10 | ⚠️ | Basé sur interprétation Marlowe-Crowne |
+| `MAX_BIAS_DEFLATION` | 1.0 pt | ❌ | Ajustement conservateur |
+
+#### Pondérations des Questions
+
+Les pondérations des questions (ex: `weight: 2.0` pour certaines questions clés) sont basées sur la **validité apparente** (face validity) et le **jugement expert**, non sur une analyse factorielle confirmatoire.
+
+**Recommandation :** Effectuer une ACP ou AFC après collecte suffisante pour valider ou ajuster les pondérations.
+
+### 8.4 Construits Exploratoires vs Validés
+
+| Dimension | Statut | Source |
+|-----------|--------|--------|
+| Religiosité | ✅ **Validé** | CRS-5 (Huber & Huber, 2012) |
+| Perception Psychologique | ⚠️ **Partiellement validé** | Godspeed Scale partielle |
+| Ouverture IA | ❌ **Exploratoire** | Construit ad-hoc |
+| Frontière Sacrée | ❌ **Exploratoire** | Construit ad-hoc |
+| Préoccupation Éthique | ❌ **Exploratoire** | Construit ad-hoc |
+| Influence Communautaire | ❌ **Exploratoire** | Construit ad-hoc |
+| Orientation Future | ❌ **Exploratoire** | Construit ad-hoc |
+
+**Implication :** 5 des 7 dimensions nécessitent une validation psychométrique (alpha de Cronbach, analyse factorielle) avant publication académique formelle.
+
+### 8.5 Sensibilité au Biais de Désirabilité Sociale
+
+Le système utilise l'échelle Marlowe-Crowne (Short Form C) pour détecter le biais de désirabilité sociale. Chaque dimension a une **sensibilité différenciée** :
+
+| Dimension | Sensibilité | Interprétation |
+|-----------|-------------|----------------|
+| Religiosité | 0.8 (haute) | Forte pression sociale à sur-déclarer |
+| Préoccupation Éthique | 0.7 (haute) | Pression à paraître "moralement bon" |
+| Frontière Sacrée | 0.5 (modérée) | Pression modérée |
+| Orientation Future | 0.4 (modérée) | Pression modérée |
+| Influence Communautaire | 0.3 (faible) | Faible pression |
+| Ouverture IA | 0.2 (très faible) | Question non normative |
+| Perception Psychologique | 0.2 (très faible) | Question factuelle |
+
+### 8.6 Codebook Exportable
+
+Un codebook complet est disponible dans `src/lib/scoring/codebook.ts` incluant :
+
+- Définitions des 7 dimensions avec questions et pondérations
+- Définitions des 8 profils avec dimensions idéales
+- Méthodologie de détection du biais Marlowe-Crowne
+- Paramètres de l'algorithme de matching
+- Métadonnées FAIR avec limitations reconnues
+
+**Export JSON :** Appeler `exportCodebookAsJSON()` pour obtenir le codebook complet au format JSON.
+
+### 8.7 Recommandations pour la Réplicabilité
+
+#### Court terme (avant publication)
+- [x] Documenter les limitations sur les pages de résultats
+- [x] Créer un codebook exportable (`docs/codebook.json`)
+- [x] Ajouter disclaimers scientifiques
+- [x] Ajouter licence CC-BY-4.0 (`/LICENSE`)
+- [x] Créer dictionnaire des données (`docs/data-dictionary.csv`)
+
+#### Moyen terme (après N≥500 réponses)
+- [ ] Recalibrer les paramètres de population
+- [ ] Calculer l'alpha de Cronbach par dimension
+- [ ] Effectuer analyse factorielle exploratoire
+- [ ] Publier le protocole sur OSF
+
+#### Long terme (réplicabilité)
+- [ ] Attribuer DOI au questionnaire
+- [ ] Créer dataset anonymisé sur Zenodo
+- [ ] Publier article méthodologique
+
+---
+
+## 9. Changelog des révisions
 
 ### v1.2.0 (2026-01-25) - Scientific Deepening
 
@@ -380,7 +515,7 @@ Voir `src/lib/scoring/profiles.ts` pour l'implémentation détaillée.
 
 ---
 
-## Références
+## 10. Références
 
 1. Huber, S., & Huber, O. W. (2012). The Centrality of Religiosity Scale (CRS). *Religions*, 3(3), 710-724. https://doi.org/10.3390/rel3030710
 2. Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability independent of psychopathology. *Journal of Consulting Psychology*, 24(4), 349-354. https://doi.org/10.1037/h0047358
@@ -388,4 +523,4 @@ Voir `src/lib/scoring/profiles.ts` pour l'implémentation détaillée.
 
 ---
 
-*Document généré le 25 janvier 2025. Dernière mise à jour : v1.2.1 (26 janvier 2026)*
+*Document généré le 25 janvier 2025. Dernière mise à jour : v1.3.0 (3 février 2026)*

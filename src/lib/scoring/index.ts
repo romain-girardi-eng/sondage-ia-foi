@@ -19,6 +19,9 @@ export * from './types';
 // Constants (profile definitions, colors, etc.)
 export * from './constants';
 
+// Score maps (centralized score mappings)
+export * from './score-maps';
+
 // Dimension calculations
 export {
   calculateReligiosityDimension,

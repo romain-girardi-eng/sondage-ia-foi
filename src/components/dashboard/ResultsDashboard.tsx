@@ -1,17 +1,14 @@
 "use client";
 
 import { useEffect, useState, useMemo, useRef } from "react";
-import { SURVEY_QUESTIONS, type Question } from "@/data";
-import { getMockResults, type AggregatedResult, useLanguage } from "@/lib";
+import { SURVEY_QUESTIONS } from "@/data";
+import { getMockResults, type AggregatedResult, useLanguage, cn } from "@/lib";
 import { motion, useInView, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import {
   RefreshCw,
   Users,
   TrendingUp,
-  ChevronDown,
   Sparkles,
-  BarChart3,
-  PieChart as PieChartIcon,
   Zap,
   Target,
   Award,
@@ -20,17 +17,8 @@ import {
   Heart,
   Church,
 } from "lucide-react";
-import { cn } from "@/lib";
-
-// Modern color palette
-const COLORS = [
-  { bg: "from-blue-500 to-blue-600", text: "text-blue-400", glow: "shadow-blue-500/20", hex: "#3b82f6" },
-  { bg: "from-emerald-500 to-emerald-600", text: "text-emerald-400", glow: "shadow-emerald-500/20", hex: "#10b981" },
-  { bg: "from-amber-500 to-amber-600", text: "text-amber-400", glow: "shadow-amber-500/20", hex: "#f59e0b" },
-  { bg: "from-rose-500 to-rose-600", text: "text-rose-400", glow: "shadow-rose-500/20", hex: "#f43f5e" },
-  { bg: "from-violet-500 to-violet-600", text: "text-violet-400", glow: "shadow-violet-500/20", hex: "#8b5cf6" },
-  { bg: "from-cyan-500 to-cyan-600", text: "text-cyan-400", glow: "shadow-cyan-500/20", hex: "#06b6d4" },
-];
+import { DonutChart } from "./charts";
+import { ModernChartCard } from "./ModernChartCard";
 
 const RELIGIOSITY_QUESTION_IDS = [
   "crs_intellect",
@@ -224,77 +212,6 @@ function FloatingParticles() {
   );
 }
 
-// Animated circular progress component with glow
-function CircularProgress({
-  percentage,
-  size = 120,
-  strokeWidth = 8,
-  color,
-  delay = 0,
-  children,
-  showGlow = true,
-}: {
-  percentage: number;
-  size?: number;
-  strokeWidth?: number;
-  color: string;
-  delay?: number;
-  children?: React.ReactNode;
-  showGlow?: boolean;
-}) {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, { once: true });
-  const [offset, setOffset] = useState(circumference);
-
-  useEffect(() => {
-    if (!isInView) return;
-    const timeout = setTimeout(() => {
-      setOffset(circumference - (percentage / 100) * circumference);
-    }, delay);
-    return () => clearTimeout(timeout);
-  }, [circumference, percentage, delay, isInView]);
-
-  return (
-    <div ref={containerRef} className="relative" style={{ width: size, height: size }}>
-      {showGlow && (
-        <div
-          className="absolute inset-0 rounded-full blur-xl opacity-30 transition-opacity duration-1000"
-          style={{ backgroundColor: color }}
-        />
-      )}
-      <svg width={size} height={size} className="transform -rotate-90 relative z-10">
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={strokeWidth}
-          className="text-muted-foreground/10"
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={color}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className="transition-all duration-1000 ease-out"
-          style={{ filter: `drop-shadow(0 0 8px ${color}60)` }}
-        />
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center z-20">
-        {children}
-      </div>
-    </div>
-  );
-}
-
 // Key insight card with animation
 function InsightCard({
   icon: Icon,
@@ -341,241 +258,6 @@ function InsightCard({
         </div>
       </div>
     </motion.div>
-  );
-}
-
-// Animated bar chart
-function AnimatedBarChart({
-  data,
-  maxValue,
-  color,
-}: {
-  data: { name: string; value: number; percentage: number }[];
-  maxValue: number;
-  color: typeof COLORS[0];
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
-
-  return (
-    <div ref={ref} className="space-y-4">
-      {data.slice(0, 5).map((item, index) => (
-        <motion.div
-          key={item.name}
-          initial={{ opacity: 0, x: -30 }}
-          animate={isInView ? { opacity: 1, x: 0 } : {}}
-          transition={{ delay: index * 0.1, duration: 0.5 }}
-          className="group"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground truncate max-w-[60%] group-hover:text-foreground transition-colors">
-              {item.name}
-            </span>
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : {}}
-              transition={{ delay: index * 0.1 + 0.3 }}
-              className={cn("text-sm font-bold", color.text)}
-            >
-              {item.percentage.toFixed(1)}%
-            </motion.span>
-          </div>
-          <div className="relative h-3 bg-muted rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={isInView ? { width: `${(item.value / maxValue) * 100}%` } : {}}
-              transition={{ delay: index * 0.1 + 0.2, duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
-              className={cn(
-                "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r",
-                color.bg
-              )}
-            >
-              <motion.div
-                className="absolute inset-0 bg-white/20"
-                initial={{ x: "-100%" }}
-                animate={isInView ? { x: "100%" } : {}}
-                transition={{ delay: index * 0.1 + 0.5, duration: 0.8 }}
-              />
-            </motion.div>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
-// Modern donut chart
-function DonutChart({
-  data,
-  total,
-  size = 160,
-}: {
-  data: { name: string; value: number; color: string }[];
-  total: number;
-  size?: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true });
-  const strokeWidth = 24;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-
-  // Pre-compute offsets to avoid mutation during render
-  const segmentsWithOffsets = useMemo(() => {
-    return data.reduce<Array<{ name: string; value: number; color: string; segmentLength: number; offset: number }>>((acc, segment, index) => {
-      const segmentPercentage = (segment.value / total) * 100;
-      const segmentLength = (segmentPercentage / 100) * circumference;
-      const offset = index === 0 ? 0 : acc[index - 1].offset + acc[index - 1].segmentLength;
-      acc.push({ ...segment, segmentLength, offset });
-      return acc;
-    }, []);
-  }, [data, total, circumference]);
-
-  return (
-    <div ref={ref} className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="transform -rotate-90">
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={strokeWidth}
-          className="text-muted-foreground/10"
-        />
-        {segmentsWithOffsets.map((segment, index) => (
-          <motion.circle
-            key={index}
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke={segment.color}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-            strokeDasharray={`${segment.segmentLength} ${circumference - segment.segmentLength}`}
-            strokeDashoffset={-segment.offset}
-            initial={{ opacity: 0, strokeDasharray: `0 ${circumference}` }}
-            animate={isInView ? {
-              opacity: 1,
-              strokeDasharray: `${segment.segmentLength} ${circumference - segment.segmentLength}`,
-            } : {}}
-            transition={{ delay: index * 0.15 + 0.3, duration: 0.8, ease: "easeOut" }}
-            style={{ filter: `drop-shadow(0 0 6px ${segment.color}40)` }}
-          />
-        ))}
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <motion.span
-          initial={{ scale: 0 }}
-          animate={isInView ? { scale: 1 } : {}}
-          transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-          className="text-3xl font-bold text-foreground"
-        >
-          {total}
-        </motion.span>
-        <span className="text-xs text-muted-foreground">réponses</span>
-      </div>
-    </div>
-  );
-}
-
-// Scale visualization with animated bars
-function ScaleVisualization({
-  data,
-  question,
-  total,
-}: {
-  data: { name: string; value: number }[];
-  question: Question;
-  total: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true });
-
-  const weightedSum = data.reduce((sum, entry, idx) => {
-    const numValue = parseInt(entry.name) || idx + 1;
-    return sum + numValue * entry.value;
-  }, 0);
-  const average = weightedSum / total;
-  const maxValue = Math.max(...data.map((d) => d.value));
-
-  const getBarColor = (index: number) => {
-    const colors = ["#ef4444", "#f97316", "#eab308", "#84cc16", "#22c55e"];
-    return colors[index] || colors[0];
-  };
-
-  return (
-    <div ref={ref} className="space-y-6">
-      {/* Average score */}
-      <div className="flex items-center justify-center">
-        <CircularProgress
-          percentage={(average / 5) * 100}
-          size={120}
-          strokeWidth={10}
-          color={average >= 3.5 ? "#22c55e" : average >= 2.5 ? "#eab308" : "#ef4444"}
-          delay={200}
-        >
-          <div className="text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={isInView ? { scale: 1 } : {}}
-              transition={{ delay: 0.5, type: "spring" }}
-              className="text-3xl font-bold text-foreground"
-            >
-              {average.toFixed(1)}
-            </motion.div>
-            <div className="text-xs text-muted-foreground">/5</div>
-          </div>
-        </CircularProgress>
-      </div>
-
-      {/* Distribution bars */}
-      <div className="flex items-end justify-center gap-3 h-28">
-        {data.map((entry, idx) => {
-          const percentage = (entry.value / maxValue) * 100;
-          const color = getBarColor(idx);
-
-          return (
-            <motion.div
-              key={idx}
-              className="flex flex-col items-center gap-2 flex-1 max-w-14"
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : {}}
-              transition={{ delay: idx * 0.1 }}
-            >
-              <div className="relative w-full h-full flex items-end">
-                <motion.div
-                  className="w-full rounded-t-xl relative overflow-hidden cursor-pointer group"
-                  initial={{ height: 0 }}
-                  animate={isInView ? { height: `${Math.max(percentage, 15)}%` } : {}}
-                  transition={{ delay: idx * 0.1 + 0.3, duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
-                  style={{ backgroundColor: color, minHeight: "24px" }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <div className="absolute inset-0 bg-white/0 group-hover:bg-white/20 transition-colors" />
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={isInView ? { opacity: 1 } : {}}
-                    transition={{ delay: idx * 0.1 + 0.6 }}
-                    className="absolute inset-x-0 top-1.5 text-center text-xs font-bold text-white"
-                  >
-                    {((entry.value / total) * 100).toFixed(0)}%
-                  </motion.span>
-                </motion.div>
-              </div>
-              <span className="text-base font-semibold text-muted-foreground">{entry.name}</span>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Labels */}
-      <div className="flex justify-between text-xs text-muted-foreground/70 px-2">
-        <span>{question.minLabel}</span>
-        <span className="text-right">{question.maxLabel}</span>
-      </div>
-    </div>
   );
 }
 
@@ -637,6 +319,8 @@ export function ResultsDashboard() {
         setParticipantCount(derivedCount);
         setLastUpdated(data?.lastUpdated ?? null);
         setIsDemoData(Boolean(data?.demo) || !hasValidResults);
+        // Expand all cards by default so charts are visible
+        setExpandedCards(new Set(resolvedResults.map((r: AggregatedResult) => r.questionId)));
       } catch (error) {
         console.error("Unable to load aggregated results, falling back to mock data:", error);
         if (isMounted) {
@@ -647,6 +331,8 @@ export function ResultsDashboard() {
           setParticipantCount(derivedCount);
           setLastUpdated(new Date().toISOString());
           setIsDemoData(true);
+          // Expand all cards by default
+          setExpandedCards(new Set(mockResults.map((r: AggregatedResult) => r.questionId)));
         }
       } finally {
         if (isMounted) {
@@ -975,11 +661,23 @@ export function ResultsDashboard() {
           {t("dashboard.thankYouFooter")}
         </p>
 
-        {/* Methodology note */}
-        <div className="max-w-2xl mx-auto pt-4 border-t border-border">
+        {/* Scientific disclaimer */}
+        <div className="max-w-2xl mx-auto pt-4 border-t border-border space-y-3">
+          <div className="flex items-center justify-center gap-2 text-amber-500/70">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span className="text-xs font-medium">{t("scientificDisclaimer.exploratoryStudy")}</span>
+          </div>
           <p className="text-[10px] text-muted-foreground/50 leading-relaxed">
             <span className="font-medium text-muted-foreground/70">{t("methodology.title")}:</span>{" "}
             {t("methodology.description")}
+          </p>
+          <p className="text-[10px] text-muted-foreground/40 leading-relaxed">
+            {t("scientificDisclaimer.exploratoryNote")}
+          </p>
+          <p className="text-[9px] text-muted-foreground/30 italic">
+            {t("scientificDisclaimer.footerNote")}
           </p>
         </div>
 
@@ -991,144 +689,3 @@ export function ResultsDashboard() {
   );
 }
 
-// Modern Chart Card Component
-interface ModernChartCardProps {
-  question: Question;
-  data: AggregatedResult;
-  index: number;
-  isExpanded: boolean;
-  onToggle: () => void;
-}
-
-function ModernChartCard({ question, data, index, isExpanded, onToggle }: ModernChartCardProps) {
-  const { t } = useLanguage();
-  const chartData = useMemo(() => {
-    return Object.entries(data.distribution)
-      .map(([key, value]) => {
-        let label = key;
-        let fullLabel = key;
-        if (question.options) {
-          const opt = question.options.find((o) => o.value === key);
-          fullLabel = opt ? opt.label : key;
-          label = fullLabel.length > 30 ? fullLabel.substring(0, 30) + "..." : fullLabel;
-        }
-        return { name: label, value, fullName: fullLabel };
-      })
-      .sort((a, b) => b.value - a.value);
-  }, [data.distribution, question.options]);
-
-  const totalResponses = useMemo(() => {
-    return Object.values(data.distribution).reduce((sum, val) => sum + val, 0);
-  }, [data.distribution]);
-
-  const maxValue = Math.max(...chartData.map((d) => d.value));
-  const topPercentage = ((chartData[0]?.value || 0) / totalResponses * 100);
-
-  const barChartData = chartData.map(item => ({
-    ...item,
-    percentage: (item.value / totalResponses) * 100,
-  }));
-
-  return (
-    <motion.article
-      layout="position"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{
-        layout: { duration: 0.4, ease: [0.32, 0.72, 0, 1] },
-        opacity: { duration: 0.4 },
-        y: { duration: 0.5, delay: index * 0.05 },
-      }}
-      className="group relative"
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
-
-      <div className={cn(
-        "relative rounded-3xl overflow-hidden",
-        "glass-card-refined",
-      )}>
-        {/* Header */}
-        <div className="p-6 pb-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 space-y-2">
-              <div className="flex items-center gap-2">
-                {question.type === "scale" ? (
-                  <BarChart3 className="w-4 h-4 text-blue-500" />
-                ) : (
-                  <PieChartIcon className="w-4 h-4 text-purple-500" />
-                )}
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                  {question.category.replace("_", " ")}
-                </span>
-              </div>
-              <h2 className="text-base font-medium text-foreground leading-relaxed">
-                {question.text}
-              </h2>
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={onToggle}
-              className="p-2.5 rounded-xl bg-muted hover:bg-accent transition-colors"
-            >
-              <motion.div
-                animate={{ rotate: isExpanded ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <ChevronDown className="w-4 h-4 text-muted-foreground" />
-              </motion.div>
-            </motion.button>
-          </div>
-
-          {/* Quick stats */}
-          <div className="flex items-center gap-4 mt-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted">
-              <Users className="w-3 h-3 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">{totalResponses}</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10">
-              <TrendingUp className="w-3 h-3 text-emerald-500" />
-              <span className="text-xs text-emerald-500 font-medium">
-                {topPercentage.toFixed(0)}% {t("dashboard.majority")}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Chart Area */}
-        <div className="px-6 pb-6">
-          <AnimatePresence mode="wait" initial={false}>
-            {question.type === "scale" ? (
-              <motion.div
-                key="scale"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <ScaleVisualization
-                  data={chartData}
-                  question={question}
-                  total={totalResponses}
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="bars"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <AnimatedBarChart
-                  data={barChartData}
-                  maxValue={maxValue}
-                  color={COLORS[index % COLORS.length]}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    </motion.article>
-  );
-}

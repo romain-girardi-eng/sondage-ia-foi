@@ -1,14 +1,30 @@
 import { z } from 'zod';
+import {
+  getStringAnswer,
+  isClergy,
+  isLayperson,
+  clergyUsesAI,
+} from '@/lib/utils/answers';
 
 // --- DEFINITIONS ---
 
-export type QuestionType = 'choice' | 'multiple' | 'scale' | 'text' | 'info';
+export type QuestionType = 'choice' | 'multiple' | 'scale' | 'matrix' | 'text' | 'info';
 
-export type AnswerValue = string | number | string[];
+export type AnswerValue = string | number | string[] | Record<string, number>;
 export type Answers = Record<string, AnswerValue>;
 
 export interface Option {
   value: string;
+  label: string;
+}
+
+export interface MatrixRow {
+  value: string;
+  label: string;
+}
+
+export interface MatrixColumn {
+  value: number;
   label: string;
 }
 
@@ -32,37 +48,15 @@ export interface Question {
   text: string;
   type: QuestionType;
   options?: Option[];
+  // Matrix question specific
+  rows?: MatrixRow[];
+  columns?: MatrixColumn[];
   minLabel?: string;
   maxLabel?: string;
   minLabelKey?: string;
   maxLabelKey?: string;
   condition?: (answers: Answers) => boolean;
   placeholder?: string;
-}
-
-// Helper function to safely get string value from answers
-function getStringAnswer(answers: Answers, key: string): string {
-  const value = answers[key];
-  if (typeof value === 'string') return value;
-  return '';
-}
-
-// Helper to check if respondent is clergy
-function isClergy(answers: Answers): boolean {
-  const statut = getStringAnswer(answers, 'profil_statut');
-  return ['clerge', 'religieux'].includes(statut);
-}
-
-// Helper to check if respondent is layperson
-function isLayperson(answers: Answers): boolean {
-  const statut = getStringAnswer(answers, 'profil_statut');
-  return ['laic_engagé', 'laic_pratiquant', 'curieux'].includes(statut);
-}
-
-// Helper to check if clergy uses AI for preaching
-function clergyUsesAI(answers: Answers): boolean {
-  const usage = getStringAnswer(answers, 'min_pred_usage');
-  return isClergy(answers) && usage !== '' && usage !== 'jamais';
 }
 
 // --- CONTENU DU SONDAGE COMPLET ---
@@ -464,13 +458,19 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'min_pred_nature',
     category: 'ministry_preaching',
-    text: "Concrètement, que déléguez-vous à l'IA ?",
-    type: 'multiple',
-    options: [
+    text: "Pour quoi faites-vous appel à l'IA ?",
+    type: 'matrix',
+    rows: [
       { value: 'plan', label: 'La structure / Le plan' },
-      { value: 'exegese', label: "La recherche biblique (commentaires, contexte historique)" },
-      { value: 'illustration', label: "La recherche d'illustrations / anecdotes" },
-      { value: 'redaction', label: 'La rédaction de paragraphes entiers' }
+      { value: 'exegese', label: 'Recherche biblique (commentaires, contexte historique)' },
+      { value: 'illustration', label: "Recherche d'illustrations / anecdotes" },
+      { value: 'redaction', label: 'Rédaction de paragraphes entiers' }
+    ],
+    columns: [
+      { value: 0, label: 'Non utilisé' },
+      { value: 1, label: 'Inspiration' },
+      { value: 2, label: 'Base à retravailler' },
+      { value: 3, label: 'Tel quel' }
     ],
     condition: clergyUsesAI
   },
@@ -770,7 +770,7 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'futur_domaines_interet',
     category: 'future',
-    text: "Quels domaines d'application de l'IA vous intéresseraient le plus dans un contexte religieux ? (plusieurs réponses possibles)",
+    text: "Dans quels aspects de votre vie spirituelle ou ministère seriez-vous susceptible d'utiliser l'IA ?",
     type: 'multiple',
     options: [
       { value: 'etude_bible', label: 'Étude biblique (commentaires, contexte historique)' },
@@ -781,7 +781,7 @@ export const SURVEY_QUESTIONS: Question[] = [
       { value: 'communication', label: 'Communication / réseaux sociaux' },
       { value: 'administration', label: 'Administration / gestion de la communauté' },
       { value: 'musique_liturgie', label: 'Musique / liturgie / louange' },
-      { value: 'aucun', label: 'Aucun de ces domaines' }
+      { value: 'aucun_domaines', label: 'Aucun' }
     ]
   },
 
@@ -853,4 +853,12 @@ export const SURVEY_QUESTIONS: Question[] = [
   }
 ];
 
-export const ResponseSchema = z.record(z.string(), z.union([z.string(), z.number(), z.array(z.string())]));
+// Matrix answer schema: Record<string, number> where keys are row values and values are column values (0-3)
+const MatrixAnswerSchema = z.record(z.string(), z.number().min(0).max(3));
+
+export const ResponseSchema = z.record(z.string(), z.union([
+  z.string(),
+  z.number(),
+  z.array(z.string()),
+  MatrixAnswerSchema
+]));

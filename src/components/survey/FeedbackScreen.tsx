@@ -468,20 +468,43 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
           </button>
         </motion.div>
 
-        {/* Methodology & Disclaimer */}
+        {/* Scientific Disclaimer - Enhanced for FAIR Compliance */}
         <motion.div
           initial={hasAnimated ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
-          className="text-center max-w-2xl mx-auto mt-8 space-y-3"
+          className="text-center max-w-2xl mx-auto mt-8 space-y-4"
         >
-          <p className="text-xs text-muted-foreground/50">
-            {t("feedback.disclaimer")}
+          {/* Profile Interpretation Warning */}
+          <div className="flex items-center justify-center gap-2 text-amber-500/70">
+            <AlertTriangle className="w-4 h-4" />
+            <span className="text-xs font-medium">{t("scientificDisclaimer.profileWarning")}</span>
+          </div>
+          <p className="text-xs text-muted-foreground/60">
+            {t("scientificDisclaimer.profileNote")}
           </p>
+
+          {/* Technical Notes */}
+          <div className="pt-4 border-t border-border/50 space-y-2">
+            <div className="flex items-center justify-center gap-2 text-muted-foreground/50">
+              <span className="text-[10px] font-medium uppercase tracking-wider">{t("scientificDisclaimer.exploratoryStudy")}</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground/40 leading-relaxed">
+              {t("scientificDisclaimer.exploratoryNote")}
+            </p>
+            <p className="text-[10px] text-muted-foreground/40 leading-relaxed">
+              {t("scientificDisclaimer.scaleNote")}
+            </p>
+          </div>
+
+          {/* Methodology Link */}
           <div className="pt-3 border-t border-border/50">
             <p className="text-[10px] text-muted-foreground/40 leading-relaxed">
               <span className="font-medium text-muted-foreground/50">{t("methodology.title")}:</span>{" "}
               {t("methodology.description")}
+            </p>
+            <p className="text-[9px] text-muted-foreground/30 mt-2 italic">
+              {t("scientificDisclaimer.footerNote")}
             </p>
           </div>
         </motion.div>

@@ -20,6 +20,8 @@ interface LanguageContextType {
   tQuestion: (questionId: string) => string;
   tOption: (optionKey: string) => string;
   tScale: (scaleKey: string) => string;
+  tMatrixColumn: (columnValue: number) => string;
+  tMatrixRow: (rowValue: string) => string;
   isHydrated: boolean;
 }
 
@@ -130,6 +132,28 @@ export function LanguageProvider({
     [language]
   );
 
+  const tMatrixColumn = useCallback(
+    (columnValue: number): string => {
+      const matrixColumns = questionTranslations[language].matrixColumns;
+      if (matrixColumns) {
+        return (matrixColumns as Record<number, string>)[columnValue] || `matrix_col_${columnValue}`;
+      }
+      return `matrix_col_${columnValue}`;
+    },
+    [language]
+  );
+
+  const tMatrixRow = useCallback(
+    (rowValue: string): string => {
+      const matrixRows = questionTranslations[language].matrixRows;
+      if (matrixRows) {
+        return (matrixRows as Record<string, string>)[rowValue] || rowValue;
+      }
+      return rowValue;
+    },
+    [language]
+  );
+
   const contextValue = useMemo(
     () => ({
       language,
@@ -138,9 +162,11 @@ export function LanguageProvider({
       tQuestion,
       tOption,
       tScale,
+      tMatrixColumn,
+      tMatrixRow,
       isHydrated,
     }),
-    [language, setLanguage, t, tQuestion, tOption, tScale, isHydrated]
+    [language, setLanguage, t, tQuestion, tOption, tScale, tMatrixColumn, tMatrixRow, isHydrated]
   );
 
   return (

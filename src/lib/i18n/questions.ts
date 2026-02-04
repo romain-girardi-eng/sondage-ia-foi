@@ -41,7 +41,7 @@ export const questionTranslations = {
 
       // === MINISTÈRE (CLERGÉ) ===
       min_pred_usage: "Pour la préparation de vos prédications (homélies, sermons), utilisez-vous l'IA ?",
-      min_pred_nature: "Concrètement, que déléguez-vous à l'IA ?",
+      min_pred_nature: "Pour quoi faites-vous appel à l'IA ?",
       min_pred_sentiment: "Comment vous sentez-vous lorsque vous utilisez l'IA pour préparer une prédication ?",
       min_care_email: "Si vous recevez un email complexe demandant un conseil spirituel, utiliseriez-vous l'IA pour rédiger la réponse ?",
       min_admin_burden: "Diriez-vous que l'IA vous libère du temps administratif pour vous consacrer davantage aux relations humaines ?",
@@ -65,7 +65,7 @@ export const questionTranslations = {
       // === INTENTIONS FUTURES ===
       futur_intention_usage: "Dans les 12 prochains mois, pensez-vous utiliser davantage l'IA dans votre vie spirituelle ou ministère ?",
       futur_formation_souhait: "Souhaiteriez-vous bénéficier d'une formation sur l'IA adaptée au contexte religieux ?",
-      futur_domaines_interet: "Quels domaines d'application de l'IA vous intéresseraient le plus dans un contexte religieux ? (plusieurs réponses possibles)",
+      futur_domaines_interet: "Dans quels aspects de votre vie spirituelle ou ministère seriez-vous susceptible d'utiliser l'IA ?",
 
       // === QUESTION OUVERTE ===
       commentaires_libres: "Avez-vous des commentaires, réflexions ou expériences à partager concernant l'IA et la vie spirituelle ?",
@@ -232,6 +232,7 @@ export const questionTranslations = {
       communication: "Communication / réseaux sociaux",
       administration_paroisse: "Administration / gestion paroissiale",
       musique_liturgie: "Musique / liturgie",
+      aucun_domaines: "Aucun",
     },
 
     // Scale labels
@@ -255,6 +256,22 @@ export const questionTranslations = {
     // Placeholders
     placeholders: {
       commentaires_libres: "Votre réponse est facultative mais précieuse pour enrichir notre compréhension du sujet...",
+    },
+
+    // Matrix columns (delegation levels for min_pred_nature)
+    matrixColumns: {
+      0: "Non utilisé",
+      1: "Inspiration",
+      2: "Base à retravailler",
+      3: "Tel quel",
+    },
+
+    // Matrix rows (domains for min_pred_nature)
+    matrixRows: {
+      plan: "La structure / Le plan",
+      exegese: "Recherche biblique (commentaires, contexte historique)",
+      illustration: "Recherche d'illustrations / anecdotes",
+      redaction: "Rédaction de paragraphes entiers",
     },
 
     // Category labels
@@ -317,7 +334,7 @@ export const questionTranslations = {
 
       // === MINISTRY (CLERGY) ===
       min_pred_usage: "For preparing your sermons (homilies), do you use AI?",
-      min_pred_nature: "Specifically, what do you delegate to AI?",
+      min_pred_nature: "What do you use AI for?",
       min_pred_sentiment: "How do you feel when using AI to prepare a sermon?",
       min_care_email: "If you receive a complex email requesting spiritual advice, would you use AI to draft a response?",
       min_admin_burden: "Would you say that AI frees up administrative time so you can focus more on human relationships?",
@@ -341,7 +358,7 @@ export const questionTranslations = {
       // === FUTURE INTENTIONS ===
       futur_intention_usage: "In the next 12 months, do you plan to use AI more in your spiritual life or ministry?",
       futur_formation_souhait: "Would you like to receive training on AI adapted to the religious context?",
-      futur_domaines_interet: "Which areas of AI application would interest you most in a religious context? (multiple answers possible)",
+      futur_domaines_interet: "In which aspects of your spiritual life or ministry would you consider using AI?",
 
       // === OPEN QUESTION ===
       commentaires_libres: "Do you have any comments, reflections, or experiences to share regarding AI and spiritual life?",
@@ -508,6 +525,7 @@ export const questionTranslations = {
       communication: "Communication / social media",
       administration_paroisse: "Parish administration / management",
       musique_liturgie: "Music / liturgy",
+      aucun_domaines: "None",
     },
 
     // Scale labels
@@ -531,6 +549,22 @@ export const questionTranslations = {
     // Placeholders
     placeholders: {
       commentaires_libres: "Your response is optional but valuable to enrich our understanding of the topic...",
+    },
+
+    // Matrix columns (delegation levels for min_pred_nature)
+    matrixColumns: {
+      0: "Not used",
+      1: "Inspiration",
+      2: "Draft to rework",
+      3: "As-is",
+    },
+
+    // Matrix rows (domains for min_pred_nature)
+    matrixRows: {
+      plan: "Structure / Outline",
+      exegese: "Biblical research (commentaries, historical context)",
+      illustration: "Finding illustrations / anecdotes",
+      redaction: "Writing entire paragraphs",
     },
 
     // Category labels

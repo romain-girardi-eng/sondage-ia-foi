@@ -1,13 +1,20 @@
 import { z } from 'zod';
 
+// Matrix answer schema: Record<string, number> where keys are row values and values are column values (0-3)
+const matrixAnswerSchema = z.record(z.string(), z.number().min(0).max(3));
+
+// Answer value union (includes matrix answers)
+const answerValueSchema = z.union([
+  z.string(),
+  z.number(),
+  z.array(z.string()),
+  matrixAnswerSchema,
+]);
+
 // Survey submission schema
 export const surveySubmissionSchema = z.object({
   sessionId: z.string().uuid(),
-  answers: z.record(z.string(), z.union([
-    z.string(),
-    z.number(),
-    z.array(z.string()),
-  ])),
+  answers: z.record(z.string(), answerValueSchema),
   metadata: z.object({
     completedAt: z.string().datetime().optional(),
     timeSpent: z.number().optional(),
@@ -30,11 +37,7 @@ export const emailSubmissionSchema = z.object({
   anonymousId: z.string().uuid(),
   marketingConsent: z.boolean().default(false),
   language: z.enum(['fr', 'en']),
-  answers: z.record(z.string(), z.union([
-    z.string(),
-    z.number(),
-    z.array(z.string()),
-  ])),
+  answers: z.record(z.string(), answerValueSchema),
 });
 
 export type EmailSubmissionInput = z.infer<typeof emailSubmissionSchema>;
@@ -42,11 +45,7 @@ export type EmailSubmissionInput = z.infer<typeof emailSubmissionSchema>;
 // Partial save schema
 export const partialSaveSchema = z.object({
   sessionId: z.string().uuid(),
-  answers: z.record(z.string(), z.union([
-    z.string(),
-    z.number(),
-    z.array(z.string()),
-  ])),
+  answers: z.record(z.string(), answerValueSchema),
   lastQuestionIndex: z.number().int().min(0),
   language: z.enum(['fr', 'en']),
 });

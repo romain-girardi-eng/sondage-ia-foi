@@ -99,19 +99,22 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check for duplicate
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existing } = await (supabase as any)
-      .from('email_submissions')
-      .select('id')
-      .eq('email_hash', emailHash)
-      .single();
+    // Check for duplicate (skip in development mode to allow testing)
+    const isDev = process.env.NODE_ENV === 'development';
+    if (!isDev) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: existing } = await (supabase as any)
+        .from('email_submissions')
+        .select('id')
+        .eq('email_hash', emailHash)
+        .single();
 
-    if (existing) {
-      return NextResponse.json(
-        { success: false, duplicate: true, error: 'Email already submitted' },
-        { status: 409 }
-      );
+      if (existing) {
+        return NextResponse.json(
+          { success: false, duplicate: true, error: 'Email already submitted' },
+          { status: 409 }
+        );
+      }
     }
 
     // Encrypt email for storage

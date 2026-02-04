@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { Mail, Shield, Lock, ChevronRight, AlertCircle, Loader2 } from "lucide-react";
 import { useLanguage } from "@/lib";
@@ -22,8 +22,12 @@ export function EmailHashVerification({
   const [error, setError] = useState<string | null>(null);
   const [wantsPdf, setWantsPdf] = useState(true); // Default to true
 
+  // Prevent double submissions
+  const hasSubmittedRef = useRef(false);
+
   const handleSubmit = useCallback(async () => {
-    if (!email) return;
+    // Prevent multiple submissions
+    if (!email || isChecking || hasSubmittedRef.current) return;
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -46,31 +50,37 @@ export function EmailHashVerification({
 
       if (response.status === 409) {
         // Email already used
+        hasSubmittedRef.current = true; // Prevent retries
         onAlreadySubmitted();
         return;
       }
 
       if (!response.ok) {
         setError(data.error || t("emailHash.verificationFailed"));
+        setIsChecking(false); // Allow retry on error
         return;
       }
 
       if (!data.emailHash) {
         setError(t("emailHash.verificationFailed"));
+        setIsChecking(false); // Allow retry on error
         return;
       }
 
-      // Success - proceed with the hash
+      // Success - mark as submitted to prevent double calls
+      hasSubmittedRef.current = true;
       setHash(data.emailHash);
       // Pass email only if user wants PDF results (email not stored, only used to send)
+      // Keep isChecking true - don't reset it, parent will transition away
       onVerified(data.emailHash, wantsPdf ? email : null);
     } catch (err) {
       console.error("Email verification error:", err);
       setError(t("emailHash.networkError"));
-    } finally {
-      setIsChecking(false);
+      setIsChecking(false); // Allow retry on network error
     }
-  }, [email, wantsPdf, onVerified, onAlreadySubmitted, t]);
+    // Note: No finally block - isChecking stays true after successful submission
+    // to prevent double-clicks while parent processes the result
+  }, [email, isChecking, wantsPdf, onVerified, onAlreadySubmitted, t]);
 
   const isValidEmail = email.includes("@") && email.includes(".");
 

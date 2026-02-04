@@ -1,6 +1,58 @@
 /**
  * Profile Matching and Spectrum Calculation
  * Sophisticated multi-dimensional profile assignment with sub-profiles
+ *
+ * ============================================================================
+ * METHODOLOGICAL LIMITATIONS - FAIR COMPLIANCE NOTICE
+ * ============================================================================
+ *
+ * ALGORITHM PARAMETERS (NOT EMPIRICALLY VALIDATED):
+ *
+ * 1. EXPONENTIAL_DECAY (0.5):
+ *    - Used in distanceToMatchScore() to convert distance → match percentage
+ *    - Effect: distance of 2 ≈ 50% match, distance of 4 ≈ 25% match
+ *    - Justification: Expert choice for intuitive match score distribution
+ *    - Status: NOT empirically validated
+ *
+ * 2. SECONDARY_PROFILE_THRESHOLD (10%):
+ *    - Minimum match score to display as secondary profile
+ *    - Justification: Avoid showing very weak secondary matches
+ *    - Status: NOT empirically validated
+ *
+ * 3. TERTIARY_PROFILE_THRESHOLD (5%):
+ *    - Minimum match score to display as tertiary profile
+ *    - Justification: Only show relevant tertiary matches
+ *    - Status: NOT empirically validated
+ *
+ * 4. THEOLOGICAL_ORIENTATION_BONUSES:
+ *    - Bonuses/penalties applied based on self-reported theological orientation
+ *    - Values range from -1.0 to +2.0 depending on orientation-profile alignment
+ *    - Justification: Expert judgment on theological coherence
+ *    - Status: NOT empirically validated
+ *
+ * 5. SPECIAL_PROFILE_BONUSES:
+ *    - Pattern-based bonuses in getSpecialProfileBonus()
+ *    - Designed to capture nuanced profile characteristics
+ *    - Status: Based on face validity, NOT factor analysis
+ *
+ * PROFILE IDEAL RANGES:
+ * The idealDimensions in PROFILE_DEFINITIONS represent expert-defined
+ * "ideal" ranges for each profile. These are NOT derived from cluster
+ * analysis of actual respondents.
+ *
+ * NORMALIZATION:
+ * All profile match scores are normalized to sum to 100%, which means
+ * even the "best" match may be relatively low if the respondent doesn't
+ * fit any profile well. This is intentional to show the spectrum nature.
+ *
+ * RECOMMENDATIONS FOR FUTURE VALIDATION:
+ * - Conduct cluster analysis on N≥500 responses to identify natural groupings
+ * - Compare identified clusters to predefined profiles
+ * - Adjust thresholds and bonuses based on empirical discrimination
+ * - Calculate profile assignment stability (test-retest)
+ *
+ * @see src/lib/scoring/codebook.ts for complete scoring documentation
+ * @see METHODOLOGY.md Section 8 for FAIR compliance details
  */
 
 import type { Answers } from '@/data';
@@ -260,8 +312,23 @@ function getSpecialProfileBonus(
 /**
  * Convert distance to a match score (0-100)
  * Uses exponential decay for natural feel
+ *
+ * ⚠️ METHODOLOGICAL NOTE:
+ * The EXPONENTIAL_DECAY constant (0.5) is an EXPERT-CHOSEN value,
+ * NOT empirically validated. It was selected to provide intuitive
+ * match score distribution where:
+ * - Distance 0 = 100% match
+ * - Distance 2 ≈ 50% match
+ * - Distance 4 ≈ 25% match
+ *
+ * This parameter should be validated through sensitivity analysis
+ * after sufficient data collection (N≥500).
+ *
+ * @param distance - Weighted average distance from profile ideal dimensions
+ * @returns Match score 0-100
  */
 function distanceToMatchScore(distance: number): number {
+  // EXPONENTIAL_DECAY = 0.5 (NOT EMPIRICALLY VALIDATED)
   // A distance of 0 = 100% match
   // A distance of 2 ≈ 50% match
   // A distance of 4 ≈ 25% match

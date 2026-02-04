@@ -1,6 +1,46 @@
 /**
  * Profile Definitions and Constants
  * Comprehensive data for the 8 primary profiles and their sub-profiles
+ *
+ * ============================================================================
+ * METHODOLOGICAL LIMITATIONS - FAIR COMPLIANCE NOTICE
+ * ============================================================================
+ *
+ * PROFILE IDEAL DIMENSIONS:
+ * The `idealDimensions` ranges for each profile are EXPERT-DEFINED, NOT derived
+ * from empirical cluster analysis. They represent theoretical "ideal" ranges
+ * based on conceptual profile definitions.
+ *
+ * STATUS: These definitions should be validated through:
+ * 1. Cluster analysis of N≥500 actual responses
+ * 2. Comparison of identified clusters to predefined profiles
+ * 3. Adjustment of ideal ranges based on empirical data
+ *
+ * PROFILE WEIGHTS:
+ * The `weights` for each dimension within a profile are based on face validity
+ * and expert judgment about which dimensions are most important for each profile.
+ * These weights determine how much each dimension contributes to the profile
+ * match score.
+ *
+ * STATUS: NOT empirically validated. Should be calibrated through discriminant
+ * analysis after sufficient data collection.
+ *
+ * SUB-PROFILES:
+ * The 24 sub-profiles (3 per primary profile) provide nuanced characterization.
+ * The `idealPattern` for each sub-profile is based on conceptual reasoning,
+ * NOT empirical validation.
+ *
+ * PROFILE DESCRIPTIONS:
+ * All textual descriptions (shortDescription, fullDescription, etc.) are
+ * written for engagement purposes and should be interpreted as heuristic
+ * tools for reflection, NOT as diagnostic labels.
+ *
+ * IMPORTANT DISCLAIMER FOR USERS:
+ * Profiles are indicative tools for personal reflection, NOT fixed identities.
+ * They reflect patterns in survey responses, NOT essential characteristics.
+ *
+ * @see src/lib/scoring/codebook.ts for complete scoring documentation
+ * @see METHODOLOGY.md Section 8 for FAIR compliance details
  */
 
 import type {

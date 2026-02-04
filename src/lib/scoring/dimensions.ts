@@ -1,40 +1,56 @@
 /**
  * Seven Dimension Calculation Functions
  * Each function calculates a specific dimension score (1-5) with confidence rating
+ *
+ * ============================================================================
+ * METHODOLOGICAL LIMITATIONS - FAIR COMPLIANCE NOTICE
+ * ============================================================================
+ *
+ * VALIDATION STATUS:
+ * - Religiosity: ✅ VALIDATED - Uses CRS-5 (Huber & Huber, 2012)
+ * - Psychological Perception: ⚠️ PARTIAL - Uses partial Godspeed Scale (Bartneck et al., 2009)
+ * - AI Openness: ❌ EXPLORATORY - Ad-hoc construct, no factor analysis validation
+ * - Sacred Boundary: ❌ EXPLORATORY - Ad-hoc construct, no factor analysis validation
+ * - Ethical Concern: ❌ EXPLORATORY - Ad-hoc construct, no factor analysis validation
+ * - Community Influence: ❌ EXPLORATORY - Ad-hoc construct, no factor analysis validation
+ * - Future Orientation: ❌ EXPLORATORY - Ad-hoc construct, no factor analysis validation
+ *
+ * POPULATION PARAMETERS:
+ * The POPULATION_PARAMS values are PROVISIONAL ESTIMATES, not empirically validated.
+ * They will be recalibrated after collecting N≥500 responses.
+ * Current values are based on reasonable assumptions about a religious survey population.
+ *
+ * QUESTION WEIGHTS:
+ * All question weights are based on face validity and expert judgment, NOT derived
+ * from confirmatory factor analysis. Weights should be re-evaluated after empirical
+ * validation phase.
+ *
+ * PERCENTILE CALCULATIONS:
+ * Percentiles are calculated using a normal CDF against PROVISIONAL population
+ * parameters. These may be biased if the actual population differs from assumptions.
+ *
+ * @see score-maps.ts for centralized score mappings
  */
 
+import {
+  CRS_SCORE_MAP,
+  AI_FREQUENCY_SCORES,
+  MINISTRY_USAGE_SCORES,
+  CARE_EMAIL_SCORES,
+  LAIC_PRIERE_SCORES,
+  LAIC_CONSEIL_SCORES,
+} from './score-maps';
 import type { Answers } from '@/data';
 import type { DimensionScore, SevenDimensions } from './types';
 import { calculateSocialDesirabilityScore, adjustScoreForBias } from './bias';
-
-// ==========================================
-// HELPER FUNCTIONS
-// ==========================================
-
-function getStringAnswer(answers: Answers, key: string): string {
-  const value = answers[key];
-  return typeof value === 'string' ? value : '';
-}
-
-function getNumberAnswer(answers: Answers, key: string): number | null {
-  const value = answers[key];
-  return typeof value === 'number' ? value : null;
-}
-
-function getArrayAnswer(answers: Answers, key: string): string[] {
-  const value = answers[key];
-  return Array.isArray(value) ? value : [];
-}
-
-function isClergy(answers: Answers): boolean {
-  const statut = getStringAnswer(answers, 'profil_statut');
-  return ['clerge', 'religieux'].includes(statut);
-}
-
-function isLayperson(answers: Answers): boolean {
-  const statut = getStringAnswer(answers, 'profil_statut');
-  return ['laic_engagé', 'laic_pratiquant', 'curieux'].includes(statut);
-}
+import {
+  getStringAnswer,
+  getNumberAnswer,
+  getArrayAnswer,
+  isClergy,
+  isLayperson,
+} from '@/lib/utils/answers';
+import { calculateWeightedAverage } from '@/lib/utils/scoring';
 
 /**
  * Standard normal cumulative distribution function (CDF)
@@ -77,8 +93,28 @@ function calculatePercentile(score: number, mean: number, stdDev: number): numbe
   return Math.max(1, Math.min(99, percentile));
 }
 
-// Population distribution parameters (Refined with mock data based on likely demographic)
-// These provide more realistic percentiles than the previous flat placeholders.
+/**
+ * PROVISIONAL Population Distribution Parameters
+ *
+ * ⚠️ IMPORTANT: These are ESTIMATED values, NOT empirically derived.
+ *
+ * These parameters will be recalibrated after collecting N≥500 responses.
+ * Current estimates are based on:
+ * - religiosity: Skewed high (3.8 ± 0.9) - religious survey self-selects devout participants
+ * - aiOpenness: Lower mean (2.4 ± 1.1) - religious context may reduce tech enthusiasm
+ * - sacredBoundary: Above neutral (3.5 ± 1.0) - expected protection of sacred domains
+ * - ethicalConcern: High (3.8 ± 0.8) - ethical vigilance is normative in religious contexts
+ * - psychologicalPerception: Neutral (3.0 ± 0.9) - uncertainty expected on AI nature
+ * - communityInfluence: Moderate (2.8 ± 0.9) - variable community engagement
+ * - futureOrientation: Slightly positive (3.2 ± 1.0) - cautious openness to future
+ *
+ * RECALIBRATION PLAN:
+ * 1. After N=200: Exploratory analysis of actual distributions
+ * 2. After N=500: Replace with empirical mean/stdDev
+ * 3. Document as "empirically calibrated" once updated
+ *
+ * @see METHODOLOGY.md Section 8.2 for full documentation
+ */
 const POPULATION_PARAMS = {
   religiosity: { mean: 3.8, stdDev: 0.9 }, // Skewed high for a religious survey
   aiOpenness: { mean: 2.4, stdDev: 1.1 }, // Generally lower, but high variance
@@ -92,20 +128,6 @@ const POPULATION_PARAMS = {
 // ==========================================
 // DIMENSION 1: RELIGIOSITY (CRS-5)
 // ==========================================
-
-const CRS_SCORE_MAP: Record<string, number> = {
-  'jamais': 1, 'pas_du_tout': 1,
-  'rarement': 2, 'peu': 2,
-  'occasionnellement': 3, 'moderement': 3,
-  'souvent': 4, 'beaucoup': 4,
-  'tres_souvent': 5, 'totalement': 5,
-  'quelques_fois_an': 2,
-  'mensuel': 3,
-  'hebdo': 4,
-  'pluri_hebdo': 5,
-  'quotidien': 4,
-  'pluri_quotidien': 5,
-};
 
 export function calculateReligiosityDimension(answers: Answers, biasScore?: number): DimensionScore {
   const crsQuestions = [
@@ -146,42 +168,6 @@ export function calculateReligiosityDimension(answers: Answers, biasScore?: numb
 // ==========================================
 // DIMENSION 2: AI OPENNESS
 // ==========================================
-
-const AI_FREQUENCY_SCORES: Record<string, number> = {
-  'jamais': 1,
-  'essaye': 2,
-  'occasionnel': 3,
-  'regulier': 4,
-  'quotidien': 5,
-};
-
-const MINISTRY_USAGE_SCORES: Record<string, number> = {
-  'jamais': 1,
-  'rare': 2,
-  'regulier': 4,
-  'systematique': 5,
-};
-
-const CARE_EMAIL_SCORES: Record<string, number> = {
-  'non_jamais': 1,
-  'oui_brouillon': 3.5,
-  'oui_souvent': 5,
-};
-
-const LAIC_PRIERE_SCORES: Record<string, number> = {
-  'non': 1,
-  'oui_positif': 5,
-  'oui_neutre': 3.5,
-  'oui_negatif': 2.5,
-};
-
-const LAIC_CONSEIL_SCORES: Record<string, number> = {
-  'jamais': 1,
-  'complement': 3,
-  'oui_possible': 4,
-  'deja_fait': 5,
-  'ne_sait_pas': 2.5,
-};
 
 export function calculateAIOpennessDimension(answers: Answers, biasScore?: number): DimensionScore {
   const scores: number[] = [];
@@ -255,16 +241,8 @@ export function calculateAIOpennessDimension(answers: Answers, biasScore?: numbe
     }
   }
 
-  // Calculate weighted average
-  let totalWeight = 0;
-  let weightedSum = 0;
-  for (let i = 0; i < scores.length; i++) {
-    weightedSum += scores[i] * weights[i];
-    totalWeight += weights[i];
-  }
+  const rawValue = scores.length > 0 ? calculateWeightedAverage(scores, weights) : 2.5;
 
-  const rawValue = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 2.5;
-  
   // Low bias sensitivity for AI Openness (0.2)
   const bias = biasScore ?? calculateSocialDesirabilityScore(answers);
   const value = adjustScoreForBias(rawValue, bias, 0.2);
@@ -404,16 +382,8 @@ export function calculateSacredBoundaryDimension(answers: Answers, biasScore?: n
     }
   }
 
-  // Calculate weighted average
-  let totalWeight = 0;
-  let weightedSum = 0;
-  for (let i = 0; i < scores.length; i++) {
-    weightedSum += scores[i] * weights[i];
-    totalWeight += weights[i];
-  }
+  const rawValue = scores.length > 0 ? calculateWeightedAverage(scores, weights) : 3;
 
-  const rawValue = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
-  
   // Moderate sensitivity (0.5) - declaring one protects the sacred is socially desirable
   const bias = biasScore ?? calculateSocialDesirabilityScore(answers);
   const value = adjustScoreForBias(rawValue, bias, 0.5);
@@ -519,15 +489,7 @@ export function calculateEthicalConcernDimension(answers: Answers, biasScore?: n
     weights.push(1.3);
   }
 
-  // Calculate weighted average
-  let totalWeight = 0;
-  let weightedSum = 0;
-  for (let i = 0; i < scores.length; i++) {
-    weightedSum += scores[i] * weights[i];
-    totalWeight += weights[i];
-  }
-
-  const rawValue = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+  const rawValue = scores.length > 0 ? calculateWeightedAverage(scores, weights) : 3;
 
   // High sensitivity (0.7) - expressing ethical concern is seen as virtuous
   const bias = biasScore ?? calculateSocialDesirabilityScore(answers);
@@ -624,21 +586,13 @@ export function calculatePsychologicalPerceptionDimension(answers: Answers, bias
     weights.push(1.3);
   }
 
-  // Calculate weighted average
-  let totalWeight = 0;
-  let weightedSum = 0;
-  for (let i = 0; i < scores.length; i++) {
-    weightedSum += scores[i] * weights[i];
-    totalWeight += weights[i];
-  }
-
-  const rawValue = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+  const rawValue = scores.length > 0 ? calculateWeightedAverage(scores, weights) : 3;
 
   // Low sensitivity (0.2)
   const bias = biasScore ?? calculateSocialDesirabilityScore(answers);
   const value = adjustScoreForBias(rawValue, bias, 0.2);
 
-  const confidence = Math.min(1, scores.length / 4); // Updated divider
+  const confidence = Math.min(1, scores.length / 4);
   const params = POPULATION_PARAMS.psychologicalPerception;
 
   return {
@@ -736,16 +690,8 @@ export function calculateCommunityInfluenceDimension(answers: Answers, biasScore
     weights.push(0.7);
   }
 
-  // Calculate weighted average
-  let totalWeight = 0;
-  let weightedSum = 0;
-  for (let i = 0; i < scores.length; i++) {
-    weightedSum += scores[i] * weights[i];
-    totalWeight += weights[i];
-  }
+  const rawValue = scores.length > 0 ? calculateWeightedAverage(scores, weights) : 2.5;
 
-  const rawValue = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 2.5;
-  
   // Moderate sensitivity (0.3)
   const bias = biasScore ?? calculateSocialDesirabilityScore(answers);
   const value = adjustScoreForBias(rawValue, bias, 0.3);
@@ -851,15 +797,7 @@ export function calculateFutureOrientationDimension(answers: Answers, biasScore?
     weights.push(0.8);
   }
 
-  // Calculate weighted average
-  let totalWeight = 0;
-  let weightedSum = 0;
-  for (let i = 0; i < scores.length; i++) {
-    weightedSum += scores[i] * weights[i];
-    totalWeight += weights[i];
-  }
-
-  const rawValue = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 10) / 10 : 3;
+  const rawValue = scores.length > 0 ? calculateWeightedAverage(scores, weights) : 3;
 
   // Medium sensitivity (0.4) - "Open-mindedness" bias
   const bias = biasScore ?? calculateSocialDesirabilityScore(answers);

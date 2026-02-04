@@ -1,0 +1,57 @@
+variable_id,label_fr,label_en,type,values,dimension,category
+profil_confession,Branche chretienne principale,Main Christian branch,choice,"catholique|protestant|orthodoxe|anglican|autre_chretien|sans_religion",,profile
+profil_confession_catholique,Sensibilite catholique,Catholic sensitivity,choice,"catholique_paroissial|catholique_charismatique|catholique_traditionaliste",,profile
+profil_confession_protestante,Sensibilite protestante,Protestant sensitivity,choice,"protestant_historique|evangelique|pentecotiste",,profile
+profil_confession_orthodoxe,Tradition orthodoxe,Orthodox tradition,choice,"orthodoxe_oriental|orthodoxe_ancien",,profile
+profil_confession_autre,Autre tradition chretienne,Other Christian tradition,choice,"adventiste|quaker|vieux_catholique|non_denominationnel|autre",,profile
+profil_statut,Situation dans la communaute,Status in community,choice,"clerge|religieux|laic_engage|laic_pratiquant|curieux",communityInfluence,profile
+profil_age,Tranche d'age,Age range,choice,"18-35|36-50|51-65|66+",futureOrientation,profile
+profil_genre,Genre,Gender,choice,"homme|femme|autre",,profile
+profil_education,Niveau d'etudes,Education level,choice,"sans_diplome|brevet|bac|bac_plus_2|licence|master|doctorat|ne_souhaite_pas",,profile
+profil_pays,Pays de residence,Country of residence,choice,"france|belgique|suisse|canada|luxembourg|afrique_francophone|autre_europe|autre",,profile
+profil_milieu,Type de milieu,Living environment,choice,"rural|periurbain|urbain_moyen|grande_ville|metropole",,profile
+profil_secteur,Secteur d'activite,Professional sector,choice,"religieux|education|sante|tech|commerce|industrie|administration|art_culture|retraite|etudiant|autre",,profile
+profil_anciennete_foi,Anciennete dans la foi,Faith seniority,choice,"naissance|plus_20_ans|10_20_ans|5_10_ans|1_5_ans|moins_1_an",,profile
+profil_annees_ministere,Annees de ministere,Years in ministry,choice,"moins_5|5_10|10_20|20_30|plus_30",,profile
+profil_taille_communaute,Taille de la communaute,Community size,choice,"tres_petite|petite|moyenne|grande|tres_grande|ne_sait_pas",communityInfluence,profile
+crs_intellect,Frequence reflexion religieuse,Religious reflection frequency,choice,"jamais|rarement|occasionnellement|souvent|tres_souvent",religiosity,religiosity
+crs_ideology,Croyance en Dieu,Belief in God,choice,"pas_du_tout|peu|moderement|beaucoup|totalement",religiosity,religiosity
+crs_public_practice,Frequence offices religieux,Religious service frequency,choice,"jamais|quelques_fois_an|mensuel|hebdo|pluri_hebdo",religiosity,religiosity
+crs_private_practice,Frequence priere personnelle,Personal prayer frequency,choice,"jamais|rarement|occasionnellement|quotidien|pluri_quotidien",religiosity,religiosity
+crs_experience,Frequence experience spirituelle,Spiritual experience frequency,choice,"jamais|rarement|occasionnellement|souvent|tres_souvent",religiosity,religiosity
+theo_orientation,Sensibilite theologique,Theological orientation,choice,"traditionaliste|modere|progressiste|ne_sait_pas",communityInfluence,theology
+ctrl_ia_frequence,Frequence utilisation IA,AI usage frequency,choice,"jamais|essaye|occasionnel|regulier|quotidien",aiOpenness|futureOrientation,usage
+ctrl_ia_contextes,Contextes utilisation IA,AI usage contexts,multiple,"travail_pro|recherche_info|creation|programmation|loisirs|spirituel",aiOpenness|sacredBoundary,usage
+ctrl_ia_confort,Niveau confort IA,AI comfort level,scale,"1-5",aiOpenness,usage
+digital_outils_existants,Outils numeriques spirituels,Digital spiritual tools,multiple,"bible_app|priere_app|podcast|video|reseaux_sociaux|site_paroisse|aucun",,digital_spiritual
+digital_attitude_generale,Attitude numerique spirituel,Digital spiritual attitude,choice,"tres_positif|positif|neutre|negatif|tres_negatif",aiOpenness|futureOrientation,digital_spiritual
+min_pred_usage,Usage IA predication,AI preaching usage,choice,"jamais|rare|regulier|systematique",aiOpenness|sacredBoundary,ministry_preaching
+min_pred_nature,Nature usage IA predication,AI preaching usage nature,matrix,"plan|exegese|illustration|redaction x 0|1|2|3",,ministry_preaching
+min_pred_sentiment,Sentiment utilisation IA predication,AI preaching sentiment,scale,"1-5",sacredBoundary|ethicalConcern,ministry_preaching
+min_care_email,Usage IA conseil pastoral,AI pastoral care usage,choice,"non_jamais|oui_brouillon|oui_souvent",aiOpenness|sacredBoundary,ministry_pastoral
+min_admin_burden,IA liberateur temps admin,AI admin time liberation,scale,"1-5",aiOpenness,ministry_vision
+laic_substitution_priere,Usage IA priere generee,AI generated prayer usage,choice,"non|oui_positif|oui_neutre|oui_negatif",aiOpenness|sacredBoundary,spirituality
+laic_conseil_spirituel,Envisager conseil spirituel IA,Consider AI spiritual counsel,choice,"jamais|complement|oui_possible|deja_fait|ne_sait_pas",aiOpenness|sacredBoundary,spirituality
+psych_godspeed_nature,Perception nature IA,AI nature perception,choice,"1_machine|2_machine_plus|3_neutre|4_humain_moins|5_humain",psychologicalPerception,psychology
+psych_godspeed_conscience,Possibilite conscience IA,AI consciousness possibility,choice,"impossible|imitation|incertain|possible_emergence|probable",psychologicalPerception,psychology
+psych_aias_opacity,Inquietude opacite IA,AI opacity concern,choice,"non_confiance|non_indifferent|peu|oui_moderement|oui_fortement",ethicalConcern,psychology
+psych_imago_dei,IA et specificite humaine,AI and human uniqueness,choice,"pas_du_tout|peu|moderement|beaucoup|totalement|ne_sait_pas",psychologicalPerception|ethicalConcern,psychology
+psych_anxiete_remplacement,IA remplacement fonctions spirituelles,AI spiritual function replacement,choice,"non_impossible|non_peu_probable|possible_partiel|oui_probable|oui_certain|ne_sait_pas",ethicalConcern|psychologicalPerception,psychology
+theo_inspiration,Texte IA message spirituel,AI text spiritual message,choice,"impossible|peu_probable|possible_indirect|possible|ne_sait_pas",sacredBoundary|psychologicalPerception,theology
+theo_liturgie_ia,Acceptabilite IA contexte liturgique,AI liturgical context acceptability,scale,"1-5",sacredBoundary,theology
+theo_activites_sacrees,Activites exclure IA,Activities to exclude AI,multiple,"sacrements|predication|priere_personnelle|accompagnement|discernement|aucune",sacredBoundary,theology
+theo_mediation_humaine,Necessite presence humaine,Human presence necessity,choice,"oui_absolument|oui_pour_essentiel|partiellement|non_pas_necessairement|ne_sait_pas",sacredBoundary,theology
+theo_risque_futur,Preoccupation IA Eglise,AI Church concern,choice,"paresse|deshumanisation|heresie|autre|aucune|ne_sait_pas",ethicalConcern,theology
+theo_utilite_percue,IA outil benefique Eglise,AI beneficial Church tool,choice,"tres_negatif|negatif|neutre|positif|tres_positif|ne_sait_pas",ethicalConcern,theology
+communaute_position_officielle,Position officielle Eglise IA,Official Church AI position,choice,"oui_favorable|oui_prudent|oui_defavorable|non|ne_sait_pas",communityInfluence,community
+communaute_discussions,Discussions IA communaute,AI community discussions,choice,"jamais|rarement|parfois|souvent|organise",communityInfluence,community
+communaute_perception_pairs,Perception pairs envers IA,Peer AI perception,choice,"tres_favorable|favorable|neutre|mefiant|hostile|ne_sait_pas",communityInfluence,community
+futur_intention_usage,Intention usage IA futur,Future AI usage intention,choice,"oui_certain|oui_probable|peut_etre|non_probable|non_certain|ne_sait_pas",futureOrientation,future
+futur_formation_souhait,Souhait formation IA religieux,AI religious training wish,choice,"oui_tres|oui_assez|peut_etre|non_pas_vraiment|non_pas_du_tout",futureOrientation,future
+futur_domaines_interet,Domaines interet IA,AI interest domains,multiple,"etude_bible|preparation_predication|catechese|priere_meditation|accompagnement|communication|administration|musique_liturgie|aucun_domaines",futureOrientation,future
+commentaires_libres,Commentaires libres,Free comments,text,"",,open
+ctrl_mc_1,Marlowe-Crowne item 1,Marlowe-Crowne item 1,choice,"true|false",bias_detection,social_desirability
+ctrl_mc_2,Marlowe-Crowne item 2,Marlowe-Crowne item 2,choice,"true|false",bias_detection,social_desirability
+ctrl_mc_3,Marlowe-Crowne item 3,Marlowe-Crowne item 3,choice,"true|false",bias_detection,social_desirability
+ctrl_mc_4,Marlowe-Crowne item 4,Marlowe-Crowne item 4,choice,"true|false",bias_detection,social_desirability
+ctrl_mc_5,Marlowe-Crowne item 5,Marlowe-Crowne item 5,choice,"true|false",bias_detection,social_desirability

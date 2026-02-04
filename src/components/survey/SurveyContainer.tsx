@@ -25,7 +25,7 @@ const SAVE_DEBOUNCE_MS = 1000; // 1 second debounce for localStorage writes
 const ALLOW_VIEW_OVERRIDE = process.env.NEXT_PUBLIC_ENABLE_SURVEY_VIEW_OVERRIDE === "true" || process.env.NODE_ENV !== "production";
 
 interface SavedProgress {
-  answers: Record<string, string | number | string[]>;
+  answers: Record<string, string | number | string[] | Record<string, number>>;
   currentIndex: number;
   timestamp: number;
   sessionId: string;
@@ -101,7 +101,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   const [step, setStep] = useState<SurveyStep>("intro");
   const [isHydrated, setIsHydrated] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string | number | string[]>>({});
+  const [answers, setAnswers] = useState<Record<string, string | number | string[] | Record<string, number>>>({});
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [savedProgress, setSavedProgress] = useState<SavedProgress | null>(null);
   const [consentGiven, setConsentGiven] = useState(false);
@@ -112,6 +112,8 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   const surveyStartTime = useRef<number>(0);
   // Submission error state
   const [submissionError, setSubmissionError] = useState<{ code: string; message: string } | null>(null);
+  // Transitioning state to prevent blank pages during step transitions
+  const [isTransitioning, setIsTransitioning] = useState(false);
   // Email hash for verification (stored only as hash, never the actual email)
 
   // Use refs for values only used internally (not during render)
@@ -276,7 +278,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   }, []);
 
   const handleAnswer = useCallback(
-    (value: string | number | string[]) => {
+    (value: string | number | string[] | Record<string, number>) => {
       if (!currentQuestion) return;
       setAnswers((prev) => ({ ...prev, [currentQuestion.id]: value }));
     },
@@ -297,6 +299,9 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   // Handle email hash verification - submits survey after verification
   // email parameter is only provided if user wants PDF results (not stored, only used to send)
   const handleEmailHashVerified = useCallback(async (hash: string, email: string | null) => {
+    // Show loading state immediately to prevent blank page during transition
+    setIsTransitioning(true);
+
     // Calculate time spent
     const timeSpent = surveyStartTime.current > 0
       ? Date.now() - surveyStartTime.current
@@ -351,6 +356,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
 
         // Check for any 403 error (duplicate submission OR CSRF failure)
         if (response.status === 403) {
+          setIsTransitioning(false);
           if (data.code) {
             setSubmissionError({ code: data.code, message: data.error });
           } else {
@@ -362,6 +368,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
 
         // Check for other errors
         if (!response.ok) {
+          setIsTransitioning(false);
           console.error("Survey submission failed:", data);
           setSubmissionError({ code: "SUBMISSION_ERROR", message: data.error || "Failed to save survey" });
           return;
@@ -409,6 +416,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
 
     // Go directly to feedback (skip email collection step)
     setStep("feedback");
+    setIsTransitioning(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [consentGiven, answers, language, anonymousIdState, fingerprint]);
 
@@ -455,6 +463,20 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-muted-foreground/20 border-t-muted-foreground/80 rounded-full animate-spin" />
       </div>
+    );
+  }
+
+  // Show loading state during step transitions (prevents blank page when clicking fast)
+  if (isTransitioning) {
+    return (
+      <AnimatedBackground variant="subtle" showGrid showOrbs>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-12 h-12 mx-auto mb-4 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+            <p className="text-muted-foreground text-sm">{t("survey.submitting")}</p>
+          </div>
+        </div>
+      </AnimatedBackground>
     );
   }
 

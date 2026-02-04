@@ -44,6 +44,7 @@ export const translations = {
       scaleFrom: "Échelle de 1 ({min}) à 5 ({max})",
       textPlaceholder: "Écrivez votre réponse ici...",
       optionalQuestion: "Cette question est facultative",
+      submitting: "Enregistrement de vos réponses...",
     },
 
     // Feedback Screen
@@ -403,6 +404,36 @@ export const translations = {
       learnMore: "En savoir plus sur la méthodologie",
     },
 
+    // Scientific disclaimer for FAIR compliance
+    scientificDisclaimer: {
+      title: "Avertissement scientifique",
+      exploratoryStudy: "Étude exploratoire",
+      exploratoryNote: "Cette étude utilise une méthodologie exploratoire. Les profils et percentiles sont calculés à partir de paramètres provisoires qui seront recalibrés après collecte de données suffisantes (N≥500).",
+
+      // Profile interpretation warning
+      profileWarning: "Ce profil reflète vos réponses, non votre identité",
+      profileNote: "Les résultats sont indicatifs et invitent à la réflexion. Ils ne constituent pas un diagnostic ni une catégorisation définitive de votre spiritualité.",
+
+      // Scale validation notice
+      scaleNotice: "Échelles en cours de validation",
+      scaleNote: "5 des 7 dimensions utilisent des construits exploratoires (non encore validés par analyse factorielle). La dimension Religiosité utilise l'échelle CRS-5 validée internationalement.",
+
+      // Percentile caveat
+      percentileCaveat: "Percentiles provisoires",
+      percentileNote: "Les percentiles sont basés sur des estimations de population. Ils seront recalculés après collecte de données empiriques.",
+
+      // Bias correction
+      biasNote: "Correction du biais de désirabilité sociale",
+      biasExplanation: "Vos scores sont ajustés en fonction de l'échelle Marlowe-Crowne pour réduire le biais de réponses socialement désirables.",
+
+      // FAIR compliance
+      fairCompliance: "Conformité FAIR",
+      fairNote: "Cette étude vise la conformité aux principes FAIR (Findable, Accessible, Interoperable, Reusable). Documentation complète disponible sur la page méthodologie.",
+
+      // Footer
+      footerNote: "Pour usage réflexif uniquement. Non destiné à la prise de décision clinique ou pastorale.",
+    },
+
     // Dimensions
     dimensions: {
       religiosity: {
@@ -683,6 +714,7 @@ export const translations = {
       scaleFrom: "Scale from 1 ({min}) to 5 ({max})",
       textPlaceholder: "Write your answer here...",
       optionalQuestion: "This question is optional",
+      submitting: "Saving your responses...",
     },
 
     // Feedback Screen
@@ -1040,6 +1072,36 @@ export const translations = {
       title: "Methodological note",
       description: "This survey uses adapted versions of validated scales (Centrality of Religiosity Scale, AI Anxiety Scale) optimized for digital engagement. While designed with scientific rigor, it is intended for self-reflection and sociological analysis, not definitive categorization.",
       learnMore: "Learn more about methodology",
+    },
+
+    // Scientific disclaimer for FAIR compliance
+    scientificDisclaimer: {
+      title: "Scientific Disclaimer",
+      exploratoryStudy: "Exploratory Study",
+      exploratoryNote: "This study uses an exploratory methodology. Profiles and percentiles are calculated from provisional parameters that will be recalibrated after sufficient data collection (N≥500).",
+
+      // Profile interpretation warning
+      profileWarning: "This profile reflects your responses, not your identity",
+      profileNote: "The results are indicative and invite reflection. They do not constitute a diagnosis or definitive categorization of your spirituality.",
+
+      // Scale validation notice
+      scaleNotice: "Scales under validation",
+      scaleNote: "5 of the 7 dimensions use exploratory constructs (not yet validated by factor analysis). The Religiosity dimension uses the internationally validated CRS-5 scale.",
+
+      // Percentile caveat
+      percentileCaveat: "Provisional percentiles",
+      percentileNote: "Percentiles are based on population estimates. They will be recalculated after empirical data collection.",
+
+      // Bias correction
+      biasNote: "Social desirability bias correction",
+      biasExplanation: "Your scores are adjusted based on the Marlowe-Crowne scale to reduce socially desirable response bias.",
+
+      // FAIR compliance
+      fairCompliance: "FAIR Compliance",
+      fairNote: "This study aims for FAIR (Findable, Accessible, Interoperable, Reusable) compliance. Full documentation available on the methodology page.",
+
+      // Footer
+      footerNote: "For reflective use only. Not intended for clinical or pastoral decision-making.",
     },
 
     // Dimensions

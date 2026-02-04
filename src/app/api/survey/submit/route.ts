@@ -128,7 +128,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Check email hash for duplicates (if provided)
-    if (emailHash) {
+    // Skip in development mode to allow testing with same email
+    const isDev = process.env.NODE_ENV === 'development';
+    if (emailHash && !isDev) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: emailExists, error: emailCheckError } = await (supabase as any)
         .from('email_hashes')
