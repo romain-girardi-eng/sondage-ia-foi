@@ -41,7 +41,7 @@ export const questionTranslations = {
 
       // === MINISTÈRE (CLERGÉ) ===
       min_pred_usage: "Pour la préparation de vos prédications (homélies, sermons), utilisez-vous l'IA ?",
-      min_pred_nature: "Pour quoi faites-vous appel à l'IA ?",
+      min_pred_nature: "Pour quoi faites-vous appel à l'IA, et à quel point ?",
       min_pred_sentiment: "Comment vous sentez-vous lorsque vous utilisez l'IA pour préparer une prédication ?",
       min_care_email: "Si vous recevez un email complexe demandant un conseil spirituel, utiliseriez-vous l'IA pour rédiger la réponse ?",
       min_admin_burden: "Diriez-vous que l'IA vous libère du temps administratif pour vous consacrer davantage aux relations humaines ?",
@@ -334,7 +334,7 @@ export const questionTranslations = {
 
       // === MINISTRY (CLERGY) ===
       min_pred_usage: "For preparing your sermons (homilies), do you use AI?",
-      min_pred_nature: "What do you use AI for?",
+      min_pred_nature: "What do you use AI for, and to what extent?",
       min_pred_sentiment: "How do you feel when using AI to prepare a sermon?",
       min_care_email: "If you receive a complex email requesting spiritual advice, would you use AI to draft a response?",
       min_admin_burden: "Would you say that AI frees up administrative time so you can focus more on human relationships?",

@@ -458,7 +458,7 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'min_pred_nature',
     category: 'ministry_preaching',
-    text: "Pour quoi faites-vous appel à l'IA ?",
+    text: "Pour quoi faites-vous appel à l'IA, et à quel point ?",
     type: 'matrix',
     rows: [
       { value: 'plan', label: 'La structure / Le plan' },
