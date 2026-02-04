@@ -46,23 +46,21 @@ export function MatrixQuestion({
       <legend className="sr-only">{questionText}</legend>
       <div className="space-y-4 pb-4">
         {/* Column headers - desktop */}
-        <div className="hidden md:block glass-card-refined rounded-2xl p-4 mb-2">
-          <div className="grid md:grid-cols-[1fr,repeat(4,80px)] gap-2 items-end">
-            <div className="text-sm font-medium text-muted-foreground">&nbsp;</div>
-            {matrixCols.map((col, idx) => (
-              <motion.div
-                key={col.value}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 * idx, duration: 0.3 }}
-                className="text-center"
-              >
-                <span className="text-sm text-foreground font-medium leading-tight block px-1">
-                  {getMatrixColumnLabel(col)}
-                </span>
-              </motion.div>
-            ))}
-          </div>
+        <div className="hidden md:grid md:grid-cols-[1fr,repeat(4,80px)] gap-2 items-end pb-4 mb-2">
+          <div className="text-sm font-medium text-muted-foreground">&nbsp;</div>
+          {matrixCols.map((col, idx) => (
+            <motion.div
+              key={col.value}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 * idx, duration: 0.3 }}
+              className="text-center"
+            >
+              <span className="text-sm text-foreground font-semibold leading-tight block px-1">
+                {getMatrixColumnLabel(col)}
+              </span>
+            </motion.div>
+          ))}
         </div>
 
         {/* Rows */}

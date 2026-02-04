@@ -1,0 +1,75 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic:
+      - generic:
+        - img
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - heading "Questions Fréquentes" [level=1] [ref=e7]
+          - paragraph [ref=e8]: Tout ce que vous devez savoir sur cette étude
+        - textbox "Rechercher..." [ref=e10]
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - button "01 Pourquoi cette étude ? +" [ref=e14]:
+            - generic [ref=e15]:
+              - generic [ref=e16]: "01"
+              - heading "Pourquoi cette étude ?" [level=3] [ref=e17]
+            - generic [ref=e18]: +
+          - paragraph [ref=e19]: L'intelligence artificielle transforme silencieusement les pratiques religieuses, de la rédaction de sermons à la prière assistée. Cette grande enquête vise à cartographier ces usages et comprendre les enjeux éthiques qu'ils soulèvent pour les communautés chrétiennes.
+        - generic [ref=e20]:
+          - button "02 Mes réponses sont-elles anonymes ? +" [ref=e21]:
+            - generic [ref=e22]:
+              - generic [ref=e23]: "02"
+              - heading "Mes réponses sont-elles anonymes ?" [level=3] [ref=e24]
+            - generic [ref=e25]: +
+          - paragraph [ref=e26]: Oui. Nous utilisons une empreinte cryptographique (hash) de votre email pour garantir qu'une personne ne réponde qu'une seule fois, mais votre email réel n'est jamais stocké. Si vous choisissez de recevoir vos résultats par email, celui-ci est utilisé uniquement pour l'envoi puis immédiatement effacé. Vos réponses sont agrégées à des fins statistiques, dans le respect du RGPD.
+        - generic [ref=e27]:
+          - button "03 Combien de temps dure le sondage ? +" [ref=e28]:
+            - generic [ref=e29]:
+              - generic [ref=e30]: "03"
+              - heading "Combien de temps dure le sondage ?" [level=3] [ref=e31]
+            - generic [ref=e32]: +
+          - paragraph [ref=e33]: "Entre 5 et 7 minutes selon votre profil. Le nombre de questions varie : les membres du clergé répondent à des questions supplémentaires sur leur ministère."
+        - generic [ref=e34]:
+          - button "04 Qui peut participer ? +" [ref=e35]:
+            - generic [ref=e36]:
+              - generic [ref=e37]: "04"
+              - heading "Qui peut participer ?" [level=3] [ref=e38]
+            - generic [ref=e39]: +
+          - paragraph [ref=e40]: Toute personne se reconnaissant dans la foi chrétienne, quelle que soit sa dénomination (catholique, protestant, orthodoxe, évangélique) et son niveau d'engagement (clergé, laïc engagé, pratiquant occasionnel).
+        - generic [ref=e41]:
+          - button "05 Comment mes données seront-elles utilisées ? +" [ref=e42]:
+            - generic [ref=e43]:
+              - generic [ref=e44]: "05"
+              - heading "Comment mes données seront-elles utilisées ?" [level=3] [ref=e45]
+            - generic [ref=e46]: +
+          - paragraph [ref=e47]: Les résultats seront publiés sous forme agrégée dans des rapports publics et présentés lors de conférences. Aucune réponse individuelle ne sera jamais divulguée.
+        - generic [ref=e48]:
+          - button "06 Qu'est-ce que le score CRS-5 ? +" [ref=e49]:
+            - generic [ref=e50]:
+              - generic [ref=e51]: "06"
+              - heading "Qu'est-ce que le score CRS-5 ?" [level=3] [ref=e52]
+            - generic [ref=e53]: +
+          - paragraph [ref=e54]: "Le CRS-5 (Centrality of Religiosity Scale) est une échelle validée par Huber & Huber (2012) qui mesure 5 dimensions de la religiosité : intellect, idéologie, pratique publique, pratique privée et expérience spirituelle."
+        - generic [ref=e55]:
+          - button "07 Qu'est-ce que l'indice de résistance spirituelle ? +" [ref=e56]:
+            - generic [ref=e57]:
+              - generic [ref=e58]: "07"
+              - heading "Qu'est-ce que l'indice de résistance spirituelle ?" [level=3] [ref=e59]
+            - generic [ref=e60]: +
+          - paragraph [ref=e61]: C'est un indicateur original de cette étude qui mesure la différence entre votre usage général de l'IA et votre usage spirituel. Un indice positif suggère une réticence spécifique à utiliser l'IA pour des tâches spirituelles.
+        - generic [ref=e62]:
+          - button "08 Puis-je voir les résultats ? +" [ref=e63]:
+            - generic [ref=e64]:
+              - generic [ref=e65]: "08"
+              - heading "Puis-je voir les résultats ?" [level=3] [ref=e66]
+            - generic [ref=e67]: +
+          - paragraph [ref=e68]: Oui ! À la fin du sondage, vous recevez un profil personnalisé avec vos scores et votre typologie. Vous pouvez ensuite consulter les résultats agrégés de l'ensemble des participants.
+  - button "Open Next.js Dev Tools" [ref=e74] [cursor=pointer]:
+    - img [ref=e75]
+  - alert [ref=e79]
+```

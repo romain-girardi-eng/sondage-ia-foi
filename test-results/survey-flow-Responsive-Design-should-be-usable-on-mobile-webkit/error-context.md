@@ -1,0 +1,99 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - link "Aller au contenu principal" [ref=e3]:
+      - /url: "#main-content"
+    - main [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - button "Switch to light mode" [ref=e8]:
+            - img [ref=e9]
+            - img [ref=e15]
+            - img [ref=e18]
+          - button "Switch to English" [ref=e20]:
+            - img [ref=e21]
+        - generic [ref=e35]:
+          - heading "Intelligence Artificielle & Vie Spirituelle" [level=1] [ref=e36]
+          - button "Commencer le sondage" [disabled] [ref=e37]: Commencer le sondage
+          - button "En savoir plus" [ref=e39]
+          - link "🔬 Méthodologie scientifique" [ref=e41]:
+            - /url: /methodology
+            - generic [ref=e44]: 🔬
+            - generic [ref=e45]: Méthodologie scientifique
+            - img [ref=e46]
+        - generic [ref=e49]:
+          - generic:
+            - generic:
+              - img
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - heading "Questions Fréquentes" [level=1] [ref=e53]
+                - paragraph [ref=e54]: Tout ce que vous devez savoir sur cette étude
+              - textbox "Rechercher..." [ref=e56]
+            - generic [ref=e58]:
+              - generic [ref=e59]:
+                - button "01 Pourquoi cette étude ? +" [ref=e60]:
+                  - generic [ref=e61]:
+                    - generic [ref=e62]: "01"
+                    - heading "Pourquoi cette étude ?" [level=3] [ref=e63]
+                  - generic [ref=e64]: +
+                - paragraph [ref=e65]: L'intelligence artificielle transforme silencieusement les pratiques religieuses, de la rédaction de sermons à la prière assistée. Cette grande enquête vise à cartographier ces usages et comprendre les enjeux éthiques qu'ils soulèvent pour les communautés chrétiennes.
+              - generic [ref=e66]:
+                - button "02 Mes réponses sont-elles anonymes ? +" [ref=e67]:
+                  - generic [ref=e68]:
+                    - generic [ref=e69]: "02"
+                    - heading "Mes réponses sont-elles anonymes ?" [level=3] [ref=e70]
+                  - generic [ref=e71]: +
+                - paragraph [ref=e72]: Oui. Nous utilisons une empreinte cryptographique (hash) de votre email pour garantir qu'une personne ne réponde qu'une seule fois, mais votre email réel n'est jamais stocké. Si vous choisissez de recevoir vos résultats par email, celui-ci est utilisé uniquement pour l'envoi puis immédiatement effacé. Vos réponses sont agrégées à des fins statistiques, dans le respect du RGPD.
+              - generic [ref=e73]:
+                - button "03 Combien de temps dure le sondage ? +" [ref=e74]:
+                  - generic [ref=e75]:
+                    - generic [ref=e76]: "03"
+                    - heading "Combien de temps dure le sondage ?" [level=3] [ref=e77]
+                  - generic [ref=e78]: +
+                - paragraph [ref=e79]: "Entre 5 et 7 minutes selon votre profil. Le nombre de questions varie : les membres du clergé répondent à des questions supplémentaires sur leur ministère."
+              - generic [ref=e80]:
+                - button "04 Qui peut participer ? +" [ref=e81]:
+                  - generic [ref=e82]:
+                    - generic [ref=e83]: "04"
+                    - heading "Qui peut participer ?" [level=3] [ref=e84]
+                  - generic [ref=e85]: +
+                - paragraph [ref=e86]: Toute personne se reconnaissant dans la foi chrétienne, quelle que soit sa dénomination (catholique, protestant, orthodoxe, évangélique) et son niveau d'engagement (clergé, laïc engagé, pratiquant occasionnel).
+              - generic [ref=e87]:
+                - button "05 Comment mes données seront-elles utilisées ? +" [ref=e88]:
+                  - generic [ref=e89]:
+                    - generic [ref=e90]: "05"
+                    - heading "Comment mes données seront-elles utilisées ?" [level=3] [ref=e91]
+                  - generic [ref=e92]: +
+                - paragraph [ref=e93]: Les résultats seront publiés sous forme agrégée dans des rapports publics et présentés lors de conférences. Aucune réponse individuelle ne sera jamais divulguée.
+              - generic [ref=e94]:
+                - button "06 Qu'est-ce que le score CRS-5 ? +" [ref=e95]:
+                  - generic [ref=e96]:
+                    - generic [ref=e97]: "06"
+                    - heading "Qu'est-ce que le score CRS-5 ?" [level=3] [ref=e98]
+                  - generic [ref=e99]: +
+                - paragraph [ref=e100]: "Le CRS-5 (Centrality of Religiosity Scale) est une échelle validée par Huber & Huber (2012) qui mesure 5 dimensions de la religiosité : intellect, idéologie, pratique publique, pratique privée et expérience spirituelle."
+              - generic [ref=e101]:
+                - button "07 Qu'est-ce que l'indice de résistance spirituelle ? +" [ref=e102]:
+                  - generic [ref=e103]:
+                    - generic [ref=e104]: "07"
+                    - heading "Qu'est-ce que l'indice de résistance spirituelle ?" [level=3] [ref=e105]
+                  - generic [ref=e106]: +
+                - paragraph [ref=e107]: C'est un indicateur original de cette étude qui mesure la différence entre votre usage général de l'IA et votre usage spirituel. Un indice positif suggère une réticence spécifique à utiliser l'IA pour des tâches spirituelles.
+              - generic [ref=e108]:
+                - button "08 Puis-je voir les résultats ? +" [ref=e109]:
+                  - generic [ref=e110]:
+                    - generic [ref=e111]: "08"
+                    - heading "Puis-je voir les résultats ?" [level=3] [ref=e112]
+                  - generic [ref=e113]: +
+                - paragraph [ref=e114]: Oui ! À la fin du sondage, vous recevez un profil personnalisé avec vos scores et votre typologie. Vous pouvez ensuite consulter les résultats agrégés de l'ensemble des participants.
+        - generic [ref=e116]:
+          - img "IA & Foi" [ref=e117]
+          - paragraph [ref=e118]: Grande enquête sur l'IA et la vie spirituelle - 2026
+  - button "Open Next.js Dev Tools" [ref=e124] [cursor=pointer]:
+    - img [ref=e125]
+  - alert [ref=e130]
+```

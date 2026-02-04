@@ -1,0 +1,177 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - img [ref=e7]
+      - heading "Politique de Confidentialité" [level=1] [ref=e9]
+      - paragraph [ref=e10]: "Dernière mise à jour : 26 janvier 2026"
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - heading "Responsable du traitement" [level=2] [ref=e13]:
+          - img [ref=e14]
+          - text: Responsable du traitement
+        - paragraph [ref=e17]: Cette étude est menée dans un cadre académique. Le responsable du traitement des données est le chercheur principal de l'étude.
+        - paragraph [ref=e18]: "Contact : contact@ia-foi.fr"
+      - generic [ref=e19]:
+        - heading "Données collectées" [level=2] [ref=e20]:
+          - img [ref=e21]
+          - text: Données collectées
+        - paragraph [ref=e24]: Types de données et leur nature
+        - generic [ref=e25]:
+          - heading "Données anonymes (non personnelles)" [level=3] [ref=e26]: Données anonymes (non personnelles)
+          - list [ref=e28]:
+            - listitem [ref=e29]: Vos réponses au questionnaire (sans lien avec votre identité)
+            - listitem [ref=e30]: Date et heure de participation
+            - listitem [ref=e31]: Langue de l'interface utilisée
+        - generic [ref=e32]:
+          - heading "Données pseudonymisées (données personnelles au sens du RGPD)" [level=3] [ref=e33]:
+            - img [ref=e34]
+            - text: Données pseudonymisées (données personnelles au sens du RGPD)
+          - paragraph [ref=e43]: "Les données suivantes sont considérées comme des données personnelles au sens du RGPD car elles pourraient théoriquement être liées à vous, même si nous ne pouvons pas les utiliser pour vous contacter ou vous identifier directement :"
+          - list [ref=e44]:
+            - listitem [ref=e45]:
+              - strong [ref=e46]: Empreinte cryptographique de votre email
+              - paragraph [ref=e47]: Une transformation mathématique irréversible de votre email. Nous ne pouvons pas retrouver votre email à partir de cette empreinte, mais quelqu'un possédant votre email pourrait vérifier la correspondance. Utilisée uniquement pour empêcher les participations multiples.
+            - listitem [ref=e48]:
+              - strong [ref=e49]: Empreinte de navigateur
+              - paragraph [ref=e50]: Un identifiant technique de votre navigateur/appareil. Utilisé uniquement pour empêcher les participations multiples depuis le même appareil.
+            - listitem [ref=e51]:
+              - strong [ref=e52]: Identifiant anonyme aléatoire
+              - paragraph [ref=e53]: Un identifiant généré aléatoirement stocké dans votre navigateur, lié à vos réponses pour la gestion des données.
+        - generic [ref=e54]:
+          - paragraph [ref=e55]: "Nous ne collectons PAS et ne stockons PAS :"
+          - list [ref=e56]:
+            - listitem [ref=e57]: Votre adresse email réelle (uniquement son empreinte irréversible)
+            - listitem [ref=e58]: Votre adresse IP
+            - listitem [ref=e59]: Votre nom ou tout identifiant direct
+            - listitem [ref=e60]: Données de géolocalisation
+            - listitem [ref=e61]: Cookies de suivi ou publicitaires
+        - paragraph [ref=e63]:
+          - img [ref=e64]
+          - text: Si vous choisissez de recevoir vos résultats par email, votre adresse email est utilisée uniquement pour l'envoi immédiat du PDF et n'est stockée dans aucune base de données. Elle est traitée en mémoire uniquement et supprimée immédiatement après l'envoi.
+      - generic [ref=e67]:
+        - heading "Base légale (Article 6 du RGPD)" [level=2] [ref=e68]:
+          - img [ref=e69]
+          - text: Base légale (Article 6 du RGPD)
+        - paragraph [ref=e73]: "Nous traitons vos données sur les fondements juridiques suivants :"
+        - generic [ref=e74]:
+          - generic [ref=e76]:
+            - generic [ref=e77]: "1."
+            - generic [ref=e78]:
+              - paragraph [ref=e79]: Consentement (Art. 6.1.a)
+              - paragraph [ref=e80]: "Scope: Réponses au sondage et envoi optionnel du PDF"
+              - paragraph [ref=e81]: Vous donnez votre consentement explicite en cliquant sur "J'accepte et je commence". Vous pouvez retirer ce consentement à tout moment.
+          - generic [ref=e83]:
+            - generic [ref=e84]: "2."
+            - generic [ref=e85]:
+              - paragraph [ref=e86]: Intérêt légitime (Art. 6.1.f)
+              - paragraph [ref=e87]: "Scope: Mesures anti-fraude (empreinte email, empreinte navigateur)"
+              - paragraph [ref=e88]: Nous avons un intérêt légitime à garantir l'intégrité scientifique de notre étude en empêchant les participations multiples. Cet intérêt est équilibré avec vos droits par la minimisation des données (seules les empreintes sont stockées, pas les données réelles).
+      - generic [ref=e89]:
+        - heading "Finalités du traitement" [level=2] [ref=e90]
+        - generic [ref=e91]:
+          - generic [ref=e92]:
+            - generic [ref=e93]: •
+            - generic [ref=e94]:
+              - paragraph [ref=e95]: Recherche académique
+              - paragraph [ref=e96]: Comprendre l'utilisation de l'IA dans les pratiques religieuses chrétiennes. Résultats publiés uniquement sous forme agrégée.
+          - generic [ref=e97]:
+            - generic [ref=e98]: •
+            - generic [ref=e99]:
+              - paragraph [ref=e100]: Intégrité scientifique
+              - paragraph [ref=e101]: S'assurer que chaque personne ne participe qu'une seule fois pour maintenir la validité des données.
+          - generic [ref=e102]:
+            - generic [ref=e103]: •
+            - generic [ref=e104]:
+              - paragraph [ref=e105]: Service utilisateur
+              - paragraph [ref=e106]: Envoi de vos résultats personnalisés par email si vous le demandez.
+      - generic [ref=e107]:
+        - heading "Durée de conservation" [level=2] [ref=e108]
+        - paragraph [ref=e109]: Les données sont conservées pendant une durée maximale de 3 ans après la fin de l'étude, conformément aux standards de recherche académique. Après cette période, toutes les données sont définitivement et irréversiblement supprimées.
+        - list [ref=e110]:
+          - listitem [ref=e111]: "Réponses au sondage : 3 ans"
+          - listitem [ref=e113]: "Empreintes email : 3 ans (ou jusqu'à votre demande de suppression)"
+          - listitem [ref=e115]: "Empreintes navigateur : 3 ans"
+          - listitem [ref=e117]: "Email pour PDF : Non stocké (traitement immédiat uniquement)"
+      - generic [ref=e119]:
+        - heading "Sécurité des données" [level=2] [ref=e120]:
+          - img [ref=e121]
+          - text: Sécurité des données
+        - list [ref=e124]:
+          - listitem [ref=e125]:
+            - generic [ref=e126]: ✓
+            - text: Données chiffrées en transit (HTTPS/TLS)
+          - listitem [ref=e127]:
+            - generic [ref=e128]: ✓
+            - text: Base de données hébergée sur infrastructure sécurisée (Supabase, région UE)
+          - listitem [ref=e129]:
+            - generic [ref=e130]: ✓
+            - text: Accès restreint aux chercheurs autorisés uniquement
+          - listitem [ref=e131]:
+            - generic [ref=e132]: ✓
+            - text: Audits de sécurité réguliers
+      - generic [ref=e133]:
+        - heading "Transferts internationaux" [level=2] [ref=e134]
+        - paragraph [ref=e135]: Vos données sont stockées sur des serveurs situés dans l'Union européenne (AWS eu-west-2). Nos fournisseurs d'hébergement (Vercel, Supabase) peuvent traiter des données conformément au EU-US Data Privacy Framework le cas échéant. Aucune donnée n'est vendue ou partagée avec des tiers.
+      - generic [ref=e136]:
+        - heading "Vos droits (Articles 15-22 du RGPD)" [level=2] [ref=e137]:
+          - img [ref=e138]
+          - text: Vos droits (Articles 15-22 du RGPD)
+        - paragraph [ref=e141]: "Vous disposez des droits suivants concernant vos données personnelles :"
+        - list [ref=e142]:
+          - listitem [ref=e143]:
+            - generic [ref=e144]: •
+            - generic [ref=e145]:
+              - strong [ref=e146]: Droit d'accès (Art. 15)
+              - text: ": Obtenir une copie de vos données grâce à votre identifiant anonyme"
+          - listitem [ref=e147]:
+            - generic [ref=e148]: •
+            - generic [ref=e149]:
+              - strong [ref=e150]: Droit de rectification (Art. 16)
+              - text: ": Corriger des données inexactes"
+          - listitem [ref=e151]:
+            - generic [ref=e152]: •
+            - generic [ref=e153]:
+              - strong [ref=e154]: Droit à l'effacement (Art. 17)
+              - text: ": Demander la suppression de vos données"
+          - listitem [ref=e155]:
+            - generic [ref=e156]: •
+            - generic [ref=e157]:
+              - strong [ref=e158]: Droit à la limitation (Art. 18)
+              - text: ": Limiter le traitement de vos données"
+          - listitem [ref=e159]:
+            - generic [ref=e160]: •
+            - generic [ref=e161]:
+              - strong [ref=e162]: Droit à la portabilité (Art. 20)
+              - text: ": Exporter vos données dans un format standard"
+          - listitem [ref=e163]:
+            - generic [ref=e164]: •
+            - generic [ref=e165]:
+              - strong [ref=e166]: Droit de retrait du consentement
+              - text: ": À tout moment, sans affecter le traitement antérieur"
+        - paragraph [ref=e168]: "Note : En raison de la nature pseudonymisée des données, nous ne pouvons traiter les demandes que si vous fournissez votre identifiant anonyme (affiché à la fin du sondage). Sans cet identifiant, nous ne pouvons pas localiser vos données."
+        - link "Gérer mes données" [ref=e170]:
+          - /url: /mes-donnees
+          - img [ref=e171]
+          - text: Gérer mes données
+      - generic [ref=e174]:
+        - heading "Contact & Réclamations" [level=2] [ref=e175]:
+          - img [ref=e176]
+          - text: Contact & Réclamations
+        - paragraph [ref=e179]: "Pour exercer vos droits ou pour toute question concernant le traitement des données :"
+        - paragraph [ref=e180]: "Email : contact@ia-foi.fr"
+        - paragraph [ref=e181]:
+          - text: Ou utilisez la page
+          - link "Mes données" [ref=e182]:
+            - /url: /mes-donnees
+          - text: .
+        - paragraph [ref=e183]: "Si vous estimez que vos droits ne sont pas respectés, vous pouvez déposer une réclamation auprès de la CNIL (Commission Nationale de l'Informatique et des Libertés) : www.cnil.fr"
+    - contentinfo [ref=e184]:
+      - link "← Retour au sondage" [ref=e185]:
+        - /url: /
+  - button "Open Next.js Dev Tools" [ref=e191] [cursor=pointer]:
+    - img [ref=e192]
+  - alert [ref=e197]
+```
