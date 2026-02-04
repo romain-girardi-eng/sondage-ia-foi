@@ -224,6 +224,37 @@ export function calculateAIOpennessDimension(answers: Answers, biasScore?: numbe
       scores.push(adminBurden);
       weights.push(0.8);
     }
+
+    // Matrix question: min_pred_nature - AI usage delegation level by task
+    // Task sensitivity weights: redaction (3) > exegese (2) > plan/illustration/images (1)
+    const predNature = answers['min_pred_nature'];
+    if (predNature && typeof predNature === 'object' && !Array.isArray(predNature)) {
+      const taskWeights: Record<string, number> = {
+        plan: 1,        // Structure - organizational, low theological sensitivity
+        exegese: 2,     // Biblical research - core theological work
+        illustration: 1, // Finding illustrations - supportive content
+        images: 1,      // Image generation - visual aids
+        redaction: 3,   // Writing paragraphs - highest sensitivity, actual sermon words
+      };
+
+      let matrixScore = 0;
+      let maxPossible = 0;
+
+      for (const [task, weight] of Object.entries(taskWeights)) {
+        const delegation = (predNature as Record<string, number>)[task];
+        if (typeof delegation === 'number') {
+          matrixScore += delegation * weight;
+          maxPossible += 3 * weight; // max delegation (3) × weight
+        }
+      }
+
+      // Normalize to 1-5 scale
+      if (maxPossible > 0) {
+        const normalizedScore = 1 + (matrixScore / maxPossible) * 4;
+        scores.push(normalizedScore);
+        weights.push(1.5); // Medium-high weight - reveals actual delegation behavior
+      }
+    }
   }
 
   // Lay-specific usage
@@ -358,6 +389,20 @@ export function calculateSacredBoundaryDimension(answers: Answers, biasScore?: n
     if (careEmail === 'non_jamais') {
       scores.push(5);
       weights.push(0.8);
+    }
+
+    // Matrix question: min_pred_nature - HIGH delegation on redaction = LOW boundary
+    // Focus on 'redaction' (writing paragraphs) as most theologically sensitive
+    const predNature = answers['min_pred_nature'];
+    if (predNature && typeof predNature === 'object' && !Array.isArray(predNature)) {
+      const delegation = (predNature as Record<string, number>)['redaction'];
+      if (typeof delegation === 'number') {
+        // delegation 0 (not used) -> 5 (high boundary)
+        // delegation 3 (as-is) -> 1 (low boundary - fully trusts AI to write sermon)
+        const boundaryScore = 5 - (delegation * 4 / 3);
+        scores.push(boundaryScore);
+        weights.push(1.5); // Important indicator of sacred boundary
+      }
     }
   }
 
