@@ -16,7 +16,6 @@ import {
   explorateurAnswers,
   innovateurAncreAnswers,
   emptyAnswers,
-  minimalAnswers,
   highBiasAnswers,
 } from './fixtures';
 import type { PrimaryProfile } from '../types';
@@ -278,7 +277,7 @@ describe('Bias impact on profile matching', () => {
 
     const result = calculateProfileSpectrum(highBiasWithTradition);
     // Should not automatically be gardien just due to self-reported orientation
-    // The dimension-based matching should have more influence
+    expect(result.primary.profile).not.toBe('gardien_tradition');
   });
 });
 
@@ -361,12 +360,7 @@ describe('Tension identification', () => {
     };
 
     const result = calculateProfileSpectrum(mixedAnswers);
-    const hasTension = result.tensions.some(
-      (t) =>
-        (t.dimension1 === 'aiOpenness' && t.dimension2 === 'sacredBoundary') ||
-        (t.dimension1 === 'sacredBoundary' && t.dimension2 === 'aiOpenness')
-    );
-    // May or may not have this tension depending on actual calculated values
+    expect(Array.isArray(result.tensions)).toBe(true);
   });
 
   it('should limit tensions to max 3', () => {

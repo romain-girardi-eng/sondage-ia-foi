@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import { LanguageProvider, ThemeProvider } from "@/lib";
 import { ToastProvider } from "@/components/ui";
@@ -7,18 +6,6 @@ import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 import { WebVitalsReporter } from "@/components/analytics/WebVitalsReporter";
 import type { Language } from "@/lib/i18n/translations";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -103,7 +90,7 @@ export default async function RootLayout({ children, params }: Readonly<RootLayo
       style={{ margin: 0, padding: 0, width: "100%", overflowX: "hidden" }}
     >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased selection:bg-blue-500/30`}
+        className="antialiased selection:bg-blue-500/30"
         style={{ margin: 0, padding: 0, width: '100%', minHeight: '100vh', overflowX: 'hidden' }}
       >
         <ThemeProvider>

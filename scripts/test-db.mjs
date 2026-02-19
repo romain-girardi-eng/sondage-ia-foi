@@ -44,7 +44,7 @@ async function runTests() {
     console.log('\n2. CONNECTION TEST');
     console.log('-'.repeat(40));
 
-    const { data: healthCheck, error: healthError } = await supabase
+    const { error: healthError } = await supabase
       .from('responses')
       .select('count', { count: 'exact', head: true });
 

@@ -1,22 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import { FileText, Download, Loader2 } from "lucide-react";
 import { cn, useLanguage } from "@/lib";
 import type { ProfileSpectrum } from "@/lib/scoring/types";
-
-// Dynamically import PDF components to avoid SSR issues
-const PDFDownloadLink = dynamic(
-  () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
-  { ssr: false }
-);
-
-// Dynamically import the document component
-const ReportDocument = dynamic(
-  () => import("@/lib/pdf/generateReport").then((mod) => mod.ReportDocument),
-  { ssr: false }
-);
+import { ReportDocument, type ReportData } from "@/lib/pdf/reportDocument";
 
 interface PDFDownloadButtonProps {
   language: "fr" | "en";
@@ -57,7 +46,7 @@ export function PDFDownloadButton({
     });
   }, [answers]);
 
-  const reportData = {
+  const reportData: ReportData = {
     language,
     anonymousId,
     completedAt,

@@ -9,7 +9,7 @@ const PATH_LOCALE_MAP: Record<string, "fr" | "en"> = {
   eng: "en",
 };
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip middleware for static files, API routes, and admin

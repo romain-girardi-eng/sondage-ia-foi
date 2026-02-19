@@ -139,7 +139,7 @@ async function testInsert() {
   console.log('-'.repeat(40));
 
   // Try to get table info by attempting various column names
-  const { data: columns, error: schemaError } = await supabase
+  const { error: schemaError } = await supabase
     .from('responses')
     .select('*')
     .limit(0);
