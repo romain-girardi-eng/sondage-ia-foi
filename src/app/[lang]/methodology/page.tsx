@@ -47,7 +47,7 @@ export default function MethodologyPage() {
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <Link
               href={homeLink}
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors"
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               {t.backToSurvey}
@@ -94,7 +94,7 @@ export default function MethodologyPage() {
 
           {/* Scientific Context */}
           <motion.section {...fadeInUp} className="space-y-8">
-            <h2 className="text-3xl font-bold text-white text-center">
+            <h2 className="text-3xl font-bold text-foreground text-center">
               {t.scientificContextTitle}
             </h2>
 
@@ -105,7 +105,7 @@ export default function MethodologyPage() {
                   <div className="p-2 bg-emerald-500/20 rounded-lg">
                     <CheckCircle className="w-5 h-5 text-emerald-400" />
                   </div>
-                  <h3 className="font-bold text-white">{t.whatItIs}</h3>
+                  <h3 className="font-bold text-foreground">{t.whatItIs}</h3>
                 </div>
                 <ul className="space-y-3">
                   {t.whatItIsPoints.map((point, i) => (
@@ -123,7 +123,7 @@ export default function MethodologyPage() {
                   <div className="p-2 bg-red-500/20 rounded-lg">
                     <XCircle className="w-5 h-5 text-red-400" />
                   </div>
-                  <h3 className="font-bold text-white">{t.whatItIsNot}</h3>
+                  <h3 className="font-bold text-foreground">{t.whatItIsNot}</h3>
                 </div>
                 <ul className="space-y-3">
                   {t.whatItIsNotPoints.map((point, i) => (
@@ -144,7 +144,7 @@ export default function MethodologyPage() {
 
           {/* 7 Dimensions Wheel */}
           <motion.section {...fadeInUp} className="glass-card-refined rounded-2xl p-8">
-            <h2 className="text-2xl font-bold text-white text-center mb-8">
+            <h2 className="text-2xl font-bold text-foreground text-center mb-8">
               {t.dimensionsTitle}
             </h2>
             <DimensionWheel translations={t} />
@@ -162,13 +162,13 @@ export default function MethodologyPage() {
 
           {/* Transparency */}
           <motion.section {...fadeInUp} className="space-y-8">
-            <h2 className="text-3xl font-bold text-white text-center">
+            <h2 className="text-3xl font-bold text-foreground text-center">
               {t.transparencyTitle}
             </h2>
 
             {/* Trade-offs Table */}
             <div className="glass-card-refined rounded-2xl p-6 overflow-x-auto">
-              <h3 className="font-bold text-white mb-4">{t.tradeoffsTitle}</h3>
+              <h3 className="font-bold text-foreground mb-4">{t.tradeoffsTitle}</h3>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-muted-foreground border-b border-white/10">
@@ -180,7 +180,7 @@ export default function MethodologyPage() {
                 <tbody>
                   {t.tradeoffs.map((row, i) => (
                     <tr key={i} className="border-b border-white/5">
-                      <td className="py-3 pr-4 text-white">{row.aspect}</td>
+                      <td className="py-3 pr-4 text-foreground">{row.aspect}</td>
                       <td className="py-3 pr-4 text-emerald-300">{row.engagement}</td>
                       <td className="py-3 text-blue-300">{row.rigor}</td>
                     </tr>
@@ -193,7 +193,7 @@ export default function MethodologyPage() {
             <div className="glass-card-refined rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <AlertTriangle className="w-5 h-5 text-amber-400" />
-                <h3 className="font-bold text-white">{t.limitationsTitle}</h3>
+                <h3 className="font-bold text-foreground">{t.limitationsTitle}</h3>
               </div>
               <ul className="space-y-2">
                 {t.limitations.map((lim, i) => (
@@ -240,7 +240,7 @@ export default function MethodologyPage() {
           {/* Research Hypotheses */}
           <motion.section {...fadeInUp} className="space-y-8">
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-white mb-2">{t.hypothesesTitle}</h2>
+              <h2 className="text-3xl font-bold text-foreground mb-2">{t.hypothesesTitle}</h2>
               <p className="text-muted-foreground">{t.hypothesesDesc}</p>
             </div>
 
@@ -258,7 +258,7 @@ export default function MethodologyPage() {
                     {hyp.id}
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-white">{hyp.text}</p>
+                    <p className="text-sm text-foreground">{hyp.text}</p>
                     <span className="text-xs text-muted-foreground/60">{t.statusToVerify}</span>
                   </div>
                 </motion.div>
@@ -270,7 +270,7 @@ export default function MethodologyPage() {
           <motion.section {...fadeInUp} className="glass-card-refined rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <BookOpen className="w-5 h-5 text-blue-400" />
-              <h2 className="text-xl font-bold text-white">{t.citationsTitle}</h2>
+              <h2 className="text-xl font-bold text-foreground">{t.citationsTitle}</h2>
             </div>
             <ul className="space-y-3">
               {t.citations.map((citation, i) => (

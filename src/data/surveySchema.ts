@@ -398,7 +398,7 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'ctrl_ia_confort',
     category: 'usage',
-    text: "Globalement, quel est votre niveau de confort avec les outils d'IA ?",
+    text: "Comment évaluez-vous votre maîtrise technique des outils d'IA ?",
     type: 'scale',
     minLabelKey: "not_comfortable",
     maxLabelKey: "very_comfortable"

@@ -208,7 +208,7 @@ export function DimensionWheel({ translations: t }: DimensionWheelProps) {
                   className="w-4 h-4 rounded-full shrink-0"
                   style={{ backgroundColor: DIMENSION_COLORS[selected] }}
                 />
-                <h3 className="text-xl font-bold text-white">
+                <h3 className="text-xl font-bold text-foreground">
                   {dimensionLabels[selected].name}
                 </h3>
               </div>

@@ -24,6 +24,7 @@ import {
   SUB_PROFILE_DEFINITIONS,
   DIMENSION_COLORS,
 } from "@/lib/scoring";
+import { PROFILE_ICONS, SUB_PROFILE_ICONS } from "@/lib/scoring/icons";
 import type { PrimaryProfile } from "@/lib/scoring/types";
 
 interface FeedbackScreenProps {
@@ -167,9 +168,14 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
                 className="w-full text-left group"
               >
                 <div className="flex items-start justify-between">
-                  <div className="w-fit rounded-lg border border-border bg-muted/50 p-3 group-hover:bg-muted transition-colors">
-                    <span className="text-4xl">{profileDef.emoji}</span>
-                  </div>
+                  {(() => {
+                    const Icon = PROFILE_ICONS[primaryMatch.profile];
+                    return (
+                      <div className="w-fit rounded-lg border border-border bg-muted/50 p-3 group-hover:bg-muted transition-colors">
+                        <Icon className="w-9 h-9 text-purple-400" />
+                      </div>
+                    );
+                  })()}
                   <div className="text-right">
                     <p className="text-xs text-muted-foreground">{t("feedback.match")}</p>
                     <p className="text-2xl font-bold text-purple-400">{primaryMatch.matchScore}%</p>
@@ -181,10 +187,13 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
                     <ChevronRight className="w-5 h-5 text-muted-foreground/50 group-hover:text-muted-foreground group-hover:translate-x-1 transition-all" />
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">{profileDef.shortDescription}</p>
-                  {subProfileDef && (
+                  {subProfileDef && subProfileMatch && (
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/20 dark:bg-purple-500/20 border border-purple-500/30">
-                      <span>{subProfileDef.emoji}</span>
-                      <span className="text-xs font-medium text-purple-700 dark:text-purple-300">{t(`profiles.${subProfileMatch?.subProfile}`) || subProfileDef.title}</span>
+                      {(() => {
+                        const SubIcon = SUB_PROFILE_ICONS[subProfileMatch.subProfile];
+                        return SubIcon ? <SubIcon className="w-3.5 h-3.5 text-purple-400" /> : null;
+                      })()}
+                      <span className="text-xs font-medium text-purple-700 dark:text-purple-300">{t(`profiles.${subProfileMatch.subProfile}`) || subProfileDef.title}</span>
                     </div>
                   )}
                 </div>
@@ -301,7 +310,10 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
                       onClick={() => openProfileModal(match.profile)}
                       className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 hover:border-border transition-all cursor-pointer text-left"
                     >
-                      <span className="text-2xl">{matchDef.emoji}</span>
+                      {(() => {
+                        const MatchIcon = PROFILE_ICONS[match.profile];
+                        return <MatchIcon className="w-6 h-6 text-muted-foreground" />;
+                      })()}
                       <div className="flex-1 min-w-0">
                         <p className={cn("text-sm font-medium truncate", index === 0 ? "text-foreground" : "text-muted-foreground")}>
                           {t(`profiles.${match.profile}`) || matchDef.title}

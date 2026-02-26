@@ -33,7 +33,7 @@ export const questionTranslations = {
       // === USAGE IA GÉNÉRAL ===
       ctrl_ia_frequence: "En général, à quelle fréquence utilisez-vous des outils d'IA (ChatGPT, Gemini, Claude, Copilot...) ?",
       ctrl_ia_contextes: "Dans quels contextes utilisez-vous l'IA ? (plusieurs réponses possibles)",
-      ctrl_ia_confort: "Globalement, quel est votre niveau de confort avec les outils d'IA ?",
+      ctrl_ia_confort: "Comment évaluez-vous votre maîtrise technique des outils d'IA ?",
 
       // === OUTILS NUMÉRIQUES SPIRITUELS ===
       digital_outils_existants: "Quels outils numériques utilisez-vous déjà dans votre vie spirituelle ? (plusieurs réponses possibles)",
@@ -243,8 +243,8 @@ export const questionTranslations = {
       very_important: "Très important",
       never: "Jamais",
       very_often: "Très souvent",
-      not_comfortable: "Très inconfortable",
-      very_comfortable: "Très à l'aise",
+      not_comfortable: "Novice",
+      very_comfortable: "Expert",
       comfortable: "Tout à fait à l'aise",
       uncomfortable: "Mal à l'aise",
       no_complicates_all: "Non, ça complique tout",
@@ -327,7 +327,7 @@ export const questionTranslations = {
       // === GENERAL AI USAGE ===
       ctrl_ia_frequence: "In general, how often do you use AI tools (ChatGPT, Gemini, Claude, Copilot...)?",
       ctrl_ia_contextes: "In what contexts do you use AI? (multiple answers possible)",
-      ctrl_ia_confort: "Overall, what is your comfort level with AI tools?",
+      ctrl_ia_confort: "How would you rate your technical proficiency with AI tools?",
 
       // === DIGITAL SPIRITUAL TOOLS ===
       digital_outils_existants: "Which digital tools do you already use in your spiritual life? (multiple answers possible)",
@@ -537,8 +537,8 @@ export const questionTranslations = {
       very_important: "Very important",
       never: "Never",
       very_often: "Very often",
-      not_comfortable: "Very uncomfortable",
-      very_comfortable: "Very comfortable",
+      not_comfortable: "Novice",
+      very_comfortable: "Expert",
       comfortable: "Completely comfortable",
       uncomfortable: "Uncomfortable",
       no_complicates_all: "No, it complicates everything",

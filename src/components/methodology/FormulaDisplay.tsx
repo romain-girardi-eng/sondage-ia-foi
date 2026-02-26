@@ -53,7 +53,7 @@ export function FormulaDisplay({ translations: t }: FormulaDisplayProps) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-white text-center">{t.statsTitle}</h2>
+      <h2 className="text-2xl font-bold text-foreground text-center">{t.statsTitle}</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {methods.map((method, index) => (
@@ -73,7 +73,7 @@ export function FormulaDisplay({ translations: t }: FormulaDisplayProps) {
               >
                 <method.icon className="w-5 h-5" style={{ color: method.color }} />
               </div>
-              <h3 className="font-bold text-white">{method.title}</h3>
+              <h3 className="font-bold text-foreground">{method.title}</h3>
             </div>
 
             {/* Description */}
@@ -99,7 +99,7 @@ export function FormulaDisplay({ translations: t }: FormulaDisplayProps) {
         viewport={{ once: true }}
         className="glass-card-refined rounded-xl p-6"
       >
-        <h3 className="text-lg font-bold text-white mb-4 text-center">
+        <h3 className="text-lg font-bold text-foreground mb-4 text-center">
           Distribution Normale (CDF)
         </h3>
         <svg viewBox="0 0 400 150" className="w-full max-w-md mx-auto">

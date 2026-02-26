@@ -56,7 +56,7 @@ export function ConfessionalTree({ translations: t }: ConfessionalTreeProps) {
   return (
     <div className="glass-card-refined rounded-2xl p-6 space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-white mb-2">{t.confessionalTitle}</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2">{t.confessionalTitle}</h2>
         <p className="text-muted-foreground text-sm">{t.confessionalDesc}</p>
       </div>
 
@@ -101,7 +101,7 @@ export function ConfessionalTree({ translations: t }: ConfessionalTreeProps) {
             viewport={{ once: true }}
             className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center border-2 border-white/30"
           >
-            <Cross className="w-8 h-8 text-white/80" />
+            <Cross className="w-8 h-8 text-foreground/80" />
           </motion.div>
         </div>
 

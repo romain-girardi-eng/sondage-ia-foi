@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronRight, Info } from "lucide-react";
 import { useLanguage } from "@/lib";
 import { PROFILE_DEFINITIONS, PROFILE_COLORS } from "@/lib/scoring/constants";
+import { PROFILE_ICONS } from "@/lib/scoring/icons";
 import type { PrimaryProfile } from "@/lib/scoring/types";
 
 interface ProfilesModalProps {
@@ -50,7 +51,7 @@ export function ProfilesModal({ isOpen, onClose, currentProfile, initialSelected
   }, [isOpen, initialSelectedProfile]);
 
   const getProfileTranslation = (profileId: PrimaryProfile) => {
-    const key = `profiles.${profileId}`;
+    const key = `profilesModal.${profileId}`;
     return {
       title: t(`${key}.title`) || PROFILE_DEFINITIONS[profileId].title,
       short: t(`${key}.short`) || PROFILE_DEFINITIONS[profileId].shortDescription,
@@ -136,12 +137,17 @@ export function ProfilesModal({ isOpen, onClose, currentProfile, initialSelected
                     )}
 
                     <div className="flex items-start gap-3">
-                      <div
-                        className="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0"
-                        style={{ backgroundColor: `${color}20` }}
-                      >
-                        {profile.emoji}
-                      </div>
+                      {(() => {
+                        const Icon = PROFILE_ICONS[profileId];
+                        return (
+                          <div
+                            className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: `${color}20` }}
+                          >
+                            <Icon className="w-5 h-5" style={{ color }} />
+                          </div>
+                        );
+                      })()}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-white text-sm">{translation.title}</h3>
                         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">

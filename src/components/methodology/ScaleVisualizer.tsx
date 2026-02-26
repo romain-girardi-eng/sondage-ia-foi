@@ -75,7 +75,7 @@ export function ScaleVisualizer({ translations: t }: ScaleVisualizerProps) {
 
   return (
     <div className="glass-card-refined rounded-2xl p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-white text-center">
+      <h2 className="text-2xl font-bold text-foreground text-center">
         {t.validatedScalesTitle}
       </h2>
 
@@ -88,7 +88,7 @@ export function ScaleVisualizer({ translations: t }: ScaleVisualizerProps) {
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
               activeTab === id
                 ? "bg-white text-slate-900"
-                : "glass-card text-muted-foreground hover:text-white"
+                : "glass-card text-muted-foreground hover:text-foreground"
             }`}
           >
             <Icon className="w-4 h-4" />
@@ -132,7 +132,7 @@ export function ScaleVisualizer({ translations: t }: ScaleVisualizerProps) {
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: current.color }}
                 />
-                <span className="text-sm font-medium text-white">{dim.name}</span>
+                <span className="text-sm font-medium text-foreground">{dim.name}</span>
               </div>
               <p className="text-xs text-muted-foreground">{dim.desc}</p>
             </motion.div>

@@ -2,31 +2,9 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Shield,
-  Search,
-  Anchor,
-  Scale,
-  Laptop,
-  Rocket,
-  AlertCircle,
-  Compass,
-  type LucideIcon,
-} from "lucide-react";
 import { PROFILE_DEFINITIONS, PROFILE_COLORS } from "@/lib/scoring/constants";
+import { PROFILE_ICONS } from "@/lib/scoring/icons";
 import type { PrimaryProfile } from "@/lib/scoring/types";
-
-// Professional icon mapping for each profile
-const PROFILE_ICONS: Record<PrimaryProfile, LucideIcon> = {
-  gardien_tradition: Shield,
-  prudent_eclaire: Search,
-  innovateur_ancre: Anchor,
-  equilibriste: Scale,
-  pragmatique_moderne: Laptop,
-  pionnier_spirituel: Rocket,
-  progressiste_critique: AlertCircle,
-  explorateur: Compass,
-};
 
 interface ProfileCardProps {
   profile: PrimaryProfile;
@@ -58,7 +36,7 @@ export function ProfileCard({ profile, isExpanded, onToggle }: ProfileCardProps)
           </div>
           <div className="flex-1 min-w-0">
             <h3
-              className="font-bold text-white truncate"
+              className="font-bold text-foreground truncate"
               style={{ color }}
             >
               {def.title}
@@ -86,11 +64,11 @@ export function ProfileCard({ profile, isExpanded, onToggle }: ProfileCardProps)
               <div className="grid grid-cols-2 gap-3">
                 <div className="glass-card p-3 rounded-lg">
                   <p className="text-xs text-muted-foreground/60 mb-1">Motivation</p>
-                  <p className="text-sm text-white">{def.coreMotivation}</p>
+                  <p className="text-sm text-foreground">{def.coreMotivation}</p>
                 </div>
                 <div className="glass-card p-3 rounded-lg">
                   <p className="text-xs text-muted-foreground/60 mb-1">Préoccupation</p>
-                  <p className="text-sm text-white">{def.primaryFear}</p>
+                  <p className="text-sm text-foreground">{def.primaryFear}</p>
                 </div>
               </div>
 
@@ -134,7 +112,7 @@ export function ProfileGallery({ translations: t }: ProfileGalleryProps) {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-white mb-2">{t.profilesTitle}</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2">{t.profilesTitle}</h2>
         <p className="text-muted-foreground">{t.profilesDescription}</p>
       </div>
 
