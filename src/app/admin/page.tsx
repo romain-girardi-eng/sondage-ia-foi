@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   AreaChart,
   Area,
@@ -785,6 +786,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
             </div>
 
             <div className="flex items-center gap-3">
+              <ThemeToggle />
+
               <button
                 onClick={() => fetchStats(currentPage, searchQuery)}
                 disabled={isLoading}
