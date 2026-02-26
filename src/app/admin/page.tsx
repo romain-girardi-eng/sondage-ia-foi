@@ -31,6 +31,7 @@ import {
   Sparkles,
   Target,
   GitCompare,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
@@ -193,6 +194,13 @@ interface AdminStats {
   correlationMatrix?: Record<string, Record<string, number>>;
   profileClusters?: ProfileCluster[];
   keyFindings?: KeyFinding[];
+  feedbacks?: Array<{
+    id: string;
+    createdAt: string;
+    language: string;
+    profile: string;
+    text: string;
+  }>;
   populationAverages?: Record<string, number>;
   demo?: boolean;
 }
@@ -335,7 +343,7 @@ export default function AdminPage() {
   const [authError, setAuthError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState<AdminStats | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "responses" | "analytics" | "executive" | "export">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "responses" | "analytics" | "executive" | "feedback" | "export">("overview");
   const [exportLoading, setExportLoading] = useState<"json" | "csv" | null>(null);
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -727,6 +735,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
             { id: "responses", icon: Users, label: "Responses" },
             { id: "analytics", icon: PieChart, label: "Analytics" },
             { id: "executive", icon: Sparkles, label: "Executive" },
+            { id: "feedback", icon: MessageSquare, label: "Feedback" },
             { id: "export", icon: Download, label: "Export" },
           ].map((item) => (
             <button
@@ -890,6 +899,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
               { id: "responses", icon: Users, label: "Responses" },
               { id: "analytics", icon: PieChart, label: "Analytics" },
               { id: "executive", icon: Sparkles, label: "Executive" },
+              { id: "feedback", icon: MessageSquare, label: "Feedback" },
               { id: "export", icon: Download, label: "Export" },
             ].map((item) => (
               <button
@@ -2538,6 +2548,74 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           ));
                       })()}
                     </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* ===== FEEDBACK TAB ===== */}
+            {activeTab === "feedback" && stats && (
+              <motion.div
+                key="feedback"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-6"
+              >
+                {/* Header with count */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <MessageSquare className="w-5 h-5 text-primary" />
+                    <h3 className="text-lg font-semibold text-foreground">
+                      Commentaires libres
+                    </h3>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                      {stats.feedbacks?.length || 0}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Feedback list */}
+                {!stats.feedbacks || stats.feedbacks.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <MessageSquare className="w-12 h-12 text-muted-foreground/30 mb-4" />
+                    <p className="text-muted-foreground text-sm">
+                      Aucun commentaire libre pour le moment.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {stats.feedbacks.map((fb) => (
+                      <div
+                        key={fb.id}
+                        className="bg-card border border-border rounded-xl p-5 space-y-3"
+                      >
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5" />
+                              {new Date(fb.createdAt).toLocaleDateString("fr-FR", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                              <Globe className="w-3.5 h-3.5" />
+                              {fb.language.toUpperCase()}
+                            </span>
+                          </div>
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent text-accent-foreground">
+                            {PROFILE_LABELS[fb.profile] || fb.profile}
+                          </span>
+                        </div>
+                        <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
+                          {fb.text}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 )}
               </motion.div>

@@ -331,6 +331,32 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    // Extract feedbacks from commentaires_libres
+    const feedbacks: Array<{ id: string; createdAt: string; language: string; profile: string; text: string }> = [];
+    (allResponsesData as AllResponseItem[] | null)?.forEach((r) => {
+      if (!r.answers) return;
+      const answers = r.answers as Answers;
+      const text = answers.commentaires_libres;
+      if (typeof text !== "string" || !text.trim()) return;
+
+      let profile = "unknown";
+      try {
+        const spectrum = calculateProfileSpectrum(answers);
+        profile = spectrum.primary.profile;
+      } catch { /* ignore */ }
+
+      feedbacks.push({
+        id: r.id,
+        createdAt: r.created_at,
+        language: r.metadata?.language || "unknown",
+        profile,
+        text: text.trim(),
+      });
+    });
+
+    // Sort feedbacks by date descending
+    feedbacks.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
     // Calculate averages
     const avgReligiosity = calculateAverage(religiosityScores);
     const avgAIAdoption = calculateAverage(aiAdoptionScores);
@@ -469,6 +495,7 @@ export async function GET(request: NextRequest) {
       correlationMatrix,
       profileClusters,
       keyFindings,
+      feedbacks,
       populationAverages,
       insufficientSampleSize: (completedResponses || 0) < 30,
       sampleSizeWarning: (completedResponses || 0) < 30
