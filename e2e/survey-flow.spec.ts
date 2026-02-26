@@ -1,24 +1,30 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type APIRequestContext } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+
+const HERO_HEADING = /Intelligence Artificielle|Artificial Intelligence/i;
+
+async function getCsrfToken(request: APIRequestContext): Promise<string> {
+  const csrfResponse = await request.get("/api/csrf");
+  expect(csrfResponse.ok()).toBeTruthy();
+
+  const data = await csrfResponse.json();
+  expect(data.token).toBeTruthy();
+
+  return data.token as string;
+}
 
 test.describe("Survey Flow", () => {
   test("should load the homepage", async ({ page }) => {
     await page.goto("/");
 
-    // Check page title
     await expect(page).toHaveTitle(/IA & Vie Spirituelle/);
-
-    // Check main heading is visible
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: HERO_HEADING })).toBeVisible();
   });
 
   test("should display consent checkbox before starting", async ({ page }) => {
     await page.goto("/");
-
-    // Wait for the page to load
     await page.waitForLoadState("networkidle");
 
-    // Look for consent-related text
     const consentText = page.getByText(/J'accepte|consent/i);
     await expect(consentText.first()).toBeVisible();
   });
@@ -41,7 +47,11 @@ test.describe("Survey Flow", () => {
     await page.goto("/faq");
 
     await expect(page).toHaveURL(/\/faq/);
-    await expect(page.getByText(/FAQ|Questions/i)).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        name: /Questions Fr[eé]quentes|Frequently Asked Questions|FAQ/i,
+      })
+    ).toBeVisible();
   });
 
   test("should handle 404 page", async ({ page }) => {
@@ -53,8 +63,8 @@ test.describe("Survey Flow", () => {
   test("should load admin login page", async ({ page }) => {
     await page.goto("/admin");
 
-    await expect(page.getByRole("heading", { name: /Administration/i })).toBeVisible();
-    await expect(page.getByLabel(/mot de passe|password/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Admin Dashboard/i })).toBeVisible();
+    await expect(page.getByLabel(/Admin Password|mot de passe|password/i)).toBeVisible();
   });
 });
 
@@ -77,7 +87,13 @@ test.describe("API Endpoints", () => {
   });
 
   test("should validate survey submission", async ({ request }) => {
+    const csrfToken = await getCsrfToken(request);
+
     const response = await request.post("/api/survey/submit", {
+      headers: {
+        "x-csrf-token": csrfToken,
+        "x-forwarded-for": "203.0.113.10",
+      },
       data: {
         sessionId: "invalid-id",
         answers: {},
@@ -88,14 +104,21 @@ test.describe("API Endpoints", () => {
     expect(response.status()).toBe(400);
   });
 
-  test("should accept valid survey submission in demo mode", async ({ request }) => {
+  test("should accept valid survey submission", async ({ request }) => {
+    const csrfToken = await getCsrfToken(request);
+
     const response = await request.post("/api/survey/submit", {
+      headers: {
+        "x-csrf-token": csrfToken,
+        "x-forwarded-for": "203.0.113.11",
+      },
       data: {
-        sessionId: "550e8400-e29b-41d4-a716-446655440000",
+        sessionId: crypto.randomUUID(),
         answers: { q1: "test" },
         consentGiven: true,
         consentVersion: "1.0",
-        anonymousId: "550e8400-e29b-41d4-a716-446655440001",
+        anonymousId: crypto.randomUUID(),
+        fingerprint: `e2e-${Date.now()}`,
       },
     });
 
@@ -103,7 +126,7 @@ test.describe("API Endpoints", () => {
 
     const data = await response.json();
     expect(data.success).toBe(true);
-    expect(data.demo).toBe(true);
+    expect(typeof data.responseId).toBe("string");
   });
 });
 
@@ -114,10 +137,9 @@ test.describe("Accessibility", () => {
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa"])
-      .exclude(".three-canvas") // Exclude 3D canvas
+      .exclude(".three-canvas")
       .analyze();
 
-    // Filter out minor issues
     const criticalViolations = accessibilityScanResults.violations.filter(
       (v) => v.impact === "critical" || v.impact === "serious"
     );
@@ -161,14 +183,13 @@ test.describe("Responsive Design", () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/");
 
-    // Check that main content is visible
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: HERO_HEADING })).toBeVisible();
   });
 
   test("should be usable on tablet", async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 });
     await page.goto("/");
 
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: HERO_HEADING })).toBeVisible();
   });
 });

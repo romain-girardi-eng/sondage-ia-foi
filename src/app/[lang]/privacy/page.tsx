@@ -361,10 +361,10 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
 
             {/* Not Collected */}
             <div className="p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-              <p className="text-emerald-600 dark:text-emerald-400 font-medium">
+              <p className="text-foreground font-medium">
                 {content.collected.notCollected}
               </p>
-              <ul className="list-disc list-inside space-y-1 ml-4 mt-2 text-emerald-700/80 dark:text-emerald-300/80 text-sm">
+              <ul className="list-disc list-inside space-y-1 ml-4 mt-2 text-foreground text-sm">
                 {content.collected.notItems.map((item, i) => (
                   <li key={i}>{item}</li>
                 ))}
@@ -373,7 +373,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
 
             {/* PDF Note */}
             <div className="mt-4 p-4 bg-blue-500/10 rounded-xl border border-blue-500/20">
-              <p className="text-blue-600 dark:text-blue-400 text-sm">
+              <p className="text-foreground text-sm">
                 <Mail className="w-4 h-4 inline mr-2" />
                 {content.collected.pdfNote}
               </p>
@@ -391,7 +391,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
               {content.legal.items.map((item, i) => (
                 <div key={i} className="p-4 bg-purple-500/5 rounded-xl border border-purple-500/20">
                   <div className="flex items-start gap-3">
-                    <span className="text-purple-500 font-medium">{i + 1}.</span>
+                    <span className="text-foreground font-medium">{i + 1}.</span>
                     <div>
                       <p className="font-medium text-foreground">{item.basis}</p>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -413,7 +413,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
             <div className="space-y-3">
               {content.purpose.items.map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <span className="text-blue-500 mt-1">•</span>
+                  <span className="text-foreground mt-1">•</span>
                   <div>
                     <p className="font-medium text-foreground">{item.purpose}</p>
                     <p className="text-sm text-muted-foreground">{item.detail}</p>
@@ -473,13 +473,13 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
             <ul className="space-y-3">
               {content.rights.items.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="text-blue-500 mt-1">•</span>
+                  <span className="text-foreground mt-1">•</span>
                   <span><strong>{item.name}</strong>: {item.desc}</span>
                 </li>
               ))}
             </ul>
             <div className="mt-4 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
-              <p className="text-sm text-amber-600 dark:text-amber-400">
+              <p className="text-sm text-foreground">
                 {content.rights.limitation}
               </p>
             </div>
@@ -501,10 +501,10 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
               {content.contact.title}
             </h2>
             <p className="mb-2">{content.contact.text}</p>
-            <p className="text-sm font-medium text-blue-500 mb-2">{content.contact.email}</p>
+            <p className="text-sm font-medium text-foreground mb-2">{content.contact.email}</p>
             <p className="text-sm">
               {content.contact.page}{" "}
-              <Link href={myDataLink} className="text-blue-500 hover:underline">
+              <Link href={myDataLink} className="text-foreground underline hover:no-underline">
                 {content.contact.link}
               </Link>
               {content.contact.pageEnd}
@@ -518,7 +518,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
         <footer className="mt-12 text-center">
           <Link
             href={backLink}
-            className="text-blue-500 hover:text-blue-400 transition-colors"
+            className="text-foreground underline hover:no-underline transition-colors"
           >
             &larr; {content.back}
           </Link>

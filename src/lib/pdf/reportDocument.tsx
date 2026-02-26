@@ -29,7 +29,7 @@ export interface ReportData {
   language: 'fr' | 'en';
   anonymousId: string;
   completedAt: string;
-  answers: Record<string, string | string[] | number>;
+  answers: Record<string, string | string[] | number | Record<string, number>>;
   profile: {
     religiosityScore: number;
     iaComfortScore: number;

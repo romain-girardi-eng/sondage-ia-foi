@@ -21,6 +21,7 @@ const sendPdfSchema = z.object({
     z.string(),
     z.number(),
     z.array(z.string()),
+    z.record(z.string(), z.number().min(0).max(3)),
   ])),
 });
 

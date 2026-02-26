@@ -58,7 +58,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
 
       {/* FAQ Section */}
       <div id="faq-section">
-        <FAQSection />
+        <FAQSection headingLevel={2} />
       </div>
 
       {/* Compact Footer */}
@@ -70,7 +70,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
             alt="IA & Foi"
             className="w-8 h-8 rounded-full"
           />
-          <p className="text-xs text-muted-foreground/70">
+          <p className="text-xs text-muted-foreground">
             {t("footer.tagline")} - {new Date().getFullYear()}
           </p>
         </div>

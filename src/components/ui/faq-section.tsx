@@ -10,12 +10,14 @@ interface FAQItem {
 
 interface FAQSectionProps {
   faqs?: FAQItem[];
+  headingLevel?: 1 | 2 | 3;
 }
 
-export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
+export default function FAQSection({ faqs: customFaqs, headingLevel = 1 }: FAQSectionProps) {
   const { t, language } = useLanguage();
   const spiralRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
+  const HeadingTag = `h${headingLevel}` as "h1" | "h2" | "h3";
 
   // Spiral configuration - simplified for production
   const cfg = useMemo(() => ({
@@ -220,9 +222,9 @@ export default function FAQSection({ faqs: customFaqs }: FAQSectionProps) {
         {/* Header */}
         <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between border-b border-border pb-6 gap-4">
           <div>
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-gradient-animated">
+            <HeadingTag className="text-4xl md:text-6xl font-black tracking-tight text-gradient-animated">
               {title}
-            </h1>
+            </HeadingTag>
             <p className="mt-2 text-sm md:text-base text-muted-foreground">
               {subtitle}
             </p>
