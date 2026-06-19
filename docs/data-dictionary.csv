@@ -1,7 +1,8 @@
 variable_id,label_fr,label_en,type,values,dimension,category
 profil_confession,Branche chretienne principale,Main Christian branch,choice,"catholique|protestant|orthodoxe|anglican|autre_chretien|sans_religion",,profile
 profil_confession_catholique,Sensibilite catholique,Catholic sensitivity,choice,"catholique_paroissial|catholique_charismatique|catholique_traditionaliste",,profile
-profil_confession_protestante,Sensibilite protestante,Protestant sensitivity,choice,"protestant_historique|evangelique|pentecotiste",,profile
+profil_confession_protestante,Sensibilite protestante,Protestant sensitivity,choice,"protestant_historique|evangelique",,profile
+profil_confession_evangelique,Courant evangelique (charismatique vs non),Evangelical stream (charismatic vs non),choice,"non_charismatique|charismatique",,profile
 profil_confession_orthodoxe,Tradition orthodoxe,Orthodox tradition,choice,"orthodoxe_oriental|orthodoxe_ancien",,profile
 profil_confession_autre,Autre tradition chretienne,Other Christian tradition,choice,"adventiste|quaker|vieux_catholique|non_denominationnel|autre",,profile
 profil_statut,Situation dans la communaute,Status in community,choice,"clerge|religieux|laic_engage|laic_pratiquant|curieux",communityInfluence,profile

@@ -258,7 +258,7 @@ Voir `src/lib/scoring/profiles.ts` pour l'implémentation détaillée.
 
 **Variables :**
 - `profil_confession_catholique === 'catholique_charismatique'`
-- `profil_confession_evangelique === 'pentecotiste'`
+- `profil_confession_evangelique === 'charismatique'`
 
 **Test :** ANOVA, comparaison de moyennes
 **Statut :** À vérifier (dépend de la taille des échantillons)
