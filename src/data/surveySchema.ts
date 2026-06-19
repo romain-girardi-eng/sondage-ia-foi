@@ -102,7 +102,7 @@ export const SURVEY_QUESTIONS: Question[] = [
     options: [
       { value: 'protestant_historique', label: 'Protestantisme historique / mainline (Luthérien, Réformé, Méthodiste, Presbytérien)' },
       { value: 'evangelique', label: 'Évangélique non-charismatique (Baptiste, Mennonite, Frères, Églises libres...)' },
-      { value: 'pentecotiste', label: 'Évangélique pentecôtiste / charismatique' }
+      { value: 'pentecotiste', label: 'Évangélique pentecôtiste / charismatique (Assemblées de Dieu, Baptiste charismatique...)' }
     ],
     condition: (answers) => getStringAnswer(answers, 'profil_confession') === 'protestant'
   },
