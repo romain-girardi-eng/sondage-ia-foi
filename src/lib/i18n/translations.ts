@@ -31,6 +31,20 @@ export const translations = {
       featureScientific: "Méthodologie scientifique",
       featureAnonymous: "100% anonyme",
       featureDuration: "5-7 minutes",
+      anonymousHighlight: "100% anonyme",
+      anonymousHighlightDesc: "Aucune donnée identifiante n'est enregistrée. Ni nom, ni email, ni adresse IP.",
+    },
+
+    // CNEF co-branded landing
+    cnef: {
+      partnership: "Enquête proposée en partenariat avec le CNEF",
+      badge: "Partenariat CNEF",
+      logoAlt: "Logo du CNEF",
+      title: "IA et foi : la parole aux évangéliques",
+      subtitle: "Quel est votre usage réel de l'intelligence artificielle dans la vie d'Église ?",
+      description:
+        "Le CNEF prépare une déclaration sur l'intelligence artificielle. Pour l'appuyer sur des chiffres réels, cette enquête recueille la pratique des évangéliques de France. Vos réponses, 100% anonymes, nourriront directement cette réflexion.",
+      startButton: "Commencer l'enquête",
     },
 
     // Survey Questions
@@ -707,6 +721,20 @@ export const translations = {
       featureScientific: "Scientific methodology",
       featureAnonymous: "100% anonymous",
       featureDuration: "5-7 minutes",
+      anonymousHighlight: "100% anonymous",
+      anonymousHighlightDesc: "No identifying data is recorded. No name, no email, no IP address.",
+    },
+
+    // CNEF co-branded landing
+    cnef: {
+      partnership: "Survey offered in partnership with the CNEF",
+      badge: "CNEF partnership",
+      logoAlt: "CNEF logo",
+      title: "AI and faith: the evangelical voice",
+      subtitle: "What is your actual use of artificial intelligence in church life?",
+      description:
+        "The CNEF is preparing a statement on artificial intelligence. To ground it in real figures, this survey gathers the practices of French evangelicals. Your answers, 100% anonymous, will directly inform this reflection.",
+      startButton: "Start the survey",
     },
 
     // Survey Questions

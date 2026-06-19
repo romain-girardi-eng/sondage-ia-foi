@@ -76,11 +76,17 @@ function getAnonymousId(): string {
 //   );
 // }
 
+type SurveyAnswers = Record<string, string | number | string[] | Record<string, number>>;
+
 interface SurveyContainerProps {
   initialLanguage?: "fr" | "en";
+  // Landing variant: "cnef" renders the CNEF co-branded intro.
+  variant?: "general" | "cnef";
+  // Pre-filled answers (e.g. CNEF deep-link seeds profil_confession=protestant).
+  initialAnswers?: SurveyAnswers;
 }
 
-export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) {
+export function SurveyContainer({ initialLanguage, variant = "general", initialAnswers }: SurveyContainerProps = {}) {
   const { t, language, setLanguage } = useLanguage();
   const hasInitializedLanguage = useRef(false);
 
@@ -101,7 +107,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
   const [step, setStep] = useState<SurveyStep>("intro");
   const [isHydrated, setIsHydrated] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string | number | string[] | Record<string, number>>>({});
+  const [answers, setAnswers] = useState<SurveyAnswers>(() => ({ ...initialAnswers }));
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [savedProgress, setSavedProgress] = useState<SavedProgress | null>(null);
   const [consentGiven, setConsentGiven] = useState(false);
@@ -273,9 +279,17 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
 
   const handleStart = useCallback(() => {
     surveyStartTime.current = Date.now();
+    // CNEF deep-link: skip the confession question (already pre-filled as
+    // Protestant) and land directly on the evangelical sub-question.
+    if (variant === "cnef") {
+      const idx = visibleQuestions.findIndex((q) => q.id === "profil_confession_protestante");
+      if (idx > 0) {
+        setCurrentIndex(idx);
+      }
+    }
     setStep("questions");
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+  }, [variant, visibleQuestions]);
 
   const handleAnswer = useCallback(
     (value: string | number | string[] | Record<string, number>) => {
@@ -533,6 +547,7 @@ export function SurveyContainer({ initialLanguage }: SurveyContainerProps = {}) 
         onStart={handleStart}
         onConsentChange={setConsentGiven}
         consentGiven={consentGiven}
+        variant={variant}
       />
     );
   }

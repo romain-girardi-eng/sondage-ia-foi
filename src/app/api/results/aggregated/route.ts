@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rateLimit';
 import { getMockResults } from '@/lib';
+import { SURVEY_QUESTIONS } from '@/data';
+
+// Free-text questions hold verbatim responses that could re-identify a
+// participant. They must never be exposed through the public aggregate
+// endpoint. The list is derived from the schema so future text questions
+// are excluded automatically.
+const FREE_TEXT_QUESTION_IDS = new Set(
+  SURVEY_QUESTIONS.filter((q) => q.type === 'text').map((q) => q.id)
+);
+
+function stripFreeText<T extends { questionId: string }>(rows: T[]): T[] {
+  return rows.filter((row) => !FREE_TEXT_QUESTION_IDS.has(row.questionId));
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,7 +36,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         {
           participantCount: 1543,
-          results: mockResults,
+          results: stripFreeText(mockResults),
           lastUpdated: new Date().toISOString(),
           demo: true,
         },
@@ -43,7 +56,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         {
           participantCount: 1543,
-          results: mockResults,
+          results: stripFreeText(mockResults),
           lastUpdated: new Date().toISOString(),
           demo: true,
         },
@@ -76,7 +89,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         {
           participantCount: Number(countData) || 1543,
-          results: mockResults,
+          results: stripFreeText(mockResults),
           lastUpdated: new Date().toISOString(),
         },
         {
@@ -105,7 +118,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         participantCount: Number(countData) || 0,
-        results: aggregatedResults,
+        results: stripFreeText(aggregatedResults),
         lastUpdated: new Date().toISOString(),
       },
       {

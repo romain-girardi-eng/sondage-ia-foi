@@ -133,7 +133,7 @@ export const questionTranslations = {
       // Protestant sub-categories
       protestant_historique: "Protestantisme historique / mainline (Luthérien, Réformé, Méthodiste, Presbytérien)",
       evangelique: "Évangélique non-charismatique (Baptiste, Mennonite, Frères, Églises libres...)",
-      pentecotiste: "Évangélique pentecôtiste / charismatique",
+      pentecotiste: "Évangélique pentecôtiste / charismatique (Assemblées de Dieu, Baptiste charismatique...)",
       // Orthodox sub-categories
       orthodoxe_oriental: "Orthodoxe oriental (Grec, Russe, Serbe, Roumain, Bulgare, Géorgien...)",
       orthodoxe_ancien: "Orthodoxe oriental ancien (Copte, Éthiopien, Arménien, Syriaque)",
@@ -427,7 +427,7 @@ export const questionTranslations = {
       // Protestant sub-categories
       protestant_historique: "Historic / Mainline Protestant (Lutheran, Reformed, Methodist, Presbyterian)",
       evangelique: "Non-charismatic Evangelical (Baptist, Mennonite, Brethren, Free Churches...)",
-      pentecotiste: "Pentecostal / Charismatic Evangelical",
+      pentecotiste: "Pentecostal / Charismatic Evangelical (Assemblies of God, charismatic Baptist...)",
       // Orthodox sub-categories
       orthodoxe_oriental: "Eastern Orthodox (Greek, Russian, Serbian, Romanian, Bulgarian, Georgian...)",
       orthodoxe_ancien: "Oriental Orthodox (Coptic, Ethiopian, Armenian, Syriac)",
