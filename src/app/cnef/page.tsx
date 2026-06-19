@@ -34,7 +34,10 @@ export default function CnefHome() {
         </div>
 
         <div className="relative z-10">
-          <SurveyContainer variant="cnef" initialAnswers={{ profil_confession: "protestant" }} />
+          <SurveyContainer
+            variant="cnef"
+            initialAnswers={{ profil_confession: "protestant", profil_confession_protestante: "evangelique" }}
+          />
         </div>
       </main>
     </>

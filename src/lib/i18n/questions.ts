@@ -5,7 +5,8 @@ export const questionTranslations = {
     questions: {
       // === PROFIL & DÉMOGRAPHIE ===
       profil_confession: "Quelle est votre branche chrétienne principale ?",
-      profil_confession_protestante: "Précisez votre sensibilité protestante :",
+      profil_confession_protestante: "Quelle est votre sensibilité protestante ?",
+      profil_confession_evangelique: "Au sein du protestantisme évangélique, vous situez-vous plutôt comme :",
       profil_statut: "Quelle est votre situation au sein de votre communauté religieuse ?",
       profil_age: "Votre tranche d'âge",
       profil_genre: "Votre genre",
@@ -132,7 +133,10 @@ export const questionTranslations = {
       sans_religion: "Sans religion / Autre",
       // Protestant sub-categories
       protestant_historique: "Protestantisme historique / mainline (Luthérien, Réformé, Méthodiste, Presbytérien)",
-      evangelique: "Évangélique non-charismatique (Baptiste, Mennonite, Frères, Églises libres...)",
+      evangelique: "Protestant évangélique",
+      non_charismatique: "Non-charismatique (Baptiste, Mennonite, Frères, Églises libres...)",
+      charismatique: "Charismatique / pentecôtiste (Assemblées de Dieu, Baptiste charismatique...)",
+      // Deprecated value kept for older responses
       pentecotiste: "Évangélique pentecôtiste / charismatique (Assemblées de Dieu, Baptiste charismatique...)",
       // Orthodox sub-categories
       orthodoxe_oriental: "Orthodoxe oriental (Grec, Russe, Serbe, Roumain, Bulgare, Géorgien...)",
@@ -299,7 +303,8 @@ export const questionTranslations = {
     questions: {
       // === PROFILE & DEMOGRAPHICS ===
       profil_confession: "What is your main Christian denomination?",
-      profil_confession_protestante: "Please specify your Protestant tradition:",
+      profil_confession_protestante: "What is your Protestant background?",
+      profil_confession_evangelique: "Within evangelical Protestantism, do you identify more as:",
       profil_statut: "What is your role within your religious community?",
       profil_age: "Your age group",
       profil_genre: "Your gender",
@@ -426,7 +431,10 @@ export const questionTranslations = {
       sans_religion: "No religion / Other",
       // Protestant sub-categories
       protestant_historique: "Historic / Mainline Protestant (Lutheran, Reformed, Methodist, Presbyterian)",
-      evangelique: "Non-charismatic Evangelical (Baptist, Mennonite, Brethren, Free Churches...)",
+      evangelique: "Evangelical Protestant",
+      non_charismatique: "Non-charismatic (Baptist, Mennonite, Brethren, Free Churches...)",
+      charismatique: "Charismatic / Pentecostal (Assemblies of God, charismatic Baptist...)",
+      // Deprecated value kept for older responses
       pentecotiste: "Pentecostal / Charismatic Evangelical (Assemblies of God, charismatic Baptist...)",
       // Orthodox sub-categories
       orthodoxe_oriental: "Eastern Orthodox (Greek, Russian, Serbian, Romanian, Bulgarian, Georgian...)",

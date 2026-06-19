@@ -279,10 +279,11 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
 
   const handleStart = useCallback(() => {
     surveyStartTime.current = Date.now();
-    // CNEF deep-link: skip the confession question (already pre-filled as
-    // Protestant) and land directly on the evangelical sub-question.
+    // CNEF deep-link: confession (Protestant) and Protestant background
+    // (évangélique) are pre-filled, so land directly on the charismatic /
+    // non-charismatic question.
     if (variant === "cnef") {
-      const idx = visibleQuestions.findIndex((q) => q.id === "profil_confession_protestante");
+      const idx = visibleQuestions.findIndex((q) => q.id === "profil_confession_evangelique");
       if (idx > 0) {
         setCurrentIndex(idx);
       }

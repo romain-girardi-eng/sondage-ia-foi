@@ -19,17 +19,18 @@ test.describe("CNEF co-branded landing", () => {
     await page.getByText(/J'accepte les conditions/i).click();
     await page.getByRole("button", { name: /Commencer l'enqu[êe]te/i }).click();
 
-    // Lands directly on the evangelical sub-question (confession is pre-filled).
+    // Lands directly on the charismatic / non-charismatic question
+    // (confession + evangelical background are pre-filled).
     await expect(
-      page.getByRole("heading", { name: /Pr[ée]cisez votre sensibilit[ée] protestante/i })
+      page.getByRole("heading", { name: /protestantisme [ée]vang[ée]lique/i })
     ).toBeVisible();
 
-    // Both stable evangelical segments are present, charismatic with examples.
-    await expect(page.getByText(/Évangélique non-charismatique/i)).toBeVisible();
+    // Both stable segments are present, charismatic with examples.
+    await expect(page.getByText(/Non-charismatique/i)).toBeVisible();
     await expect(page.getByText(/Assembl[ée]es de Dieu/i)).toBeVisible();
 
-    // Answer the sub-question, then assert the pre-filled value persisted.
-    await page.getByRole("radio", { name: /Évangélique non-charismatique/i }).click();
+    // Answer the question, then assert the pre-filled values persisted.
+    await page.getByRole("radio", { name: /Non-charismatique/i }).click();
     await page.waitForTimeout(1500); // debounced localStorage write
 
     const answers = await page.evaluate(() => {
@@ -40,6 +41,7 @@ test.describe("CNEF co-branded landing", () => {
     expect(answers).toMatchObject({
       profil_confession: "protestant",
       profil_confession_protestante: "evangelique",
+      profil_confession_evangelique: "non_charismatique",
     });
   });
 });

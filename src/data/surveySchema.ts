@@ -97,14 +97,24 @@ export const SURVEY_QUESTIONS: Question[] = [
   {
     id: 'profil_confession_protestante',
     category: 'profile',
-    text: "Précisez votre sensibilité protestante :",
+    text: "Quelle est votre sensibilité protestante ?",
     type: 'choice',
     options: [
       { value: 'protestant_historique', label: 'Protestantisme historique / mainline (Luthérien, Réformé, Méthodiste, Presbytérien)' },
-      { value: 'evangelique', label: 'Évangélique non-charismatique (Baptiste, Mennonite, Frères, Églises libres...)' },
-      { value: 'pentecotiste', label: 'Évangélique pentecôtiste / charismatique (Assemblées de Dieu, Baptiste charismatique...)' }
+      { value: 'evangelique', label: 'Protestant évangélique' }
     ],
     condition: (answers) => getStringAnswer(answers, 'profil_confession') === 'protestant'
+  },
+  {
+    id: 'profil_confession_evangelique',
+    category: 'profile',
+    text: "Au sein du protestantisme évangélique, vous situez-vous plutôt comme :",
+    type: 'choice',
+    options: [
+      { value: 'non_charismatique', label: 'Non-charismatique (Baptiste, Mennonite, Frères, Églises libres...)' },
+      { value: 'charismatique', label: 'Charismatique / pentecôtiste (Assemblées de Dieu, Baptiste charismatique...)' }
+    ],
+    condition: (answers) => getStringAnswer(answers, 'profil_confession_protestante') === 'evangelique'
   },
   {
     id: 'profil_confession_orthodoxe',
