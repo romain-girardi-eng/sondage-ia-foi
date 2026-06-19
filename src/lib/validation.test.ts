@@ -20,6 +20,37 @@ describe('surveySubmissionSchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('preserves the recruitment channel (metadata.source) for CNEF vs generalist comparison', () => {
+    const validData = {
+      sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      answers: { profil_confession: 'protestant' },
+      metadata: { source: 'cnef', instrumentVersion: '1.4.0', language: 'fr' },
+      consentGiven: true,
+      consentVersion: '1.0',
+      anonymousId: '550e8400-e29b-41d4-a716-446655440001',
+    };
+
+    const result = surveySubmissionSchema.safeParse(validData);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.metadata?.source).toBe('cnef');
+      expect(result.data.metadata?.instrumentVersion).toBe('1.4.0');
+    }
+  });
+
+  it('rejects an unknown recruitment channel', () => {
+    const invalidData = {
+      sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      answers: { q1: 'answer1' },
+      metadata: { source: 'facebook' },
+      consentGiven: true,
+      anonymousId: '550e8400-e29b-41d4-a716-446655440001',
+    };
+
+    const result = surveySubmissionSchema.safeParse(invalidData);
+    expect(result.success).toBe(false);
+  });
+
   it('rejects invalid UUID for sessionId', () => {
     const invalidData = {
       sessionId: 'invalid-uuid',

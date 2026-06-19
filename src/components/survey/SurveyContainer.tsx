@@ -20,6 +20,8 @@ type SurveyStep = "intro" | "questions" | "verify-email" | "email" | "feedback" 
 
 const STORAGE_KEY = "survey-progress";
 const SESSION_KEY = "survey-session";
+// Survey instrument version, stamped on each response for schema/cutover lineage.
+const INSTRUMENT_VERSION = "1.4.0";
 const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
 const SAVE_DEBOUNCE_MS = 1000; // 1 second debounce for localStorage writes
 const ALLOW_VIEW_OVERRIDE = process.env.NEXT_PUBLIC_ENABLE_SURVEY_VIEW_OVERRIDE === "true" || process.env.NODE_ENV !== "production";
@@ -116,6 +118,9 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   const [anonymousIdState, setAnonymousIdState] = useState<string>("");
   // Track when survey started for time spent calculation
   const surveyStartTime = useRef<number>(0);
+  // Lowest reachable question index (CNEF deep-link locks earlier, pre-filled
+  // questions so the seeded confession cannot be silently changed).
+  const [minIndex, setMinIndex] = useState(0);
   // Submission error state
   const [submissionError, setSubmissionError] = useState<{ code: string; message: string } | null>(null);
   // Transitioning state to prevent blank pages during step transitions
@@ -284,8 +289,11 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     // non-charismatic question.
     if (variant === "cnef") {
       const idx = visibleQuestions.findIndex((q) => q.id === "profil_confession_evangelique");
-      if (idx > 0) {
+      if (idx >= 0) {
         setCurrentIndex(idx);
+        setMinIndex(idx);
+      } else if (process.env.NODE_ENV !== "production") {
+        console.warn("CNEF deep-link target 'profil_confession_evangelique' not found in schema");
       }
     }
     setStep("questions");
@@ -316,6 +324,14 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   const handleEmailHashVerified = useCallback(async (hash: string, email: string | null) => {
     // Show loading state immediately to prevent blank page during transition
     setIsTransitioning(true);
+
+    // Submit only answers whose question is currently visible: a respondent who
+    // backtracked and changed an ancestor (e.g. confession) can leave stale
+    // sub-answers that would otherwise pollute the public aggregates.
+    const visibleIds = new Set(visibleQuestions.map((q) => q.id));
+    const cleanAnswers = Object.fromEntries(
+      Object.entries(answers).filter(([key]) => visibleIds.has(key))
+    );
 
     // Calculate time spent
     const timeSpent = surveyStartTime.current > 0
@@ -350,7 +366,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
           credentials: "include", // Include cookies for CSRF validation
           body: JSON.stringify({
             sessionId: sessionId.current,
-            answers,
+            answers: cleanAnswers,
             metadata: {
               completedAt: new Date().toISOString(),
               startedAt: surveyStartTime.current > 0
@@ -358,6 +374,8 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
                 : undefined,
               timeSpent,
               language,
+              source: variant,
+              instrumentVersion: INSTRUMENT_VERSION,
             },
             consentGiven: true,
             consentVersion: "1.0",
@@ -417,7 +435,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
             email,
             language,
             anonymousId: anonymousIdState,
-            answers,
+            answers: cleanAnswers,
           }),
         });
         // Don't wait for response or handle errors - best effort delivery
@@ -433,7 +451,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     setStep("feedback");
     setIsTransitioning(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [consentGiven, answers, language, anonymousIdState, fingerprint]);
+  }, [consentGiven, answers, language, anonymousIdState, fingerprint, visibleQuestions, variant]);
 
   // Handle when email already used (from hash verification)
   const handleEmailAlreadyUsed = useCallback(() => {
@@ -444,10 +462,10 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   }, []);
 
   const handlePrevious = useCallback(() => {
-    if (currentIndex > 0) {
+    if (currentIndex > minIndex) {
       setCurrentIndex((prev) => prev - 1);
     }
-  }, [currentIndex]);
+  }, [currentIndex, minIndex]);
 
   const handleEmailSuccess = useCallback(() => {
     setStep("feedback");
@@ -681,7 +699,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
         <div className="flex justify-between items-center w-full max-w-2xl mx-auto">
           <button
             onClick={handlePrevious}
-            disabled={currentIndex === 0}
+            disabled={currentIndex <= minIndex}
             aria-label={t("survey.previous")}
             className="flex items-center gap-1.5 px-3 py-2 -ml-3 text-sm text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted-foreground disabled:hover:bg-transparent transition-all duration-200 rounded-lg hover:bg-accent"
           >
