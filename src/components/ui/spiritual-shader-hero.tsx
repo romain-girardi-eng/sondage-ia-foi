@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useMemo, useSyncExternalStore, useState, useEffect, useCallback } from 'react';
+import { useRef, useMemo, useSyncExternalStore, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { Canvas, useFrame, extend, useThree } from '@react-three/fiber';
 import { shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
@@ -391,6 +391,11 @@ interface SpiritualHeroProps {
   consentLabel?: string;
   privacyLink?: string;
   privacyLinkText?: string;
+  // Optional co-branding block rendered above the badge (e.g. CNEF partnership)
+  coBrandSlot?: ReactNode;
+  // Prominent anonymity reassurance rendered just before the CTA
+  anonymityLabel?: string;
+  anonymityDescription?: string;
   // Author credits
   authorName?: string;
   authorLabel?: string;
@@ -414,6 +419,9 @@ export default function SpiritualShaderHero({
   consentLabel,
   privacyLink,
   privacyLinkText = "Learn more",
+  coBrandSlot,
+  anonymityLabel,
+  anonymityDescription,
   authorName,
   authorLabel,
   githubUrl,
@@ -515,6 +523,9 @@ export default function SpiritualShaderHero({
       <ShaderBackground />
 
       <div className="relative mx-auto flex min-h-[100dvh] max-w-4xl flex-col items-center justify-center gap-6 px-6 py-24 text-center">
+        {/* Co-branding slot (optional) */}
+        {coBrandSlot}
+
         {/* Badge */}
         {(badgeLabel || badgeText) && (
           <div
@@ -600,6 +611,28 @@ export default function SpiritualShaderHero({
                 )}
               </span>
             </label>
+          </div>
+        )}
+
+        {/* Anonymity reassurance (prominent, just before the CTA) */}
+        {anonymityLabel && (
+          <div className="inline-flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-5 py-3 text-left backdrop-blur-sm">
+            <svg
+              className="h-5 w-5 shrink-0 text-emerald-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span className="flex flex-col">
+              <span className="text-sm font-semibold text-foreground">{anonymityLabel}</span>
+              {anonymityDescription && (
+                <span className="text-xs font-light text-muted-foreground">{anonymityDescription}</span>
+              )}
+            </span>
           </div>
         )}
 

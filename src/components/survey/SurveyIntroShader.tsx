@@ -9,10 +9,12 @@ interface SurveyIntroShaderProps {
   onStart: () => void;
   onConsentChange?: (consent: boolean) => void;
   consentGiven?: boolean;
+  variant?: "general" | "cnef";
 }
 
-export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = false }: SurveyIntroShaderProps) {
+export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = false, variant = "general" }: SurveyIntroShaderProps) {
   const { t, language } = useLanguage();
+  const isCnef = variant === "cnef";
 
   const scrollToFaq = () => {
     const faqSection = document.getElementById("faq-section");
@@ -30,21 +32,40 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
     { icon: "⏱️", text: t("intro.featureDuration") },
   ];
 
+  // CNEF co-branding header (IA & Foi + placeholder CNEF logo).
+  // TODO: replace /cnef-logo.svg with the official CNEF logo once provided.
+  const coBrandSlot = isCnef ? (
+    <div className="flex flex-col items-center gap-3">
+      <div className="flex items-center gap-4 rounded-2xl border border-border bg-background/50 px-5 py-3 backdrop-blur-sm">
+        {/* eslint-disable-next-line @next/next/no-img-element -- Static logo */}
+        <img src="/logo.png" alt="IA & Foi" className="h-9 w-9 rounded-full" />
+        <span className="text-muted-foreground/50" aria-hidden="true">×</span>
+        {/* eslint-disable-next-line @next/next/no-img-element -- Placeholder logo, see TODO above */}
+        <img src="/cnef-logo.svg" alt={t("cnef.logoAlt")} className="h-10 w-10" />
+      </div>
+      <p className="text-sm font-medium text-foreground">{t("cnef.partnership")}</p>
+      <p className="text-[10px] uppercase tracking-[0.15em] text-amber-500/80">{t("cnef.logoTodo")}</p>
+    </div>
+  ) : undefined;
+
   return (
     <div className="relative w-full">
       <LanguageSwitcher />
 
       <SpiritualShaderHero
-        badgeLabel={t("intro.badge")}
+        badgeLabel={isCnef ? t("cnef.badge") : t("intro.badge")}
         badgeText={t("intro.badgeText")}
-        title={t("intro.title")}
-        subtitle={t("intro.subtitle")}
-        description={t("intro.description")}
-        primaryButtonText={t("intro.startButton")}
+        title={isCnef ? t("cnef.title") : t("intro.title")}
+        subtitle={isCnef ? t("cnef.subtitle") : t("intro.subtitle")}
+        description={isCnef ? t("cnef.description") : t("intro.description")}
+        primaryButtonText={isCnef ? t("cnef.startButton") : t("intro.startButton")}
         secondaryButtonText={t("intro.learnMore")}
         onPrimaryClick={onStart}
         onSecondaryClick={scrollToFaq}
         features={features}
+        coBrandSlot={coBrandSlot}
+        anonymityLabel={t("intro.anonymousHighlight")}
+        anonymityDescription={t("intro.anonymousHighlightDesc")}
         consentGiven={consentGiven}
         onConsentChange={onConsentChange}
         consentLabel={t("consent.checkbox")}
