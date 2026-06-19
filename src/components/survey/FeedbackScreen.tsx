@@ -7,6 +7,7 @@ import { cn, useLanguage, useHasAnimated, useMemoizedProfileSpectrum } from "@/l
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { ProfilesModal } from "./ProfilesModal";
+import { ProfileShare } from "@/components/sharing";
 import type { Answers } from "@/data";
 import {
   calculateCRS5Score,
@@ -455,6 +456,16 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
               </GlowCard>
             )}
           </ul>
+        </motion.div>
+
+        {/* Share my profile - viral loop */}
+        <motion.div
+          initial={hasAnimated ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+          className="mx-auto mt-10 max-w-2xl"
+        >
+          <ProfileShare profileId={primaryMatch.profile} />
         </motion.div>
 
         {/* CTA Button */}

@@ -250,6 +250,16 @@ export const translations = {
       shareDescription: "Participez à cette étude sur l'IA et la vie spirituelle",
     },
 
+    profileShare: {
+      title: "Partager mon profil",
+      subtitle: "Vos amis vont adorer découvrir le leur",
+      whatsapp: "Partager sur WhatsApp",
+      copyLink: "Copier le lien",
+      copied: "Copié !",
+      shareOnX: "Partager sur X",
+      shareOnFacebook: "Partager sur Facebook",
+    },
+
     // PDF
     pdf: {
       download: "Télécharger mon rapport PDF",
@@ -938,6 +948,16 @@ export const translations = {
       share: "Share",
       shareTitle: "AI & Faith Survey",
       shareDescription: "Participate in this study on AI and spiritual life",
+    },
+
+    profileShare: {
+      title: "Share my profile",
+      subtitle: "Your friends will love discovering theirs",
+      whatsapp: "Share on WhatsApp",
+      copyLink: "Copy link",
+      copied: "Copied!",
+      shareOnX: "Share on X",
+      shareOnFacebook: "Share on Facebook",
     },
 
     // PDF
