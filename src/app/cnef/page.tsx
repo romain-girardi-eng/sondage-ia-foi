@@ -1,11 +1,39 @@
 import type { Metadata } from "next";
 import { SurveyContainer } from "@/components/survey";
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ia-foi.fr";
+
 export const metadata: Metadata = {
-  title: "IA & Foi x CNEF | Enquête auprès des évangéliques",
+  title: "IA & Foi x CNEF | Enquête auprès des chrétiens évangéliques",
   description:
-    "Enquête anonyme proposée en partenariat avec le CNEF sur l'usage de l'intelligence artificielle dans la vie d'Église évangélique.",
-  robots: "index, follow",
+    "Enquête académique anonyme sur l'usage de l'intelligence artificielle dans la vie d'Église évangélique, réalisée en partenariat avec le CNEF. Résultats personnalisés inclus.",
+  robots: { index: true, follow: true },
+  alternates: {
+    canonical: `${BASE_URL}/cnef`,
+  },
+  openGraph: {
+    title: "IA & Foi x CNEF — Enquête évangélique sur l'IA",
+    description:
+      "Participez à l'enquête académique sur l'IA dans les Églises évangéliques, en partenariat avec le CNEF. Anonyme et confidentiel.",
+    url: `${BASE_URL}/cnef`,
+    type: "website",
+    images: [
+      {
+        url: `${BASE_URL}/cnef-og.png`,
+        width: 1200,
+        height: 630,
+        type: "image/png",
+        alt: "IA & Foi x CNEF — Enquête sur l'intelligence artificielle et les Églises évangéliques",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "IA & Foi x CNEF — Enquête évangélique sur l'IA",
+    description:
+      "Participez à l'enquête académique sur l'IA dans les Églises évangéliques, en partenariat avec le CNEF.",
+    images: [{ url: `${BASE_URL}/cnef-og.png`, alt: "IA & Foi x CNEF" }],
+  },
 };
 
 // CNEF co-branded landing. Enters the SAME survey engine as the general

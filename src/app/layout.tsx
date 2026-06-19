@@ -4,6 +4,7 @@ import { LanguageProvider, ThemeProvider } from "@/lib";
 import { ToastProvider } from "@/components/ui";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 import { WebVitalsReporter } from "@/components/analytics/WebVitalsReporter";
+import { SiteJsonLd } from "@/components/seo/SiteJsonLd";
 import type { Language } from "@/lib/i18n/translations";
 import "./globals.css";
 
@@ -14,10 +15,16 @@ export const viewport: Viewport = {
   themeColor: "#0b1120",
 };
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ia-foi.fr";
+
 export const metadata: Metadata = {
-  title: "IA & Vie Spirituelle | Grande Enquête 2026",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "IA & Vie Spirituelle | Grande Enquête 2026",
+    template: "%s | IA & Foi",
+  },
   description:
-    "Participez à cette grande enquête sur l'utilisation de l'intelligence artificielle dans les pratiques religieuses chrétiennes. Anonyme et confidentiel.",
+    "Participez à la grande enquête 2026 sur l'utilisation de l'intelligence artificielle dans les pratiques religieuses chrétiennes. Anonyme, confidentiel, résultats personnalisés.",
   keywords: [
     "intelligence artificielle",
     "religion",
@@ -27,22 +34,36 @@ export const metadata: Metadata = {
     "grande enquête",
     "spiritualité",
     "IA",
+    "foi",
+    "pratiques religieuses",
+    "CNEF",
+    "évangéliques",
   ],
-  authors: [{ name: "Équipe de Recherche" }],
-  robots: "index, follow",
+  authors: [{ name: "Équipe de Recherche IA & Foi" }],
+  robots: { index: true, follow: true },
+  alternates: {
+    canonical: "/",
+    languages: {
+      "fr-FR": "/",
+      "en-US": "/eng",
+    },
+  },
   openGraph: {
     type: "website",
     locale: "fr_FR",
+    alternateLocale: "en_US",
     title: "IA & Vie Spirituelle | Grande Enquête 2026",
     description:
-      "Participez à cette grande enquête sur l'utilisation de l'IA dans les pratiques religieuses chrétiennes.",
+      "Participez à la grande enquête 2026 sur l'utilisation de l'IA dans les pratiques religieuses chrétiennes.",
     siteName: "IA & Foi",
+    url: "/",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 1200,
-        alt: "IA & Foi - Enquête sur l'intelligence artificielle et la vie spirituelle",
+        type: "image/png",
+        alt: "IA & Foi — Enquête sur l'intelligence artificielle et la vie spirituelle",
       },
     ],
   },
@@ -50,8 +71,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "IA & Vie Spirituelle | Grande Enquête 2026",
     description:
-      "Participez à cette grande enquête sur l'utilisation de l'IA dans les pratiques religieuses.",
-    images: ["/og-image.png"],
+      "Grande enquête 2026 sur l'IA dans les pratiques religieuses chrétiennes. Résultats personnalisés.",
+    images: [{ url: "/og-image.png", width: 1200, height: 1200, alt: "IA & Foi" }],
   },
 };
 
@@ -98,6 +119,7 @@ export default async function RootLayout({ children, params }: Readonly<RootLayo
             <ToastProvider>{children}</ToastProvider>
           </LanguageProvider>
         </ThemeProvider>
+        <SiteJsonLd />
         <AnalyticsProvider nonce={nonce} />
         <WebVitalsReporter />
       </body>

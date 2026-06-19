@@ -1,0 +1,48 @@
+# IA & Foi — Grande Enquête 2026
+
+> Étude académique sur l'utilisation de l'intelligence artificielle dans les pratiques religieuses chrétiennes. Enquête bilingue (français / anglais), anonyme, conforme au RGPD, en partenariat avec le CNEF (Conseil National des Évangéliques de France).
+
+## À propos
+
+L'enquête **IA & Foi** (ia-foi.fr) est une étude scientifique portant sur la manière dont les chrétiens utilisent l'intelligence artificielle dans leur vie spirituelle. Elle couvre toutes les dénominations chrétiennes (catholiques, protestants, orthodoxes, évangéliques) et tous les niveaux d'engagement (clergé, laïcs engagés, pratiquants occasionnels).
+
+L'étude mobilise des outils psychométriques validés :
+- **CRS-5** (Centrality of Religiosity Scale, Huber & Huber, 2012) : mesure de la centralité de la religiosité sur 5 dimensions
+- **Échelle de Marlowe-Crowne** (désirabilité sociale) : détection des biais de réponse
+- **Indice de résistance spirituelle** : indicateur original mesurant l'écart entre usage général de l'IA et usage spirituel
+
+Les réponses sont traitées pour produire un **profil personnalisé** parmi 8 typologies et un score sur 7 dimensions.
+
+## Pages principales
+
+- [Enquête principale (FR)](https://ia-foi.fr/) — Point d'entrée du sondage en français
+- [Main Survey (EN)](https://ia-foi.fr/eng) — English entry point
+- [Méthodologie](https://ia-foi.fr/methodology) — Détail complet de la méthode scientifique, des 7 dimensions et des 8 profils
+- [Methodology (EN)](https://ia-foi.fr/eng/methodology) — Full methodology in English
+- [FAQ](https://ia-foi.fr/faq) — Questions fréquentes : anonymat, durée, données, CRS-5
+- [Enquête CNEF](https://ia-foi.fr/cnef) — Volet évangélique, en partenariat avec le CNEF
+- [Politique de confidentialité](https://ia-foi.fr/privacy) — Traitement des données, base légale RGPD
+- [Privacy Policy (EN)](https://ia-foi.fr/eng/privacy) — GDPR data policy in English
+- [Gestion des données](https://ia-foi.fr/mes-donnees) — Accès, export et suppression des données personnelles
+
+## Informations techniques
+
+- **URL canonique** : https://ia-foi.fr
+- **Langues** : Français (principal), Anglais
+- **Framework** : Next.js 16 (App Router)
+- **Contact** : contact@ia-foi.fr
+- **Données** : Résultats agrégés disponibles via `/api/results/aggregated`
+
+## Section en anglais / English Section
+
+**IA & Foi** ("AI & Faith") is a 2026 academic survey on artificial intelligence use in Christian religious practices. It is bilingual (French/English), fully anonymous, and GDPR-compliant.
+
+The survey produces a personalized profile across 8 typologies based on 7 psychometric dimensions. It uses the validated CRS-5 religiosity scale and includes a novel "spiritual resistance index" measuring the gap between general AI adoption and AI use for spiritual purposes.
+
+The study is conducted in partnership with the **CNEF** (Conseil National des Évangéliques de France / French National Council of Evangelicals).
+
+Key pages in English:
+- Survey: https://ia-foi.fr/eng
+- Methodology: https://ia-foi.fr/eng/methodology
+- Privacy Policy: https://ia-foi.fr/eng/privacy
+- My Data (GDPR): https://ia-foi.fr/eng/mes-donnees

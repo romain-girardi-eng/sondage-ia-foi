@@ -1,9 +1,18 @@
 import { Scale, Building, Globe, Server } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Mentions Légales - Sondage IA & Foi",
-  description: "Mentions légales et informations sur l'éditeur du site.",
+import type { Metadata } from "next";
+
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ia-foi.fr";
+
+export const metadata: Metadata = {
+  title: "Mentions Légales",
+  description:
+    "Mentions légales du site IA & Foi : éditeur, hébergeur, propriété intellectuelle et informations légales conformément à la loi du 21 juin 2004.",
+  robots: { index: false, follow: false },
+  alternates: {
+    canonical: `${BASE_URL}/legal`,
+  },
 };
 
 export default function LegalPage() {

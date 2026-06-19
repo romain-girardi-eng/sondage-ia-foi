@@ -22,53 +22,57 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang: rawLang } = await params;
   const lang: Locale = isValidLocale(rawLang) ? rawLang : "fr";
 
-  const metadata = {
+  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ia-foi.fr";
+
+  const localeData = {
     fr: {
       title: "IA & Vie Spirituelle | Grande Enquête 2026",
       description:
-        "Participez à cette grande enquête sur l'utilisation de l'intelligence artificielle dans les pratiques religieuses chrétiennes.",
+        "Participez à la grande enquête 2026 sur l'utilisation de l'intelligence artificielle dans les pratiques religieuses chrétiennes. Résultats personnalisés inclus.",
       locale: "fr_FR",
     },
     en: {
       title: "AI & Spiritual Life | Great Survey 2026",
       description:
-        "Participate in this major survey on the use of artificial intelligence in Christian religious practices.",
+        "Participate in the major 2026 survey on the use of artificial intelligence in Christian religious practices. Includes personalized results.",
       locale: "en_US",
     },
   };
   const localizedPath = lang === "en" ? "/eng" : "/";
 
   return {
-    title: metadata[lang].title,
-    description: metadata[lang].description,
+    title: localeData[lang].title,
+    description: localeData[lang].description,
     alternates: {
-      canonical: localizedPath,
+      canonical: `${BASE_URL}${localizedPath}`,
       languages: {
-        fr: "/",
-        en: "/eng",
+        "fr-FR": `${BASE_URL}/`,
+        "en-US": `${BASE_URL}/eng`,
       },
     },
     openGraph: {
       type: "website",
-      locale: metadata[lang].locale,
-      title: metadata[lang].title,
-      description: metadata[lang].description,
+      locale: localeData[lang].locale,
+      alternateLocale: lang === "en" ? "fr_FR" : "en_US",
+      title: localeData[lang].title,
+      description: localeData[lang].description,
       siteName: "IA & Foi",
-      url: localizedPath,
+      url: `${BASE_URL}${localizedPath}`,
       images: [
         {
-          url: "/og-image.png",
+          url: `${BASE_URL}/og-image.png`,
           width: 1200,
           height: 1200,
-          alt: "IA & Foi - Enquête sur l'intelligence artificielle et la vie spirituelle",
+          type: "image/png",
+          alt: "IA & Foi — Enquête sur l'intelligence artificielle et la vie spirituelle",
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: metadata[lang].title,
-      description: metadata[lang].description,
-      images: ["/og-image.png"],
+      title: localeData[lang].title,
+      description: localeData[lang].description,
+      images: [{ url: `${BASE_URL}/og-image.png`, alt: "IA & Foi" }],
     },
   };
 }
