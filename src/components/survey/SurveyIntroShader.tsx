@@ -37,7 +37,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
     <div className="flex flex-col items-center gap-4">
       <div className="flex items-center gap-6">
         {/* eslint-disable-next-line @next/next/no-img-element -- Static logo */}
-        <img src="/logo.png" alt="IA & Foi" className="h-16 w-16 rounded-full" />
+        <img src="/logo.png" alt="IA & Foi" className="h-16 w-16" />
         <span className="text-xl text-muted-foreground/40" aria-hidden="true">×</span>
         {/* eslint-disable-next-line @next/next/no-img-element -- Static logo */}
         <img src="/cnef-logo.png" alt={t("cnef.logoAlt")} className="h-[4.5rem] w-auto" />
@@ -87,7 +87,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
           <img
             src="/logo.png"
             alt="IA & Foi"
-            className="w-8 h-8 rounded-full"
+            className="w-8 h-8"
           />
           <p className="text-xs text-muted-foreground">
             {t("footer.tagline")} - {new Date().getFullYear()}
