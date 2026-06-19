@@ -96,11 +96,11 @@ profil_confession
 │
 ├── Protestant
 │   └── profil_confession_protestante
-│       ├── Protestantisme historique (Luthérien, Réformé, Anglican)
-│       └── Évangélique
+│       ├── protestant_historique : Protestantisme historique / mainline (Luthérien, Réformé, Méthodiste, Presbytérien)
+│       └── evangelique : Protestant évangélique
 │           └── profil_confession_evangelique
-│               ├── Évangélique classique (Baptiste, Mennonite, Frères...)
-│               └── Pentecôtiste / Charismatique
+│               ├── non_charismatique : Non-charismatique (Baptiste, Mennonite, Frères, Églises libres...)
+│               └── charismatique : Charismatique / pentecôtiste (Assemblées de Dieu, Baptiste charismatique...)
 │
 ├── Orthodoxe
 │   (pas de sous-catégorie - population attendue trop faible)
@@ -123,9 +123,11 @@ profil_confession
 
 | Sous-groupe | Population FR estimée | Intérêt analytique |
 |-------------|----------------------|-------------------|
-| Historique (Luthéro-réformé, Anglican) | ~40% des protestants FR | Tradition liturgique, moins charismatique |
-| Évangélique classique | ~35% | Position intermédiaire |
-| Pentecôtiste/Charismatique | ~25% | Hypothèse : plus ouverts à l'expérimentation spirituelle |
+| Historique / mainline (Luthéro-réformé, Méthodiste, Presbytérien) | ~40% des protestants FR | Tradition liturgique, moins charismatique |
+| Évangélique non-charismatique (Baptiste, Mennonite, Frères, Églises libres) | ~35% | Position intermédiaire |
+| Évangélique charismatique / pentecôtiste (Assemblées de Dieu, Baptiste charismatique) | ~25% | Hypothèse : plus ouverts à l'expérimentation spirituelle |
+
+> **Segmentation CNEF** : le clivage charismatique vs non-charismatique des évangéliques est porté par un champ canonique unique (`profil_confession_evangelique`, valeurs `non_charismatique` / `charismatique`), renseigné de façon identique dans l'enquête généraliste et dans la variante co-brandée CNEF (`/cnef`). La porte d'entrée CNEF pré-remplit `profil_confession = protestant` et `profil_confession_protestante = evangelique`, puis le répondant ne choisit que charismatique / non-charismatique. Les données restent donc jointables entre les deux portes d'entrée.
 
 ### 3.3 Analyses croisées possibles
 
@@ -472,6 +474,25 @@ Un codebook complet est disponible dans `src/lib/scoring/codebook.ts` incluant :
 
 ## 9. Changelog des révisions
 
+### v1.4.0 (2026-06-19) - Variante CNEF & segmentation évangélique
+
+#### Variante co-brandée CNEF
+- Ajout d'une porte d'entrée `/cnef` (co-branding CNEF) qui alimente le même questionnaire et le même stockage que l'enquête généraliste, en pré-remplissant `profil_confession = protestant` et `profil_confession_protestante = evangelique`. Objectif : comparabilité totale avec l'enquête de fond.
+
+#### Segmentation évangélique (charismatique vs non-charismatique)
+- La sous-question protestante passe en deux étapes : `profil_confession_protestante` (`protestant_historique` / `evangelique`), puis pour les évangéliques `profil_confession_evangelique` (`non_charismatique` / `charismatique`).
+- Le clivage charismatique/non-charismatique vit désormais dans un **champ canonique unique** (`profil_confession_evangelique`), identique pour l'enquête généraliste et la variante CNEF.
+
+#### Bascule d'instrument et continuité des données (cutover 2026-06-19)
+Avant cette révision, le clivage était porté par `profil_confession_protestante` avec les valeurs `evangelique` (= non-charismatique) et `pentecotiste` (= charismatique). La sémantique de `evangelique` a changé (désormais « évangélique » au sens large). Les 14 réponses antérieures ont été remappées sans perte vers le nouveau schéma, la valeur d'origine étant conservée dans la clé interne `_legacy_protestante` :
+
+| Valeur historique (`profil_confession_protestante`) | Remap (`profil_confession_evangelique`) | n |
+|---|---|---|
+| `evangelique` (non-charismatique) | `non_charismatique` | 9 |
+| `pentecotiste` (charismatique) | `charismatique` | 5 |
+
+- Les clés internes préfixées par `_` (ex. `_legacy_protestante`) et les questions à texte libre sont exclues de l'endpoint d'agrégats public (`get_aggregated_results`, migrations 007 et 008).
+
 ### v1.2.0 (2026-01-25) - Scientific Deepening
 
 #### Psychometric Enhancements
@@ -523,4 +544,4 @@ Un codebook complet est disponible dans `src/lib/scoring/codebook.ts` incluant :
 
 ---
 
-*Document généré le 25 janvier 2025. Dernière mise à jour : v1.3.0 (3 février 2026)*
+*Document généré le 25 janvier 2025. Dernière mise à jour : v1.4.0 (19 juin 2026)*

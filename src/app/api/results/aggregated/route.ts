@@ -13,7 +13,11 @@ const FREE_TEXT_QUESTION_IDS = new Set(
 );
 
 function stripFreeText<T extends { questionId: string }>(rows: T[]): T[] {
-  return rows.filter((row) => !FREE_TEXT_QUESTION_IDS.has(row.questionId));
+  // Exclude free-text questions and internal/meta keys (prefixed with "_",
+  // e.g. _legacy_protestante) from the public aggregates.
+  return rows.filter(
+    (row) => !row.questionId.startsWith('_') && !FREE_TEXT_QUESTION_IDS.has(row.questionId)
+  );
 }
 
 export async function GET(request: NextRequest) {
