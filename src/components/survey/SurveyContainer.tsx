@@ -374,7 +374,6 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
                 : undefined,
               timeSpent,
               language,
-              source: variant,
               instrumentVersion: INSTRUMENT_VERSION,
             },
             consentGiven: true,
@@ -451,7 +450,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     setStep("feedback");
     setIsTransitioning(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [consentGiven, answers, language, anonymousIdState, fingerprint, visibleQuestions, variant]);
+  }, [consentGiven, answers, language, anonymousIdState, fingerprint, visibleQuestions]);
 
   // Handle when email already used (from hash verification)
   const handleEmailAlreadyUsed = useCallback(() => {

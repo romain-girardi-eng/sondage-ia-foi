@@ -20,10 +20,8 @@ export const surveySubmissionSchema = z.object({
     timeSpent: z.number().optional(),
     language: z.enum(['fr', 'en']).optional(),
     startedAt: z.string().datetime().optional(),
-    // Recruitment channel / entry point, e.g. "general" or "cnef". Required to
-    // compare the CNEF-recruited sample against the generalist sample.
-    source: z.enum(['general', 'cnef']).optional(),
-    // Survey instrument version at time of response (schema/cutover lineage).
+    // Survey instrument version at time of response (schema/cutover lineage,
+    // confession-agnostic). Not a CNEF/general cohort split.
     instrumentVersion: z.string().max(20).optional(),
   }).optional(),
   consentGiven: z.boolean(),
