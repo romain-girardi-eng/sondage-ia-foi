@@ -32,19 +32,17 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
     { icon: "⏱️", text: t("intro.featureDuration") },
   ];
 
-  // CNEF co-branding header (IA & Foi + placeholder CNEF logo).
-  // TODO: replace /cnef-logo.svg with the official CNEF logo once provided.
+  // CNEF co-branding header (IA & Foi + official CNEF logo).
   const coBrandSlot = isCnef ? (
     <div className="flex flex-col items-center gap-3">
       <div className="flex items-center gap-4 rounded-2xl border border-border bg-background/50 px-5 py-3 backdrop-blur-sm">
         {/* eslint-disable-next-line @next/next/no-img-element -- Static logo */}
-        <img src="/logo.png" alt="IA & Foi" className="h-9 w-9 rounded-full" />
+        <img src="/logo.png" alt="IA & Foi" className="h-10 w-10 rounded-full" />
         <span className="text-muted-foreground/50" aria-hidden="true">×</span>
-        {/* eslint-disable-next-line @next/next/no-img-element -- Placeholder logo, see TODO above */}
-        <img src="/cnef-logo.svg" alt={t("cnef.logoAlt")} className="h-10 w-10" />
+        {/* eslint-disable-next-line @next/next/no-img-element -- Static logo */}
+        <img src="/cnef-logo.png" alt={t("cnef.logoAlt")} className="h-11 w-auto" />
       </div>
       <p className="text-sm font-medium text-foreground">{t("cnef.partnership")}</p>
-      <p className="text-[10px] uppercase tracking-[0.15em] text-amber-500/80">{t("cnef.logoTodo")}</p>
     </div>
   ) : undefined;
 

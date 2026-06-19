@@ -6,9 +6,7 @@ test.describe("CNEF co-branded landing", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(page.getByText(/partenariat avec le CNEF/i)).toBeVisible();
-    // Placeholder logo carries a visible TODO until the official asset lands.
-    await expect(page.getByText(/Logo provisoire/i)).toBeVisible();
-    await expect(page.getByAltText(/Logo CNEF/i)).toBeVisible();
+    await expect(page.getByAltText(/Logo du CNEF|CNEF logo/i)).toBeVisible();
     // Anonymity reassurance reinforced just before the CTA.
     await expect(page.getByText(/Aucune donn[ée]e identifiante/i)).toBeVisible();
   });

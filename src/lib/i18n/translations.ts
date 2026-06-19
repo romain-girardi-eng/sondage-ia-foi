@@ -39,8 +39,7 @@ export const translations = {
     cnef: {
       partnership: "Enquête proposée en partenariat avec le CNEF",
       badge: "Partenariat CNEF",
-      logoAlt: "Logo CNEF (provisoire)",
-      logoTodo: "Logo provisoire, en attente du logo officiel du CNEF",
+      logoAlt: "Logo du CNEF",
       title: "IA et foi : la parole aux évangéliques",
       subtitle: "Quel est votre usage réel de l'intelligence artificielle dans la vie d'Église ?",
       description:
@@ -730,8 +729,7 @@ export const translations = {
     cnef: {
       partnership: "Survey offered in partnership with the CNEF",
       badge: "CNEF partnership",
-      logoAlt: "CNEF logo (placeholder)",
-      logoTodo: "Placeholder logo, awaiting the official CNEF logo",
+      logoAlt: "CNEF logo",
       title: "AI and faith: the evangelical voice",
       subtitle: "What is your actual use of artificial intelligence in church life?",
       description:
