@@ -9,9 +9,18 @@ if (SENTRY_DSN) {
     // Performance Monitoring
     tracesSampleRate: 0.1, // 10% of transactions
 
-    // Session Replay (optional)
+    // Session Replay (optional) — mask everything: this survey captures
+    // special-category data (religious beliefs, free-text comments, email),
+    // which must never be recorded into replays sent to a third-party processor.
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
+    integrations: [
+      Sentry.replayIntegration({
+        maskAllText: true,
+        maskAllInputs: true,
+        blockAllMedia: true,
+      }),
+    ],
 
     // Environment
     environment: process.env.NODE_ENV,

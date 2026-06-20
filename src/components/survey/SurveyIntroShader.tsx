@@ -35,13 +35,8 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
   // CNEF co-branding header (IA & Foi + official CNEF logo).
   const coBrandSlot = isCnef ? (
     <div className="flex flex-col items-center gap-2 sm:gap-4">
-      <div className="flex items-center gap-4 sm:gap-6">
-        {/* eslint-disable-next-line @next/next/no-img-element -- Static logo */}
-        <img src="/logo.png" alt="IA & Foi" className="h-11 w-11 rounded-full sm:h-16 sm:w-16" />
-        <span className="text-xl text-muted-foreground/40" aria-hidden="true">×</span>
-        {/* eslint-disable-next-line @next/next/no-img-element -- Static logo */}
-        <img src="/cnef-logo.png" alt={t("cnef.logoAlt")} className="h-12 w-auto sm:h-[4.5rem]" />
-      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element -- Static logo */}
+      <img src="/cnef-logo.png" alt={t("cnef.logoAlt")} className="h-14 w-auto sm:h-[4.5rem]" />
       <p className="text-xs font-medium text-foreground sm:text-sm">{t("cnef.partnership")}</p>
     </div>
   ) : undefined;
@@ -87,7 +82,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
           <img
             src="/logo.png"
             alt="IA & Foi"
-            className="w-8 h-8 rounded-full"
+            className="w-8 h-8"
           />
           <p className="text-xs text-muted-foreground">
             {t("footer.tagline")} - {new Date().getFullYear()}
