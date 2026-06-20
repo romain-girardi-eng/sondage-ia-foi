@@ -37,7 +37,7 @@ export const translations = {
 
     // CNEF co-branded landing
     cnef: {
-      partnership: "Enquête proposée en partenariat avec le CNEF",
+      partnership: "Enquête proposée par Romain Girardi en partenariat avec le CNEF",
       badge: "Partenariat CNEF",
       logoAlt: "Logo du CNEF",
       title: "IA et foi : la parole aux évangéliques",
@@ -727,7 +727,7 @@ export const translations = {
 
     // CNEF co-branded landing
     cnef: {
-      partnership: "Survey offered in partnership with the CNEF",
+      partnership: "Survey offered by Romain Girardi in partnership with the CNEF",
       badge: "CNEF partnership",
       logoAlt: "CNEF logo",
       title: "AI and faith: the evangelical voice",
