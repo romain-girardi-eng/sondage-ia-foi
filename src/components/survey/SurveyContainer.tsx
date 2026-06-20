@@ -536,19 +536,19 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
             <p className="text-muted-foreground mb-8">
               {t("session.resumeDescription")}
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleRestart}
-                className="flex-1 px-6 py-3 rounded-xl bg-secondary hover:bg-secondary/80 text-secondary-foreground font-medium transition-all flex items-center justify-center gap-2"
+                className="w-full sm:flex-1 min-w-0 px-4 sm:px-6 py-3 rounded-xl bg-secondary hover:bg-secondary/80 text-secondary-foreground font-medium transition-all flex items-center justify-center gap-2"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-4 h-4 shrink-0" />
                 {t("session.restartButton")}
               </button>
               <button
                 onClick={handleResume}
-                className="flex-1 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all flex items-center justify-center gap-2"
+                className="w-full sm:flex-1 min-w-0 px-4 sm:px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all flex items-center justify-center gap-2"
               >
-                <PlayCircle className="w-4 h-4" />
+                <PlayCircle className="w-4 h-4 shrink-0" />
                 {t("session.resumeButton")}
               </button>
             </div>
