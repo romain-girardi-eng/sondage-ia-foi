@@ -522,7 +522,7 @@ export default function SpiritualShaderHero({
     <section ref={sectionRef} className="relative min-h-[100dvh] w-full">
       <ShaderBackground />
 
-      <div className="relative mx-auto flex min-h-[100dvh] max-w-4xl flex-col items-center justify-center gap-6 px-6 py-24 text-center">
+      <div className="relative mx-auto flex min-h-[100dvh] max-w-4xl flex-col items-center justify-center gap-2 px-5 py-4 text-center sm:gap-6 sm:px-6 sm:py-24">
         {/* Co-branding slot (optional) */}
         {coBrandSlot}
 
@@ -551,7 +551,7 @@ export default function SpiritualShaderHero({
         {/* Title */}
         <h1
           ref={headerRef}
-          className="max-w-3xl text-4xl font-extralight leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
+          className="max-w-3xl text-3xl font-extralight leading-[1.08] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
         >
           {title}
         </h1>
@@ -560,7 +560,7 @@ export default function SpiritualShaderHero({
         {subtitle && (
           <p
             ref={subtitleRef}
-            className="max-w-xl text-lg font-light leading-relaxed text-muted-foreground sm:text-xl"
+            className="hidden max-w-xl text-base font-light leading-relaxed text-muted-foreground sm:block sm:text-xl"
           >
             {subtitle}
           </p>
@@ -569,7 +569,7 @@ export default function SpiritualShaderHero({
         {/* Description */}
         <p
           ref={paraRef}
-          className="max-w-xl text-base font-light leading-relaxed text-muted-foreground sm:text-lg"
+          className="max-w-xl text-sm font-light leading-relaxed text-muted-foreground line-clamp-4 sm:line-clamp-none sm:text-lg"
         >
           {description}
         </p>
@@ -616,7 +616,7 @@ export default function SpiritualShaderHero({
 
         {/* Anonymity reassurance (prominent, just before the CTA) */}
         {anonymityLabel && (
-          <div className="inline-flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-5 py-3 text-left backdrop-blur-sm">
+          <div className="inline-flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-2.5 text-left backdrop-blur-sm sm:px-5 sm:py-3">
             <svg
               className="h-5 w-5 shrink-0 text-emerald-500"
               fill="none"
@@ -637,7 +637,7 @@ export default function SpiritualShaderHero({
         )}
 
         {/* CTA Buttons */}
-        <div ref={ctaRef} className="flex flex-wrap items-center justify-center gap-4 pt-4">
+        <div ref={ctaRef} className="flex flex-wrap items-center justify-center gap-3 pt-1 sm:gap-4 sm:pt-4">
           <button
             onClick={onPrimaryClick}
             disabled={onConsentChange && !consentGiven}
@@ -661,11 +661,11 @@ export default function SpiritualShaderHero({
         {(features.length > 0 || authorName) && (
           <div
             ref={featuresRef}
-            className="mt-6 flex flex-col items-center gap-3"
+            className="mt-2 flex flex-col items-center gap-3 sm:mt-6"
           >
             {/* Features row */}
             {features.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm font-light text-muted-foreground">
+              <div className="hidden flex-wrap items-center justify-center gap-4 text-sm font-light text-muted-foreground sm:flex sm:gap-6">
                 {features.map((feature, index) => (
                   feature.link ? (
                     <Link
@@ -698,9 +698,9 @@ export default function SpiritualShaderHero({
               </div>
             )}
 
-            {/* Author credits row */}
+            {/* Author credits row - hidden on mobile to keep the hero within one screen */}
             {authorName && (
-              <div className="flex items-center gap-3 text-xs text-muted-foreground/70">
+              <div className="hidden items-center gap-3 text-xs text-muted-foreground/70 sm:flex">
                 {authorLabel && <span>{authorLabel}</span>}
                 <span className="font-medium">{authorName}</span>
                 {githubUrl && (
