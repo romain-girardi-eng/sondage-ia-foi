@@ -20,6 +20,14 @@ const DEFAULT_LIMITS = {
     maxRequests: parseInt(process.env.RATE_LIMIT_ADMIN_MAX || '10'),
     windowMs: parseInt(process.env.RATE_LIMIT_ADMIN_WINDOW || '900000'), // 15 minutes
   },
+  email: {
+    maxRequests: parseInt(process.env.RATE_LIMIT_EMAIL_MAX || '3'),
+    windowMs: parseInt(process.env.RATE_LIMIT_EMAIL_WINDOW || '3600000'), // 1 hour
+  },
+  verifyEmail: {
+    maxRequests: parseInt(process.env.RATE_LIMIT_VERIFY_EMAIL_MAX || '5'),
+    windowMs: parseInt(process.env.RATE_LIMIT_VERIFY_EMAIL_WINDOW || '900000'), // 15 minutes
+  },
 } as const;
 
 type RateLimitType = keyof typeof DEFAULT_LIMITS;

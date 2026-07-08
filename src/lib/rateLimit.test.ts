@@ -60,6 +60,107 @@ describe('rateLimit', () => {
   });
 });
 
+describe('rateLimit - email bucket', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  it('allows up to 3 requests per hour by default', () => {
+    const identifier = 'email-user-1';
+
+    const result1 = rateLimit(identifier, 'email');
+    const result2 = rateLimit(identifier, 'email');
+    const result3 = rateLimit(identifier, 'email');
+
+    expect(result1.success).toBe(true);
+    expect(result1.remaining).toBe(2);
+    expect(result2.success).toBe(true);
+    expect(result2.remaining).toBe(1);
+    expect(result3.success).toBe(true);
+    expect(result3.remaining).toBe(0);
+  });
+
+  it('rejects the 4th request within the window', () => {
+    const identifier = 'email-user-2';
+
+    rateLimit(identifier, 'email');
+    rateLimit(identifier, 'email');
+    rateLimit(identifier, 'email');
+    const result = rateLimit(identifier, 'email');
+
+    expect(result.success).toBe(false);
+    expect(result.remaining).toBe(0);
+  });
+
+  it('resets after the 1 hour window expires', () => {
+    const identifier = 'email-user-3';
+
+    rateLimit(identifier, 'email');
+    rateLimit(identifier, 'email');
+    rateLimit(identifier, 'email');
+
+    vi.advanceTimersByTime(3600001);
+
+    const result = rateLimit(identifier, 'email');
+    expect(result.success).toBe(true);
+    expect(result.remaining).toBe(2);
+  });
+
+  it('does not share counters with the general bucket', () => {
+    const identifier = 'email-user-4';
+
+    rateLimit(identifier, 'general');
+    const result = rateLimit(identifier, 'email');
+
+    expect(result.success).toBe(true);
+    expect(result.remaining).toBe(2);
+  });
+});
+
+describe('rateLimit - verifyEmail bucket', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  it('allows up to 5 requests per 15 minutes by default', () => {
+    const identifier = 'verify-email-user-1';
+    let result;
+
+    for (let i = 0; i < 5; i++) {
+      result = rateLimit(identifier, 'verifyEmail');
+      expect(result.success).toBe(true);
+    }
+
+    expect(result!.remaining).toBe(0);
+  });
+
+  it('rejects the 6th request within the window', () => {
+    const identifier = 'verify-email-user-2';
+
+    for (let i = 0; i < 5; i++) {
+      rateLimit(identifier, 'verifyEmail');
+    }
+    const result = rateLimit(identifier, 'verifyEmail');
+
+    expect(result.success).toBe(false);
+    expect(result.remaining).toBe(0);
+  });
+
+  it('resets after the 15 minute window expires', () => {
+    const identifier = 'verify-email-user-3';
+
+    for (let i = 0; i < 5; i++) {
+      rateLimit(identifier, 'verifyEmail');
+    }
+
+    vi.advanceTimersByTime(900001);
+
+    const result = rateLimit(identifier, 'verifyEmail');
+    expect(result.success).toBe(true);
+    expect(result.remaining).toBe(4);
+  });
+});
+
 describe('getRateLimitHeaders', () => {
   it('returns correct headers', () => {
     const result = {

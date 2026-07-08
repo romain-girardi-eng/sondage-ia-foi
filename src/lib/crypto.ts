@@ -47,6 +47,12 @@ export async function hashEmail(email: string): Promise<string> {
 /**
  * Encrypt an email address using AES-256-GCM
  * Returns the encrypted data and IV as hex strings
+ *
+ * @deprecated Do not use for new writes. The privacy policy now promises
+ * hash-only email storage (see hashEmail) — no new rows should store a
+ * reversible encrypted email. This function is kept only so legacy rows
+ * written before this change can still be decrypted for GDPR data-access
+ * requests. New code should never call this to persist data.
  */
 export async function encryptEmail(email: string): Promise<{ encrypted: string; iv: string }> {
   const encryptionKey = process.env.EMAIL_ENCRYPTION_KEY;
@@ -91,6 +97,10 @@ export async function encryptEmail(email: string): Promise<{ encrypted: string; 
 /**
  * Decrypt an email address using AES-256-GCM
  * Takes the encrypted data and IV as hex strings
+ *
+ * @deprecated Legacy-read only. Retained solely to service GDPR access
+ * requests for rows written before email_submissions stopped persisting
+ * reversible encrypted emails. Do not use in any new write/read path.
  */
 export async function decryptEmail(encrypted: string, iv: string): Promise<string> {
   const encryptionKey = process.env.EMAIL_ENCRYPTION_KEY;

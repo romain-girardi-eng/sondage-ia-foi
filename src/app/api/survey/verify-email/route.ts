@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rateLimit';
+import { getClientIp } from '@/lib/security/clientIp';
 import { z } from 'zod';
 import { hashEmail } from '@/lib/crypto';
 
@@ -10,11 +11,13 @@ const emailVerificationSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    // Get client IP for rate limiting
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous';
+    // Get client IP for rate limiting (non-spoofable extraction)
+    const ip = getClientIp(request);
 
-    // Rate limiting
-    const rateLimitResult = rateLimit(ip, 'general');
+    // Rate limiting - strict bucket: this endpoint's 409 response leaks
+    // whether an email has taken the survey, so it must not be checkable
+    // under the generous general-purpose limit.
+    const rateLimitResult = rateLimit(ip, 'verifyEmail');
     if (!rateLimitResult.success) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -29,7 +32,7 @@ export async function POST(request: NextRequest) {
     if (!validationResult.success) {
       return NextResponse.json(
         { error: 'Invalid email format' },
-        { status: 400 }
+        { status: 400, headers: getRateLimitHeaders(rateLimitResult) }
       );
     }
 
@@ -55,8 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if this email hash already exists
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existing, error: checkError } = await (supabase as any)
+    const { data: existing, error: checkError } = await supabase
       .from('email_hashes')
       .select('id')
       .eq('email_hash', emailHash)
