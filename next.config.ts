@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
     ];
   },
   async headers() {
+    // Static, non-conflicting security headers. X-Frame-Options and the
+    // Content-Security-Policy are owned exclusively by middleware.ts (which
+    // needs a per-request nonce for CSP script-src) — do not re-add them here,
+    // two CSPs / X-Frame-Options values enforce as their intersection and the
+    // weaker one wins. X-XSS-Protection is legacy and actively harmful in
+    // modern browsers, so it is dropped rather than moved.
     return [
       {
         source: '/:path*',
@@ -29,24 +35,12 @@ const nextConfig: NextConfig = {
             value: 'max-age=63072000; includeSubDomains; preload'
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block'
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN'
-          },
-          {
             key: 'X-Content-Type-Options',
             value: 'nosniff'
           },
           {
             key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin'
-          },
-          {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' *.vercel-insights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' *.vercel-insights.com; media-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self';"
+            value: 'strict-origin-when-cross-origin'
           }
         ]
       }

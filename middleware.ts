@@ -34,7 +34,15 @@ function addSecurityHeaders(response: NextResponse, nonce: string): void {
     // Fonts: self + data URIs
     "font-src 'self' data:",
     // Connect: API endpoints + external services
-    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.resend.com ${PLAUSIBLE_ORIGIN}`,
+    // - Supabase: src/lib/supabase/client.ts, server.ts (NEXT_PUBLIC_SUPABASE_URL)
+    // - Resend: server-side only (RESEND_API_KEY), kept for defense-in-depth
+    // - cdn.jsdelivr.net: @react-pdf/renderer fetches font files client-side
+    //   (src/lib/pdf/reportDocument.tsx:22-24) from PDFDownloadButton, a "use client"
+    //   component (src/components/sharing/PDFDownloadButton.tsx)
+    // - Sentry ingest: sentry.client.config.ts reads NEXT_PUBLIC_SENTRY_DSN; exact
+    //   ingest host depends on the DSN's org/region, so both known SaaS patterns
+    //   are allowed (see report for confidence note)
+    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.resend.com https://cdn.jsdelivr.net https://*.ingest.sentry.io https://*.ingest.us.sentry.io ${PLAUSIBLE_ORIGIN}`,
     // Frame ancestors: prevent clickjacking
     "frame-ancestors 'none'",
     // Form actions: only self
@@ -48,13 +56,14 @@ function addSecurityHeaders(response: NextResponse, nonce: string): void {
   ];
 
   // Security headers
+  // Note: X-Content-Type-Options, Referrer-Policy, and Strict-Transport-Security
+  // are owned by next.config.ts (static, no nonce needed, and next.config's
+  // headers() covers routes this middleware's matcher excludes, e.g. _next/static).
+  // This file owns X-Frame-Options and the nonce-based CSP exclusively, to avoid
+  // two CSPs enforcing as their (weaker) intersection.
   const securityHeaders: Record<string, string> = {
-    // Prevent MIME type sniffing
-    "X-Content-Type-Options": "nosniff",
-    // Prevent clickjacking
+    // Prevent clickjacking (matches CSP frame-ancestors 'none' below)
     "X-Frame-Options": "DENY",
-    // Control referrer information
-    "Referrer-Policy": "strict-origin-when-cross-origin",
     // Content Security Policy
     "Content-Security-Policy": cspDirectives.join("; "),
     // Permissions Policy - restrict browser features
@@ -86,11 +95,6 @@ function addSecurityHeaders(response: NextResponse, nonce: string): void {
     "Cross-Origin-Resource-Policy": "same-origin",
     "Cross-Origin-Embedder-Policy": "credentialless",
   };
-
-  // Add HSTS in production
-  if (process.env.NODE_ENV === "production") {
-    securityHeaders["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload";
-  }
 
   // Apply security headers
   Object.entries(securityHeaders).forEach(([key, value]) => {
