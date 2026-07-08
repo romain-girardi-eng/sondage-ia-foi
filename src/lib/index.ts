@@ -1,7 +1,5 @@
 export { cn } from "./utils";
-export { useHasAnimated, useMemoizedProfileSpectrum } from "./hooks";
-export { useSurveyState, useSurveyPersistence } from "./hooks/index";
-export type { SurveyStep, SavedProgress } from "./hooks/index";
+export { useHasAnimated, useMemoizedProfileSpectrum } from "./hooks/index";
 export { LanguageProvider, useLanguage, getLocalizedPath } from "./i18n";
 export { ThemeProvider, useTheme } from "./theme";
 export { getMockResults, type AggregatedResult } from "./dataService";

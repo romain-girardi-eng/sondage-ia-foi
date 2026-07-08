@@ -46,17 +46,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(generateMockStats());
     }
 
-    // Use type assertion for untyped table
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const db = supabase as any;
-
     // Get total responses
-    const { count: totalResponses } = await db
+    const { count: totalResponses } = await supabase
       .from("responses")
       .select("*", { count: "exact", head: true });
 
     // Get completed responses (consent_given = true means completed)
-    const { count: completedResponses } = await db
+    const { count: completedResponses } = await supabase
       .from("responses")
       .select("*", { count: "exact", head: true })
       .eq("consent_given", true);
@@ -64,7 +60,7 @@ export async function GET(request: NextRequest) {
     // Get today's responses
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const { count: todayResponses } = await db
+    const { count: todayResponses } = await supabase
       .from("responses")
       .select("*", { count: "exact", head: true })
       .gte("created_at", today.toISOString());
@@ -72,13 +68,13 @@ export async function GET(request: NextRequest) {
     // Get this week's responses
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const { count: weekResponses } = await db
+    const { count: weekResponses } = await supabase
       .from("responses")
       .select("*", { count: "exact", head: true })
       .gte("created_at", weekAgo.toISOString());
 
     // Get responses by language (language is in metadata JSON)
-    const { data: languageData } = await db
+    const { data: languageData } = await supabase
       .from("responses")
       .select("metadata");
 
@@ -92,7 +88,7 @@ export async function GET(request: NextRequest) {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const { data: timelineData } = await db
+    const { data: timelineData } = await supabase
       .from("responses")
       .select("created_at")
       .gte("created_at", thirtyDaysAgo.toISOString())
@@ -118,7 +114,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get paginated responses for the responses tab
-    let responsesQuery = db
+    let responsesQuery = supabase
       .from("responses")
       .select("id, created_at, metadata, consent_given, answers", { count: "exact" })
       .order("created_at", { ascending: false });
@@ -140,7 +136,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get ALL responses for computing full statistics
-    const { data: allResponsesData } = await db
+    const { data: allResponsesData } = await supabase
       .from("responses")
       .select("*")
       .eq("consent_given", true);

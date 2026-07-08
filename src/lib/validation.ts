@@ -33,18 +33,6 @@ export const surveySubmissionSchema = z.object({
   emailHash: z.string().length(64).optional(),
 });
 
-// Email submission schema
-export const emailSubmissionSchema = z.object({
-  email: z.string().email(),
-  responseId: z.string().uuid().optional(),
-  anonymousId: z.string().uuid(),
-  marketingConsent: z.boolean().default(false),
-  language: z.enum(['fr', 'en']),
-  answers: z.record(z.string(), answerValueSchema),
-});
-
-export type EmailSubmissionInput = z.infer<typeof emailSubmissionSchema>;
-
 // Partial save schema
 export const partialSaveSchema = z.object({
   sessionId: z.string().uuid(),

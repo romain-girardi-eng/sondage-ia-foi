@@ -269,10 +269,15 @@ interface ShaderPlaneProps {
   isDarkMode?: boolean;
 }
 
+type SpiritualShaderMaterialInstance = THREE.ShaderMaterial & {
+  iTime: number;
+  iResolution: THREE.Vector2;
+  uDarkMode: number;
+};
+
 function ShaderPlane({ isPaused = false, isDarkMode = true }: ShaderPlaneProps) {
   const meshRef = useRef<THREE.Mesh>(null!);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const materialRef = useRef<any>(null!);
+  const materialRef = useRef<SpiritualShaderMaterialInstance>(null!);
   const lastTimeRef = useRef(0);
   const { viewport } = useThree();
 

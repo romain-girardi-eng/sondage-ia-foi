@@ -60,12 +60,8 @@ export async function GET(
       );
     }
 
-    // Use type assertion for untyped table
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const db = supabase as any;
-
     // Get the specific response
-    const { data: responseData, error } = await db
+    const { data: responseData, error } = await supabase
       .from("responses")
       .select("*")
       .eq("id", id)

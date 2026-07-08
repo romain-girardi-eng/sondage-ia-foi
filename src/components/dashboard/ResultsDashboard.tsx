@@ -16,6 +16,8 @@ import {
   Brain,
   Heart,
   Church,
+  AlertTriangle,
+  RotateCcw,
 } from "lucide-react";
 import { DonutChart } from "./charts";
 import { ModernChartCard } from "./ModernChartCard";
@@ -281,12 +283,18 @@ export function ResultsDashboard() {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [summaryStats, setSummaryStats] = useState<SummaryStats>(INITIAL_SUMMARY_STATS);
   const [isDemoData, setIsDemoData] = useState(false);
+  // Only set when the fetch itself fails (network/HTTP error) - distinct from
+  // the legitimate demo-mode fallback below, which is a valid API response
+  // that simply has no real responses yet.
+  const [hasLoadError, setHasLoadError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadResults() {
       setIsLoading(true);
+      setHasLoadError(false);
       try {
         const response = await fetch("/api/results/aggregated", {
           headers: {
@@ -322,17 +330,9 @@ export function ResultsDashboard() {
         // Expand all cards by default so charts are visible
         setExpandedCards(new Set(resolvedResults.map((r: AggregatedResult) => r.questionId)));
       } catch (error) {
-        console.error("Unable to load aggregated results, falling back to mock data:", error);
+        console.error("Unable to load aggregated results:", error);
         if (isMounted) {
-          const mockResults = getMockResults();
-          const derivedCount = estimateParticipantCount(mockResults);
-          setResults(mockResults);
-          setSummaryStats(calculateSummary(mockResults, derivedCount));
-          setParticipantCount(derivedCount);
-          setLastUpdated(new Date().toISOString());
-          setIsDemoData(true);
-          // Expand all cards by default
-          setExpandedCards(new Set(mockResults.map((r: AggregatedResult) => r.questionId)));
+          setHasLoadError(true);
         }
       } finally {
         if (isMounted) {
@@ -345,7 +345,11 @@ export function ResultsDashboard() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [retryCount]);
+
+  const handleRetryLoad = () => {
+    setRetryCount((prev) => prev + 1);
+  };
 
   const filteredQuestions = useMemo(() => {
     return SURVEY_QUESTIONS.filter((q) => {
@@ -409,6 +413,35 @@ export function ResultsDashboard() {
           <p className="text-muted-foreground text-sm">
             {t("dashboard.preparingViz")}
           </p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (hasLoadError) {
+    return (
+      <div className="flex items-center justify-center min-h-[80vh] p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full glass-card-refined rounded-3xl p-8 text-center"
+        >
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-500/10 flex items-center justify-center">
+            <AlertTriangle className="w-8 h-8 text-red-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            {t("dashboard.loadErrorTitle")}
+          </h2>
+          <p className="text-muted-foreground mb-8">
+            {t("dashboard.loadErrorDesc")}
+          </p>
+          <button
+            onClick={handleRetryLoad}
+            className="w-full px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all flex items-center justify-center gap-2"
+          >
+            <RotateCcw className="w-4 h-4" />
+            {t("errors.retry")}
+          </button>
         </motion.div>
       </div>
     );
