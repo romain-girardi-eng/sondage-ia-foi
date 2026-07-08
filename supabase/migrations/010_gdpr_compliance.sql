@@ -38,8 +38,24 @@
 -- sized for raw IPv6 addresses. Widening a VARCHAR is a metadata-only change
 -- in Postgres (no table rewrite, no data loss).
 
+-- The anon INSERT policy (006) references ip_address in its WITH CHECK, and
+-- Postgres refuses to alter a column type used in a policy definition. Drop
+-- it, widen the column, then recreate it with the exact 006 definition.
+
+DROP POLICY IF EXISTS "anon_insert_submission_tracking" ON public.submission_tracking;
+
 ALTER TABLE public.submission_tracking
   ALTER COLUMN ip_address TYPE VARCHAR(64);
+
+CREATE POLICY "anon_insert_submission_tracking" ON public.submission_tracking
+  FOR INSERT
+  TO anon
+  WITH CHECK (
+    -- Must have at least one identifier
+    (fingerprint_id IS NOT NULL AND LENGTH(fingerprint_id) > 0)
+    OR (anonymous_id IS NOT NULL)
+    OR (ip_address IS NOT NULL AND LENGTH(ip_address) > 0)
+  );
 
 -- -----------------------------------------------------------------------------
 -- check_submission_allowed / record_submission_attempt: match declared param
