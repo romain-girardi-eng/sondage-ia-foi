@@ -5,10 +5,19 @@ import FingerprintJS, { Agent } from "@fingerprintjs/fingerprintjs";
 
 const FINGERPRINT_STORAGE_KEY = "survey-fingerprint";
 
-interface FingerprintResult {
+// Only the visitorId and its confidence score are needed downstream (duplicate
+// detection). The raw FingerprintJS `components` payload is never cached to
+// minimize what's persisted client-side (GDPR data minimization).
+interface CachedFingerprint {
   visitorId: string;
   confidence: number;
-  components: Record<string, unknown>;
+}
+
+interface UseFingerprintOptions {
+  // Fingerprinting probes the device and must only run after the user has
+  // given consent (CNIL/ePrivacy). The hook is always called (rules of
+  // hooks) but stays inert until the caller flips this to true.
+  enabled: boolean;
 }
 
 interface UseFingerprintReturn {
@@ -19,30 +28,31 @@ interface UseFingerprintReturn {
 }
 
 /**
- * Hook to generate and cache a browser fingerprint
- * Uses FingerprintJS open source library
+ * Hook to generate and cache a browser fingerprint, gated on consent.
+ * Uses FingerprintJS open source library.
  */
-export function useFingerprint(): UseFingerprintReturn {
+export function useFingerprint({ enabled }: UseFingerprintOptions): UseFingerprintReturn {
   const [fingerprint, setFingerprint] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confidence, setConfidence] = useState(0);
   const agentRef = useRef<Agent | null>(null);
   const initializedRef = useRef(false);
 
   useEffect(() => {
+    if (!enabled) return;
     // Prevent double initialization in strict mode
     if (initializedRef.current) return;
     initializedRef.current = true;
 
     async function initFingerprint() {
+      setIsLoading(true);
       try {
         // Check for cached fingerprint first
         const cached = localStorage.getItem(FINGERPRINT_STORAGE_KEY);
         if (cached) {
           try {
-            const parsed: FingerprintResult = JSON.parse(cached);
-            // Use cached if less than 30 days old
+            const parsed: CachedFingerprint = JSON.parse(cached);
             if (parsed.visitorId) {
               setFingerprint(parsed.visitorId);
               setConfidence(parsed.confidence || 0.5);
@@ -62,17 +72,13 @@ export function useFingerprint(): UseFingerprintReturn {
         // Get the visitor identifier
         const result = await agent.get();
 
-        const fingerprintData: FingerprintResult = {
+        const cacheData: CachedFingerprint = {
           visitorId: result.visitorId,
           confidence: result.confidence.score,
-          components: result.components as Record<string, unknown>,
         };
 
-        // Cache the fingerprint
-        localStorage.setItem(
-          FINGERPRINT_STORAGE_KEY,
-          JSON.stringify(fingerprintData)
-        );
+        // Cache only the visitorId + confidence (never the raw components)
+        localStorage.setItem(FINGERPRINT_STORAGE_KEY, JSON.stringify(cacheData));
 
         setFingerprint(result.visitorId);
         setConfidence(result.confidence.score);
@@ -90,7 +96,7 @@ export function useFingerprint(): UseFingerprintReturn {
     }
 
     initFingerprint();
-  }, []);
+  }, [enabled]);
 
   return {
     fingerprint,
@@ -111,7 +117,7 @@ export function getCachedFingerprint(): string | null {
   if (!cached) return null;
 
   try {
-    const parsed: FingerprintResult = JSON.parse(cached);
+    const parsed: CachedFingerprint = JSON.parse(cached);
     return parsed.visitorId || null;
   } catch {
     return null;

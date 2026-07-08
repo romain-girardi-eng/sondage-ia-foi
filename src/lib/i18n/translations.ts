@@ -171,7 +171,7 @@ export const translations = {
       linkCopied: "Lien copié dans le presse-papier !",
       shareTitle: "Sondage IA & Vie Spirituelle",
       anonymousIdTitle: "Votre identifiant anonyme",
-      anonymousIdNote: "Conservez cet identifiant pour accéder à vos données ou les supprimer.",
+      anonymousIdNote: "Conservez cet identifiant en lieu sûr et ne le partagez pas : il permet à lui seul d'accéder à vos données ou de les supprimer.",
       manageData: "Gérer mes données →",
     },
 
@@ -200,6 +200,8 @@ export const translations = {
       spiritualAI: "IA & Spiritualité",
       demographics: "Démographie",
       loading: "Analyse des données en cours...",
+      loadErrorTitle: "Impossible de charger les résultats",
+      loadErrorDesc: "Une erreur est survenue lors du chargement des résultats. Veuillez réessayer.",
       visualization: "Visualisation des Données",
       exploreInsights: "Explorez les tendances et insights de notre communauté de participants",
       questionsAnalyzed: "Questions analysées",
@@ -316,6 +318,9 @@ export const translations = {
       stillNeedHelp: "Toujours bloqué ? Nous pouvons vous aider.",
       emailSubject: "Demande d'accès au sondage",
       emailBody: "Bonjour,\n\nJ'essaie d'accéder au sondage mais je reçois une erreur ({errorCode}).\n\nMa situation :\n\nMerci.",
+      // Network failure during final submission (data must not be silently lost)
+      submissionFailedTitle: "Échec de l'envoi",
+      submissionFailedDesc: "Vos réponses n'ont pas pu être enregistrées à cause d'un problème de connexion. Elles restent disponibles sur cet appareil : réessayez dès que possible.",
     },
 
     // Not Found (404)
@@ -351,7 +356,7 @@ export const translations = {
 
     // Consent
     consent: {
-      checkbox: "J'accepte les conditions de participation et la politique de confidentialité",
+      checkbox: "J'accepte les conditions de participation et la politique de confidentialité, et je consens explicitement au traitement de mes réponses relatives à mes convictions religieuses dans le cadre de cette recherche académique (art. 9§2.a du RGPD).",
       required: "Votre consentement est requis pour participer",
       privacyLink: "Politique de confidentialité",
       termsLink: "Conditions d'utilisation",
@@ -525,21 +530,6 @@ export const translations = {
     },
 
     // Email Collection
-    email: {
-      title: "Recevez vos résultats",
-      subtitle: "Entrez votre email pour recevoir votre rapport personnalisé en PDF",
-      placeholder: "votre@email.com",
-      submit: "Recevoir mon rapport",
-      sending: "Envoi en cours...",
-      sent: "Email envoyé !",
-      duplicate: "Cet email a déjà été utilisé pour cette étude",
-      invalidEmail: "Veuillez entrer une adresse email valide",
-      error: "Une erreur est survenue. Veuillez réessayer.",
-      marketingConsent: "Recevoir les actualités de l'étude",
-      skipEmail: "Continuer sans email",
-      privacyNote: "Votre email est chiffré et ne sera utilisé que pour vous envoyer votre rapport.",
-    },
-
     // Methodology Page
     methodologyPage: {
       // Hero
@@ -871,7 +861,7 @@ export const translations = {
       linkCopied: "Link copied to clipboard!",
       shareTitle: "AI & Spiritual Life Survey",
       anonymousIdTitle: "Your anonymous ID",
-      anonymousIdNote: "Keep this ID to access or delete your data.",
+      anonymousIdNote: "Keep this ID safe and don't share it: on its own, it grants access to your data and lets anyone delete it.",
       manageData: "Manage my data →",
     },
 
@@ -900,6 +890,8 @@ export const translations = {
       spiritualAI: "AI & Spirituality",
       demographics: "Demographics",
       loading: "Analyzing data...",
+      loadErrorTitle: "Unable to load results",
+      loadErrorDesc: "An error occurred while loading the results. Please try again.",
       visualization: "Data Visualization",
       exploreInsights: "Explore trends and insights from our participant community",
       questionsAnalyzed: "Questions analyzed",
@@ -1016,6 +1008,9 @@ export const translations = {
       stillNeedHelp: "Still blocked? We can help.",
       emailSubject: "Survey Access Request",
       emailBody: "Hello,\n\nI am trying to access the survey but received an error ({errorCode}).\n\nMy situation:\n\nThank you.",
+      // Network failure during final submission (data must not be silently lost)
+      submissionFailedTitle: "Submission failed",
+      submissionFailedDesc: "Your answers could not be saved because of a connection problem. They're still available on this device: please retry as soon as possible.",
     },
 
     // Not Found (404)
@@ -1051,7 +1046,7 @@ export const translations = {
 
     // Consent
     consent: {
-      checkbox: "I accept the participation conditions and privacy policy",
+      checkbox: "I accept the participation conditions and privacy policy, and I explicitly consent to the processing of my answers revealing my religious beliefs for the purposes of this academic research (GDPR Art. 9(2)(a)).",
       required: "Your consent is required to participate",
       privacyLink: "Privacy policy",
       termsLink: "Terms of use",
@@ -1225,21 +1220,6 @@ export const translations = {
     },
 
     // Email Collection
-    email: {
-      title: "Get your results",
-      subtitle: "Enter your email to receive your personalized PDF report",
-      placeholder: "your@email.com",
-      submit: "Get my report",
-      sending: "Sending...",
-      sent: "Email sent!",
-      duplicate: "This email was already used for this study",
-      invalidEmail: "Please enter a valid email address",
-      error: "An error occurred. Please try again.",
-      marketingConsent: "Receive study updates",
-      skipEmail: "Continue without email",
-      privacyNote: "Your email is encrypted and will only be used to send your report.",
-    },
-
     // Methodology Page
     methodologyPage: {
       // Hero

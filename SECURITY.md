@@ -101,27 +101,29 @@ This prevents:
 ### Email Handling
 
 ```
-User Email → SHA-256 Hash → email_hashes table (duplicate detection)
-           → AES-256-GCM → email_submissions table (PDF delivery)
+User Email → Keyed HMAC-SHA256 → email_hashes table (duplicate detection)
+           → (transient, in-memory only) → sent via Resend for the optional PDF, never persisted
 ```
 
 - Emails are **never stored in plaintext**
-- Hash allows duplicate detection without storing email
-- Encrypted email allows PDF delivery
-- Encryption key stored in environment variable
+- The hash is keyed (HMAC with a secret, not a bare SHA-256) so it cannot be brute-forced from a list of candidate emails without the key
+- Hash allows duplicate detection without storing the email
+- The email used to send the optional PDF report is held in memory for the duration of the request only and is never written to the database
+- Legacy `email_submissions` rows (hash + AES-256-GCM encrypted email) predate this design and are being phased out; they remain in scope for deletion requests until purged
 
 ### IP Address Handling
 
 ```
-User IP → SHA-256 + Salt → ip_hash (audit logs only)
+User IP → Keyed HMAC-SHA256 → ip_hash (anti-abuse tracking + audit logs)
 ```
 
 - IPs are **never stored in plaintext**
-- Salted hash prevents rainbow table attacks
+- The hash is keyed (HMAC with a secret), not a bare salted SHA-256
 - Used only for:
-  - Rate limiting patterns
+  - Rate limiting (5 submissions per IP per 30 days)
   - Abuse detection
   - GDPR compliance audits
+- Anti-abuse tracking records are purged after 90 days
 
 ## Attack Mitigations
 
@@ -199,16 +201,17 @@ Body: { "anonymousId": "<uuid>" }
 Header: X-CSRF-Token: <token>
 ```
 
-- Deletes all data: responses, sessions, email_submissions
+- Deletes all data: responses, sessions, email_hashes, email_submissions (legacy), anti-abuse tracking
+- Security audit log entries referencing the anonymous ID are anonymized rather than deleted, to preserve audit trail integrity
 - CSRF protected
 - Audit logged with deletion counts
 
 ### Data Minimization
 
 - Only collect necessary data
-- Emails encrypted at rest
-- IPs hashed, never stored plaintext
-- No tracking cookies
+- Emails stored only as a keyed HMAC-SHA256 hash (legacy AES-256-GCM encrypted rows are being phased out)
+- IPs stored only as a keyed HMAC-SHA256 hash, never plaintext
+- No tracking cookies (only a functional `survey_submitted` cookie and cookieless analytics)
 
 ## Environment Variables
 
@@ -217,8 +220,8 @@ Header: X-CSRF-Token: <token>
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase API URL | Yes |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public anon key | Yes |
 | `SUPABASE_SERVICE_ROLE_KEY` | Private service key | Yes |
-| `EMAIL_ENCRYPTION_KEY` | AES-256 key for emails | Yes |
-| `IP_HASH_SALT` | Salt for IP hashing | Yes |
+| `EMAIL_ENCRYPTION_KEY` | AES-256 key for legacy `email_submissions` rows (being phased out) | Legacy only |
+| `IP_HASH_SALT` | Secret key for keyed HMAC-SHA256 IP hashing | Yes |
 | `CSRF_SECRET` | CSRF token signing | Yes |
 
 ## Audit Logging
@@ -252,6 +255,13 @@ Logged operations:
 For security issues, contact: [your-security-email]
 
 ## Changelog
+
+- **2026-07-08**: Consent, IP/email hashing, and retention accuracy pass
+  - Fingerprinting and session/anonymous-ID creation now gated on explicit consent
+  - IP addresses hashed with a keyed HMAC (never raw); legacy SHA-256+salt description corrected
+  - Emails hashed with a keyed HMAC for dedup; legacy AES-256-GCM encrypted storage being phased out
+  - Retention purge documented: abandoned sessions (90 days), anti-abuse tracking (90 days), audit log (365 days, then anonymized), responses (~3 years, then anonymized)
+  - Data export/deletion scope extended to all tables; audit log entries anonymized rather than deleted
 
 - **2026-01-26**: Initial security hardening migration (005_security_hardening.sql)
   - Dropped permissive RLS policies

@@ -10,16 +10,17 @@ import { SurveyIntroShader } from "./SurveyIntroShader";
 import { QuestionCard } from "./QuestionCard";
 import { FeedbackScreen } from "./FeedbackScreen";
 import { ThankYouScreen } from "./ThankYouScreen";
-import { EmailCollectionScreen } from "./EmailCollectionScreen";
 import { AlreadySubmittedScreen } from "./AlreadySubmittedScreen";
 import { EmailHashVerification } from "./EmailHashVerification";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Save, RotateCcw, PlayCircle } from "lucide-react";
+import { ChevronLeft, Save, RotateCcw, PlayCircle, AlertTriangle } from "lucide-react";
+import { useCSRF } from "@/hooks/useCSRF";
 
-type SurveyStep = "intro" | "questions" | "verify-email" | "email" | "feedback" | "thanks" | "results";
+type SurveyStep = "intro" | "questions" | "verify-email" | "feedback" | "thanks" | "results";
 
 const STORAGE_KEY = "survey-progress";
 const SESSION_KEY = "survey-session";
+const ANONYMOUS_ID_KEY = "survey-anonymous-id";
 // Survey instrument version, stamped on each response for schema/cutover lineage.
 const INSTRUMENT_VERSION = "1.4.0";
 const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
@@ -42,11 +43,20 @@ function getViewFromUrl(): SurveyStep | null {
   if (view === "results") return "results";
   if (view === "feedback") return "feedback";
   if (view === "thanks") return "thanks";
-  if (view === "email") return "email";
   return null;
 }
 
-// Get or create session ID - using native crypto API instead of uuid package
+// Presence of the session or anonymous-id key is itself proof the user
+// already consented and started the survey in a previous visit (both are
+// only ever written post-consent, see getSessionId/getAnonymousId below).
+// Used to decide, on mount, whether it's safe to re-hydrate (not create).
+function hasExistingSurveyIdentity(): boolean {
+  if (typeof window === "undefined") return false;
+  return Boolean(localStorage.getItem(SESSION_KEY) || localStorage.getItem(ANONYMOUS_ID_KEY));
+}
+
+// Get or create session ID - using native crypto API instead of uuid package.
+// CRITICAL: only call after consent has been given - this writes to localStorage.
 function getSessionId(): string {
   if (typeof window === "undefined") return "";
   let sessionId = localStorage.getItem(SESSION_KEY);
@@ -57,14 +67,14 @@ function getSessionId(): string {
   return sessionId;
 }
 
-// Get anonymous ID for GDPR
+// Get anonymous ID for GDPR.
+// CRITICAL: only call after consent has been given - this writes to localStorage.
 function getAnonymousId(): string {
   if (typeof window === "undefined") return "";
-  const key = "survey-anonymous-id";
-  let id = localStorage.getItem(key);
+  let id = localStorage.getItem(ANONYMOUS_ID_KEY);
   if (!id) {
     id = crypto.randomUUID();
-    localStorage.setItem(key, id);
+    localStorage.setItem(ANONYMOUS_ID_KEY, id);
   }
   return id;
 }
@@ -92,8 +102,13 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   const { t, language, setLanguage } = useLanguage();
   const hasInitializedLanguage = useRef(false);
 
-  // Browser fingerprint for duplicate detection
-  const { fingerprint } = useFingerprint();
+  // Fingerprinting probes the device and must only start after consent
+  // (CNIL/ePrivacy): enabled once the user ticks consent and starts the
+  // survey (handleStart), or immediately on mount for a returning user who
+  // already consented in a previous visit (see hasExistingSurveyIdentity).
+  const [fingerprintEnabled, setFingerprintEnabled] = useState(false);
+  const { fingerprint } = useFingerprint({ enabled: fingerprintEnabled });
+  const { fetchWithCSRF, token: csrfToken } = useCSRF();
 
   // Set initial language from URL ONLY on first mount (not on every language change)
   useEffect(() => {
@@ -113,7 +128,6 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [savedProgress, setSavedProgress] = useState<SavedProgress | null>(null);
   const [consentGiven, setConsentGiven] = useState(false);
-  const [responseId, setResponseId] = useState<string | undefined>();
   // Use state for IDs that are passed to child components (required during render)
   const [anonymousIdState, setAnonymousIdState] = useState<string>("");
   // Track when survey started for time spent calculation
@@ -126,6 +140,10 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   // Transitioning state to prevent blank pages during step transitions
   const [isTransitioning, setIsTransitioning] = useState(false);
   // Email hash for verification (stored only as hash, never the actual email)
+  // Last verification result, kept only to retry submission after a network
+  // failure - never persisted, cleared once the survey is actually submitted.
+  const lastEmailHashRef = useRef<string>("");
+  const lastEmailForPdfRef = useRef<string | null>(null);
 
   // Use refs for values only used internally (not during render)
   const containerRef = useRef<HTMLDivElement>(null);
@@ -147,9 +165,17 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
 
   // Initialize session and check for saved progress
   useEffect(() => {
-    sessionId.current = getSessionId();
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
-    setAnonymousIdState(getAnonymousId());
+    // A returning user who already has a session/anonymous-id in
+    // localStorage necessarily consented and started in a prior visit
+    // (these keys are only ever written post-consent, in handleStart).
+    // It's safe to re-hydrate them - and re-enable fingerprinting - here,
+    // without waiting for a fresh consent tick.
+    if (hasExistingSurveyIdentity()) {
+      sessionId.current = getSessionId();
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydration pattern
+      setAnonymousIdState(getAnonymousId());
+      setFingerprintEnabled(true);
+    }
 
     // Check for saved progress (only if not navigating via URL)
     const viewFromUrl = getViewFromUrl();
@@ -284,6 +310,13 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
 
   const handleStart = useCallback(() => {
     surveyStartTime.current = Date.now();
+    // The start button is disabled until the consent checkbox is ticked
+    // (see spiritual-shader-hero.tsx), so consent is guaranteed here: only
+    // now do we create the session/anonymous identifiers and start probing
+    // the device for a fingerprint.
+    sessionId.current = getSessionId();
+    setAnonymousIdState(getAnonymousId());
+    setFingerprintEnabled(true);
     // CNEF deep-link: confession (Protestant) and Protestant background
     // (évangélique) are pre-filled, so land directly on the charismatic /
     // non-charismatic question.
@@ -324,6 +357,10 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   const handleEmailHashVerified = useCallback(async (hash: string, email: string | null) => {
     // Show loading state immediately to prevent blank page during transition
     setIsTransitioning(true);
+    // Keep the last verification result around so a network failure below
+    // can be retried without asking the user to re-verify their email.
+    lastEmailHashRef.current = hash;
+    lastEmailForPdfRef.current = email;
 
     // Submit only answers whose question is currently visible: a respondent who
     // backtracked and changed an ancestor (e.g. confession) can leave stale
@@ -339,31 +376,13 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
       : undefined;
 
     let submittedResponseId: string | undefined;
-    
-    // Get CSRF token first (needed for both submission and PDF sending)
-    let csrfToken: string | null = null;
-    try {
-      const csrfResponse = await fetch("/api/csrf");
-      if (csrfResponse.ok) {
-        const csrfData = await csrfResponse.json();
-        csrfToken = csrfData.token;
-      }
-    } catch (csrfError) {
-      console.warn("Failed to get CSRF token:", csrfError);
-    }
 
     // Submit to API with email hash
     if (consentGiven) {
       try {
-        const headers: Record<string, string> = { "Content-Type": "application/json" };
-        if (csrfToken) {
-          headers["x-csrf-token"] = csrfToken;
-        }
-
-        const response = await fetch("/api/survey/submit", {
+        const response = await fetchWithCSRF("/api/survey/submit", {
           method: "POST",
-          headers,
-          credentials: "include", // Include cookies for CSRF validation
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             sessionId: sessionId.current,
             answers: cleanAnswers,
@@ -408,27 +427,28 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
 
         // Store response ID
         if (data.responseId) {
-          setResponseId(data.responseId);
           submittedResponseId = data.responseId;
         }
       } catch (error) {
+        // Network failure: this is an academic dataset, so we must not lose
+        // the response silently. Surface a retry state instead of
+        // advancing to the feedback screen as if the submission succeeded.
         console.error("Failed to submit survey:", error);
-        // Still proceed - don't block user for network errors
+        setIsTransitioning(false);
+        setSubmissionError({
+          code: "SUBMISSION_NETWORK_ERROR",
+          message: error instanceof Error ? error.message : "Network error",
+        });
+        return;
       }
     }
 
     // Send PDF immediately if email provided (email is NOT stored, only used to send)
     if (email && csrfToken) {
       try {
-        const pdfHeaders: Record<string, string> = { "Content-Type": "application/json" };
-        if (csrfToken) {
-          pdfHeaders["x-csrf-token"] = csrfToken;
-        }
-
-        await fetch("/api/email/send-pdf", {
+        await fetchWithCSRF("/api/email/send-pdf", {
           method: "POST",
-          headers: pdfHeaders,
-          credentials: "include",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             submissionId: submittedResponseId || "demo-" + Date.now(),
             email,
@@ -450,7 +470,14 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     setStep("feedback");
     setIsTransitioning(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [consentGiven, answers, language, anonymousIdState, fingerprint, visibleQuestions]);
+  }, [consentGiven, answers, language, anonymousIdState, fingerprint, visibleQuestions, fetchWithCSRF, csrfToken]);
+
+  // Retry the submission after a network failure, reusing the email hash
+  // already obtained (no need to re-verify the email against the API).
+  const handleRetrySubmission = useCallback(() => {
+    setSubmissionError(null);
+    void handleEmailHashVerified(lastEmailHashRef.current, lastEmailForPdfRef.current);
+  }, [handleEmailHashVerified]);
 
   // Handle when email already used (from hash verification)
   const handleEmailAlreadyUsed = useCallback(() => {
@@ -465,12 +492,6 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
       setCurrentIndex((prev) => prev - 1);
     }
   }, [currentIndex, minIndex]);
-
-  const handleEmailSuccess = useCallback(() => {
-    setStep("feedback");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
 
   const handleFeedbackContinue = useCallback(() => {
     setStep("thanks");
@@ -507,6 +528,40 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
             <div className="w-12 h-12 mx-auto mb-4 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
             <p className="text-muted-foreground text-sm">{t("survey.submitting")}</p>
           </div>
+        </div>
+      </AnimatedBackground>
+    );
+  }
+
+  // Network failure during final submission: recoverable, so offer a retry
+  // instead of the duplicate/CSRF "blocked" screen below (data must not be
+  // silently lost for an academic dataset).
+  if (submissionError?.code === "SUBMISSION_NETWORK_ERROR") {
+    return (
+      <AnimatedBackground variant="subtle" showGrid showOrbs>
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="max-w-md w-full glass-card-refined rounded-3xl p-8 text-center"
+          >
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-500/10 flex items-center justify-center">
+              <AlertTriangle className="w-8 h-8 text-red-500" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2">
+              {t("errors.submissionFailedTitle")}
+            </h2>
+            <p className="text-muted-foreground mb-8">
+              {t("errors.submissionFailedDesc")}
+            </p>
+            <button
+              onClick={handleRetrySubmission}
+              className="w-full px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all flex items-center justify-center gap-2"
+            >
+              <RotateCcw className="w-4 h-4" />
+              {t("errors.retry")}
+            </button>
+          </motion.div>
         </div>
       </AnimatedBackground>
     );
@@ -577,20 +632,6 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
         onVerified={handleEmailHashVerified}
         onAlreadySubmitted={handleEmailAlreadyUsed}
       />
-    );
-  }
-
-  // Email collection screen (optional, for contact)
-  if (step === "email") {
-    return (
-      <div className="w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <EmailCollectionScreen
-          answers={answers}
-          anonymousId={anonymousIdState}
-          responseId={responseId}
-          onSuccess={handleEmailSuccess}
-        />
-      </div>
     );
   }
 

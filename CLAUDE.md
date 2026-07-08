@@ -115,10 +115,11 @@ export function ComponentName({ prop }: Props) {
 ## Database (Supabase)
 
 ### Tables
-- `sessions` - Survey sessions with partial answers
+- `sessions` - Survey sessions with partial answers (abandoned sessions purged after 90 days)
 - `responses` - Completed submissions
-- `email_submissions` - Hashed emails for PDF delivery
-- `security_audit_log` - Security events
+- `email_hashes` - Keyed HMAC-SHA256 email hashes for duplicate detection (live dedup flow)
+- `email_submissions` - Legacy table from a prior email flow (hash + encrypted email); being phased out, covered by deletion requests
+- `security_audit_log` - Security events (retained 365 days, then anonymized rather than deleted)
 
 ### Access Pattern
 - **Browser:** Anon key (INSERT only, public aggregates)
@@ -148,11 +149,12 @@ const text = t('common.submit')  // "Envoyer" or "Submit"
 ## Security Considerations
 
 - No user authentication (anonymous survey)
-- Fingerprinting for duplicate detection
-- Email stored as SHA-256 hash only
+- Fingerprinting for duplicate detection, only started after consent
+- IP address never stored raw - only a keyed HMAC-SHA256 hash, used for anti-abuse rate limiting (5 submissions/IP/30 days)
+- Email stored as a keyed HMAC-SHA256 hash only (dedup); legacy encrypted-email records are being phased out
 - CSRF protection on mutations
 - Rate limiting on API endpoints
-- Audit logging enabled
+- Audit logging enabled; retention purge implemented (see Important Notes)
 
 ## Environment Variables
 
@@ -181,8 +183,9 @@ Keep commits concise (<72 chars), imperative mood.
 1. **Dark mode is default** - Light mode is secondary
 2. **French is primary language** - Most content in French first
 3. **Academic rigor** - Scoring based on validated scales (CRS-5, Marlowe-Crowne)
-4. **GDPR compliance** - User data export/deletion at `/mes-donnees`
-5. **No plaintext emails** - Always hash with SHA-256
+4. **GDPR compliance** - Full data export/deletion across all tables at `/mes-donnees`
+5. **No plaintext emails or IPs** - Always a keyed HMAC-SHA256 hash; legacy encrypted-email storage is being phased out
+6. **Retention purge** - Abandoned sessions (90 days), anti-abuse tracking (90 days), security audit log (365 days, then anonymized), survey responses (~3 years, then anonymized)
 
 ## Related Documentation
 

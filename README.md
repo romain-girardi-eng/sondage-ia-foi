@@ -11,7 +11,7 @@ Academic survey application studying AI usage in Christian religious practices.
 - **Conditional Logic** - Questions adapt based on previous answers
 - **i18n Support** - Full French and English translations with language switcher
 - **Modern Dashboard** - Custom SVG-based visualizations with animated radial charts
-- **Privacy First** - No personal data collected, fully GDPR compliant
+- **Privacy First** - Pseudonymous by design (anonymous ID, keyed hashes for email/IP, never raw), retention limits and automated purge, fully GDPR compliant
 - **Responsive Design** - Optimized for mobile and desktop
 
 ## Tech Stack
