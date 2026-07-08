@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { createServerSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
 import { partialSaveSchema } from '@/lib/validation';
 import { rateLimitPartial, getRateLimitHeaders } from '@/lib/rateLimit';
+import { getClientIp } from '@/lib/security/clientIp';
+
+const sessionIdSchema = z.string().uuid();
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limiting (more lenient for partial saves)
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous';
+    // Rate limiting (more lenient for partial saves). Raw IP only keys the
+    // ephemeral in-memory limiter here; nothing is persisted.
+    const ip = getClientIp(request);
     const rateLimitResult = rateLimitPartial(ip);
 
     if (!rateLimitResult.success) {
@@ -20,8 +25,9 @@ export async function POST(request: NextRequest) {
     const validationResult = partialSaveSchema.safeParse(body);
 
     if (!validationResult.success) {
+      console.error('Invalid partial save request:', validationResult.error.issues);
       return NextResponse.json(
-        { error: 'Invalid request data', details: validationResult.error.issues },
+        { error: 'Invalid request data' },
         { status: 400 }
       );
     }
@@ -45,16 +51,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Upsert session with partial answers
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
+    // Upsert session with partial answers. user_agent is intentionally not
+    // persisted here (see privacy policy: no browser fingerprint data beyond
+    // what duplicate-detection strictly requires).
+    const { error } = await supabase
       .from('sessions')
       .upsert({
         id: sessionId,
         language,
         partial_answers: answers,
         last_question_index: lastQuestionIndex,
-        user_agent: request.headers.get('user-agent'),
       }, {
         onConflict: 'id',
       });
@@ -83,14 +89,17 @@ export async function POST(request: NextRequest) {
 // GET: Retrieve partial session for resuming
 export async function GET(request: NextRequest) {
   try {
-    const sessionId = request.nextUrl.searchParams.get('sessionId');
+    const sessionIdParam = request.nextUrl.searchParams.get('sessionId');
+    const sessionIdResult = sessionIdSchema.safeParse(sessionIdParam);
 
-    if (!sessionId) {
+    if (!sessionIdResult.success) {
       return NextResponse.json(
-        { error: 'Session ID is required' },
+        { error: 'A valid session ID is required' },
         { status: 400 }
       );
     }
+
+    const sessionId = sessionIdResult.data;
 
     // Check if Supabase is configured
     if (!isSupabaseConfigured) {
@@ -108,14 +117,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { data, error } = await supabase
-      .from('sessions')
-      .select('*')
-      .eq('id', sessionId)
-      .eq('is_complete', false)
-      .single();
+    // Sessions are no longer readable by the anon client directly (see
+    // migration 005, which revoked anon SELECT on `sessions`). This
+    // SECURITY DEFINER RPC replicates the same read, scoped to a single
+    // incomplete session, using the session id itself as a bearer token.
+    const { data, error } = await supabase.rpc('get_session_partial', {
+      p_session_id: sessionId,
+    });
 
-    if (error || !data) {
+    const session = data?.[0];
+    if (error || !session) {
       return NextResponse.json(
         { session: null },
         { status: 200 }
@@ -123,7 +134,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { session: data },
+      { session },
       { status: 200 }
     );
   } catch (error) {

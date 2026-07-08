@@ -84,6 +84,15 @@ const content = {
   },
 };
 
+interface UserDataExport {
+  responses: unknown[];
+  sessions: unknown[];
+  email_submissions: unknown[];
+  submission_tracking: unknown[];
+  has_email_hash: boolean;
+  security_audit_log: unknown[];
+}
+
 export default function MesDonneesPage() {
   const params = useParams();
   const lang = (params.lang as string) === "en" ? "en" : "fr";
@@ -95,7 +104,7 @@ export default function MesDonneesPage() {
   const [anonymousId, setAnonymousId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
-  const [userData, setUserData] = useState<unknown[] | null>(null);
+  const [userData, setUserData] = useState<UserDataExport | null>(null);
 
   const handleSearch = async () => {
     if (!anonymousId.trim()) {
@@ -107,19 +116,34 @@ export default function MesDonneesPage() {
     setResult(null);
 
     try {
-      const response = await fetch(`/api/user/data?anonymousId=${encodeURIComponent(anonymousId)}`);
+      // POST with the id in the body (never in a URL/query string) so it
+      // never ends up in server or proxy access logs.
+      const response = await fetchWithCSRF("/api/user/data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ anonymousId }),
+      });
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || t.errors.searchError);
       }
 
-      if (data.data.length === 0) {
+      const exported = data.data as UserDataExport | null;
+      const responseCount = exported?.responses?.length ?? 0;
+      const hasAnyData =
+        exported !== null &&
+        (responseCount > 0 ||
+          (exported.sessions?.length ?? 0) > 0 ||
+          (exported.submission_tracking?.length ?? 0) > 0 ||
+          exported.has_email_hash);
+
+      if (!hasAnyData) {
         setResult({ type: "info", message: t.results.notFound });
         setUserData(null);
       } else {
-        setUserData(data.data);
-        setResult({ type: "success", message: t.results.found(data.data.length) });
+        setUserData(exported);
+        setResult({ type: "success", message: t.results.found(responseCount) });
       }
     } catch (error) {
       setResult({ type: "error", message: error instanceof Error ? error.message : t.errors.unknown });
@@ -241,7 +265,7 @@ export default function MesDonneesPage() {
           </section>
 
           {/* Data Display */}
-          {userData && userData.length > 0 && (
+          {userData && (
             <section className="bg-white/5 rounded-2xl p-6 border border-white/10">
               <h2 className="text-xl font-semibold text-white mb-4">
                 {t.results.title}
@@ -255,7 +279,7 @@ export default function MesDonneesPage() {
           )}
 
           {/* Actions */}
-          {userData && userData.length > 0 && (
+          {userData && (
             <section className="bg-white/5 rounded-2xl p-6 border border-white/10">
               <h2 className="text-xl font-semibold text-white mb-4">
                 {t.actions.title}

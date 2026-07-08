@@ -3,6 +3,7 @@ import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase
 import { surveySubmissionSchema } from '@/lib/validation';
 import { rateLimitSubmit, getRateLimitHeaders, detectHoneypot, flagAsBot } from '@/lib/rateLimit';
 import { validateCSRF, csrfErrorResponse } from '@/lib/csrf';
+import { getClientIp, hashIp } from '@/lib/security/clientIp';
 import { cookies } from 'next/headers';
 
 const SUBMITTED_COOKIE_NAME = 'survey_submitted';
@@ -20,9 +21,9 @@ const ERROR_CODES = {
 
 export async function POST(request: NextRequest) {
   try {
-    // Get client IP for rate limiting and tracking
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous';
-    const userAgent = request.headers.get('user-agent') || '';
+    // Client IP: raw value keys the ephemeral in-memory rate limiter (fine,
+    // never persisted); the tracking RPCs below receive a hash instead.
+    const ip = getClientIp(request);
 
     // CSRF Check
     const csrfResult = await validateCSRF(request);
@@ -73,8 +74,9 @@ export async function POST(request: NextRequest) {
 
     const validationResult = surveySubmissionSchema.safeParse(body);
     if (!validationResult.success) {
+      console.error('Invalid survey submission request:', validationResult.error.issues);
       return NextResponse.json(
-        { error: 'Invalid request data', details: validationResult.error.issues },
+        { error: 'Invalid request data' },
         { status: 400 }
       );
     }
@@ -131,8 +133,7 @@ export async function POST(request: NextRequest) {
     // Skip in development mode to allow testing with same email
     const isDev = process.env.NODE_ENV === 'development';
     if (emailHash && !isDev) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: emailExists, error: emailCheckError } = await (supabase as any)
+      const { data: emailExists, error: emailCheckError } = await supabase
         .from('email_hashes')
         .select('id')
         .eq('email_hash', emailHash)
@@ -150,12 +151,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Client IP is never persisted raw: the tracking RPCs only ever see a
+    // keyed HMAC hash of it.
+    const ipHash = await hashIp(ip);
+
     // Check for duplicate submissions using the database function
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: checkResult, error: checkError } = await (supabase as any)
+    const { data: checkResult, error: checkError } = await supabase
       .rpc('check_submission_allowed', {
         p_fingerprint_id: fingerprint || null,
-        p_ip_address: ip,
+        p_ip_address: ipHash,
         p_anonymous_id: anonymousId,
       });
 
@@ -167,15 +171,14 @@ export async function POST(request: NextRequest) {
       const previousSubmissionAt = checkResult[0].previous_submission_at;
 
       // Record the blocked attempt
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).rpc('record_submission_attempt', {
+      await supabase.rpc('record_submission_attempt', {
         p_fingerprint_id: fingerprint || null,
-        p_ip_address: ip,
+        p_ip_address: ipHash,
         p_anonymous_id: anonymousId,
         p_session_id: sessionId,
         p_is_successful: false,
         p_blocked_reason: reason,
-        p_user_agent: userAgent,
+        p_user_agent: null,
       });
 
       let errorCode: (typeof ERROR_CODES)[keyof typeof ERROR_CODES] = ERROR_CODES.ALREADY_SUBMITTED_FINGERPRINT;
@@ -200,8 +203,7 @@ export async function POST(request: NextRequest) {
     }
 
     // First, ensure session exists (upsert)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: sessionError } = await (supabase as any)
+    const { error: sessionError } = await supabase
       .from('sessions')
       .upsert({
         id: sessionId,
@@ -220,8 +222,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert response
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('responses')
       .insert({
         session_id: sessionId,
@@ -244,24 +245,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Record successful submission in tracking table
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).rpc('record_submission_attempt', {
+    await supabase.rpc('record_submission_attempt', {
       p_fingerprint_id: fingerprint || null,
-      p_ip_address: ip,
+      p_ip_address: ipHash,
       p_anonymous_id: anonymousId,
       p_session_id: sessionId,
       p_is_successful: true,
       p_blocked_reason: null,
-      p_user_agent: userAgent,
+      p_user_agent: null,
     });
 
     // Store email hash if provided (for future duplicate detection)
     if (emailHash) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).rpc('record_email_hash', {
+      await supabase.rpc('record_email_hash', {
         p_email_hash: emailHash,
         p_response_id: data.id,
-        p_ip_hash: null,
+        p_ip_hash: ipHash,
       });
     }
 
