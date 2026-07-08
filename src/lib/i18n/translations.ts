@@ -32,7 +32,7 @@ export const translations = {
       featureAnonymous: "100% anonyme",
       featureDuration: "5-7 minutes",
       anonymousHighlight: "100% anonyme",
-      anonymousHighlightDesc: "Aucune donnée identifiante n'est enregistrée. Ni nom, ni email, ni adresse IP.",
+      anonymousHighlightDesc: "Ni nom, ni email, ni adresse IP en clair : seules des empreintes cryptographiques anti-doublons sont conservées.",
     },
 
     // CNEF co-branded landing
@@ -722,7 +722,7 @@ export const translations = {
       featureAnonymous: "100% anonymous",
       featureDuration: "5-7 minutes",
       anonymousHighlight: "100% anonymous",
-      anonymousHighlightDesc: "No identifying data is recorded. No name, no email, no IP address.",
+      anonymousHighlightDesc: "No name, email, or IP address is stored in the clear: only cryptographic anti-duplicate fingerprints are kept.",
     },
 
     // CNEF co-branded landing
