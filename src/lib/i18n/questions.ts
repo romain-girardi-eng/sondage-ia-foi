@@ -7,6 +7,9 @@ export const questionTranslations = {
       profil_confession: "Quelle est votre branche chrétienne principale ?",
       profil_confession_protestante: "Quelle est votre sensibilité protestante ?",
       profil_confession_evangelique: "Au sein du protestantisme évangélique, vous situez-vous plutôt comme :",
+      profil_confession_catholique: "Précisez votre sensibilité catholique :",
+      profil_confession_orthodoxe: "Précisez votre tradition orthodoxe :",
+      profil_confession_autre: "Précisez votre tradition chrétienne :",
       profil_statut: "Quelle est votre situation au sein de votre communauté religieuse ?",
       profil_age: "Votre tranche d'âge",
       profil_genre: "Votre genre",
@@ -30,6 +33,9 @@ export const questionTranslations = {
       theo_inspiration: "Selon vous, un texte généré par une IA (par exemple une prière ou une méditation) peut-il avoir une dimension spirituelle authentique ?",
       theo_risque_futur: "Concernant l'utilisation de l'IA dans l'Église, qu'est-ce qui vous préoccupe le plus ?",
       theo_utilite_percue: "Dans l'ensemble, pensez-vous que l'IA peut être un outil bénéfique pour la vie de l'Église ?",
+      theo_liturgie_ia: "L'utilisation de contenus générés par IA vous semble-t-elle acceptable dans un contexte liturgique (messe, culte, célébrations) ?",
+      theo_activites_sacrees: "Y a-t-il des activités spirituelles qui, selon vous, ne devraient JAMAIS faire intervenir l'IA ? (plusieurs réponses possibles)",
+      theo_mediation_humaine: "Pour vous, certains aspects de la vie spirituelle nécessitent-ils exclusivement une présence humaine ?",
 
       // === USAGE IA GÉNÉRAL ===
       ctrl_ia_frequence: "En général, à quelle fréquence utilisez-vous des outils d'IA (ChatGPT, Gemini, Claude, Copilot...) ?",
@@ -150,7 +156,7 @@ export const questionTranslations = {
       // Statut
       clerge: "Ministre ordonné (prêtre, pasteur, diacre...)",
       religieux: "Religieux/Religieuse (vie consacrée)",
-      laic_engage: "Laïc engagé (catéchiste, animateur, responsable bénévole...)",
+      laic_engagé: "Laïc engagé (catéchiste, animateur, responsable bénévole...)",
       laic_pratiquant: "Fidèle pratiquant régulier",
       curieux: "Pratiquant occasionnel ou sympathisant",
 
@@ -305,6 +311,9 @@ export const questionTranslations = {
       profil_confession: "What is your main Christian denomination?",
       profil_confession_protestante: "What is your Protestant background?",
       profil_confession_evangelique: "Within evangelical Protestantism, do you identify more as:",
+      profil_confession_catholique: "Please specify your Catholic background:",
+      profil_confession_orthodoxe: "Please specify your Orthodox tradition:",
+      profil_confession_autre: "Please specify your Christian tradition:",
       profil_statut: "What is your role within your religious community?",
       profil_age: "Your age group",
       profil_genre: "Your gender",
@@ -328,6 +337,9 @@ export const questionTranslations = {
       theo_inspiration: "In your opinion, can an AI-generated text (for example, a prayer or meditation) have an authentic spiritual dimension?",
       theo_risque_futur: "Regarding the use of AI in the Church, what concerns you the most?",
       theo_utilite_percue: "Overall, do you think AI can be a beneficial tool for the life of the Church?",
+      theo_liturgie_ia: "Do you find the use of AI-generated content acceptable in a liturgical context (mass, worship service, celebrations)?",
+      theo_activites_sacrees: "Are there spiritual activities that, in your view, should NEVER involve AI? (multiple answers possible)",
+      theo_mediation_humaine: "In your view, do certain aspects of spiritual life require an exclusively human presence?",
 
       // === GENERAL AI USAGE ===
       ctrl_ia_frequence: "In general, how often do you use AI tools (ChatGPT, Gemini, Claude, Copilot...)?",
@@ -448,7 +460,7 @@ export const questionTranslations = {
       // Status
       clerge: "Ordained minister (priest, pastor, deacon...)",
       religieux: "Religious (consecrated life)",
-      laic_engage: "Engaged layperson (catechist, volunteer leader...)",
+      laic_engagé: "Engaged layperson (catechist, volunteer leader...)",
       laic_pratiquant: "Regular practicing faithful",
       curieux: "Occasional practitioner or sympathizer",
 

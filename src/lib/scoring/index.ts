@@ -53,6 +53,7 @@ export {
 // ==========================================
 
 import type { Answers } from '@/data';
+import { LAIC_PRIERE_SCORES, LAIC_CONSEIL_SCORES } from './score-maps';
 import { calculateReligiosityDimension, calculateAIOpennessDimension } from './dimensions';
 import { calculateProfileSpectrum, getSimpleProfile } from './profiles';
 import { PROFILE_DEFINITIONS, SUB_PROFILE_DEFINITIONS } from './constants';
@@ -260,11 +261,8 @@ export function calculateSpiritualAIScore(answers: Answers): number {
   // Laïc: prière générée
   const laicPriere = answers['laic_substitution_priere'];
   if (typeof laicPriere === 'string') {
-    const priereScores: Record<string, number> = {
-      'non': 1, 'oui_bof': 3, 'oui': 5
-    };
-    if (priereScores[laicPriere]) {
-      score += priereScores[laicPriere];
+    if (LAIC_PRIERE_SCORES[laicPriere]) {
+      score += LAIC_PRIERE_SCORES[laicPriere];
       items++;
     }
   }
@@ -272,11 +270,8 @@ export function calculateSpiritualAIScore(answers: Answers): number {
   // Laïc: conseil spirituel
   const laicConseil = answers['laic_conseil_spirituel'];
   if (typeof laicConseil === 'string') {
-    const conseilScores: Record<string, number> = {
-      'jamais': 1, 'complement': 3, 'oui_possible': 4, 'deja_fait': 5
-    };
-    if (conseilScores[laicConseil]) {
-      score += conseilScores[laicConseil];
+    if (LAIC_CONSEIL_SCORES[laicConseil]) {
+      score += LAIC_CONSEIL_SCORES[laicConseil];
       items++;
     }
   }
