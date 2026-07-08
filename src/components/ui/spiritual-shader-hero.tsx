@@ -321,17 +321,28 @@ function ShaderBackground() {
     () => {
       if (!canvasRef.current) return;
 
-      gsap.set(canvasRef.current, {
-        filter: 'blur(20px)',
-        autoAlpha: 0
+      const mm = gsap.matchMedia();
+
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsap.set(canvasRef.current, {
+          filter: 'blur(16px)',
+          autoAlpha: 0
+        });
+
+        gsap.to(canvasRef.current, {
+          filter: 'blur(0px)',
+          autoAlpha: 1,
+          duration: 1.1,
+          ease: 'power2.out'
+        });
       });
 
-      gsap.to(canvasRef.current, {
-        filter: 'blur(0px)',
-        autoAlpha: 1,
-        duration: 1.5,
-        ease: 'power2.out',
-        delay: 0.1
+      mm.add('(prefers-reduced-motion: reduce)', () => {
+        gsap.fromTo(
+          canvasRef.current,
+          { autoAlpha: 0 },
+          { autoAlpha: 1, duration: 0.4, ease: 'none' }
+        );
       });
     },
     { scope: canvasRef, dependencies: [isClient] }
@@ -446,78 +457,85 @@ export default function SpiritualShaderHero({
     () => {
       if (!headerRef.current || !isClient) return;
 
-      document.fonts.ready.then(() => {
-        const split = new SplitText(headerRef.current!, {
-          type: 'lines',
-          linesClass: 'overflow-hidden',
-        });
+      const mm = gsap.matchMedia();
 
-        gsap.set(split.lines, {
-          filter: 'blur(12px)',
-          yPercent: 100,
-          autoAlpha: 0,
-        });
-
+      // Reduced motion: everything stays visible, no entrance choreography.
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        // Hide synchronously (not inside fonts.ready) so slow font loads can't
+        // flash fully-rendered content that then disappears and re-animates.
+        const supporting = [
+          badgeRef.current,
+          subtitleRef.current,
+          paraRef.current,
+          consentRef.current,
+          ctaRef.current,
+        ].filter(Boolean);
+        gsap.set(headerRef.current, { autoAlpha: 0 });
+        gsap.set(supporting, { autoAlpha: 0, y: 14 });
         if (badgeRef.current) {
-          gsap.set(badgeRef.current, { autoAlpha: 0, y: -12, scale: 0.95 });
-        }
-        if (subtitleRef.current) {
-          gsap.set(subtitleRef.current, { autoAlpha: 0, y: 12 });
-        }
-        if (paraRef.current) {
-          gsap.set(paraRef.current, { autoAlpha: 0, y: 16 });
-        }
-        if (consentRef.current) {
-          gsap.set(consentRef.current, { autoAlpha: 0, y: 16 });
-        }
-        if (ctaRef.current) {
-          gsap.set(ctaRef.current, { autoAlpha: 0, y: 16 });
+          gsap.set(badgeRef.current, { y: -10, scale: 0.96 });
         }
         if (featuresRef.current) {
-          gsap.set(featuresRef.current.children, { autoAlpha: 0, y: 12 });
+          gsap.set(featuresRef.current.children, { autoAlpha: 0, y: 10 });
         }
 
-        const tl = gsap.timeline({
-          defaults: { ease: 'power3.out' },
-          delay: 0.5
+        document.fonts.ready.then(() => {
+          if (!headerRef.current) return;
+
+          const split = new SplitText(headerRef.current, {
+            type: 'lines',
+            linesClass: 'overflow-hidden',
+          });
+
+          gsap.set(split.lines, {
+            filter: 'blur(8px)',
+            yPercent: 60,
+            autoAlpha: 0,
+          });
+          gsap.set(headerRef.current, { autoAlpha: 1 });
+
+          const tl = gsap.timeline({
+            defaults: { ease: 'power3.out' },
+            delay: 0.15,
+          });
+
+          if (badgeRef.current) {
+            tl.to(badgeRef.current, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5 }, 0);
+          }
+
+          tl.to(
+            split.lines,
+            {
+              filter: 'blur(0px)',
+              yPercent: 0,
+              autoAlpha: 1,
+              duration: 0.8,
+              stagger: 0.09,
+            },
+            0.1
+          );
+
+          if (subtitleRef.current) {
+            tl.to(subtitleRef.current, { autoAlpha: 1, y: 0, duration: 0.5 }, '-=0.45');
+          }
+          if (paraRef.current) {
+            tl.to(paraRef.current, { autoAlpha: 1, y: 0, duration: 0.5 }, '-=0.35');
+          }
+          if (consentRef.current) {
+            tl.to(consentRef.current, { autoAlpha: 1, y: 0, duration: 0.5 }, '-=0.3');
+          }
+          if (ctaRef.current) {
+            tl.to(ctaRef.current, { autoAlpha: 1, y: 0, duration: 0.5 }, '-=0.3');
+          }
+          if (featuresRef.current && featuresRef.current.children.length > 0) {
+            tl.to(featuresRef.current.children, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.4,
+              stagger: 0.06,
+            }, '-=0.25');
+          }
         });
-
-        if (badgeRef.current) {
-          tl.to(badgeRef.current, { autoAlpha: 1, y: 0, scale: 1, duration: 0.6 }, 0);
-        }
-
-        tl.to(
-          split.lines,
-          {
-            filter: 'blur(0px)',
-            yPercent: 0,
-            autoAlpha: 1,
-            duration: 1,
-            stagger: 0.12,
-          },
-          0.2
-        );
-
-        if (subtitleRef.current) {
-          tl.to(subtitleRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, '-=0.5');
-        }
-        if (paraRef.current) {
-          tl.to(paraRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, '-=0.4');
-        }
-        if (consentRef.current) {
-          tl.to(consentRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, '-=0.3');
-        }
-        if (ctaRef.current) {
-          tl.to(ctaRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, '-=0.3');
-        }
-        if (featuresRef.current && featuresRef.current.children.length > 0) {
-          tl.to(featuresRef.current.children, {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.5,
-            stagger: 0.08
-          }, '-=0.2');
-        }
       });
     },
     { scope: sectionRef, dependencies: [isClient] }
@@ -527,7 +545,7 @@ export default function SpiritualShaderHero({
     <section ref={sectionRef} className="relative min-h-[100dvh] w-full">
       <ShaderBackground />
 
-      <div className="relative mx-auto flex min-h-[100dvh] max-w-4xl flex-col items-center justify-center gap-2 px-5 py-4 text-center sm:gap-6 sm:px-6 sm:py-24">
+      <div className="relative mx-auto flex min-h-[100dvh] max-w-4xl flex-col items-center justify-center gap-2 px-5 py-4 text-center sm:gap-4 sm:px-6 sm:py-8">
         {/* Co-branding slot (optional) */}
         {coBrandSlot}
 
@@ -574,14 +592,14 @@ export default function SpiritualShaderHero({
         {/* Description */}
         <p
           ref={paraRef}
-          className="max-w-xl text-sm font-light leading-relaxed text-muted-foreground line-clamp-4 sm:line-clamp-none sm:text-lg"
+          className="max-w-xl text-sm font-light leading-relaxed text-muted-foreground line-clamp-4 sm:line-clamp-none sm:text-base"
         >
           {description}
         </p>
 
         {/* Consent Checkbox */}
         {onConsentChange && consentLabel && (
-          <div ref={consentRef} className="max-w-md">
+          <div ref={consentRef} className="max-w-lg pt-1">
             <label className="flex items-start gap-3 cursor-pointer group">
               <div className="relative flex items-center justify-center mt-1">
                 <input
@@ -598,7 +616,7 @@ export default function SpiritualShaderHero({
                   )}
                 </div>
               </div>
-              <span className="text-sm text-muted-foreground text-left leading-relaxed group-hover:text-foreground transition-colors">
+              <span className="text-xs text-muted-foreground text-left leading-snug group-hover:text-foreground transition-colors sm:text-[13px]">
                 {consentLabel}
                 {privacyLink && (
                   <>
@@ -621,7 +639,7 @@ export default function SpiritualShaderHero({
 
         {/* Anonymity reassurance (prominent, just before the CTA) */}
         {anonymityLabel && (
-          <div className="inline-flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-2.5 text-left backdrop-blur-sm sm:px-5 sm:py-3">
+          <div className="inline-flex max-w-xl items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-2.5 text-left backdrop-blur-sm sm:px-5 sm:py-3">
             <svg
               className="h-5 w-5 shrink-0 text-emerald-500"
               fill="none"
@@ -642,11 +660,11 @@ export default function SpiritualShaderHero({
         )}
 
         {/* CTA Buttons */}
-        <div ref={ctaRef} className="flex flex-wrap items-center justify-center gap-3 pt-1 sm:gap-4 sm:pt-4">
+        <div ref={ctaRef} className="flex flex-wrap items-center justify-center gap-3 pt-1 sm:gap-4 sm:pt-2">
           <button
             onClick={onPrimaryClick}
             disabled={onConsentChange && !consentGiven}
-            className="group relative overflow-hidden rounded-2xl bg-foreground px-8 py-4 text-base font-medium text-background transition-all duration-300 hover:scale-[1.02] hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="group relative overflow-hidden rounded-2xl bg-foreground px-8 py-3.5 text-base font-medium text-background transition-all duration-300 hover:scale-[1.02] hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             <span className="relative z-10">{primaryButtonText}</span>
             <div className="absolute inset-0 -z-0 bg-gradient-to-r from-purple-200 to-blue-200 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -655,7 +673,7 @@ export default function SpiritualShaderHero({
           {secondaryButtonText && onSecondaryClick && (
             <button
               onClick={onSecondaryClick}
-              className="rounded-2xl border border-border bg-background/50 px-8 py-4 text-base font-light text-foreground backdrop-blur-sm transition-all duration-300 hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="rounded-2xl border border-border bg-background/50 px-8 py-3.5 text-base font-light text-foreground backdrop-blur-sm transition-all duration-300 hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {secondaryButtonText}
             </button>
@@ -666,7 +684,7 @@ export default function SpiritualShaderHero({
         {(features.length > 0 || authorName) && (
           <div
             ref={featuresRef}
-            className="mt-2 flex flex-col items-center gap-3 sm:mt-6"
+            className="mt-2 flex flex-col items-center gap-2.5 sm:mt-3"
           >
             {/* Features row */}
             {features.length > 0 && (
