@@ -36,16 +36,19 @@ function mockRpc(participantCount: number) {
           question_id: 'profil_confession',
           distribution: { protestant: 30, catholique: 12 },
           total_responses: 42,
+          respondents: 42,
         },
         {
           question_id: 'ctrl_ia_contextes',
           distribution: { professionnel: 28, spirituel: 9, _autres: 5 },
           total_responses: 42,
+          respondents: 34,
         },
         {
           question_id: 'commentaires_libres',
           distribution: { [SECRET_VERBATIM]: 1 },
           total_responses: 1,
+          respondents: 1,
         },
       ],
       error: null,
@@ -88,6 +91,43 @@ describe('GET /api/results/aggregated', () => {
       (r: { questionId: string }) => r.questionId === 'ctrl_ia_contextes'
     );
     expect(contexts.distribution).toEqual({ professionnel: 28, spirituel: 9, _autres: 5 });
+  });
+
+  it('exposes the distinct respondent count next to the cell total', async () => {
+    const response = await GET(makeRequest());
+    const body = await response.json();
+
+    const contexts = body.results.find(
+      (r: { questionId: string }) => r.questionId === 'ctrl_ia_contextes'
+    );
+    // A multi-select totals selections (42) over fewer people (34): only the
+    // respondent count is a sound percentage denominator.
+    expect(contexts.totalResponses).toBe(42);
+    expect(contexts.respondents).toBe(34);
+  });
+
+  it('reports respondents as null when the database predates migration 011', async () => {
+    rpcMock.mockReset();
+    rpcMock.mockImplementation((fn: string) => {
+      if (fn === 'get_participant_count') {
+        return Promise.resolve({ data: 42, error: null });
+      }
+      return Promise.resolve({
+        data: [
+          {
+            question_id: 'profil_confession',
+            distribution: { protestant: 30, catholique: 12 },
+            total_responses: 42,
+          },
+        ],
+        error: null,
+      });
+    });
+
+    const response = await GET(makeRequest());
+    const body = await response.json();
+
+    expect(body.results[0].respondents).toBeNull();
   });
 
   it('returns mode "insufficient" below 30 participants and no results', async () => {

@@ -62,12 +62,12 @@ describe('religiosity (raw CRS-5)', () => {
     const answers: Answers = {
       crs_intellect: 'tres_souvent', // 5
       crs_ideology: 'moderement', // 3
-      crs_public_practice: 'mensuel', // 4
+      crs_public_practice: 'mensuel', // 3
       crs_private_practice: 'rarement', // 2
       crs_experience: 'souvent', // 4
     };
     const score = calculateReligiosityDimension(answers);
-    expect(score.value).toBeCloseTo((5 + 3 + 4 + 2 + 4) / 5, 5);
+    expect(score.value).toBeCloseTo((5 + 3 + 3 + 2 + 4) / 5, 5);
     expect(score.nItems).toBe(5);
     expect(score.maxItems).toBe(5);
     expect(score.confidence).toBe(1);
@@ -78,6 +78,44 @@ describe('religiosity (raw CRS-5)', () => {
     const multiDaily = scoreItem('crs_private_practice', { crs_private_practice: 'pluri_quotidien' });
     expect(daily).toBe(5);
     expect(multiDaily).toBe(5);
+  });
+
+  it('applies the Huber recode table to public practice', () => {
+    const expected: Record<string, number> = {
+      pluri_hebdo: 5,
+      hebdo: 4,
+      mensuel: 3,
+      quelques_fois_an: 2,
+      rarement: 2,
+      jamais: 1,
+    };
+    for (const [value, score] of Object.entries(expected)) {
+      expect(scoreItem('crs_public_practice', { crs_public_practice: value })).toBe(score);
+    }
+  });
+
+  it('scores v1 public-practice codes with the same table as v2', () => {
+    // v1 and v2 share `pluri_hebdo`, `hebdo`, `mensuel`, `quelques_fois_an`
+    // and `jamais`: archived answers need no remapping.
+    expect(scoreItem('crs_public_practice', { crs_public_practice: 'pluri_hebdo' })).toBe(5);
+    expect(scoreItem('crs_public_practice', { crs_public_practice: 'hebdo' })).toBe(4);
+    expect(scoreItem('crs_public_practice', { crs_public_practice: 'quelques_fois_an' })).toBe(2);
+  });
+
+  it('treats the v1-only private-practice code occasionnellement as missing', () => {
+    // No Huber anchor matches it; religiosity still computes on the 4 others.
+    expect(scoreItem('crs_private_practice', { crs_private_practice: 'occasionnellement' })).toBeNull();
+
+    const v1Row: Answers = {
+      crs_intellect: 'souvent',
+      crs_ideology: 'beaucoup',
+      crs_public_practice: 'hebdo',
+      crs_private_practice: 'occasionnellement',
+      crs_experience: 'souvent',
+    };
+    const score = calculateReligiosityDimension(v1Row);
+    expect(score.nItems).toBe(4);
+    expect(score.value).toBeCloseTo((4 + 4 + 4 + 4) / 4, 5);
   });
 
   it('requires 4 items', () => {

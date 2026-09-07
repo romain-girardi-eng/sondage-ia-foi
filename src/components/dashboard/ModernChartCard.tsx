@@ -21,7 +21,16 @@ import { AnimatedBarChart, ScaleVisualization, type BarChartColor } from "./char
 export interface DashboardResult {
   questionId: string;
   distribution: Record<string, number>;
+  /**
+   * Sum of the published cells: selections for a multi-select or a matrix, and
+   * only what k-anonymity let through. Never a percentage denominator.
+   */
   totalResponses: number;
+  /**
+   * Distinct people who answered the question (migration 011). Null when the
+   * database predates it, in which case the cell total is the only fallback.
+   */
+  respondents: number | null;
 }
 
 /** Cell name used by the SQL aggregate for the merged rare modalities. */
@@ -51,34 +60,60 @@ export function ModernChartCard({ question, data, index, isExpanded, onToggle }:
   const { t, language } = useLanguage();
   const bucketLabel = language === "fr" ? "Autres (regroupés)" : "Other (grouped)";
 
+  const cellLabel = useMemo(() => {
+    /**
+     * A matrix cell is keyed "row:col" by the SQL aggregate (migration 011).
+     * Rows and columns carry their own labels in the schema, which is built
+     * from the label helpers in `@/lib/i18n/questions`; an unknown key falls
+     * back to itself rather than being hidden.
+     */
+    const matrixLabel = (key: string): string | null => {
+      if (!question.rows || !question.columns) return null;
+      const separator = key.lastIndexOf(":");
+      if (separator <= 0) return null;
+      const row = question.rows.find((r) => r.value === key.slice(0, separator));
+      const column = question.columns.find(
+        (c) => String(c.value) === key.slice(separator + 1)
+      );
+      if (!row || !column) return null;
+      return `${row.label} — ${column.label}`;
+    };
+
+    return (key: string): string => {
+      const fromMatrix = matrixLabel(key);
+      if (fromMatrix) return fromMatrix;
+      const option = question.options?.find((o) => o.value === key);
+      return option ? option.label : key;
+    };
+  }, [question.options, question.rows, question.columns]);
+
   const chartData = useMemo(() => {
     return Object.entries(data.distribution)
       .map(([key, value]) => {
-        if (key === K_ANONYMITY_BUCKET) {
-          return { name: bucketLabel, value, fullName: bucketLabel };
-        }
-        let label = key;
-        let fullLabel = key;
-        if (question.options) {
-          const opt = question.options.find((o) => o.value === key);
-          fullLabel = opt ? opt.label : key;
-          label = fullLabel.length > 30 ? fullLabel.substring(0, 30) + "..." : fullLabel;
-        }
+        const fullLabel = key === K_ANONYMITY_BUCKET ? bucketLabel : cellLabel(key);
+        const label = fullLabel.length > 30 ? fullLabel.substring(0, 30) + "..." : fullLabel;
         return { name: label, value, fullName: fullLabel };
       })
       .sort((a, b) => b.value - a.value);
-  }, [data.distribution, question.options, bucketLabel]);
+  }, [data.distribution, cellLabel, bucketLabel]);
 
-  const totalResponses = useMemo(() => {
+  // Sum of the published cells: the weighted-average denominator of a scale.
+  const publishedCells = useMemo(() => {
     return Object.values(data.distribution).reduce((sum, val) => sum + val, 0);
   }, [data.distribution]);
 
+  // Share denominator: people, not selections. A multi-select or a matrix
+  // produces several cells per respondent, so dividing by the cell total
+  // understated every option. Falls back to the cell total only when the
+  // database predates migration 011.
+  const respondents = data.respondents ?? publishedCells;
+
   const maxValue = Math.max(...chartData.map((d) => d.value));
-  const topPercentage = ((chartData[0]?.value || 0) / totalResponses * 100);
+  const topPercentage = respondents > 0 ? ((chartData[0]?.value || 0) / respondents) * 100 : 0;
 
   const barChartData = chartData.map(item => ({
     ...item,
-    percentage: (item.value / totalResponses) * 100,
+    percentage: respondents > 0 ? (item.value / respondents) * 100 : 0,
   }));
 
   return (
@@ -137,7 +172,7 @@ export function ModernChartCard({ question, data, index, isExpanded, onToggle }:
           <div className="flex items-center gap-4 mt-4">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted">
               <Users className="w-3 h-3 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">{totalResponses}</span>
+              <span className="text-xs text-muted-foreground">{respondents}</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10">
               <TrendingUp className="w-3 h-3 text-emerald-500" />
@@ -167,7 +202,7 @@ export function ModernChartCard({ question, data, index, isExpanded, onToggle }:
                   <ScaleVisualization
                     data={chartData}
                     question={question}
-                    total={totalResponses}
+                    total={publishedCells}
                   />
                 ) : (
                   <AnimatedBarChart

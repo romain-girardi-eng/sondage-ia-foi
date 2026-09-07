@@ -59,6 +59,17 @@ export const translations = {
       textPlaceholder: "Écrivez votre réponse ici...",
       optionalQuestion: "Cette question est facultative",
       submitting: "Enregistrement de vos réponses...",
+      exclusiveConflictNotice:
+        "Une réponse « aucun » ne peut pas être combinée à d'autres choix. Corrigez votre sélection pour continuer.",
+    },
+
+    // Screen-out confirmation (outside the studied population)
+    screenedOut: {
+      confirmTitle: "Confirmer votre réponse",
+      confirmDescription:
+        "Vous avez indiqué ne pas vous reconnaître dans une confession chrétienne. Ce questionnaire s'adresse aux personnes chrétiennes ; confirmez pour terminer, ou revenez en arrière pour corriger.",
+      back: "Revenir",
+      confirm: "Confirmer et terminer",
     },
 
     // Feedback Screen
@@ -828,6 +839,17 @@ export const translations = {
       textPlaceholder: "Write your answer here...",
       optionalQuestion: "This question is optional",
       submitting: "Saving your responses...",
+      exclusiveConflictNotice:
+        "A \"none\" answer cannot be combined with other choices. Please fix your selection to continue.",
+    },
+
+    // Screen-out confirmation (outside the studied population)
+    screenedOut: {
+      confirmTitle: "Confirm your answer",
+      confirmDescription:
+        "You indicated that you do not identify with a Christian denomination. This questionnaire is addressed to Christians; confirm to finish, or go back to correct your answer.",
+      back: "Go back",
+      confirm: "Confirm and finish",
     },
 
     // Feedback Screen

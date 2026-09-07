@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase';
-import { surveySubmissionSchema } from '@/lib/validation';
+import {
+  surveySubmissionSchema,
+  getExclusiveConflictQuestionId,
+  EXCLUSIVE_OPTION_ERROR_CODE,
+} from '@/lib/validation';
 import { rateLimitSubmit, getRateLimitHeaders, detectHoneypot, flagAsBot } from '@/lib/rateLimit';
 import { validateCSRF, csrfErrorResponse } from '@/lib/csrf';
 import { getClientIp, hashIp } from '@/lib/security/clientIp';
@@ -17,7 +21,21 @@ const ERROR_CODES = {
   IP_LIMIT_EXCEEDED: 'IP_LIMIT_EXCEEDED',
   RATE_LIMITED: 'RATE_LIMITED',
   BOT_DETECTED: 'BOT_DETECTED',
+  EXCLUSIVE_OPTION_CONFLICT: EXCLUSIVE_OPTION_ERROR_CODE,
 } as const;
+
+// Marks the device as having completed the survey. Never set for a
+// screened-out response: someone who mis-clicked "no religion / other" must be
+// able to start the questionnaire over.
+function setSubmittedCookie(response: NextResponse) {
+  response.cookies.set(SUBMITTED_COOKIE_NAME, 'true', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: SUBMITTED_COOKIE_MAX_AGE,
+    path: '/',
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -75,6 +93,19 @@ export async function POST(request: NextRequest) {
     const validationResult = surveySubmissionSchema.safeParse(body);
     if (!validationResult.success) {
       console.error('Invalid survey submission request:', validationResult.error.issues);
+      // An exclusive "aucun" option combined with others is recoverable: name
+      // the question so the client can send the respondent back to it.
+      const conflictQuestionId = getExclusiveConflictQuestionId(validationResult.error.issues);
+      if (conflictQuestionId) {
+        return NextResponse.json(
+          {
+            error: 'An "aucun" option cannot be combined with other selections',
+            code: ERROR_CODES.EXCLUSIVE_OPTION_CONFLICT,
+            questionId: conflictQuestionId,
+          },
+          { status: 400 }
+        );
+      }
       return NextResponse.json(
         { error: 'Invalid request data' },
         { status: 400 }
@@ -82,6 +113,12 @@ export async function POST(request: NextRequest) {
     }
 
     const { sessionId, answers, metadata, consentGiven, consentVersion, anonymousId, fingerprint, emailHash } = validationResult.data;
+
+    // A screened-out respondent (no religion / other) leaves the questionnaire
+    // after a single click. The row is still stored, but the device is never
+    // locked: no duplicate-detection record and no submitted cookie, so a
+    // mis-click can be corrected by starting over.
+    const isScreenedOutSubmission = metadata?.screenedOut === true;
 
     // Consent is required
     if (!consentGiven) {
@@ -102,13 +139,9 @@ export async function POST(request: NextRequest) {
       );
 
       // Set submission cookie even in demo mode
-      response.cookies.set(SUBMITTED_COOKIE_NAME, 'true', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: SUBMITTED_COOKIE_MAX_AGE,
-        path: '/',
-      });
+      if (!isScreenedOutSubmission) {
+        setSubmittedCookie(response);
+      }
 
       return response;
     }
@@ -119,13 +152,9 @@ export async function POST(request: NextRequest) {
         { success: true, responseId: 'demo-' + Date.now(), anonymousId, demo: true },
         { status: 201, headers: getRateLimitHeaders(rateLimitResult) }
       );
-      response.cookies.set(SUBMITTED_COOKIE_NAME, 'true', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: SUBMITTED_COOKIE_MAX_AGE,
-        path: '/',
-      });
+      if (!isScreenedOutSubmission) {
+        setSubmittedCookie(response);
+      }
       return response;
     }
 
@@ -155,51 +184,57 @@ export async function POST(request: NextRequest) {
     // keyed HMAC hash of it.
     const ipHash = await hashIp(ip);
 
-    // Check for duplicate submissions using the database function
-    const { data: checkResult, error: checkError } = await supabase
-      .rpc('check_submission_allowed', {
-        p_fingerprint_id: fingerprint || null,
-        p_ip_address: ipHash,
-        p_anonymous_id: anonymousId,
-      });
+    // Duplicate detection locks the device for a year. A screened-out
+    // respondent never goes through it: the row is stored, but no
+    // fingerprint / anonymous-id / IP attempt is recorded, so a mis-click on
+    // "no religion / other" can be corrected by starting the survey over.
+    if (!isScreenedOutSubmission) {
+      // Check for duplicate submissions using the database function
+      const { data: checkResult, error: checkError } = await supabase
+        .rpc('check_submission_allowed', {
+          p_fingerprint_id: fingerprint || null,
+          p_ip_address: ipHash,
+          p_anonymous_id: anonymousId,
+        });
 
-    if (checkError) {
-      console.error('Duplicate check error:', checkError);
-      // Continue anyway - don't block submission due to check failure
-    } else if (checkResult && checkResult.length > 0 && !checkResult[0].allowed) {
-      const reason = checkResult[0].reason;
-      const previousSubmissionAt = checkResult[0].previous_submission_at;
+      if (checkError) {
+        console.error('Duplicate check error:', checkError);
+        // Continue anyway - don't block submission due to check failure
+      } else if (checkResult && checkResult.length > 0 && !checkResult[0].allowed) {
+        const reason = checkResult[0].reason;
+        const previousSubmissionAt = checkResult[0].previous_submission_at;
 
-      // Record the blocked attempt
-      await supabase.rpc('record_submission_attempt', {
-        p_fingerprint_id: fingerprint || null,
-        p_ip_address: ipHash,
-        p_anonymous_id: anonymousId,
-        p_session_id: sessionId,
-        p_is_successful: false,
-        p_blocked_reason: reason,
-        p_user_agent: null,
-      });
+        // Record the blocked attempt
+        await supabase.rpc('record_submission_attempt', {
+          p_fingerprint_id: fingerprint || null,
+          p_ip_address: ipHash,
+          p_anonymous_id: anonymousId,
+          p_session_id: sessionId,
+          p_is_successful: false,
+          p_blocked_reason: reason,
+          p_user_agent: null,
+        });
 
-      let errorCode: (typeof ERROR_CODES)[keyof typeof ERROR_CODES] = ERROR_CODES.ALREADY_SUBMITTED_FINGERPRINT;
-      let errorMessage = 'You have already completed this survey.';
+        let errorCode: (typeof ERROR_CODES)[keyof typeof ERROR_CODES] = ERROR_CODES.ALREADY_SUBMITTED_FINGERPRINT;
+        let errorMessage = 'You have already completed this survey.';
 
-      if (reason === 'anonymous_id_exists') {
-        errorCode = ERROR_CODES.ALREADY_SUBMITTED_ANONYMOUS_ID;
-      } else if (reason === 'ip_limit_exceeded') {
-        errorCode = ERROR_CODES.IP_LIMIT_EXCEEDED;
-        errorMessage = 'Too many submissions from this network. Please contact us if you need assistance.';
+        if (reason === 'anonymous_id_exists') {
+          errorCode = ERROR_CODES.ALREADY_SUBMITTED_ANONYMOUS_ID;
+        } else if (reason === 'ip_limit_exceeded') {
+          errorCode = ERROR_CODES.IP_LIMIT_EXCEEDED;
+          errorMessage = 'Too many submissions from this network. Please contact us if you need assistance.';
+        }
+
+        return NextResponse.json(
+          {
+            error: errorMessage,
+            code: errorCode,
+            previousSubmissionAt,
+            helpText: 'If you believe this is an error (e.g., shared computer), please contact us at contact@ia-foi.fr'
+          },
+          { status: 403 }
+        );
       }
-
-      return NextResponse.json(
-        {
-          error: errorMessage,
-          code: errorCode,
-          previousSubmissionAt,
-          helpText: 'If you believe this is an error (e.g., shared computer), please contact us at contact@ia-foi.fr'
-        },
-        { status: 403 }
-      );
     }
 
     // First, ensure session exists (upsert)
@@ -244,16 +279,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Record successful submission in tracking table
-    await supabase.rpc('record_submission_attempt', {
-      p_fingerprint_id: fingerprint || null,
-      p_ip_address: ipHash,
-      p_anonymous_id: anonymousId,
-      p_session_id: sessionId,
-      p_is_successful: true,
-      p_blocked_reason: null,
-      p_user_agent: null,
-    });
+    // Record successful submission in tracking table (never for a
+    // screened-out response, see above).
+    if (!isScreenedOutSubmission) {
+      await supabase.rpc('record_submission_attempt', {
+        p_fingerprint_id: fingerprint || null,
+        p_ip_address: ipHash,
+        p_anonymous_id: anonymousId,
+        p_session_id: sessionId,
+        p_is_successful: true,
+        p_blocked_reason: null,
+        p_user_agent: null,
+      });
+    }
 
     // Store email hash if provided (for future duplicate detection)
     if (emailHash) {
@@ -271,13 +309,9 @@ export async function POST(request: NextRequest) {
     );
 
     // Set submission cookie to prevent re-submission
-    response.cookies.set(SUBMITTED_COOKIE_NAME, 'true', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: SUBMITTED_COOKIE_MAX_AGE,
-      path: '/',
-    });
+    if (!isScreenedOutSubmission) {
+      setSubmittedCookie(response);
+    }
 
     return response;
   } catch (error) {

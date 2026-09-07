@@ -41,7 +41,7 @@ const clamp = (value: number, min: number, max: number): number =>
 const ORDERED_OPTIONS: Record<string, string[]> = {
   crs_intellect: ['jamais', 'rarement', 'occasionnellement', 'souvent', 'tres_souvent'],
   crs_ideology: ['pas_du_tout', 'peu', 'moderement', 'beaucoup', 'totalement'],
-  crs_public_practice: ['jamais', 'rarement', 'quelques_fois_an', 'mensuel', 'hebdomadaire_plus'],
+  crs_public_practice: ['jamais', 'quelques_fois_an', 'mensuel', 'hebdo', 'pluri_hebdo'],
   crs_private_practice: ['jamais', 'rarement', 'mensuel', 'hebdomadaire', 'quotidien'],
   crs_experience: ['jamais', 'rarement', 'occasionnellement', 'souvent', 'tres_souvent'],
 

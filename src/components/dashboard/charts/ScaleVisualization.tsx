@@ -19,11 +19,15 @@ export function ScaleVisualization({
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
 
-  const weightedSum = data.reduce((sum, entry, idx) => {
-    const numValue = parseInt(entry.name) || idx + 1;
-    return sum + numValue * entry.value;
-  }, 0);
-  const average = weightedSum / total;
+  // Only genuine scale points (numeric labels) enter the mean; the k-anonymity
+  // bucket "_autres" has no position on the scale and is left out of both terms.
+  const scored = data.flatMap((entry) => {
+    const numValue = Number.parseInt(entry.name, 10);
+    return Number.isFinite(numValue) ? [{ numValue, count: entry.value }] : [];
+  });
+  const scoredTotal = scored.reduce((sum, s) => sum + s.count, 0);
+  const weightedSum = scored.reduce((sum, s) => sum + s.numValue * s.count, 0);
+  const average = scoredTotal > 0 ? weightedSum / scoredTotal : 0;
   const maxValue = Math.max(...data.map((d) => d.value));
 
   const getBarColor = (index: number) => {

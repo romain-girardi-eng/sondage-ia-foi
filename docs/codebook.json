@@ -1,6 +1,6 @@
 {
   "_metadata": {
-    "exportDate": "2026-09-07T19:40:06.137Z",
+    "exportDate": "2026-09-07T20:30:27.601Z",
     "version": "2.0.0",
     "description": "Scoring methodology codebook for the \"IA & Foi\" survey"
   },
@@ -12,7 +12,7 @@
     "dateCreated": "2025-01-01",
     "dateModified": "2026-09-07",
     "description": {
-      "fr": "Système de scoring de l'étude « IA & Foi chrétienne ». Outil exploratoire : les profils sont une attribution heuristique, pas un diagnostic.",
+      "fr": "Système de scoring de l'étude « IA & Foi chrétienne ». Outil exploratoire : les profils sont une attribution heuristique, pas un diagnostic.",
       "en": "Scoring system for the \"AI & Christian faith\" study. Exploratory tool: profiles are a heuristic attribution, not a diagnosis."
     },
     "keywords": [
@@ -27,7 +27,7 @@
       {
         "name": "CRS-5 (Huber & Huber, 2012)",
         "status": "adapted",
-        "note": "Wording localised and private-practice frequencies recoded; not administered verbatim"
+        "note": "Wording localised and practice frequencies recoded per the authors (public and private); not administered verbatim"
       },
       {
         "name": "Marlowe-Crowne items (Crowne & Marlowe, 1960)",
@@ -104,13 +104,13 @@
         {
           "questionId": "crs_public_practice",
           "weight": 1,
-          "scoringLogic": "jamais=1, rarement=2, quelques_fois_an=3, mensuel=4, hebdomadaire(+)=5 (v1 hebdo/pluri_hebdo=5)",
+          "scoringLogic": "recodage Huber : pluri_hebdo=5, hebdo=4, mensuel=3, quelques_fois_an=2, rarement=2, jamais=1 ; valeurs identiques en v1 et en v2",
           "core": true
         },
         {
           "questionId": "crs_private_practice",
           "weight": 1,
-          "scoringLogic": "jamais=1, rarement=2, mensuel=3, hebdomadaire=4, quotidien=5, pluri_quotidien=5 (Huber recoding)",
+          "scoringLogic": "recodage Huber : pluri_quotidien=5, quotidien=5, hebdomadaire=4, mensuel=3, rarement=2, jamais=1 ; v1 occasionnellement = donnée manquante",
           "core": true
         },
         {
@@ -931,22 +931,20 @@
       "totalement": 5
     },
     "crs_public_practice": {
-      "jamais": 1,
+      "pluri_hebdo": 5,
+      "hebdo": 4,
+      "mensuel": 3,
+      "quelques_fois_an": 2,
       "rarement": 2,
-      "quelques_fois_an": 3,
-      "mensuel": 4,
-      "hebdomadaire": 5,
-      "hebdomadaire_plus": 5,
-      "hebdo": 5,
-      "pluri_hebdo": 5
+      "jamais": 1
     },
     "crs_private_practice": {
-      "jamais": 1,
-      "rarement": 2,
-      "mensuel": 3,
-      "hebdomadaire": 4,
+      "pluri_quotidien": 5,
       "quotidien": 5,
-      "pluri_quotidien": 5
+      "hebdomadaire": 4,
+      "mensuel": 3,
+      "rarement": 2,
+      "jamais": 1
     },
     "crs_experience": {
       "jamais": 1,

@@ -40,7 +40,7 @@ export function MultipleQuestion({
 
   const handleMultipleSubmit = useCallback(() => {
     if (multipleSelected.length > 0) {
-      onNext();
+      onNext(multipleSelected);
     }
   }, [multipleSelected, onNext]);
 

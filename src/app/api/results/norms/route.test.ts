@@ -45,7 +45,11 @@ function makeRequest() {
 }
 
 function syntheticRows(count: number) {
-  return Array.from({ length: count }, (_, i) => ({ answers: { seed: i } }));
+  return Array.from({ length: count }, (_, i) => ({
+    answers: { seed: i },
+    // Two thirds of the pool carries a version, the rest predates the stamp.
+    metadata: i % 3 === 0 ? null : { instrumentVersion: i % 3 === 1 ? '2.0.0' : '1.4.0' },
+  }));
 }
 
 describe('GET /api/results/norms', () => {
@@ -101,6 +105,21 @@ describe('GET /api/results/norms', () => {
     expect(body.dimensions.religiosity.n).toBe(60);
     // Only even seeds produce a value for communityContext.
     expect(body.dimensions.communityContext.n).toBe(30);
+  });
+
+  it('reports the instrument versions actually pooled, never a single hardcoded one', async () => {
+    orMock.mockResolvedValue({ data: syntheticRows(60), error: null });
+
+    const response = await GET(makeRequest());
+    const body = await response.json();
+
+    expect(body.instrumentVersion).toBeUndefined();
+    expect(body.instrumentVersions).toEqual({ '2.0.0': 20, '1.4.0': 20, unknown: 20 });
+    const pooled = Object.values(body.instrumentVersions as Record<string, number>).reduce(
+      (sum, count) => sum + count,
+      0
+    );
+    expect(pooled).toBe(body.n);
   });
 
   it('sets the 10-minute cache header', async () => {

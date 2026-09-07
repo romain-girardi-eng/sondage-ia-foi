@@ -15,11 +15,14 @@ export function ChoiceQuestion({
   getOptionLabel,
 }: ChoiceQuestionProps) {
 
+  // The advance is delayed so the selected state is visible, and the chosen
+  // value is handed to onNext: the container must branch on the answer being
+  // committed, not on the state this closure captured.
   const handleChoiceClick = useCallback(
     (optionValue: string) => {
       onChange(optionValue);
       setTimeout(() => {
-        onNext();
+        onNext(optionValue);
       }, 250);
     },
     [onChange, onNext]

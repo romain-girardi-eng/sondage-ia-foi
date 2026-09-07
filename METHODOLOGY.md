@@ -144,8 +144,8 @@ Conventions de remappage :
 | `profil_anciennete_foi` | bornes désambiguïsées, « Depuis toujours » → « Depuis l'enfance » | conservé |
 | `profil_annees_ministere`, `profil_taille_communaute` | bornes désambiguïsées | conservé |
 | `crs_intellect`, `crs_ideology` | inchangés | conservé |
-| `crs_public_practice` | modalités regroupées selon Huber et Huber | recodé : `hebdo` et `pluri_hebdo` → `hebdomadaire_plus` ; `mensuel`, `quelques_fois_an`, `jamais` conservés ; `rarement` sans équivalent v1 |
-| `crs_private_practice` | ajout d'une modalité hebdomadaire, ancres explicitées | recodé partiel : `pluri_quotidien`, `quotidien`, `jamais` conservés ; `rarement` et `occasionnellement` v1 → **null** |
+| `crs_public_practice` | modalités et cotation alignées sur le recodage de Huber et Huber | **conservé** : les cinq modalités v1 (`pluri_hebdo`, `hebdo`, `mensuel`, `quelques_fois_an`, `jamais`) sont reprises telles quelles et cotées avec la même table ; la v2 ajoute `rarement` (« moins souvent »), sans équivalent v1 |
+| `crs_private_practice` | ajout d'une modalité hebdomadaire, ancres explicitées | recodé : `pluri_quotidien`, `quotidien`, `rarement` et `jamais` conservés et cotés avec la même table qu'en v2 (`quotidien` = 5, `rarement` = 2) ; `occasionnellement` v1 → **null** (aucune ancre Huber correspondante) |
 | `crs_experience` | énoncé remplacé par la formulation de Huber et Huber (intervention divine) | **null** (construit différent de la v1, qui mesurait des « moments de spiritualité profonde ») |
 | `min_care_email` | modalités rééquilibrées (non / oui relu / oui tel quel) | recodé : `non_jamais` → `non` ; `oui_brouillon` → `oui_relu` ; `oui_souvent` → **null** |
 | `min_pred_usage` | parenthèse ambiguë retirée | conservé |
@@ -156,7 +156,7 @@ Conventions de remappage :
 | 13 items attitudinaux | ajout d'une modalité `sans_reponse` en dernière position | conservé ; `sans_reponse` est une donnée manquante, jamais imputée |
 | Multi-choix `aucun*` | exclusivité imposée dans l'interface et à la validation serveur | les réponses v1 combinant `aucun*` et d'autres modalités doivent être nettoyées avant analyse |
 
-**Conséquence pratique.** Sur les 23 réponses v1, `crs_experience` est perdue, ce qui met la dimension religiosité à quatre items utilisables, soit exactement le seuil minimal. Trois modalités de `profil_milieu` et une modalité de `min_care_email` sont également perdues. Toute analyse poolant v1 et v2 doit soit exclure les items marqués **null**, soit inclure `instrumentVersion` comme facteur.
+**Conséquence pratique.** Sur les 23 réponses v1, `crs_experience` est perdue, ce qui met la dimension religiosité à quatre items utilisables, soit exactement le seuil minimal ; une réponse v1 `occasionnellement` en pratique privée fait tomber ce total à trois et annule alors le score de religiosité. Trois modalités de `profil_milieu` et une modalité de `min_care_email` sont également perdues. Toute analyse poolant v1 et v2 doit soit exclure les items marqués **null**, soit inclure `instrumentVersion` comme facteur.
 
 ---
 
@@ -186,7 +186,26 @@ Cinq items, un par dimension de Huber, dans leur formulation française réellem
 | Pratique privée | `crs_private_practice` | « À quelle fréquence priez-vous en dehors des offices ? » |
 | Expérience | `crs_experience` | « À quelle fréquence vivez-vous des situations où vous avez le sentiment que Dieu ou quelque chose de divin intervient dans votre vie ? » |
 
-**Recodage Huber.** La pratique privée suit le recodage de Huber et Huber, qui traite la prière quotidienne comme le sommet de l'échelle : `pluri_quotidien` et `quotidien` sont tous deux cotés 5, `hebdomadaire` 4, `mensuel` 3, `rarement` 2, `jamais` 1. La pratique publique est cotée de 5 (« une fois par semaine ou plus ») à 1 (« jamais »).
+**Recodage Huber.** Les deux items de pratique sont cotés selon la table de recodage de Huber et Huber (2012), et non selon un simple rang des modalités affichées. Cette table fait référence pour les deux versions de l'instrument.
+
+| Item | Modalité affichée | Valeur | Score |
+|---|---|---|---|
+| Pratique publique | « Plus d'une fois par semaine » | `pluri_hebdo` | 5 |
+| | « Une fois par semaine » | `hebdo` | 4 |
+| | « Une à trois fois par mois » | `mensuel` | 3 |
+| | « Quelques fois par an » | `quelques_fois_an` | 2 |
+| | « Moins souvent » | `rarement` | 2 |
+| | « Jamais » | `jamais` | 1 |
+| Pratique privée | « Plusieurs fois par jour » | `pluri_quotidien` | 5 |
+| | « Une fois par jour » | `quotidien` | 5 |
+| | « Une ou plusieurs fois par semaine » | `hebdomadaire` | 4 |
+| | « Une à trois fois par mois » | `mensuel` | 3 |
+| | « Quelques fois par an ou moins » | `rarement` | 2 |
+| | « Jamais » | `jamais` | 1 |
+
+Deux points de cette table ne se déduisent pas de l'ordre des modalités. En pratique publique, « quelques fois par an » et « moins souvent » reçoivent le même score 2, Huber et Huber regroupant ces deux fréquences. En pratique privée, la prière quotidienne est le sommet de l'échelle : `quotidien` et `pluri_quotidien` sont tous deux cotés 5.
+
+**Compatibilité v1 → v2.** La même table est appliquée aux réponses des deux versions de l'instrument, de sorte que les scores de pratique sont directement comparables. Pour la pratique publique, la v2 reprend les identifiants de modalité de la v1 (`pluri_hebdo`, `hebdo`, `mensuel`, `quelques_fois_an`, `jamais`) : aucune réponse v1 n'est perdue ni recodée, la v2 se contente d'ajouter la modalité « moins souvent » (`rarement`). Pour la pratique privée, les réponses v1 `pluri_quotidien`, `quotidien`, `rarement` et `jamais` sont cotées exactement comme leurs équivalents v2, `quotidien` valant 5 comme `pluri_quotidien` ; seule la modalité v1 `occasionnellement` reste sans ancre correspondante chez Huber et Huber et est traitée comme donnée manquante. La religiosité se calcule alors sur les quatre autres items, ce que le seuil minimal de quatre items autorise.
 
 **Calcul.** Moyenne arithmétique non pondérée des cinq items cotés de 1 à 5. Aucune correction par la désirabilité sociale n'est appliquée. Le score est `null` si moins de quatre items sont renseignés.
 

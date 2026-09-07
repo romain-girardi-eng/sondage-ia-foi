@@ -18,7 +18,7 @@ profil_annees_ministere,Annees de ministere,Years in ministry,choice,moins_5|5_1
 profil_taille_communaute,Taille de la communaute,Community size,choice,tres_petite|petite|moyenne|grande|tres_grande|ne_sait_pas,,profile
 crs_intellect,Frequence reflexion religieuse,Religious reflection frequency,choice,jamais|rarement|occasionnellement|souvent|tres_souvent,religiosity,religiosity
 crs_ideology,Croyance en Dieu,Belief in God,choice,pas_du_tout|peu|moderement|beaucoup|totalement,religiosity,religiosity
-crs_public_practice,Frequence offices religieux,Religious service frequency,choice,hebdomadaire_plus|mensuel|quelques_fois_an|rarement|jamais,religiosity,religiosity
+crs_public_practice,Frequence offices religieux,Religious service frequency,choice,pluri_hebdo|hebdo|mensuel|quelques_fois_an|rarement|jamais,religiosity,religiosity
 crs_private_practice,Frequence priere personnelle,Personal prayer frequency,choice,pluri_quotidien|quotidien|hebdomadaire|mensuel|rarement|jamais,religiosity,religiosity
 crs_experience,Frequence experience spirituelle,Spiritual experience frequency,choice,jamais|rarement|occasionnellement|souvent|tres_souvent,religiosity,religiosity
 theo_orientation,Sensibilite theologique,Theological orientation,choice,traditionaliste|modere|progressiste|ne_sait_pas|sans_reponse,,theology

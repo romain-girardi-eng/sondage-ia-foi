@@ -54,6 +54,8 @@ export interface MockStats {
     todayResponses: number;
     weekResponses: number;
     monthResponses: number;
+    /** Screen-out submissions, excluded from every figure above. */
+    screenedOutResponses: number;
   };
   demographics: {
     byLanguage: Record<string, number>;
@@ -156,6 +158,7 @@ export function generateMockStats(): MockStats {
       todayResponses: 47,
       weekResponses: 312,
       monthResponses: 1543,
+      screenedOutResponses: 96,
     },
     demographics: {
       byLanguage: { fr: 1120, en: 423 },
@@ -434,19 +437,19 @@ export function generateMockStats(): MockStats {
       {
         type: 'correlation',
         title: 'Corrélation positive',
-        description: '« religiosity » et « sacredBoundary » : r = 0.612 (IC 95 % [0.577 ; 0.645], n = 1198, p ajusté = 0.00006).',
+        description: '« religiosity » et « sacredBoundary » : r = 0.612 (IC 95 % [0.577 ; 0.645], n = 1198, p ajusté = 0.00006).',
         significance: 'high',
       },
       {
         type: 'correlation',
         title: 'Corrélation négative',
-        description: '« aiOpenness » et « sacredBoundary » : r = -0.548 (IC 95 % [-0.586 ; -0.507], n = 1181, p ajusté = 0.00006).',
+        description: '« aiOpenness » et « sacredBoundary » : r = -0.548 (IC 95 % [-0.586 ; -0.507], n = 1181, p ajusté = 0.00006).',
         significance: 'high',
       },
       {
         type: 'segment',
         title: 'Écart clergé/laïcs sur la religiosité',
-        description: 'Religiosité moyenne : clergé 4.2 (n = 312), laïcs 3.5 (n = 1089), écart de 0.7 point.',
+        description: 'Religiosité moyenne : clergé 4.2 (n = 312), laïcs 3.5 (n = 1089), écart de 0.7 point.',
         significance: 'medium',
       },
       {

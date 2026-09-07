@@ -413,7 +413,8 @@ describe('Instrument v2.0.0', () => {
       'jamais',
     ]);
     expect(optionValues('crs_public_practice')).toEqual([
-      'hebdomadaire_plus',
+      'pluri_hebdo',
+      'hebdo',
       'mensuel',
       'quelques_fois_an',
       'rarement',

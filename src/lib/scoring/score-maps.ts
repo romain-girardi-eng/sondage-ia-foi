@@ -52,26 +52,30 @@ export const ITEM_SCORE_MAPS: Record<string, Record<string, number>> = {
     beaucoup: 4,
     totalement: 5,
   },
+  // Huber & Huber (2012) public-practice recoding: more than once a week = 5,
+  // once a week = 4, one to three times a month = 3, a few times a year = 2,
+  // less often = 2, never = 1. v2 reuses the v1 option values, so archived v1
+  // answers score identically here.
   crs_public_practice: {
-    jamais: 1,
-    rarement: 2,
-    quelques_fois_an: 3,
-    mensuel: 4,
-    hebdomadaire: 5,
-    hebdomadaire_plus: 5,
-    // v1: `hebdo` and `pluri_hebdo` both fold into `hebdomadaire_plus`
-    hebdo: 5,
     pluri_hebdo: 5,
-  },
-  // v1 `occasionnellement` has no v2 equivalent (the weekly anchor was missing)
-  // and is deliberately absent, i.e. treated as missing.
-  crs_private_practice: {
-    jamais: 1,
-    rarement: 2,
+    hebdo: 4,
     mensuel: 3,
-    hebdomadaire: 4,
-    quotidien: 5,
+    quelques_fois_an: 2,
+    rarement: 2,
+    jamais: 1,
+  },
+  // Same recode table for private practice (prayer): several times a day and
+  // once a day both = 5, weekly = 4, one to three times a month = 3, a few
+  // times a year or less = 2, never = 1. v1 rows go through this table too,
+  // so `quotidien` scores 5. v1 `occasionnellement` has no Huber anchor and is
+  // deliberately absent, i.e. treated as missing.
+  crs_private_practice: {
     pluri_quotidien: 5,
+    quotidien: 5,
+    hebdomadaire: 4,
+    mensuel: 3,
+    rarement: 2,
+    jamais: 1,
   },
   crs_experience: {
     jamais: 1,

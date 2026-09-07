@@ -9,14 +9,14 @@ const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ia-foi.fr";
 export const metadata: Metadata = {
   title: "FAQ — Questions fréquentes sur l'enquête IA & Foi",
   description:
-    "Tout savoir sur l'enquête académique IA & Foi : anonymat, durée, données personnelles, score CRS-5, écart d'usage et résultats.",
+    "Tout savoir sur l'enquête académique IA & Foi : anonymat, durée, données personnelles, score CRS-5, écart d'usage et résultats.",
   alternates: {
     canonical: `${BASE_URL}/faq`,
   },
   openGraph: {
     title: "FAQ — Enquête IA & Vie Spirituelle",
     description:
-      "Vos questions sur l'enquête académique IA & Foi : anonymat, durée, résultats et protection des données.",
+      "Vos questions sur l'enquête académique IA & Foi : anonymat, durée, résultats et protection des données.",
     url: `${BASE_URL}/faq`,
     type: "website",
   },

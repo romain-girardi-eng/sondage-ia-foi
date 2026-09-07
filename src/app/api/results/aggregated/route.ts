@@ -19,12 +19,24 @@ interface AggregatedRow {
   question_id: string;
   distribution: Record<string, number>;
   total_responses: number;
+  /** Distinct respondents behind the question (migration 011). */
+  respondents?: number | string | null;
 }
 
 export interface AggregatedApiResult {
   questionId: string;
   distribution: Record<string, number>;
+  /**
+   * Sum of the published cells. For a multi-select or a matrix this counts
+   * selections, not people, and it drops whatever k-anonymity withheld: it is
+   * never a percentage denominator.
+   */
   totalResponses: number;
+  /**
+   * Distinct people who answered the question, the only sound denominator for
+   * a share. Null when the database predates migration 011.
+   */
+  respondents: number | null;
 }
 
 export type AggregatedApiResponse =
@@ -106,11 +118,16 @@ export async function GET(request: NextRequest) {
       return insufficient(participantCount, headers);
     }
 
-    const aggregatedResults = ((resultsData as AggregatedRow[] | null) ?? []).map((row) => ({
-      questionId: row.question_id,
-      distribution: row.distribution,
-      totalResponses: Number(row.total_responses),
-    }));
+    const aggregatedResults = ((resultsData as AggregatedRow[] | null) ?? []).map((row) => {
+      const raw = row.respondents;
+      const respondents = raw === null || raw === undefined ? Number.NaN : Number(raw);
+      return {
+        questionId: row.question_id,
+        distribution: row.distribution,
+        totalResponses: Number(row.total_responses),
+        respondents: Number.isFinite(respondents) ? respondents : null,
+      };
+    });
 
     return NextResponse.json(
       {

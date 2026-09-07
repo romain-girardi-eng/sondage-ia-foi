@@ -71,7 +71,7 @@ export const gardienTraditionAnswers: Answers = base({
 
   crs_intellect: 'tres_souvent',
   crs_ideology: 'totalement',
-  crs_public_practice: 'hebdo',
+  crs_public_practice: 'pluri_hebdo',
   crs_private_practice: 'pluri_quotidien',
   crs_experience: 'tres_souvent',
 

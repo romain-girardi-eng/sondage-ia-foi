@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef } from "react";
 import { SURVEY_QUESTIONS } from "@/data";
+import { ITEM_SCORE_MAPS } from "@/lib/scoring";
 import { useLanguage, cn } from "@/lib";
 import { motion, useInView, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import {
@@ -60,12 +61,23 @@ function totalOf(distribution: Record<string, number>): number {
   return Object.values(distribution).reduce((sum, count) => sum + count, 0);
 }
 
+/**
+ * Denominator of a share: the number of distinct people who answered the
+ * question, which is what migration 011 publishes as `respondents`. The sum of
+ * the cells is only a fallback for a database predating that migration; it
+ * counts selections on a multi-select and it misses whatever k-anonymity
+ * withheld, so it inflates every share.
+ */
+function denominatorOf(result: DashboardResult): number {
+  return result.respondents ?? totalOf(result.distribution);
+}
+
 function calculatePercentage(
   result: DashboardResult | undefined,
   predicate: (value: string) => boolean
 ): number | null {
   if (!result) return null;
-  const total = totalOf(result.distribution);
+  const total = denominatorOf(result);
   if (!total) return null;
   const matched = Object.entries(result.distribution).reduce((sum, [key, count]) => {
     // The merged bucket has no identifiable modality: it can never match.
@@ -75,33 +87,35 @@ function calculatePercentage(
   return (matched / total) * 100;
 }
 
+/**
+ * Item average read from the published distribution, scored through the single
+ * source of truth for item scoring (`ITEM_SCORE_MAPS`).
+ *
+ * Never by option position: two CRS-5 items are ordered descending in the v2
+ * schema, so `idx + 1` inverted them, and options carrying no score (missing
+ * codes, extra modalities) pushed the mean above 5. An option value absent from
+ * the map, and the k-anonymity bucket, are missing data: excluded from both the
+ * numerator and the denominator, never imputed.
+ */
 function computeAverageScore(questionId: string, results: DashboardResult[]): number | null {
   const aggregated = findAggregatedResult(results, questionId);
   if (!aggregated) return null;
-  const question = SURVEY_QUESTIONS.find((q) => q.id === questionId);
-  if (!question) return null;
+  const scoreMap = ITEM_SCORE_MAPS[questionId];
+  if (!scoreMap) return null;
 
-  let totalResponses = 0;
+  let scoredResponses = 0;
   let weightedSum = 0;
 
-  if (question.options && question.options.length > 0) {
-    question.options.forEach((option, idx) => {
-      const count = aggregated.distribution[option.value] ?? 0;
-      totalResponses += count;
-      weightedSum += count * (idx + 1);
-    });
-  } else {
-    Object.entries(aggregated.distribution).forEach(([key, count]) => {
-      const numericKey = Number(key);
-      if (!Number.isNaN(numericKey)) {
-        totalResponses += count;
-        weightedSum += count * numericKey;
-      }
-    });
+  for (const [key, count] of Object.entries(aggregated.distribution)) {
+    if (key === K_ANONYMITY_BUCKET) continue;
+    const score = scoreMap[key];
+    if (typeof score !== "number" || !Number.isFinite(score)) continue;
+    scoredResponses += count;
+    weightedSum += count * score;
   }
 
-  if (!totalResponses) return null;
-  return weightedSum / totalResponses;
+  if (!scoredResponses) return null;
+  return weightedSum / scoredResponses;
 }
 
 /**

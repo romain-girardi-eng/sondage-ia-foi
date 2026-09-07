@@ -4,6 +4,7 @@ import {
   partialSaveSchema,
   exportRequestSchema,
   userDataSchema,
+  getExclusiveConflictQuestionId,
 } from './validation';
 
 describe('surveySubmissionSchema', () => {
@@ -282,5 +283,45 @@ describe('"aucun" exclusivity', () => {
       answers: { digital_outils_existants: ['bible_app', 'podcast'] },
     });
     expect(result.success).toBe(true);
+  });
+
+  it('reports the offending question id on the issue path', () => {
+    const result = surveySubmissionSchema.safeParse({
+      ...base,
+      answers: {
+        profil_confession: 'protestant',
+        digital_outils_existants: ['bible_app', 'aucun'],
+      },
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].path).toEqual(['answers', 'digital_outils_existants']);
+      expect(getExclusiveConflictQuestionId(result.error.issues)).toBe(
+        'digital_outils_existants'
+      );
+    }
+  });
+
+  it('reports the offending question id on a partial save too', () => {
+    const result = partialSaveSchema.safeParse({
+      sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      answers: { futur_domaines_interet: ['etude_bible', 'aucun_domaines'] },
+      lastQuestionIndex: 12,
+      language: 'fr',
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(getExclusiveConflictQuestionId(result.error.issues)).toBe(
+        'futur_domaines_interet'
+      );
+    }
+  });
+
+  it('returns null for an unrelated validation failure', () => {
+    const result = surveySubmissionSchema.safeParse({ ...base, sessionId: 'nope' });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(getExclusiveConflictQuestionId(result.error.issues)).toBeNull();
+    }
   });
 });

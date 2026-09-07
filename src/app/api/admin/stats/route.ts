@@ -39,6 +39,32 @@ type DimensionKey = (typeof DIMENSION_KEYS)[number];
 
 const MIN_PARTICIPANTS_FOR_STABLE_STATS = 30;
 
+/**
+ * Screened-out submissions (SCORING_V2_SPEC §1.9): `profil_confession =
+ * sans_religion` ends the run on a thank-you screen with no scoring. Those rows
+ * are stored for auditability but are outside the study population, so they
+ * must never reach a count, a share or a tally. The predicate lives here for
+ * TypeScript and once in SQL (migration 011, both aggregate functions).
+ */
+interface ScreenableRow {
+  metadata?: { screenedOut?: unknown } | null;
+}
+
+function isScreenedOut(row: ScreenableRow): boolean {
+  const flag = row.metadata?.screenedOut;
+  return flag === true || flag === "true";
+}
+
+/**
+ * PostgREST spelling of the same predicate, for the counts that must stay exact
+ * server-side. `not.eq` would drop rows whose metadata is NULL, hence the
+ * explicit `is.null` branch.
+ */
+const NOT_SCREENED_OUT = "metadata->>screenedOut.is.null,metadata->>screenedOut.neq.true";
+
+/** Inverse predicate, to report how many submissions were set aside. */
+const SCREENED_OUT_ONLY = "metadata->>screenedOut";
+
 /** PostgREST filters are strings: only let an id-shaped search reach them. */
 function sanitizeSearch(raw: string): string {
   return raw.replace(/[^a-zA-Z0-9-]/g, "").slice(0, 64);
@@ -72,16 +98,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(generateMockStats());
     }
 
-    // Get total responses
+    // Every count below excludes screened-out submissions.
     const { count: totalResponses } = await supabase
       .from("responses")
-      .select("*", { count: "exact", head: true });
+      .select("*", { count: "exact", head: true })
+      .or(NOT_SCREENED_OUT);
 
     // Get completed responses (consent_given = true means completed)
     const { count: completedResponses } = await supabase
       .from("responses")
       .select("*", { count: "exact", head: true })
-      .eq("consent_given", true);
+      .eq("consent_given", true)
+      .or(NOT_SCREENED_OUT);
+
+    // Submissions set aside by the screen-out, reported on their own so the
+    // exclusion stays auditable instead of silently shrinking every figure.
+    const { count: screenedOutResponses } = await supabase
+      .from("responses")
+      .select("*", { count: "exact", head: true })
+      .eq(SCREENED_OUT_ONLY, "true");
 
     // Get today's responses
     const today = new Date();
@@ -89,7 +124,8 @@ export async function GET(request: NextRequest) {
     const { count: todayResponses } = await supabase
       .from("responses")
       .select("*", { count: "exact", head: true })
-      .gte("created_at", today.toISOString());
+      .gte("created_at", today.toISOString())
+      .or(NOT_SCREENED_OUT);
 
     // Get this week's responses
     const weekAgo = new Date();
@@ -97,18 +133,22 @@ export async function GET(request: NextRequest) {
     const { count: weekResponses } = await supabase
       .from("responses")
       .select("*", { count: "exact", head: true })
-      .gte("created_at", weekAgo.toISOString());
+      .gte("created_at", weekAgo.toISOString())
+      .or(NOT_SCREENED_OUT);
 
     // Get responses by language (language is in metadata JSON)
     const { data: languageData } = await supabase
       .from("responses")
-      .select("metadata");
+      .select("metadata")
+      .or(NOT_SCREENED_OUT);
 
     const byLanguage: Record<string, number> = {};
-    (languageData as Array<{ metadata: { language?: string } | null }> | null)?.forEach((r) => {
-      const lang = r.metadata?.language || "unknown";
-      byLanguage[lang] = (byLanguage[lang] || 0) + 1;
-    });
+    (languageData as Array<{ metadata: { language?: string; screenedOut?: unknown } | null }> | null)
+      ?.filter((r) => !isScreenedOut(r))
+      .forEach((r) => {
+        const lang = r.metadata?.language || "unknown";
+        byLanguage[lang] = (byLanguage[lang] || 0) + 1;
+      });
 
     // Get timeline data (last 30 days)
     const thirtyDaysAgo = new Date();
@@ -118,6 +158,7 @@ export async function GET(request: NextRequest) {
       .from("responses")
       .select("created_at")
       .gte("created_at", thirtyDaysAgo.toISOString())
+      .or(NOT_SCREENED_OUT)
       .order("created_at", { ascending: true });
 
     const timeline: { date: string; count: number }[] = [];
@@ -143,6 +184,7 @@ export async function GET(request: NextRequest) {
     let responsesQuery = supabase
       .from("responses")
       .select("id, created_at, metadata, consent_given, answers", { count: "exact" })
+      .or(NOT_SCREENED_OUT)
       .order("created_at", { ascending: false });
 
     if (search) {
@@ -164,7 +206,8 @@ export async function GET(request: NextRequest) {
     const { data: allResponsesData } = await supabase
       .from("responses")
       .select("*")
-      .eq("consent_given", true);
+      .eq("consent_given", true)
+      .or(NOT_SCREENED_OUT);
 
     // Initialize counters for demographics and profiles
     const demographics = {
@@ -245,6 +288,9 @@ export async function GET(request: NextRequest) {
 
     (allResponsesData as AllResponseItem[] | null)?.forEach((r) => {
       if (!r.answers) return;
+      // Defence in depth: the query already excludes them, but no demographic,
+      // no completion time and no score may ever be tallied on a screen-out.
+      if (isScreenedOut(r)) return;
       const answers = r.answers as Answers;
 
       // Calculate completion time
@@ -278,9 +324,6 @@ export async function GET(request: NextRequest) {
       if (typeof country === "string" && country) {
         demographics.byCountry[country] = (demographics.byCountry[country] || 0) + 1;
       }
-
-      // Screened-out respondents answered no scored item.
-      if (r.metadata?.screenedOut === true) return;
 
       try {
         const spectrum = calculateProfileSpectrum(answers);
@@ -352,7 +395,7 @@ export async function GET(request: NextRequest) {
     // Extract feedbacks from commentaires_libres
     const feedbacks: Array<{ id: string; createdAt: string; language: string; profile: string; text: string }> = [];
     (allResponsesData as AllResponseItem[] | null)?.forEach((r) => {
-      if (!r.answers) return;
+      if (!r.answers || isScreenedOut(r)) return;
       const answers = r.answers as Answers;
       const text = answers.commentaires_libres;
       if (typeof text !== "string" || !text.trim()) return;
@@ -479,6 +522,8 @@ export async function GET(request: NextRequest) {
         todayResponses: todayResponses || 0,
         weekResponses: weekResponses || 0,
         monthResponses: totalResponses || 0,
+        // Excluded from every figure above; published so the exclusion is visible.
+        screenedOutResponses: screenedOutResponses || 0,
       },
       demographics,
       profiles,

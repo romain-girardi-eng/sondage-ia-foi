@@ -39,7 +39,7 @@ describe('parseNormsResponse', () => {
   it('reads a full payload', () => {
     const parsed = parseNormsResponse({
       n: 120,
-      instrumentVersion: '2.0.0',
+      instrumentVersions: { '2.0.0': 118, '1.4.0': 2 },
       dimensions: { religiosity: { n: 118, quantiles } },
     });
 
@@ -56,7 +56,7 @@ describe('parseNormsResponse', () => {
   it('drops a dimension whose quantiles are not numbers', () => {
     const parsed = parseNormsResponse({
       n: 40,
-      instrumentVersion: '2.0.0',
+      instrumentVersions: { '2.0.0': 118, '1.4.0': 2 },
       dimensions: { religiosity: { n: 40, quantiles: ['a'] } },
     });
 
@@ -69,7 +69,7 @@ describe('getDimensionComparison', () => {
   const ready: NormsResponse = {
     mode: 'ready',
     n: 120,
-    instrumentVersion: '2.0.0',
+    instrumentVersions: { '2.0.0': 118, '1.4.0': 2 },
     dimensions: {
       religiosity: { n: 118, quantiles },
       aiOpenness: { n: 12, quantiles },

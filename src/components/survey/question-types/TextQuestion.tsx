@@ -32,7 +32,7 @@ export function TextQuestion({
         transition={{ delay: 0.3 }}
       >
         <button
-          onClick={onNext}
+          onClick={() => onNext()}
           className={cn(
             "w-full py-4 rounded-2xl font-semibold text-lg transition-all duration-300 relative overflow-hidden",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",

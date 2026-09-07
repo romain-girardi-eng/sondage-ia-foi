@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { type Question } from "@/data";
 import { useLanguage } from "@/lib";
 import { getOptionLabel as getLocalizedOptionLabel, getPlaceholder } from "@/lib/i18n/questions";
+import { type AnswerValue } from "./question-types/types";
 import {
   ChoiceQuestion,
   MultipleQuestion,
@@ -15,9 +16,9 @@ import {
 
 interface QuestionCardProps {
   question: Question;
-  value: string | number | string[] | Record<string, number> | undefined;
-  onChange: (val: string | number | string[] | Record<string, number>) => void;
-  onNext: () => void;
+  value: AnswerValue | undefined;
+  onChange: (val: AnswerValue) => void;
+  onNext: (committedValue?: AnswerValue) => void;
 }
 
 export function QuestionCard({

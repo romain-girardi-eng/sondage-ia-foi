@@ -5,8 +5,10 @@
  * LAST UPDATED: 2026-09-07
  *
  * What this file documents, and what it does NOT claim:
- * - CRS-5 is used in an ADAPTED form (item wording localised, private-practice
- *   frequencies recoded per Huber & Huber, 2012). Status: `adapted`.
+ * - CRS-5 is used in an ADAPTED form (item wording localised, practice
+ *   frequencies recoded per Huber & Huber, 2012, for both public and private
+ *   practice; the same recode table applies to archived v1 answers).
+ *   Status: `adapted`.
  * - The social-desirability items are an AD HOC SELECTION of 5 Marlowe-Crowne
  *   items (Crowne & Marlowe, 1960). They are NOT a validated short form; no
  *   "Form C" claim is made. They produce a covariate flag, never a correction.
@@ -58,9 +60,9 @@ const SCORING_LOGIC: Record<string, string> = {
   crs_intellect: 'jamais=1, rarement=2, occasionnellement=3, souvent=4, tres_souvent=5',
   crs_ideology: 'pas_du_tout=1, peu=2, moderement=3, beaucoup=4, totalement=5',
   crs_public_practice:
-    'jamais=1, rarement=2, quelques_fois_an=3, mensuel=4, hebdomadaire(+)=5 (v1 hebdo/pluri_hebdo=5)',
+    'recodage Huber : pluri_hebdo=5, hebdo=4, mensuel=3, quelques_fois_an=2, rarement=2, jamais=1 ; valeurs identiques en v1 et en v2',
   crs_private_practice:
-    'jamais=1, rarement=2, mensuel=3, hebdomadaire=4, quotidien=5, pluri_quotidien=5 (Huber recoding)',
+    'recodage Huber : pluri_quotidien=5, quotidien=5, hebdomadaire=4, mensuel=3, rarement=2, jamais=1 ; v1 occasionnellement = donnée manquante',
   crs_experience: 'jamais=1, rarement=2, occasionnellement=3, souvent=4, tres_souvent=5',
   ctrl_ia_frequence: 'jamais=1, essaye=2, occasionnel=3, regulier=4, quotidien=5',
   ctrl_ia_confort: 'direct 1-5 slider',
@@ -375,7 +377,7 @@ export const FAIR_METADATA: FAIRMetadata = {
   dateCreated: '2025-01-01',
   dateModified: '2026-09-07',
   description: {
-    fr: "Système de scoring de l'étude « IA & Foi chrétienne ». Outil exploratoire : les profils sont une attribution heuristique, pas un diagnostic.",
+    fr: "Système de scoring de l'étude « IA & Foi chrétienne ». Outil exploratoire : les profils sont une attribution heuristique, pas un diagnostic.",
     en: 'Scoring system for the "AI & Christian faith" study. Exploratory tool: profiles are a heuristic attribution, not a diagnosis.',
   },
   keywords: [
@@ -390,7 +392,7 @@ export const FAIR_METADATA: FAIRMetadata = {
     {
       name: 'CRS-5 (Huber & Huber, 2012)',
       status: 'adapted',
-      note: 'Wording localised and private-practice frequencies recoded; not administered verbatim',
+      note: 'Wording localised and practice frequencies recoded per the authors (public and private); not administered verbatim',
     },
     {
       name: 'Marlowe-Crowne items (Crowne & Marlowe, 1960)',

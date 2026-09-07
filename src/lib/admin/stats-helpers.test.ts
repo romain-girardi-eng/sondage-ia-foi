@@ -32,9 +32,13 @@ describe('fisherCi95', () => {
 
 describe('benjaminiHochberg', () => {
   it('adjusts the classic 0.01 to 0.05 family to a flat 0.05', () => {
-    expect(benjaminiHochberg([0.01, 0.02, 0.03, 0.04, 0.05])).toEqual([
-      0.05, 0.05, 0.05, 0.05, 0.05,
-    ]);
+    // Compared to the tolerance of a float: the shared implementation computes
+    // p·m/k in that order, so the smallest p lands on 0.049999999999999996.
+    const adjusted = benjaminiHochberg([0.01, 0.02, 0.03, 0.04, 0.05]);
+    expect(adjusted).toHaveLength(5);
+    for (const p of adjusted) {
+      expect(p).toBeCloseTo(0.05, 12);
+    }
   });
 
   it('preserves input order and enforces monotonicity', () => {
@@ -146,7 +150,7 @@ describe('buildCorrelationMatrix', () => {
 
 function segment(n: number): SegmentDataItem {
   return {
-    religiosity: Array.from({ length: n }, (_, i) => 1 + (i % 5)),
+    religiosity: Array.from({ length: n }, (_, i): number | null => 1 + (i % 5)),
     aiAdoption: Array.from({ length: n }, () => 3),
     profiles: { equilibriste: n },
     usageGap: { uses_both: n },
@@ -155,7 +159,7 @@ function segment(n: number): SegmentDataItem {
 }
 
 describe('buildSegmentStats', () => {
-  it('suppresses every mean and SD below n = 5', () => {
+  it('publishes nothing but its size below n = 5', () => {
     const stats = buildSegmentStats(segment(4));
     expect(stats.count).toBe(4);
     expect(stats.avgReligiosity).toBeNull();
@@ -163,6 +167,33 @@ describe('buildSegmentStats', () => {
     expect(stats.sdReligiosity).toBeNull();
     expect(stats.dimensionAverages.religiosity).toBeNull();
     expect(stats.dimensionSds.religiosity).toBeNull();
+    // A distribution over four people is a list of four people.
+    expect(stats.profileDistribution).toEqual({});
+    expect(stats.usageGapDistribution).toEqual({});
+  });
+
+  it('suppresses a dimension measured on fewer than 5 people inside a large segment', () => {
+    const data = segment(20);
+    // Only three respondents out of twenty have a value on this dimension.
+    data.dimensions.sacredBoundary = Array.from({ length: 20 }, (_, i) => (i < 3 ? 4 : null));
+    const stats = buildSegmentStats(data);
+
+    expect(stats.count).toBe(20);
+    expect(stats.dimensionAverages.religiosity).toBe(3);
+    expect(stats.dimensionAverages.sacredBoundary).toBeNull();
+    expect(stats.dimensionSds.sacredBoundary).toBeNull();
+  });
+
+  it('suppresses the headline means when too few people carry a score', () => {
+    const data = segment(20);
+    data.religiosity = Array.from({ length: 20 }, (_, i) => (i < 2 ? 5 : null));
+    const stats = buildSegmentStats(data);
+
+    expect(stats.count).toBe(20);
+    expect(stats.avgReligiosity).toBeNull();
+    expect(stats.sdReligiosity).toBeNull();
+    // The other measure is untouched.
+    expect(stats.avgAiAdoption).toBe(3);
   });
 
   it('publishes means and sample SDs from n = 5', () => {

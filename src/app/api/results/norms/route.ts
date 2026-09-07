@@ -9,8 +9,12 @@ import type { Answers } from '@/data';
 // hypothetical normal population.
 const MIN_N_FOR_NORMS = 30;
 
-// Kept in sync with the survey schema (SCORING_V2_SPEC §1.9).
-const INSTRUMENT_VERSION = '2.0.0';
+// Responses collected under v1.x and v2.0.0 are pooled: the item score maps in
+// `@/lib/scoring/score-maps` resolve both vocabularies onto the same 1-5 scale,
+// so the dimensions are semantically comparable across versions (documented in
+// METHODOLOGY.md). What must not be faked is the provenance, so the endpoint
+// reports how many rows came from each version instead of stamping a single one.
+const UNKNOWN_INSTRUMENT_VERSION = 'unknown';
 
 const DIMENSION_KEYS = [
   'religiosity',
@@ -34,7 +38,8 @@ export type NormsApiResponse =
   | { n: number; mode: 'insufficient' }
   | {
       n: number;
-      instrumentVersion: string;
+      /** Row count per instrument version found in the pool, 'unknown' when absent. */
+      instrumentVersions: Record<string, number>;
       dimensions: Record<DimensionKey, DimensionNorm>;
     };
 
@@ -59,6 +64,7 @@ function quantiles99(values: number[]): number[] {
 
 interface NormsRow {
   answers: Record<string, unknown> | null;
+  metadata: { instrumentVersion?: string | null } | null;
 }
 
 export async function GET(request: NextRequest) {
@@ -89,7 +95,7 @@ export async function GET(request: NextRequest) {
 
     const { data, error } = await supabase
       .from('responses')
-      .select('answers')
+      .select('answers, metadata')
       .eq('consent_given', true)
       // Screened-out respondents answered no scored item; they must not weigh
       // on the norms.
@@ -112,11 +118,18 @@ export async function GET(request: NextRequest) {
       futureOrientation: [],
     };
 
+    const instrumentVersions: Record<string, number> = {};
     let n = 0;
 
     for (const row of rows) {
       if (!row.answers) continue;
       n += 1;
+      const version = row.metadata?.instrumentVersion;
+      const versionKey =
+        typeof version === 'string' && version.trim() !== ''
+          ? version.trim()
+          : UNKNOWN_INSTRUMENT_VERSION;
+      instrumentVersions[versionKey] = (instrumentVersions[versionKey] || 0) + 1;
       try {
         const d = calculateAllDimensions(row.answers as Answers);
         const values: Array<[DimensionKey, number | null]> = [
@@ -152,7 +165,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { n, instrumentVersion: INSTRUMENT_VERSION, dimensions },
+      { n, instrumentVersions, dimensions },
       { status: 200, headers }
     );
   } catch (err) {

@@ -53,9 +53,15 @@ export function unattributedCount(
   return Math.max(0, completedResponses - attributed);
 }
 
-/** Libellés FR de l'écart d'usage ordinal (§1.7). */
+/**
+ * Libellés FR de l'écart d'usage ordinal (§1.7).
+ *
+ * `none` ne veut pas dire « aucun écart » : c'est le cas où l'item d'usage
+ * général est manquant, donc où aucun écart ne peut être calculé. Le libeller
+ * comme une absence d'écart transformait une donnée manquante en résultat.
+ */
 export const USAGE_GAP_LABELS: Record<string, string> = {
-  none: 'Aucun écart',
+  none: 'Non calculable (usage général non renseigné)',
   uses_general_not_spiritual: 'Usage général, pas spirituel',
   uses_both: 'Usage général et spirituel',
   no_use: 'Aucun usage',

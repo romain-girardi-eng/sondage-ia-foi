@@ -9,6 +9,12 @@ import {
 } from "@/data/surveySchema";
 import { useLanguage } from "@/lib";
 import { useFingerprint } from "@/lib/hooks/useFingerprint";
+import {
+  parseSavedProgress,
+  type SavedProgress,
+  type SurveyAnswers,
+  type SurveyAnswerValue,
+} from "@/lib/hooks/surveyProgress";
 import { LazyResultsDashboard as ResultsDashboard } from "@/components/dashboard";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { SurveyIntroShader } from "./SurveyIntroShader";
@@ -18,7 +24,7 @@ import { ThankYouScreen } from "./ThankYouScreen";
 import { AlreadySubmittedScreen } from "./AlreadySubmittedScreen";
 import { EmailHashVerification } from "./EmailHashVerification";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Save, RotateCcw, PlayCircle, AlertTriangle, CheckCircle } from "lucide-react";
+import { ChevronLeft, Save, RotateCcw, PlayCircle, AlertTriangle, CheckCircle, HelpCircle } from "lucide-react";
 import { useCSRF } from "@/hooks/useCSRF";
 
 type SurveyStep =
@@ -27,6 +33,7 @@ type SurveyStep =
   | "verify-email"
   | "feedback"
   | "thanks"
+  | "screen-out-confirm"
   | "screened-out"
   | "results";
 
@@ -36,13 +43,6 @@ const ANONYMOUS_ID_KEY = "survey-anonymous-id";
 const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
 const SAVE_DEBOUNCE_MS = 1000; // 1 second debounce for localStorage writes
 const ALLOW_VIEW_OVERRIDE = process.env.NEXT_PUBLIC_ENABLE_SURVEY_VIEW_OVERRIDE === "true" || process.env.NODE_ENV !== "production";
-
-interface SavedProgress {
-  answers: Record<string, string | number | string[] | Record<string, number>>;
-  currentIndex: number;
-  timestamp: number;
-  sessionId: string;
-}
 
 // Check URL for direct navigation (dev mode) - only call after mount
 function getViewFromUrl(): SurveyStep | null {
@@ -99,7 +99,12 @@ function getAnonymousId(): string {
 //   );
 // }
 
-type SurveyAnswers = Record<string, string | number | string[] | Record<string, number>>;
+interface SubmitResponseBody {
+  error?: string;
+  code?: string;
+  questionId?: string;
+  responseId?: string;
+}
 
 interface SurveyContainerProps {
   initialLanguage?: "fr" | "en";
@@ -134,7 +139,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   }, [initialLanguage, setLanguage]);
   const [step, setStep] = useState<SurveyStep>("intro");
   const [isHydrated, setIsHydrated] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [requestedIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<SurveyAnswers>(() => ({ ...initialAnswers }));
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [savedProgress, setSavedProgress] = useState<SavedProgress | null>(null);
@@ -164,6 +169,22 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   const isSavingRef = useRef(false);
   const [savingIndicator, setSavingIndicator] = useState(false);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Question the server rejected for an exclusive-option conflict: the
+  // respondent is sent back to it with an inline notice.
+  const [conflictQuestionId, setConflictQuestionId] = useState<string | null>(null);
+
+  // Filter questions based on conditions. A respondent outside the studied
+  // population (profil_confession = sans_religion) is screened out: the
+  // schema helper then exposes the confession question only.
+  const visibleQuestions = useMemo(() => getVisibleQuestions(answers), [answers]);
+
+  const totalQuestions = visibleQuestions.length;
+  // A shrinking visible list (a changed ancestor answer, or a resumed session)
+  // can leave the requested index past the end of the list: clamp it while
+  // rendering rather than correcting the state from an effect.
+  const currentIndex = totalQuestions > 0 ? Math.min(requestedIndex, totalQuestions - 1) : 0;
+  const currentQuestion = visibleQuestions[currentIndex];
+  const progress = totalQuestions > 0 ? (currentIndex / totalQuestions) * 100 : 0;
 
   // Handle hydration and URL-based navigation (dev mode)
   useEffect(() => {
@@ -194,19 +215,15 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     const viewFromUrl = getViewFromUrl();
     if (viewFromUrl) return; // Skip resume modal for dev mode URL navigation
 
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const progress: SavedProgress = JSON.parse(saved);
-        // Only show resume modal if progress is less than 24 hours old
-        const hoursSinceLastSave = (Date.now() - progress.timestamp) / (1000 * 60 * 60);
-        if (hoursSinceLastSave < 24 && Object.keys(progress.answers).length > 0) {
-          setSavedProgress(progress);
-          setShowResumeModal(true);
-        }
-      } catch {
-        localStorage.removeItem(STORAGE_KEY);
-      }
+    // Saved progress is only resumable when it belongs to the current
+    // instrument version: v1 answers carry v1 option codes and would be
+    // submitted stamped as v2. Anything else is silently discarded.
+    const progress = parseSavedProgress(localStorage.getItem(STORAGE_KEY));
+    if (progress) {
+      setSavedProgress(progress);
+      setShowResumeModal(true);
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
     }
   }, []);
 
@@ -231,6 +248,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
           currentIndex,
           timestamp: Date.now(),
           sessionId: sessionId.current,
+          instrumentVersion: INSTRUMENT_VERSION,
         };
 
         // Use requestIdleCallback for non-blocking write when available
@@ -265,6 +283,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
         currentIndex,
         timestamp: Date.now(),
         sessionId: sessionId.current,
+        instrumentVersion: INSTRUMENT_VERSION,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
       isSavingRef.current = false;
@@ -291,26 +310,6 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [step, answers, t]);
-
-  // Filter questions based on conditions. A respondent outside the studied
-  // population (profil_confession = sans_religion) is screened out: the
-  // schema helper then exposes the confession question only.
-  const visibleQuestions = useMemo(() => getVisibleQuestions(answers), [answers]);
-  const screenedOut = useMemo(() => isScreenedOut(answers), [answers]);
-
-  const currentQuestion = visibleQuestions[currentIndex];
-  const totalQuestions = visibleQuestions.length;
-  const progress = totalQuestions > 0 ? (currentIndex / totalQuestions) * 100 : 0;
-
-  // A shrinking visible list (a resumed session whose answers now screen the
-  // respondent out, or a changed ancestor answer) can leave the index past the
-  // end of the list: clamp it instead of rendering nothing.
-  useEffect(() => {
-    if (totalQuestions > 0 && currentIndex > totalQuestions - 1) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- clamps a derived bound
-      setCurrentIndex(totalQuestions - 1);
-    }
-  }, [currentIndex, totalQuestions]);
 
   const handleResume = useCallback(() => {
     if (savedProgress) {
@@ -355,11 +354,14 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   }, [variant, visibleQuestions]);
 
   const handleAnswer = useCallback(
-    (value: string | number | string[] | Record<string, number>) => {
+    (value: SurveyAnswerValue) => {
       if (!currentQuestion) return;
       setAnswers((prev) => ({ ...prev, [currentQuestion.id]: value }));
+      if (conflictQuestionId === currentQuestion.id) {
+        setConflictQuestionId(null);
+      }
     },
-    [currentQuestion]
+    [conflictQuestionId, currentQuestion]
   );
 
   // Single submission path, shared by the normal end of the questionnaire and
@@ -406,17 +408,32 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
           }),
         });
 
-        const data = await response.json();
+        const data = (await response.json()) as SubmitResponseBody;
 
         // Check for any 403 error (duplicate submission OR CSRF failure)
         if (response.status === 403) {
           setIsTransitioning(false);
           setSubmissionError(
             data.code
-              ? { code: data.code, message: data.error }
+              ? { code: data.code, message: data.error ?? "Submission failed" }
               : { code: "SUBMISSION_FAILED", message: data.error || "Submission failed" }
           );
           return { ok: false };
+        }
+
+        // An exclusive "aucun" option combined with others is recoverable:
+        // the server names the offending question, so send the respondent
+        // back to it instead of the dead-end error screen.
+        if (response.status === 400 && data.code === "EXCLUSIVE_OPTION_CONFLICT" && data.questionId) {
+          const conflictIndex = visibleQuestions.findIndex((q) => q.id === data.questionId);
+          if (conflictIndex >= 0) {
+            setConflictQuestionId(data.questionId);
+            setCurrentIndex(conflictIndex);
+            setStep("questions");
+            setIsTransitioning(false);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            return { ok: false };
+          }
         }
 
         if (!response.ok) {
@@ -424,7 +441,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
           console.error("Survey submission failed:", data);
           setSubmissionError({
             code: "SUBMISSION_ERROR",
-            message: data.error || "Failed to save survey",
+            message: data.error ?? "Failed to save survey",
           });
           return { ok: false };
         }
@@ -463,20 +480,51 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [consentGiven, submitAnswers]);
 
-  const handleNext = useCallback(async () => {
-    if (screenedOut) {
-      await handleScreenOutSubmit();
-      return;
-    }
-    if (currentIndex >= totalQuestions - 1) {
-      // Survey questions complete - go to email verification first
-      localStorage.removeItem(STORAGE_KEY);
-      setStep("verify-email");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      setCurrentIndex((prev) => prev + 1);
-    }
-  }, [currentIndex, handleScreenOutSubmit, screenedOut, totalQuestions]);
+  // The click handler that calls this ran before React re-rendered with the
+  // new answer, so the value being committed is passed along: screen-out must
+  // be decided on it, not on the state captured by the closure.
+  const handleNext = useCallback(
+    (committedValue?: SurveyAnswerValue) => {
+      const nextAnswers: SurveyAnswers =
+        committedValue !== undefined && currentQuestion
+          ? { ...answers, [currentQuestion.id]: committedValue }
+          : answers;
+
+      // Leaving the studied population never submits on a single click: it
+      // asks for a confirmation first (an adjacent mis-click would otherwise
+      // end the questionnaire for good).
+      if (isScreenedOut(nextAnswers)) {
+        setStep("screen-out-confirm");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
+      // The answer just committed can add or remove conditional questions, so
+      // the next position is resolved against the list it produces.
+      const nextVisible = getVisibleQuestions(nextAnswers);
+      const positionInNextList = currentQuestion
+        ? nextVisible.findIndex((q) => q.id === currentQuestion.id)
+        : -1;
+      const nextIndex = positionInNextList >= 0 ? positionInNextList + 1 : currentIndex + 1;
+
+      if (nextIndex >= nextVisible.length) {
+        // Survey questions complete - go to email verification first
+        localStorage.removeItem(STORAGE_KEY);
+        setStep("verify-email");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        setCurrentIndex(nextIndex);
+      }
+    },
+    [answers, currentIndex, currentQuestion]
+  );
+
+  // "Revenir" from the confirmation: back to the confession question, with the
+  // mis-clicked option still selected and every option still choosable.
+  const handleScreenOutBack = useCallback(() => {
+    setStep("questions");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   // Handle email hash verification - submits survey after verification
   // email parameter is only provided if user wants PDF results (not stored, only used to send)
@@ -551,7 +599,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
 
   const handlePrevious = useCallback(() => {
     if (currentIndex > minIndex) {
-      setCurrentIndex((prev) => prev - 1);
+      setCurrentIndex(currentIndex - 1);
     }
   }, [currentIndex, minIndex]);
 
@@ -711,6 +759,50 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     );
   }
 
+  // Screen-out confirmation: a single click on "no religion / other" must
+  // never end the questionnaire on its own - the adjacent option is "other
+  // Christian" - so the respondent confirms or goes back to correct it.
+  if (step === "screen-out-confirm") {
+    return (
+      <AnimatedBackground variant="subtle" showGrid showOrbs>
+        <LanguageSwitcher />
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="max-w-md w-full glass-card-refined rounded-3xl p-8 text-center"
+          >
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-blue-500/10 flex items-center justify-center">
+              <HelpCircle className="w-8 h-8 text-blue-500" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground mb-2">
+              {t("screenedOut.confirmTitle")}
+            </h1>
+            <p className="text-muted-foreground mb-8">
+              {t("screenedOut.confirmDescription")}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handleScreenOutBack}
+                className="w-full sm:flex-1 min-w-0 px-4 sm:px-6 py-3 rounded-xl bg-secondary hover:bg-secondary/80 text-secondary-foreground font-medium transition-all flex items-center justify-center gap-2"
+              >
+                <ChevronLeft className="w-4 h-4 shrink-0" />
+                {t("screenedOut.back")}
+              </button>
+              <button
+                onClick={handleScreenOutSubmit}
+                className="w-full sm:flex-1 min-w-0 px-4 sm:px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all flex items-center justify-center gap-2"
+              >
+                <CheckCircle className="w-4 h-4 shrink-0" />
+                {t("screenedOut.confirm")}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </AnimatedBackground>
+    );
+  }
+
   // Screened-out screen: outside the studied population, no scoring, no
   // profile, no email step - only an acknowledgement.
   if (step === "screened-out") {
@@ -814,6 +906,14 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
             transition={{ duration: 0.35, ease: "easeOut" }}
             className="w-full"
           >
+            {conflictQuestionId === currentQuestion.id && (
+              <p
+                role="alert"
+                className="mb-6 rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-foreground"
+              >
+                {t("survey.exclusiveConflictNotice")}
+              </p>
+            )}
             <QuestionCard
               question={currentQuestion}
               value={answers[currentQuestion.id]}

@@ -24,12 +24,21 @@ export type NormsResponse =
   | {
       mode: 'ready';
       n: number;
-      instrumentVersion: string;
+      instrumentVersions: Record<string, number>;
       dimensions: Partial<Record<DimensionKey, DimensionNorm>>;
     };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
+}
+
+function parseInstrumentVersions(value: unknown): Record<string, number> {
+  if (!isRecord(value)) return {};
+  const out: Record<string, number> = {};
+  for (const [version, count] of Object.entries(value)) {
+    if (typeof count === 'number' && Number.isFinite(count)) out[version] = count;
+  }
+  return out;
 }
 
 function parseDimensionNorm(value: unknown): DimensionNorm | null {
@@ -70,8 +79,7 @@ export function parseNormsResponse(payload: unknown): NormsResponse | null {
   return {
     mode: 'ready',
     n,
-    instrumentVersion:
-      typeof payload.instrumentVersion === 'string' ? payload.instrumentVersion : 'unknown',
+    instrumentVersions: parseInstrumentVersions(payload.instrumentVersions),
     dimensions,
   };
 }

@@ -324,7 +324,8 @@ const frOptionLabels = {
     totalement: "Totalement",
   },
   crs_public_practice: {
-    hebdomadaire_plus: "Une fois par semaine ou plus",
+    pluri_hebdo: "Plus d'une fois par semaine",
+    hebdo: "Une fois par semaine",
     mensuel: "Une à trois fois par mois",
     quelques_fois_an: "Quelques fois par an",
     rarement: "Moins souvent",
@@ -697,7 +698,8 @@ const enOptionLabels: OptionLabelMap = {
     totalement: "Totally",
   },
   crs_public_practice: {
-    hebdomadaire_plus: "Once a week or more",
+    pluri_hebdo: "More than once a week",
+    hebdo: "Once a week",
     mensuel: "One to three times a month",
     quelques_fois_an: "A few times a year",
     rarement: "Less often",

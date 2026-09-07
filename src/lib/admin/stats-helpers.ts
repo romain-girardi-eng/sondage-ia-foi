@@ -10,8 +10,21 @@
  */
 
 import { calculateMedian, calculateDistribution } from "@/lib/utils/statistics";
+import {
+  benjaminiHochberg,
+  fisherCI,
+  pearson as pearsonR,
+  pValueFromR,
+  sampleSd,
+} from "@/lib/analysis/statistics";
 
 export { calculateMedian, calculateDistribution };
+
+// The numeric core lives in `@/lib/analysis/statistics` and is shared with the
+// interpretation module: one Pearson, one Fisher interval, one incomplete beta,
+// one Benjamini-Hochberg. The thin wrappers below only keep the signatures this
+// admin module and its callers already use.
+export { benjaminiHochberg };
 
 /** Below this, a segment is too small to publish an average without risking re-identification. */
 export const MIN_SEGMENT_N = 5;
@@ -102,10 +115,7 @@ export function mean(values: number[]): number | null {
  * `@/lib/utils/statistics` understates the spread of a survey sample.
  */
 export function sampleStdDev(values: number[]): number | null {
-  if (values.length < 2) return null;
-  const m = values.reduce((a, b) => a + b, 0) / values.length;
-  const variance = values.reduce((acc, v) => acc + (v - m) ** 2, 0) / (values.length - 1);
-  return Math.sqrt(variance);
+  return sampleSd(values);
 }
 
 function round(value: number, decimals: number): number {
@@ -119,123 +129,27 @@ function roundOrNull(value: number | null, decimals: number): number | null {
 
 /** Pearson r on already-paired, complete observations. */
 export function pearson(x: number[], y: number[]): number | null {
-  const n = x.length;
-  if (n !== y.length || n < 2) return null;
-  const mx = x.reduce((a, b) => a + b, 0) / n;
-  const my = y.reduce((a, b) => a + b, 0) / n;
-  let num = 0;
-  let dx = 0;
-  let dy = 0;
-  for (let i = 0; i < n; i++) {
-    const a = x[i] - mx;
-    const b = y[i] - my;
-    num += a * b;
-    dx += a * a;
-    dy += b * b;
-  }
-  const den = Math.sqrt(dx * dy);
-  if (den === 0) return null;
-  return num / den;
+  return pearsonR(x, y)?.r ?? null;
 }
 
-/** 95 % confidence interval for r through Fisher's z transform. */
+/**
+ * 95 % confidence interval for r through Fisher's z transform. Degenerate
+ * cases (|r| = 1, n <= 3) collapse the interval onto the point estimate rather
+ * than inventing a width.
+ */
 export function fisherCi95(r: number, n: number): [number, number] {
-  if (n < 4 || Math.abs(r) >= 1) return [r, r];
-  const z = Math.atanh(r);
-  const se = 1 / Math.sqrt(n - 3);
-  return [Math.tanh(z - 1.96 * se), Math.tanh(z + 1.96 * se)];
-}
-
-function logGamma(x: number): number {
-  const coefficients = [
-    76.18009172947146, -86.50532032941677, 24.01409824083091,
-    -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5,
-  ];
-  let y = x;
-  const tmp = x + 5.5 - (x + 0.5) * Math.log(x + 5.5);
-  let ser = 1.000000000190015;
-  for (let j = 0; j < 6; j++) {
-    ser += coefficients[j] / ++y;
-  }
-  return -tmp + Math.log((2.5066282746310005 * ser) / x);
-}
-
-/** Continued-fraction expansion for the incomplete beta function. */
-function betaContinuedFraction(a: number, b: number, x: number): number {
-  const tiny = 1e-30;
-  const qab = a + b;
-  const qap = a + 1;
-  const qam = a - 1;
-  let c = 1;
-  let d = 1 - (qab * x) / qap;
-  if (Math.abs(d) < tiny) d = tiny;
-  d = 1 / d;
-  let h = d;
-  for (let m = 1; m <= 200; m++) {
-    const m2 = 2 * m;
-    let aa = (m * (b - m) * x) / ((qam + m2) * (a + m2));
-    d = 1 + aa * d;
-    if (Math.abs(d) < tiny) d = tiny;
-    c = 1 + aa / c;
-    if (Math.abs(c) < tiny) c = tiny;
-    d = 1 / d;
-    h *= d * c;
-    aa = (-(a + m) * (qab + m) * x) / ((a + m2) * (qap + m2));
-    d = 1 + aa * d;
-    if (Math.abs(d) < tiny) d = tiny;
-    c = 1 + aa / c;
-    if (Math.abs(c) < tiny) c = tiny;
-    d = 1 / d;
-    const del = d * c;
-    h *= del;
-    if (Math.abs(del - 1) < 3e-12) break;
-  }
-  return h;
-}
-
-function regularizedIncompleteBeta(a: number, b: number, x: number): number {
-  if (x <= 0) return 0;
-  if (x >= 1) return 1;
-  const front = Math.exp(
-    logGamma(a + b) - logGamma(a) - logGamma(b) + a * Math.log(x) + b * Math.log(1 - x)
-  );
-  if (x < (a + 1) / (a + b + 2)) {
-    return (front * betaContinuedFraction(a, b, x)) / a;
-  }
-  return 1 - (front * betaContinuedFraction(b, a, 1 - x)) / b;
+  return fisherCI(r, n, 0.95) ?? [r, r];
 }
 
 /**
  * Two-sided p-value for r under H0: rho = 0, via t = r·sqrt((n−2)/(1−r²))
- * with n−2 degrees of freedom.
+ * with n−2 degrees of freedom. Undefined below three observations, where the
+ * conservative answer is "no evidence".
  */
 export function pValueForCorrelation(r: number, n: number): number {
   if (n < 3) return 1;
-  if (Math.abs(r) >= 1) return 0;
-  const df = n - 2;
-  const t = r * Math.sqrt(df / (1 - r * r));
-  return regularizedIncompleteBeta(df / 2, 0.5, df / (df + t * t));
-}
-
-/**
- * Benjamini-Hochberg step-up adjustment. Returns adjusted p-values in the
- * order the raw p-values were given.
- */
-export function benjaminiHochberg(pValues: number[]): number[] {
-  const m = pValues.length;
-  if (m === 0) return [];
-  const ordered = pValues
-    .map((p, index) => ({ p, index }))
-    .sort((a, b) => a.p - b.p);
-
-  const adjusted = new Array<number>(m);
-  let runningMin = 1;
-  for (let rank = m; rank >= 1; rank--) {
-    const { p, index } = ordered[rank - 1];
-    runningMin = Math.min(runningMin, (m / rank) * p);
-    adjusted[index] = Math.min(1, runningMin);
-  }
-  return adjusted;
+  const p = pValueFromR(r, n);
+  return Number.isFinite(p) ? p : 1;
 }
 
 // ---------------------------------------------------------------------------
@@ -258,8 +172,26 @@ export function emptySegmentDataItem(dimensionKeys: string[]): SegmentDataItem {
 }
 
 /**
- * Build segment statistics from raw segment data. Segments below
- * MIN_SEGMENT_N publish their size only: every mean and SD is null.
+ * Mean and SD of one measure inside a segment, both null unless at least
+ * MIN_SEGMENT_N respondents actually have a value for it. The segment size is
+ * not enough: a dimension can be measured on a single person inside a segment
+ * of forty, and that person's score must not be published as an average.
+ */
+function measure(values: Array<number | null>): { mean: number | null; sd: number | null } {
+  const usable = present(values);
+  if (usable.length < MIN_SEGMENT_N) return { mean: null, sd: null };
+  return { mean: roundOrNull(mean(usable), 2), sd: roundOrNull(sampleStdDev(usable), 2) };
+}
+
+/**
+ * Build segment statistics from raw segment data.
+ *
+ * Two disclosure rules apply (SCORING_V2_SPEC §1.8):
+ * - a segment below MIN_SEGMENT_N publishes its size and nothing else, the
+ *   profile and usage-gap distributions included: a distribution over four
+ *   people is a list of four people;
+ * - above it, each measure is published only if its own non-null count reaches
+ *   MIN_SEGMENT_N.
  */
 export function buildSegmentStats(data: SegmentDataItem): SegmentStats {
   const count = data.religiosity.length;
@@ -277,28 +209,28 @@ export function buildSegmentStats(data: SegmentDataItem): SegmentStats {
       avgAiAdoption: null,
       sdReligiosity: null,
       sdAiAdoption: null,
-      profileDistribution: data.profiles,
-      usageGapDistribution: data.usageGap,
+      profileDistribution: {},
+      usageGapDistribution: {},
       dimensionAverages,
       dimensionSds,
     };
   }
 
   for (const key of Object.keys(data.dimensions)) {
-    const values = present(data.dimensions[key]);
-    dimensionAverages[key] = roundOrNull(mean(values), 2);
-    dimensionSds[key] = roundOrNull(sampleStdDev(values), 2);
+    const { mean: m, sd } = measure(data.dimensions[key]);
+    dimensionAverages[key] = m;
+    dimensionSds[key] = sd;
   }
 
-  const religiosity = present(data.religiosity);
-  const aiAdoption = present(data.aiAdoption);
+  const religiosity = measure(data.religiosity);
+  const aiAdoption = measure(data.aiAdoption);
 
   return {
     count,
-    avgReligiosity: roundOrNull(mean(religiosity), 2),
-    avgAiAdoption: roundOrNull(mean(aiAdoption), 2),
-    sdReligiosity: roundOrNull(sampleStdDev(religiosity), 2),
-    sdAiAdoption: roundOrNull(sampleStdDev(aiAdoption), 2),
+    avgReligiosity: religiosity.mean,
+    avgAiAdoption: aiAdoption.mean,
+    sdReligiosity: religiosity.sd,
+    sdAiAdoption: aiAdoption.sd,
     profileDistribution: data.profiles,
     usageGapDistribution: data.usageGap,
     dimensionAverages,
