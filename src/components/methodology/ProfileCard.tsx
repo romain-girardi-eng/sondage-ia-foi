@@ -2,17 +2,25 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PROFILE_DEFINITIONS, PROFILE_COLORS } from "@/lib/scoring/constants";
+import { PROFILE_DEFINITIONS, SUB_PROFILE_DEFINITIONS, PROFILE_COLORS } from "@/lib/scoring/constants";
 import { PROFILE_ICONS } from "@/lib/scoring/icons";
 import type { PrimaryProfile } from "@/lib/scoring/types";
 
+interface ProfileLabels {
+  profileHeuristicBadge: string;
+  profileMotivationLabel: string;
+  profileWatchpointLabel: string;
+  profileSubProfilesLabel: string;
+}
+
 interface ProfileCardProps {
   profile: PrimaryProfile;
+  labels: ProfileLabels;
   isExpanded?: boolean;
   onToggle?: () => void;
 }
 
-export function ProfileCard({ profile, isExpanded, onToggle }: ProfileCardProps) {
+export function ProfileCard({ profile, labels, isExpanded, onToggle }: ProfileCardProps) {
   const def = PROFILE_DEFINITIONS[profile];
   const color = PROFILE_COLORS[profile];
   const Icon = PROFILE_ICONS[profile];
@@ -44,6 +52,9 @@ export function ProfileCard({ profile, isExpanded, onToggle }: ProfileCardProps)
             <p className="text-xs text-muted-foreground line-clamp-2">
               {def.shortDescription}
             </p>
+            <span className="mt-1 inline-block text-[10px] uppercase tracking-wider text-muted-foreground/60">
+              {labels.profileHeuristicBadge}
+            </span>
           </div>
         </div>
 
@@ -63,17 +74,17 @@ export function ProfileCard({ profile, isExpanded, onToggle }: ProfileCardProps)
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="glass-card p-3 rounded-lg">
-                  <p className="text-xs text-muted-foreground/60 mb-1">Motivation</p>
+                  <p className="text-xs text-muted-foreground/60 mb-1">{labels.profileMotivationLabel}</p>
                   <p className="text-sm text-foreground">{def.coreMotivation}</p>
                 </div>
                 <div className="glass-card p-3 rounded-lg">
-                  <p className="text-xs text-muted-foreground/60 mb-1">Préoccupation</p>
+                  <p className="text-xs text-muted-foreground/60 mb-1">{labels.profileWatchpointLabel}</p>
                   <p className="text-sm text-foreground">{def.primaryFear}</p>
                 </div>
               </div>
 
               <div>
-                <p className="text-xs text-muted-foreground/60 mb-2">Sous-profils</p>
+                <p className="text-xs text-muted-foreground/60 mb-2">{labels.profileSubProfilesLabel}</p>
                 <div className="flex flex-wrap gap-2">
                   {def.subProfiles.map((sub) => (
                     <span
@@ -81,7 +92,7 @@ export function ProfileCard({ profile, isExpanded, onToggle }: ProfileCardProps)
                       className="px-2 py-1 text-xs rounded-full"
                       style={{ backgroundColor: `${color}30`, color }}
                     >
-                      {sub.replace(/_/g, " ")}
+                      {SUB_PROFILE_DEFINITIONS[sub].title}
                     </span>
                   ))}
                 </div>
@@ -101,7 +112,7 @@ interface ProfileGalleryProps {
   translations: {
     profilesTitle: string;
     profilesDescription: string;
-  };
+  } & ProfileLabels;
 }
 
 export function ProfileGallery({ translations: t }: ProfileGalleryProps) {
@@ -121,6 +132,7 @@ export function ProfileGallery({ translations: t }: ProfileGalleryProps) {
           <ProfileCard
             key={profile}
             profile={profile}
+            labels={t}
             isExpanded={expanded === profile}
             onToggle={() => setExpanded(expanded === profile ? null : profile)}
           />

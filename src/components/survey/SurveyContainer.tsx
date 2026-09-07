@@ -705,6 +705,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
           answers={answers}
           onContinue={handleFeedbackContinue}
           anonymousId={anonymousIdState}
+          entryVariant={variant}
         />
       </div>
     );

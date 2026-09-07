@@ -1,520 +1,1131 @@
 {
   "_metadata": {
-    "exportDate": "2026-02-03T00:00:00.000Z",
-    "version": "1.0.0",
-    "description": "Complete scoring methodology codebook for IA & Foi survey",
-    "license": "CC-BY-4.0",
-    "creator": "Romain Girardi"
+    "exportDate": "2026-09-07T19:40:06.137Z",
+    "version": "2.0.0",
+    "description": "Scoring methodology codebook for the \"IA & Foi\" survey"
   },
   "fairMetadata": {
     "identifier": null,
-    "version": "1.0.0",
+    "version": "2.0.0",
     "license": "CC-BY-4.0",
     "creator": "Romain Girardi",
     "dateCreated": "2025-01-01",
-    "dateModified": "2026-02-03",
+    "dateModified": "2026-09-07",
     "description": {
-      "fr": "Systeme de profilage pour l'etude 'IA & Foi Chretienne' - Outil exploratoire mesurant les attitudes des chretiens face a l'IA dans les pratiques spirituelles.",
-      "en": "Profiling system for the 'AI & Christian Faith' study - Exploratory tool measuring Christian attitudes toward AI in spiritual practices."
+      "fr": "Système de scoring de l'étude « IA & Foi chrétienne ». Outil exploratoire : les profils sont une attribution heuristique, pas un diagnostic.",
+      "en": "Scoring system for the \"AI & Christian faith\" study. Exploratory tool: profiles are a heuristic attribution, not a diagnosis."
     },
     "keywords": [
       "artificial intelligence",
       "religion",
       "Christianity",
-      "psychometrics",
       "CRS-5",
       "social desirability",
-      "spirituality",
-      "digital transformation"
+      "spirituality"
     ],
-    "validatedInstruments": [
-      "CRS-5 (Centrality of Religiosity Scale - Huber & Huber, 2012)",
-      "Marlowe-Crowne Social Desirability Scale - Short Form C (1960)",
-      "Godspeed Scale (partial - Bartneck et al., 2009)"
+    "instruments": [
+      {
+        "name": "CRS-5 (Huber & Huber, 2012)",
+        "status": "adapted",
+        "note": "Wording localised and private-practice frequencies recoded; not administered verbatim"
+      },
+      {
+        "name": "Marlowe-Crowne items (Crowne & Marlowe, 1960)",
+        "status": "exploratory",
+        "note": "Ad hoc selection of 5 items, not a validated short form"
+      },
+      {
+        "name": "Godspeed series (Bartneck et al., 2009)",
+        "status": "inspired_by",
+        "note": "Two items inspired by the anthropomorphism dimension"
+      },
+      {
+        "name": "AIAS (Wang & Wang, 2022)",
+        "status": "inspired_by",
+        "note": "One opacity item inspired by the AI anxiety scale"
+      }
     ],
     "exploratoryConstructs": [
-      "AI Openness",
-      "Sacred Boundary",
-      "Ethical Concern",
-      "Community Influence",
-      "Future Orientation"
+      "AI openness",
+      "Sacred boundary",
+      "Ethical concern",
+      "Community context",
+      "Future orientation"
     ],
     "limitationsAcknowledged": [
-      "Population parameters are provisional estimates requiring empirical validation (N>=500)",
-      "5 of 7 dimensions use exploratory constructs without factor analysis validation",
-      "Profile matching thresholds are expert-chosen, not empirically derived",
-      "Question weights are based on face validity, not confirmatory factor analysis",
-      "Sample is self-selected (not representative of general Christian population)",
-      "Cross-cultural validity not established (French-English only)"
+      "Profile attribution is heuristic: ideal ranges and weights are expert-set, not derived from cluster analysis",
+      "Five of seven dimensions are ad hoc constructs without factor analysis",
+      "The 5 social-desirability items are not a validated short form",
+      "No client-side percentile: comparisons require the empirical norms endpoint and N >= 30",
+      "Self-selected sample, not representative of any Christian population",
+      "Cross-cultural validity not established (French and English only)"
     ],
     "recommendedCitations": [
       "Huber, S., & Huber, O. W. (2012). The Centrality of Religiosity Scale (CRS). Religions, 3(3), 710-724. https://doi.org/10.3390/rel3030710",
       "Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability independent of psychopathology. Journal of Consulting Psychology, 24(4), 349-354.",
-      "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an artificial intelligence anxiety scale. Interactive Learning Environments, 30(4), 619-634.",
-      "Bartneck, C., et al. (2009). Measurement instruments for the anthropomorphism, animacy, likeability, perceived intelligence, and perceived safety of robots. IJSR, 1(1), 71-81."
+      "Reynolds, W. M. (1982). Development of reliable and valid short forms of the Marlowe-Crowne Social Desirability Scale. Journal of Clinical Psychology, 38(1), 119-125. (cited for context on short forms; none of them is used here)",
+      "Bartneck, C., Kulić, D., Croft, E., & Zoghbi, S. (2009). Measurement instruments for the anthropomorphism, animacy, likeability, perceived intelligence, and perceived safety of robots. International Journal of Social Robotics, 1(1), 71-81.",
+      "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an artificial intelligence anxiety scale. Interactive Learning Environments, 30(4), 619-634."
     ]
   },
   "dimensions": {
     "religiosity": {
       "id": "religiosity",
       "name": {
-        "fr": "Intensite Spirituelle",
-        "en": "Spiritual Intensity"
+        "fr": "Centralité de la religiosité (CRS-5, adapté)",
+        "en": "Centrality of religiosity (CRS-5, adapted)"
       },
       "description": {
-        "fr": "Centralite de la foi dans la vie quotidienne, basee sur l'echelle CRS-5 validee",
-        "en": "Centrality of faith in daily life, based on the validated CRS-5 scale"
+        "fr": "Moyenne brute des 5 items CRS-5, sans correction de désirabilité sociale",
+        "en": "Raw mean of the 5 CRS-5 items, with no social-desirability correction"
       },
-      "scale": { "min": 1, "max": 5 },
-      "validationStatus": "validated",
-      "sourceInstrument": "CRS-5 (Huber & Huber, 2012)",
-      "biasSensitivity": 0.8,
-      "populationParams": {
-        "mean": 3.8,
-        "stdDev": 0.9,
-        "note": "PROVISIONAL - Estimated for religious survey population, skewed high"
+      "validationStatus": "adapted",
+      "sourceInstrument": "CRS-5 (Huber & Huber, 2012), adapted wording",
+      "scale": {
+        "min": 1,
+        "max": 5
       },
+      "minItems": 4,
+      "aggregation": "Weighted mean over answered items; value = null below minItems; confidence = nItems / maxItems",
+      "missingPolicy": "\"ne sait pas\", \"sans réponse\", unanswered and unrecognised values are excluded from the mean and never imputed",
       "questions": [
-        { "questionId": "crs_intellect", "weight": 1.0, "scoringLogic": "jamais=1, rarement=2, occasionnellement=3, souvent=4, tres_souvent=5" },
-        { "questionId": "crs_ideology", "weight": 1.0, "scoringLogic": "pas_du_tout=1, peu=2, moderement=3, beaucoup=4, totalement=5" },
-        { "questionId": "crs_public_practice", "weight": 1.0, "scoringLogic": "jamais=1, quelques_fois_an=2, mensuel=3, hebdo=4, pluri_hebdo=5" },
-        { "questionId": "crs_private_practice", "weight": 1.0, "scoringLogic": "jamais=1, rarement=2, occasionnellement=3, quotidien=4, pluri_quotidien=5" },
-        { "questionId": "crs_experience", "weight": 1.0, "scoringLogic": "jamais=1, rarement=2, occasionnellement=3, souvent=4, tres_souvent=5" }
+        {
+          "questionId": "crs_intellect",
+          "weight": 1,
+          "scoringLogic": "jamais=1, rarement=2, occasionnellement=3, souvent=4, tres_souvent=5",
+          "core": true
+        },
+        {
+          "questionId": "crs_ideology",
+          "weight": 1,
+          "scoringLogic": "pas_du_tout=1, peu=2, moderement=3, beaucoup=4, totalement=5",
+          "core": true
+        },
+        {
+          "questionId": "crs_public_practice",
+          "weight": 1,
+          "scoringLogic": "jamais=1, rarement=2, quelques_fois_an=3, mensuel=4, hebdomadaire(+)=5 (v1 hebdo/pluri_hebdo=5)",
+          "core": true
+        },
+        {
+          "questionId": "crs_private_practice",
+          "weight": 1,
+          "scoringLogic": "jamais=1, rarement=2, mensuel=3, hebdomadaire=4, quotidien=5, pluri_quotidien=5 (Huber recoding)",
+          "core": true
+        },
+        {
+          "questionId": "crs_experience",
+          "weight": 1,
+          "scoringLogic": "jamais=1, rarement=2, occasionnellement=3, souvent=4, tres_souvent=5",
+          "core": true
+        }
       ]
     },
     "aiOpenness": {
       "id": "aiOpenness",
       "name": {
-        "fr": "Ouverture a l'IA",
-        "en": "AI Openness"
+        "fr": "Ouverture à l'IA",
+        "en": "AI openness"
       },
       "description": {
-        "fr": "Disposition a adopter et utiliser l'intelligence artificielle",
-        "en": "Disposition to adopt and use artificial intelligence"
+        "fr": "Fréquence d'usage déclarée, maîtrise perçue et attitude générale envers le numérique",
+        "en": "Declared usage frequency, perceived proficiency and general attitude toward digital tools"
       },
-      "scale": { "min": 1, "max": 5 },
       "validationStatus": "exploratory",
       "sourceInstrument": null,
-      "biasSensitivity": 0.2,
-      "populationParams": {
-        "mean": 2.4,
-        "stdDev": 1.1,
-        "note": "PROVISIONAL - Generally lower openness expected in religious context, high variance"
+      "scale": {
+        "min": 1,
+        "max": 5
       },
+      "minItems": 2,
+      "aggregation": "Weighted mean over answered items; value = null below minItems; confidence = nItems / maxItems",
+      "missingPolicy": "\"ne sait pas\", \"sans réponse\", unanswered and unrecognised values are excluded from the mean and never imputed",
       "questions": [
-        { "questionId": "ctrl_ia_frequence", "weight": 2.0, "scoringLogic": "jamais=1, essaye=2, occasionnel=3, regulier=4, quotidien=5" },
-        { "questionId": "ctrl_ia_confort", "weight": 2.0, "scoringLogic": "Direct 1-5 scale" },
-        { "questionId": "ctrl_ia_contextes", "weight": 1.5, "scoringLogic": "1 + (count * 0.7), max 5" },
-        { "questionId": "digital_attitude_generale", "weight": 0.8, "scoringLogic": "tres_negatif=1, negatif=2, neutre=3, positif=4, tres_positif=5" },
-        { "questionId": "min_pred_usage", "weight": 1.5, "scoringLogic": "jamais=1, rare=2, regulier=4, systematique=5", "conditionalOn": "isClergy" },
-        { "questionId": "min_care_email", "weight": 1.0, "scoringLogic": "non_jamais=1, oui_brouillon=3.5, oui_souvent=5", "conditionalOn": "isClergy" },
-        { "questionId": "min_admin_burden", "weight": 0.8, "scoringLogic": "Direct 1-5 scale", "conditionalOn": "isClergy" },
-        { "questionId": "laic_substitution_priere", "weight": 1.2, "scoringLogic": "non=1, oui_negatif=2.5, oui_neutre=3.5, oui_positif=5", "conditionalOn": "isLayperson" },
-        { "questionId": "laic_conseil_spirituel", "weight": 1.2, "scoringLogic": "jamais=1, ne_sait_pas=2.5, complement=3, oui_possible=4, deja_fait=5", "conditionalOn": "isLayperson" }
+        {
+          "questionId": "ctrl_ia_frequence",
+          "weight": 1,
+          "scoringLogic": "jamais=1, essaye=2, occasionnel=3, regulier=4, quotidien=5",
+          "core": true
+        },
+        {
+          "questionId": "ctrl_ia_confort",
+          "weight": 1,
+          "scoringLogic": "direct 1-5 slider",
+          "core": true
+        },
+        {
+          "questionId": "digital_attitude_generale",
+          "weight": 1,
+          "scoringLogic": "tres_negatif=1 ... tres_positif=5",
+          "core": true
+        },
+        {
+          "questionId": "ctrl_ia_contextes",
+          "weight": 1,
+          "scoringLogic": "count: 1 + 0.8 * number of contexts, capped at 5",
+          "conditionalOn": "ctrl_ia_frequence !== jamais",
+          "core": false
+        },
+        {
+          "questionId": "min_pred_usage",
+          "weight": 1,
+          "scoringLogic": "jamais=1, rare=2, regulier=4, systematique=5",
+          "conditionalOn": "isClergy",
+          "core": false
+        },
+        {
+          "questionId": "min_pred_nature",
+          "weight": 1,
+          "scoringLogic": "matrix: weighted delegation level (plan 1, exegese 2, illustration 1, images 1, redaction 3) rescaled to 1-5",
+          "conditionalOn": "clergyUsesAI",
+          "core": false
+        },
+        {
+          "questionId": "min_admin_burden",
+          "weight": 0.5,
+          "scoringLogic": "direct 1-5 slider",
+          "conditionalOn": "clergyUsesAI",
+          "core": false
+        }
       ]
     },
     "sacredBoundary": {
       "id": "sacredBoundary",
       "name": {
-        "fr": "Frontiere Sacree",
-        "en": "Sacred Boundary"
+        "fr": "Frontière sacrée",
+        "en": "Sacred boundary"
       },
       "description": {
-        "fr": "Distinction entre ce qui peut etre confie a l'IA et ce qui doit rester humain/spirituel",
-        "en": "Distinction between what can be entrusted to AI and what must remain human/spiritual"
+        "fr": "Étendue des actes spirituels que le répondant exclut d'une médiation par l'IA",
+        "en": "Extent of spiritual acts the respondent excludes from AI mediation"
       },
-      "scale": { "min": 1, "max": 5 },
       "validationStatus": "exploratory",
       "sourceInstrument": null,
-      "biasSensitivity": 0.5,
-      "populationParams": {
-        "mean": 3.5,
-        "stdDev": 1.0,
-        "note": "PROVISIONAL - Tendency to protect the sacred expected in religious population"
+      "scale": {
+        "min": 1,
+        "max": 5
       },
+      "minItems": 2,
+      "aggregation": "Weighted mean over answered items; value = null below minItems; confidence = nItems / maxItems",
+      "missingPolicy": "\"ne sait pas\", \"sans réponse\", unanswered and unrecognised values are excluded from the mean and never imputed",
       "questions": [
-        { "questionId": "theo_inspiration", "weight": 1.5, "scoringLogic": "possible=1.5, possible_indirect=3, ne_sait_pas=3, peu_probable=4, impossible=5" },
-        { "questionId": "theo_liturgie_ia", "weight": 2.0, "scoringLogic": "Inverted 1-5 scale (6 - value)" },
-        { "questionId": "theo_activites_sacrees", "weight": 2.0, "scoringLogic": "aucune=1, otherwise 1 + (count * 0.9), max 5" },
-        { "questionId": "theo_mediation_humaine", "weight": 1.8, "scoringLogic": "non_pas_necessairement=1.5, ne_sait_pas=3, partiellement=3, oui_pour_essentiel=4, oui_absolument=5" },
-        { "questionId": "ctrl_ia_contextes", "weight": 1.5, "scoringLogic": "Uses AI but NOT for spiritual = 4.5; uses for spiritual = 2; no AI = 3" },
-        { "questionId": "min_pred_sentiment", "weight": 1.2, "scoringLogic": "Direct scale (high = uncomfortable = high boundary)", "conditionalOn": "isClergy" },
-        { "questionId": "min_pred_usage", "weight": 1.0, "scoringLogic": "jamais=5, systematique=1.5", "conditionalOn": "isClergy" },
-        { "questionId": "min_care_email", "weight": 0.8, "scoringLogic": "non_jamais=5", "conditionalOn": "isClergy" },
-        { "questionId": "laic_substitution_priere", "weight": 1.0, "scoringLogic": "non=4.5, other=2", "conditionalOn": "isLayperson" },
-        { "questionId": "laic_conseil_spirituel", "weight": 1.0, "scoringLogic": "jamais=5, deja_fait=1", "conditionalOn": "isLayperson" }
+        {
+          "questionId": "theo_inspiration",
+          "weight": 1,
+          "scoringLogic": "possible=1, possible_indirect=2, peu_probable=4, impossible=5",
+          "core": true
+        },
+        {
+          "questionId": "theo_liturgie_ia",
+          "weight": 1,
+          "scoringLogic": "reversed slider (6 - value): acceptability inverts into boundary",
+          "core": true
+        },
+        {
+          "questionId": "theo_activites_sacrees",
+          "weight": 1,
+          "scoringLogic": "aucune=1, else 1 + 0.9 * number of protected activities, capped at 5",
+          "core": true
+        },
+        {
+          "questionId": "theo_mediation_humaine",
+          "weight": 1,
+          "scoringLogic": "non_pas_necessairement=1, partiellement=2, oui_pour_essentiel=4, oui_absolument=5",
+          "core": true
+        },
+        {
+          "questionId": "min_pred_sentiment",
+          "weight": 1,
+          "scoringLogic": "direct slider: high = uncomfortable = stronger boundary",
+          "conditionalOn": "clergyUsesAI",
+          "core": false
+        },
+        {
+          "questionId": "min_care_email",
+          "weight": 1,
+          "scoringLogic": "non=5, oui_relu=3, oui_tel_quel=1 (v1 non_jamais=5, oui_brouillon=3, oui_souvent=1)",
+          "conditionalOn": "isClergy",
+          "core": false
+        },
+        {
+          "questionId": "laic_substitution_priere",
+          "weight": 1,
+          "scoringLogic": "non=5, oui_negatif=3, oui_neutre=2, oui_positif=1",
+          "conditionalOn": "isLayperson",
+          "core": false
+        },
+        {
+          "questionId": "laic_conseil_spirituel",
+          "weight": 1,
+          "scoringLogic": "jamais=5, complement=3, oui_possible=2, deja_fait=1",
+          "conditionalOn": "isLayperson",
+          "core": false
+        }
       ]
     },
     "ethicalConcern": {
       "id": "ethicalConcern",
       "name": {
-        "fr": "Preoccupation Ethique",
-        "en": "Ethical Concern"
+        "fr": "Préoccupation éthique",
+        "en": "Ethical concern"
       },
       "description": {
-        "fr": "Niveau d'inquietude face aux implications ethiques de l'IA",
-        "en": "Level of concern about the ethical implications of AI"
+        "fr": "Inquiétude exprimée sur l'utilité, l'opacité des systèmes et l'anthropologie théologique",
+        "en": "Concern about usefulness, system opacity and theological anthropology"
       },
-      "scale": { "min": 1, "max": 5 },
-      "validationStatus": "exploratory",
-      "sourceInstrument": null,
-      "biasSensitivity": 0.7,
-      "populationParams": {
-        "mean": 3.8,
-        "stdDev": 0.8,
-        "note": "PROVISIONAL - High concern is normative in religious contexts"
+      "validationStatus": "inspired_by",
+      "sourceInstrument": "Items inspired by AIAS (Wang & Wang, 2022); the scale itself is not administered",
+      "scale": {
+        "min": 1,
+        "max": 5
       },
+      "minItems": 2,
+      "aggregation": "Weighted mean over answered items; value = null below minItems; confidence = nItems / maxItems",
+      "missingPolicy": "\"ne sait pas\", \"sans réponse\", unanswered and unrecognised values are excluded from the mean and never imputed",
       "questions": [
-        { "questionId": "theo_risque_futur", "weight": 2.0, "scoringLogic": "aucune=1, ne_sait_pas=2.5, autre=3.5, paresse=4, deshumanisation=4.5, heresie=4.5" },
-        { "questionId": "theo_utilite_percue", "weight": 1.5, "scoringLogic": "Inverted: tres_positif=1, positif=2, ne_sait_pas=3, neutre=3, negatif=4, tres_negatif=5" },
-        { "questionId": "psych_anxiete_remplacement", "weight": 1.5, "scoringLogic": "non_impossible=1.5, non_peu_probable=2, ne_sait_pas=3, possible_partiel=3.5, oui_probable=4.5, oui_certain=5" },
-        { "questionId": "psych_aias_opacity", "weight": 1.5, "scoringLogic": "non_confiance=1, non_indifferent=1.5, peu=2.5, oui_moderement=4, oui_fortement=5" },
-        { "questionId": "psych_imago_dei", "weight": 1.3, "scoringLogic": "pas_du_tout=1, peu=2, ne_sait_pas=2.5, moderement=3, beaucoup=4, totalement=5" },
-        { "questionId": "min_pred_sentiment", "weight": 1.2, "scoringLogic": "Direct scale", "conditionalOn": "isClergy" }
+        {
+          "questionId": "theo_utilite_percue",
+          "weight": 1,
+          "scoringLogic": "reversed: tres_positif=1 ... tres_negatif=5",
+          "core": true
+        },
+        {
+          "questionId": "psych_aias_opacity",
+          "weight": 1,
+          "scoringLogic": "non_confiance=1, non_indifferent=1.5, peu=2.5, oui_moderement=4, oui_fortement=5",
+          "core": true
+        },
+        {
+          "questionId": "psych_imago_dei",
+          "weight": 1,
+          "scoringLogic": "pas_du_tout=1 ... totalement=5",
+          "core": true
+        }
       ]
     },
     "psychologicalPerception": {
       "id": "psychologicalPerception",
       "name": {
         "fr": "Perception de l'IA",
-        "en": "AI Perception"
+        "en": "AI perception"
       },
       "description": {
-        "fr": "Comment on percoit la nature de l'IA et son rapport a l'humain",
-        "en": "How one perceives the nature of AI and its relationship to humanity"
+        "fr": "Attribution de traits humains, de conscience et de capacité de remplacement à l'IA",
+        "en": "Attribution of human traits, consciousness and replacement capability to AI"
       },
-      "scale": { "min": 1, "max": 5 },
-      "validationStatus": "exploratory",
-      "sourceInstrument": "Partial Godspeed Scale (Bartneck et al., 2009)",
-      "biasSensitivity": 0.2,
-      "populationParams": {
-        "mean": 3.0,
-        "stdDev": 0.9,
-        "note": "PROVISIONAL - Neutral/Uncertain expected"
+      "validationStatus": "inspired_by",
+      "sourceInstrument": "Items inspired by the Godspeed series (Bartneck et al., 2009); the scale itself is not administered",
+      "scale": {
+        "min": 1,
+        "max": 5
       },
+      "minItems": 2,
+      "aggregation": "Weighted mean over answered items; value = null below minItems; confidence = nItems / maxItems",
+      "missingPolicy": "\"ne sait pas\", \"sans réponse\", unanswered and unrecognised values are excluded from the mean and never imputed",
       "questions": [
-        { "questionId": "psych_godspeed_nature", "weight": 2.0, "scoringLogic": "1_machine=1, 2_machine_plus=2, 3_neutre=3, 4_humain_moins=4, 5_humain=5" },
-        { "questionId": "psych_godspeed_conscience", "weight": 2.5, "scoringLogic": "impossible=1, imitation=2, incertain=3, possible_emergence=4, probable=5" },
-        { "questionId": "psych_imago_dei", "weight": 1.8, "scoringLogic": "pas_du_tout=1, peu=2, ne_sait_pas=3, moderement=3, beaucoup=4, totalement=5" },
-        { "questionId": "psych_anxiete_remplacement", "weight": 1.5, "scoringLogic": "non_impossible=1, non_peu_probable=2, ne_sait_pas=3, possible_partiel=3, oui_probable=4, oui_certain=5" },
-        { "questionId": "theo_inspiration", "weight": 1.3, "scoringLogic": "impossible=1, peu_probable=2, ne_sait_pas=3, possible_indirect=3.5, possible=4.5" }
+        {
+          "questionId": "psych_godspeed_nature",
+          "weight": 1,
+          "scoringLogic": "1_machine=1 ... 5_humain=5",
+          "core": true
+        },
+        {
+          "questionId": "psych_godspeed_conscience",
+          "weight": 1,
+          "scoringLogic": "impossible=1, imitation=2, incertain=3, possible_emergence=4, probable=5",
+          "core": true
+        },
+        {
+          "questionId": "psych_anxiete_remplacement",
+          "weight": 1,
+          "scoringLogic": "non_impossible=1, non_peu_probable=2, possible_partiel=3, oui_probable=4, oui_certain=5",
+          "core": true
+        }
       ]
     },
-    "communityInfluence": {
-      "id": "communityInfluence",
+    "communityContext": {
+      "id": "communityContext",
       "name": {
-        "fr": "Ancrage Communautaire",
-        "en": "Community Anchoring"
+        "fr": "Contexte communautaire",
+        "en": "Community context"
       },
       "description": {
-        "fr": "Importance de la communaute dans les choix concernant l'IA",
-        "en": "Importance of community in choices concerning AI"
+        "fr": "Valence de la position communautaire et fréquence des échanges sur l'IA",
+        "en": "Valence of the community stance and frequency of discussions about AI"
       },
-      "scale": { "min": 1, "max": 5 },
       "validationStatus": "exploratory",
       "sourceInstrument": null,
-      "biasSensitivity": 0.3,
-      "populationParams": {
-        "mean": 2.8,
-        "stdDev": 0.9,
-        "note": "PROVISIONAL - Moderate community influence expected"
+      "scale": {
+        "min": 1,
+        "max": 5
       },
+      "minItems": 2,
+      "aggregation": "Weighted mean over answered items; value = null below minItems; confidence = nItems / maxItems",
+      "missingPolicy": "\"ne sait pas\", \"sans réponse\", unanswered and unrecognised values are excluded from the mean and never imputed",
       "questions": [
-        { "questionId": "communaute_position_officielle", "weight": 1.5, "scoringLogic": "Awareness: oui_*=4, non=2, ne_sait_pas=2" },
-        { "questionId": "communaute_discussions", "weight": 2.0, "scoringLogic": "jamais=1, rarement=2, parfois=3, souvent=4, organise=5" },
-        { "questionId": "communaute_perception_pairs", "weight": 1.5, "scoringLogic": "Engagement: ne_sait_pas=1.5, neutre=3, others=3.5-4" },
-        { "questionId": "theo_orientation", "weight": 0.8, "scoringLogic": "traditionaliste/progressiste=3.5, ne_sait_pas=2" },
-        { "questionId": "profil_statut", "weight": 1.0, "scoringLogic": "laic_engage/clerge/religieux=4, curieux=2" },
-        { "questionId": "profil_taille_communaute", "weight": 0.7, "scoringLogic": "tres_petite=2.5, petite=3, moyenne=3.5, grande/tres_grande=4, ne_sait_pas=2.5" }
+        {
+          "questionId": "communaute_position_officielle",
+          "weight": 1,
+          "scoringLogic": "valence only: oui_defavorable=1, oui_prudent=3, oui_favorable=5; \"non\" and \"ne sait pas\" are missing",
+          "core": true
+        },
+        {
+          "questionId": "communaute_perception_pairs",
+          "weight": 1,
+          "scoringLogic": "valence: hostile=1, mefiant=2, neutre=3, opinions_variees=3, favorable=4, tres_favorable=5",
+          "core": true
+        },
+        {
+          "questionId": "communaute_discussions",
+          "weight": 1,
+          "scoringLogic": "jamais=1, rarement=2, parfois=3, souvent=4, organise=5",
+          "core": true
+        }
       ]
     },
     "futureOrientation": {
       "id": "futureOrientation",
       "name": {
-        "fr": "Orientation Future",
-        "en": "Future Orientation"
+        "fr": "Orientation future",
+        "en": "Future orientation"
       },
       "description": {
-        "fr": "Volonte d'evoluer dans son rapport a l'IA",
-        "en": "Willingness to evolve one's relationship with AI"
+        "fr": "Intentions d'usage, souhait de formation et étendue des domaines d'intérêt",
+        "en": "Usage intentions, training interest and breadth of domains of interest"
       },
-      "scale": { "min": 1, "max": 5 },
       "validationStatus": "exploratory",
       "sourceInstrument": null,
-      "biasSensitivity": 0.4,
-      "populationParams": {
-        "mean": 3.2,
-        "stdDev": 1.0,
-        "note": "PROVISIONAL - Slightly positive skew expected"
+      "scale": {
+        "min": 1,
+        "max": 5
       },
+      "minItems": 2,
+      "aggregation": "Weighted mean over answered items; value = null below minItems; confidence = nItems / maxItems",
+      "missingPolicy": "\"ne sait pas\", \"sans réponse\", unanswered and unrecognised values are excluded from the mean and never imputed",
       "questions": [
-        { "questionId": "futur_intention_usage", "weight": 2.0, "scoringLogic": "non_certain=1, non_probable=2, ne_sait_pas=2.5, peut_etre=3, oui_probable=4, oui_certain=5" },
-        { "questionId": "futur_formation_souhait", "weight": 2.0, "scoringLogic": "non_pas_du_tout=1, non_pas_vraiment=2, peut_etre=3, oui_assez=4, oui_tres=5" },
-        { "questionId": "futur_domaines_interet", "weight": 1.5, "scoringLogic": "aucun_domaines=1, otherwise 1 + (count * 0.6), max 5" },
-        { "questionId": "ctrl_ia_frequence", "weight": 1.0, "scoringLogic": "jamais=2, essaye=3, occasionnel=3.5, regulier=4, quotidien=4.5" },
-        { "questionId": "profil_age", "weight": 0.6, "scoringLogic": "18-35=3.8, 36-50=3.5, 51-65=3, 66+=2.5" },
-        { "questionId": "digital_attitude_generale", "weight": 0.8, "scoringLogic": "tres_negatif=1, negatif=2, neutre=3, positif=4, tres_positif=4.5" }
+        {
+          "questionId": "futur_intention_usage",
+          "weight": 1,
+          "scoringLogic": "non_certain=1 ... oui_certain=5",
+          "core": true
+        },
+        {
+          "questionId": "futur_formation_souhait",
+          "weight": 1,
+          "scoringLogic": "non_pas_du_tout=1 ... oui_tres=5",
+          "core": true
+        },
+        {
+          "questionId": "futur_domaines_interet",
+          "weight": 1,
+          "scoringLogic": "aucun_domaines=1, else 1 + 0.6 * number of domains, capped at 5",
+          "core": true
+        }
       ]
     }
   },
+  "covariatesOnly": [
+    "profil_age",
+    "profil_genre",
+    "profil_statut",
+    "profil_education",
+    "profil_pays",
+    "profil_milieu",
+    "profil_secteur",
+    "profil_anciennete_foi",
+    "profil_annees_ministere",
+    "profil_taille_communaute",
+    "profil_formation_theologique",
+    "profil_confession",
+    "theo_orientation",
+    "theo_risque_futur",
+    "digital_outils_existants"
+  ],
   "profiles": {
     "gardien_tradition": {
       "id": "gardien_tradition",
-      "name": { "fr": "Gardien de la Tradition", "en": "Tradition Guardian" },
+      "name": "Gardien de la Tradition",
       "emoji": "🏛️",
       "idealDimensions": {
-        "religiosity": [4, 5],
-        "aiOpenness": [1, 2.5],
-        "sacredBoundary": [4, 5],
-        "ethicalConcern": [3.5, 5],
-        "psychologicalPerception": [3, 5],
-        "communityInfluence": [3.5, 5],
-        "futureOrientation": [1, 2.5]
+        "religiosity": [
+          4,
+          5
+        ],
+        "aiOpenness": [
+          1,
+          2.5
+        ],
+        "sacredBoundary": [
+          4,
+          5
+        ],
+        "ethicalConcern": [
+          3.5,
+          5
+        ],
+        "psychologicalPerception": [
+          1,
+          3
+        ],
+        "communityContext": [
+          2,
+          4
+        ],
+        "futureOrientation": [
+          1,
+          2.5
+        ]
       },
       "weights": {
         "religiosity": 1.2,
         "aiOpenness": 1.5,
         "sacredBoundary": 1.5,
-        "ethicalConcern": 1.0,
-        "psychologicalPerception": 0.8,
-        "communityInfluence": 1.0,
-        "futureOrientation": 0.8
+        "ethicalConcern": 1,
+        "psychologicalPerception": 0.6,
+        "communityContext": 0.6,
+        "futureOrientation": 1
       },
-      "subProfiles": ["protecteur_sacre", "sage_prudent", "berger_communautaire"]
+      "subProfiles": [
+        "protecteur_sacre",
+        "sage_prudent",
+        "berger_communautaire"
+      ]
     },
     "prudent_eclaire": {
       "id": "prudent_eclaire",
-      "name": { "fr": "Prudent Eclaire", "en": "Enlightened Cautious" },
+      "name": "Prudent Éclairé",
       "emoji": "🔍",
       "idealDimensions": {
-        "religiosity": [3.5, 5],
-        "aiOpenness": [2, 3.5],
-        "sacredBoundary": [3, 4.5],
-        "ethicalConcern": [3, 4.5],
-        "psychologicalPerception": [2.5, 4],
-        "communityInfluence": [3, 4.5],
-        "futureOrientation": [2, 3.5]
+        "religiosity": [
+          3.5,
+          5
+        ],
+        "aiOpenness": [
+          2,
+          3.5
+        ],
+        "sacredBoundary": [
+          3.5,
+          4.75
+        ],
+        "ethicalConcern": [
+          3,
+          4.5
+        ],
+        "psychologicalPerception": [
+          1.5,
+          3.5
+        ],
+        "communityContext": [
+          2,
+          4
+        ],
+        "futureOrientation": [
+          2.25,
+          3.75
+        ]
       },
       "weights": {
-        "religiosity": 1.2,
-        "aiOpenness": 1.3,
-        "sacredBoundary": 1.2,
-        "ethicalConcern": 1.1,
-        "psychologicalPerception": 0.9,
-        "communityInfluence": 1.0,
-        "futureOrientation": 1.0
+        "religiosity": 1.1,
+        "aiOpenness": 1.4,
+        "sacredBoundary": 1.3,
+        "ethicalConcern": 1,
+        "psychologicalPerception": 0.6,
+        "communityContext": 0.6,
+        "futureOrientation": 1.1
       },
-      "subProfiles": ["analyste_spirituel", "discerneur_pastoral", "observateur_engage"]
+      "subProfiles": [
+        "analyste_spirituel",
+        "discerneur_pastoral",
+        "observateur_engage"
+      ]
     },
     "innovateur_ancre": {
       "id": "innovateur_ancre",
-      "name": { "fr": "Innovateur Ancre", "en": "Anchored Innovator" },
+      "name": "Innovateur Ancré",
       "emoji": "⚓",
       "idealDimensions": {
-        "religiosity": [4, 5],
-        "aiOpenness": [4, 5],
-        "sacredBoundary": [2, 3.5],
-        "ethicalConcern": [2, 3.5],
-        "psychologicalPerception": [2, 4],
-        "communityInfluence": [2.5, 4],
-        "futureOrientation": [4, 5]
+        "religiosity": [
+          4,
+          5
+        ],
+        "aiOpenness": [
+          3.75,
+          5
+        ],
+        "sacredBoundary": [
+          2,
+          3.5
+        ],
+        "ethicalConcern": [
+          2,
+          3.5
+        ],
+        "psychologicalPerception": [
+          1.5,
+          3.5
+        ],
+        "communityContext": [
+          2,
+          4
+        ],
+        "futureOrientation": [
+          3.75,
+          5
+        ]
       },
       "weights": {
         "religiosity": 1.4,
         "aiOpenness": 1.4,
         "sacredBoundary": 1.1,
         "ethicalConcern": 0.9,
-        "psychologicalPerception": 0.8,
-        "communityInfluence": 0.9,
+        "psychologicalPerception": 0.6,
+        "communityContext": 0.6,
         "futureOrientation": 1.2
       },
-      "subProfiles": ["pont_generationnel", "evangeliste_digital", "theologien_techno"]
+      "subProfiles": [
+        "pont_generationnel",
+        "evangeliste_digital",
+        "theologien_techno"
+      ]
     },
     "equilibriste": {
       "id": "equilibriste",
-      "name": { "fr": "Equilibriste Spirituel", "en": "Spiritual Balancer" },
+      "name": "Équilibriste Spirituel",
       "emoji": "⚖️",
       "idealDimensions": {
-        "religiosity": [2.5, 4],
-        "aiOpenness": [2.5, 3.5],
-        "sacredBoundary": [2.5, 3.5],
-        "ethicalConcern": [2.5, 3.5],
-        "psychologicalPerception": [2.5, 3.5],
-        "communityInfluence": [2.5, 4],
-        "futureOrientation": [2.5, 3.5]
-      },
-      "weights": {
-        "religiosity": 1.0,
-        "aiOpenness": 1.0,
-        "sacredBoundary": 1.0,
-        "ethicalConcern": 1.0,
-        "psychologicalPerception": 1.0,
-        "communityInfluence": 1.1,
-        "futureOrientation": 1.0
-      },
-      "subProfiles": ["mediateur", "chercheur_sens", "adaptateur_prudent"]
-    },
-    "pragmatique_moderne": {
-      "id": "pragmatique_moderne",
-      "name": { "fr": "Pragmatique Moderne", "en": "Modern Pragmatist" },
-      "emoji": "🚀",
-      "idealDimensions": {
-        "religiosity": [2.5, 4],
-        "aiOpenness": [3.5, 5],
-        "sacredBoundary": [1.5, 3],
-        "ethicalConcern": [1.5, 3],
-        "psychologicalPerception": [1.5, 3],
-        "communityInfluence": [2, 3.5],
-        "futureOrientation": [3.5, 5]
-      },
-      "weights": {
-        "religiosity": 0.9,
-        "aiOpenness": 1.4,
-        "sacredBoundary": 1.2,
-        "ethicalConcern": 1.1,
-        "psychologicalPerception": 0.9,
-        "communityInfluence": 0.8,
-        "futureOrientation": 1.3
-      },
-      "subProfiles": ["efficace_engage", "communicateur_digital", "optimisateur_pastoral"]
-    },
-    "pionnier_spirituel": {
-      "id": "pionnier_spirituel",
-      "name": { "fr": "Pionnier Spirituel", "en": "Spiritual Pioneer" },
-      "emoji": "🌟",
-      "idealDimensions": {
-        "religiosity": [2, 4.5],
-        "aiOpenness": [4, 5],
-        "sacredBoundary": [1, 2.5],
-        "ethicalConcern": [1, 3],
-        "psychologicalPerception": [2, 4],
-        "communityInfluence": [1.5, 3],
-        "futureOrientation": [4, 5]
+        "religiosity": [
+          2.5,
+          4
+        ],
+        "aiOpenness": [
+          2.75,
+          3.25
+        ],
+        "sacredBoundary": [
+          2.75,
+          3.25
+        ],
+        "ethicalConcern": [
+          2.75,
+          3.25
+        ],
+        "psychologicalPerception": [
+          2.5,
+          3.5
+        ],
+        "communityContext": [
+          2.5,
+          4
+        ],
+        "futureOrientation": [
+          2.75,
+          3.25
+        ]
       },
       "weights": {
         "religiosity": 0.8,
+        "aiOpenness": 1.2,
+        "sacredBoundary": 1.2,
+        "ethicalConcern": 1.2,
+        "psychologicalPerception": 0.8,
+        "communityContext": 0.6,
+        "futureOrientation": 1.2
+      },
+      "subProfiles": [
+        "mediateur",
+        "chercheur_sens",
+        "adaptateur_prudent"
+      ]
+    },
+    "pragmatique_moderne": {
+      "id": "pragmatique_moderne",
+      "name": "Pragmatique Moderne",
+      "emoji": "🚀",
+      "idealDimensions": {
+        "religiosity": [
+          2.5,
+          4
+        ],
+        "aiOpenness": [
+          3.5,
+          5
+        ],
+        "sacredBoundary": [
+          1.5,
+          3
+        ],
+        "ethicalConcern": [
+          1,
+          2.75
+        ],
+        "psychologicalPerception": [
+          1.5,
+          3.5
+        ],
+        "communityContext": [
+          2,
+          4
+        ],
+        "futureOrientation": [
+          3.5,
+          5
+        ]
+      },
+      "weights": {
+        "religiosity": 0.8,
+        "aiOpenness": 1.4,
+        "sacredBoundary": 1.2,
+        "ethicalConcern": 1.3,
+        "psychologicalPerception": 0.6,
+        "communityContext": 0.6,
+        "futureOrientation": 1.2
+      },
+      "subProfiles": [
+        "efficace_engage",
+        "communicateur_digital",
+        "optimisateur_pastoral"
+      ]
+    },
+    "pionnier_spirituel": {
+      "id": "pionnier_spirituel",
+      "name": "Pionnier Spirituel",
+      "emoji": "🌟",
+      "idealDimensions": {
+        "religiosity": [
+          2,
+          4.5
+        ],
+        "aiOpenness": [
+          4,
+          5
+        ],
+        "sacredBoundary": [
+          1,
+          2.25
+        ],
+        "ethicalConcern": [
+          1,
+          3
+        ],
+        "psychologicalPerception": [
+          2,
+          4.5
+        ],
+        "communityContext": [
+          1.5,
+          3.5
+        ],
+        "futureOrientation": [
+          4,
+          5
+        ]
+      },
+      "weights": {
+        "religiosity": 0.6,
         "aiOpenness": 1.5,
-        "sacredBoundary": 1.4,
-        "ethicalConcern": 1.0,
-        "psychologicalPerception": 1.0,
-        "communityInfluence": 0.8,
+        "sacredBoundary": 1.5,
+        "ethicalConcern": 0.9,
+        "psychologicalPerception": 0.7,
+        "communityContext": 0.6,
         "futureOrientation": 1.4
       },
-      "subProfiles": ["visionnaire", "experimentateur", "prophete_digital"]
+      "subProfiles": [
+        "visionnaire",
+        "experimentateur",
+        "prophete_digital"
+      ]
     },
     "progressiste_critique": {
       "id": "progressiste_critique",
-      "name": { "fr": "Progressiste Critique", "en": "Critical Progressive" },
+      "name": "Progressiste Critique",
       "emoji": "🤔",
       "idealDimensions": {
-        "religiosity": [2, 4],
-        "aiOpenness": [2, 3.5],
-        "sacredBoundary": [2.5, 4],
-        "ethicalConcern": [4, 5],
-        "psychologicalPerception": [3, 4.5],
-        "communityInfluence": [2, 3.5],
-        "futureOrientation": [3, 4.5]
+        "religiosity": [
+          2,
+          4
+        ],
+        "aiOpenness": [
+          2,
+          3.5
+        ],
+        "sacredBoundary": [
+          2.5,
+          4
+        ],
+        "ethicalConcern": [
+          4,
+          5
+        ],
+        "psychologicalPerception": [
+          3,
+          5
+        ],
+        "communityContext": [
+          2,
+          4
+        ],
+        "futureOrientation": [
+          3,
+          4.5
+        ]
       },
       "weights": {
-        "religiosity": 0.9,
+        "religiosity": 0.6,
         "aiOpenness": 1.1,
-        "sacredBoundary": 1.1,
-        "ethicalConcern": 1.5,
+        "sacredBoundary": 1,
+        "ethicalConcern": 1.6,
         "psychologicalPerception": 1.2,
-        "communityInfluence": 0.8,
-        "futureOrientation": 1.1
+        "communityContext": 0.6,
+        "futureOrientation": 1
       },
-      "subProfiles": ["ethicien", "reformateur_social", "philosophe_spirituel"]
+      "subProfiles": [
+        "ethicien",
+        "reformateur_social",
+        "philosophe_spirituel"
+      ]
     },
     "explorateur": {
       "id": "explorateur",
-      "name": { "fr": "Explorateur", "en": "Explorer" },
+      "name": "Explorateur",
       "emoji": "🧭",
       "idealDimensions": {
-        "religiosity": [1.5, 3.5],
-        "aiOpenness": [2, 4],
-        "sacredBoundary": [2, 4],
-        "ethicalConcern": [2, 4],
-        "psychologicalPerception": [2, 4],
-        "communityInfluence": [1.5, 3],
-        "futureOrientation": [3, 4.5]
+        "religiosity": [
+          1,
+          3
+        ],
+        "aiOpenness": [
+          2,
+          4
+        ],
+        "sacredBoundary": [
+          2,
+          4
+        ],
+        "ethicalConcern": [
+          2,
+          4
+        ],
+        "psychologicalPerception": [
+          2,
+          4
+        ],
+        "communityContext": [
+          1,
+          3
+        ],
+        "futureOrientation": [
+          2.5,
+          4.5
+        ]
       },
       "weights": {
-        "religiosity": 0.9,
-        "aiOpenness": 0.8,
-        "sacredBoundary": 0.8,
-        "ethicalConcern": 0.8,
-        "psychologicalPerception": 0.8,
-        "communityInfluence": 0.9,
-        "futureOrientation": 1.2
+        "religiosity": 1.4,
+        "aiOpenness": 0.7,
+        "sacredBoundary": 0.7,
+        "ethicalConcern": 0.7,
+        "psychologicalPerception": 0.7,
+        "communityContext": 0.9,
+        "futureOrientation": 0.9
       },
-      "subProfiles": ["curieux_spirituel", "novice_technologique", "chercheur_seculier"]
+      "subProfiles": [
+        "curieux_spirituel",
+        "novice_technologique",
+        "chercheur_seculier"
+      ]
     }
   },
-  "biasDetection": {
-    "instrument": "Marlowe-Crowne Social Desirability Scale - Short Form C",
+  "socialDesirability": {
+    "instrument": "Sélection ad hoc de 5 items de la Marlowe-Crowne Social Desirability Scale",
+    "status": "ad_hoc_selection",
     "citation": "Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability independent of psychopathology. Journal of Consulting Psychology, 24(4), 349-354.",
+    "itemCount": 5,
     "items": [
-      { "questionId": "ctrl_mc_1", "highBiasAnswer": "false", "description": "Claims to not need encouragement (false claim of independence)" },
-      { "questionId": "ctrl_mc_2", "highBiasAnswer": "true", "description": "Claims to never intensely dislike anyone (saintly claim)" },
-      { "questionId": "ctrl_mc_3", "highBiasAnswer": "false", "description": "Claims to never rebel against authority (perfect rationality)" },
-      { "questionId": "ctrl_mc_4", "highBiasAnswer": "true", "description": "Claims to always be courteous (perfect manners)" },
-      { "questionId": "ctrl_mc_5", "highBiasAnswer": "false", "description": "Claims to never take advantage of anyone (moral perfection)" }
-    ],
-    "scoring": {
-      "formula": "(biasPoints / answeredCount) * 10 -> normalized 0-10 scale",
-      "ranges": {
-        "low": { "range": [0, 3], "confidence": 1.0 },
-        "moderate": { "range": [4, 6], "confidence": 0.9 },
-        "high": { "range": [7, 8], "confidence": 0.8 },
-        "veryHigh": { "range": [9, 10], "confidence": 0.7 }
+      {
+        "questionId": "ctrl_mc_1",
+        "keyedResponse": "false",
+        "description": "Never needs encouragement to get going"
+      },
+      {
+        "questionId": "ctrl_mc_2",
+        "keyedResponse": "true",
+        "description": "Never intensely disliked anyone"
+      },
+      {
+        "questionId": "ctrl_mc_3",
+        "keyedResponse": "false",
+        "description": "Never rebels against authority"
+      },
+      {
+        "questionId": "ctrl_mc_4",
+        "keyedResponse": "true",
+        "description": "Always courteous"
+      },
+      {
+        "questionId": "ctrl_mc_5",
+        "keyedResponse": "false",
+        "description": "Never took advantage of anyone"
       }
-    },
-    "dimensionSensitivities": {
-      "religiosity": 0.8,
-      "aiOpenness": 0.2,
-      "sacredBoundary": 0.5,
-      "ethicalConcern": 0.7,
-      "psychologicalPerception": 0.2,
-      "communityInfluence": 0.3,
-      "futureOrientation": 0.4
-    }
+    ],
+    "scoring": "Share of answered items endorsed in the keyed direction, normalised to 0-1; null below 4 answered items",
+    "flagRule": "flag = true when nItems >= 4 and score >= 0.8",
+    "usage": "Covariate flag only. No dimension score is deflated, no confidence multiplier is applied."
   },
   "algorithmParameters": [
     {
       "name": "EXPONENTIAL_DECAY",
-      "description": "Controls distance to match score conversion (score = 100 * exp(-distance * DECAY))",
+      "description": "score = 100 * exp(-DECAY * weighted distance to the ideal ranges)",
       "value": 0.5,
       "empiricallyValidated": false,
-      "justification": "Expert choice: distance of 2 = 50% match, distance of 4 = 25% match"
+      "justification": "Expert choice: distance 2 ~ 37 % match, distance 4 ~ 14 % match"
     },
     {
-      "name": "SECONDARY_PROFILE_THRESHOLD",
-      "description": "Minimum match score (%) to display as secondary profile",
-      "value": 10,
-      "empiricallyValidated": false,
-      "justification": "Expert choice: avoid showing very weak secondary matches"
-    },
-    {
-      "name": "TERTIARY_PROFILE_THRESHOLD",
-      "description": "Minimum match score (%) to display as tertiary profile",
-      "value": 5,
-      "empiricallyValidated": false,
-      "justification": "Expert choice: only show relevant tertiary matches"
-    },
-    {
-      "name": "BIAS_ADJUSTMENT_THRESHOLD",
-      "description": "Minimum bias score to trigger score adjustment",
+      "name": "MIN_VALUED_DIMENSIONS",
+      "description": "Below this many non-null dimensions, no profile is attributed",
       "value": 4,
       "empiricallyValidated": false,
-      "justification": "Based on Marlowe-Crowne interpretation guidelines"
+      "justification": "A profile drawn from 3 dimensions or fewer is not interpretable"
     },
     {
-      "name": "MAX_BIAS_DEFLATION",
-      "description": "Maximum points deducted from dimension score due to bias",
-      "value": 1.0,
+      "name": "BONUS_POINTS_PER_UNIT",
+      "description": "Conversion of a pattern bonus unit into match-score points",
+      "value": 6,
       "empiricallyValidated": false,
-      "justification": "Conservative adjustment to avoid over-correction"
+      "justification": "Bonuses are applied in score space, after the distance conversion"
+    },
+    {
+      "name": "THEO_ORIENTATION_WEIGHT",
+      "description": "Multiplier applied to the theo_orientation self-label bonus",
+      "value": 0.5,
+      "empiricallyValidated": false,
+      "justification": "Self-labelling weighs half as much as answer-pattern bonuses (spec §1.5)"
+    },
+    {
+      "name": "MIN_ITEMS",
+      "description": "Minimum answered items for a dimension to be valued",
+      "value": 2,
+      "empiricallyValidated": false,
+      "justification": "A single item is not a dimension"
+    },
+    {
+      "name": "MIN_ITEMS_RELIGIOSITY",
+      "description": "Minimum answered CRS-5 items",
+      "value": 4,
+      "empiricallyValidated": false,
+      "justification": "4 of the 5 CRS-5 items are required for a defensible mean"
     }
-  ]
+  ],
+  "itemScoreMaps": {
+    "crs_intellect": {
+      "jamais": 1,
+      "rarement": 2,
+      "occasionnellement": 3,
+      "souvent": 4,
+      "tres_souvent": 5
+    },
+    "crs_ideology": {
+      "pas_du_tout": 1,
+      "peu": 2,
+      "moderement": 3,
+      "beaucoup": 4,
+      "totalement": 5
+    },
+    "crs_public_practice": {
+      "jamais": 1,
+      "rarement": 2,
+      "quelques_fois_an": 3,
+      "mensuel": 4,
+      "hebdomadaire": 5,
+      "hebdomadaire_plus": 5,
+      "hebdo": 5,
+      "pluri_hebdo": 5
+    },
+    "crs_private_practice": {
+      "jamais": 1,
+      "rarement": 2,
+      "mensuel": 3,
+      "hebdomadaire": 4,
+      "quotidien": 5,
+      "pluri_quotidien": 5
+    },
+    "crs_experience": {
+      "jamais": 1,
+      "rarement": 2,
+      "occasionnellement": 3,
+      "souvent": 4,
+      "tres_souvent": 5
+    },
+    "ctrl_ia_frequence": {
+      "jamais": 1,
+      "essaye": 2,
+      "occasionnel": 3,
+      "regulier": 4,
+      "quotidien": 5
+    },
+    "digital_attitude_generale": {
+      "tres_negatif": 1,
+      "negatif": 2,
+      "neutre": 3,
+      "positif": 4,
+      "tres_positif": 5
+    },
+    "min_pred_usage": {
+      "jamais": 1,
+      "rare": 2,
+      "regulier": 4,
+      "systematique": 5
+    },
+    "theo_inspiration": {
+      "impossible": 5,
+      "peu_probable": 4,
+      "possible_indirect": 2,
+      "possible": 1
+    },
+    "theo_mediation_humaine": {
+      "oui_absolument": 5,
+      "oui_pour_essentiel": 4,
+      "partiellement": 2,
+      "non_pas_necessairement": 1
+    },
+    "min_care_email": {
+      "non": 5,
+      "oui_relu": 3,
+      "oui_tel_quel": 1,
+      "non_jamais": 5,
+      "oui_brouillon": 3
+    },
+    "laic_substitution_priere": {
+      "non": 5,
+      "oui_negatif": 3,
+      "oui_neutre": 2,
+      "oui_positif": 1
+    },
+    "laic_conseil_spirituel": {
+      "jamais": 5,
+      "complement": 3,
+      "oui_possible": 2,
+      "deja_fait": 1
+    },
+    "theo_utilite_percue": {
+      "tres_negatif": 5,
+      "negatif": 4,
+      "neutre": 3,
+      "positif": 2,
+      "tres_positif": 1
+    },
+    "psych_aias_opacity": {
+      "non_confiance": 1,
+      "non_indifferent": 1.5,
+      "peu": 2.5,
+      "oui_moderement": 4,
+      "oui_fortement": 5
+    },
+    "psych_imago_dei": {
+      "pas_du_tout": 1,
+      "peu": 2,
+      "moderement": 3,
+      "beaucoup": 4,
+      "totalement": 5
+    },
+    "psych_godspeed_nature": {
+      "1_machine": 1,
+      "2_machine_plus": 2,
+      "3_neutre": 3,
+      "4_humain_moins": 4,
+      "5_humain": 5
+    },
+    "psych_godspeed_conscience": {
+      "impossible": 1,
+      "imitation": 2,
+      "incertain": 3,
+      "possible_emergence": 4,
+      "probable": 5
+    },
+    "psych_anxiete_remplacement": {
+      "non_impossible": 1,
+      "non_peu_probable": 2,
+      "possible_partiel": 3,
+      "oui_probable": 4,
+      "oui_certain": 5
+    },
+    "communaute_position_officielle": {
+      "oui_defavorable": 1,
+      "oui_prudent": 3,
+      "oui_favorable": 5
+    },
+    "communaute_perception_pairs": {
+      "hostile": 1,
+      "mefiant": 2,
+      "neutre": 3,
+      "opinions_variees": 3,
+      "favorable": 4,
+      "tres_favorable": 5
+    },
+    "communaute_discussions": {
+      "jamais": 1,
+      "rarement": 2,
+      "parfois": 3,
+      "souvent": 4,
+      "organise": 5
+    },
+    "futur_intention_usage": {
+      "non_certain": 1,
+      "non_probable": 2,
+      "peut_etre": 3,
+      "oui_probable": 4,
+      "oui_certain": 5
+    },
+    "futur_formation_souhait": {
+      "non_pas_du_tout": 1,
+      "non_pas_vraiment": 2,
+      "peut_etre": 3,
+      "oui_assez": 4,
+      "oui_tres": 5
+    }
+  },
+  "scaleItems": {
+    "ctrl_ia_confort": {
+      "reverse": false
+    },
+    "min_admin_burden": {
+      "reverse": false
+    },
+    "min_pred_sentiment": {
+      "reverse": false
+    },
+    "theo_liturgie_ia": {
+      "reverse": true
+    }
+  },
+  "countItems": {
+    "ctrl_ia_contextes": {
+      "exclusive": [],
+      "step": 0.8,
+      "floor": 1
+    },
+    "theo_activites_sacrees": {
+      "exclusive": [
+        "aucune"
+      ],
+      "step": 0.9,
+      "floor": 1
+    },
+    "futur_domaines_interet": {
+      "exclusive": [
+        "aucun_domaines",
+        "aucun"
+      ],
+      "step": 0.6,
+      "floor": 1
+    }
+  },
+  "matrixItems": {
+    "min_pred_nature": {
+      "plan": 1,
+      "exegese": 2,
+      "illustration": 1,
+      "images": 1,
+      "redaction": 3
+    }
+  }
 }

@@ -21,18 +21,31 @@ export function getProfileShareURL(slug: string): string {
 }
 
 /**
- * Pre-filled share text. No em dash, accents included.
+ * Recruitment channel the respondent came through (`metadata.entryVariant`).
+ * Only the CNEF channel may name the CNEF in the share text.
+ */
+export type ShareVariant = "general" | "cnef";
+
+/**
+ * Pre-filled share text. No em dash, no emoji, accents included.
  * `title` is the archetype title, e.g. "Pionnier Spirituel".
+ *
+ * The partner is named only for respondents who entered through the CNEF
+ * landing page; the general text stays neutral.
  */
 export function getProfileShareText(
   title: string,
   url: string,
   language: Language = "fr",
+  variant: ShareVariant = "general",
 ): string {
   if (language === "en") {
-    return `I took the CNEF survey on AI and faith, and I am a ${title}. And you, what is your profile? 👉 ${url}`;
+    const survey = variant === "cnef" ? "the CNEF survey on AI and faith" : "the AI and faith survey";
+    return `I answered ${survey}, and my profile is ${title}. What is yours? ${url}`;
   }
-  return `J'ai fait l'enquête IA et foi du CNEF, je suis un·e ${title}. Et toi, quel est ton profil ? 👉 ${url}`;
+
+  const survey = variant === "cnef" ? "l'enquête IA et foi du CNEF" : "l'enquête IA et foi";
+  return `J'ai répondu à ${survey}, mon profil est ${title}. Et vous, quel est le vôtre ? ${url}`;
 }
 
 export interface ProfileShareLinks {

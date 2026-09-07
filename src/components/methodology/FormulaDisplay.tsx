@@ -9,15 +9,22 @@ interface FormulaDisplayProps {
     weightedAverageTitle: string;
     weightedAverageDesc: string;
     weightedAverageFormula: string;
-    percentileTitle: string;
-    percentileDesc: string;
-    percentileFormula: string;
+    empiricalRankTitle: string;
+    empiricalRankDesc: string;
+    empiricalRankFormula: string;
     profileMatchingTitle: string;
     profileMatchingDesc: string;
-    biasAdjustmentTitle: string;
-    biasAdjustmentDesc: string;
+    profileMatchingFormula: string;
+    desirabilityTitle: string;
+    desirabilityDesc: string;
+    desirabilityFormula: string;
+    distributionTitle: string;
+    distributionCaption: string;
   };
 }
+
+/** Illustrative shape of an observed distribution, not real data. */
+const OBSERVED_BARS = [3, 6, 11, 18, 24, 29, 26, 19, 12, 7, 4];
 
 export function FormulaDisplay({ translations: t }: FormulaDisplayProps) {
   const methods = [
@@ -30,26 +37,29 @@ export function FormulaDisplay({ translations: t }: FormulaDisplayProps) {
     },
     {
       icon: TrendingUp,
-      title: t.percentileTitle,
-      description: t.percentileDesc,
-      formula: t.percentileFormula,
+      title: t.empiricalRankTitle,
+      description: t.empiricalRankDesc,
+      formula: t.empiricalRankFormula,
       color: "#10B981",
     },
     {
       icon: Target,
       title: t.profileMatchingTitle,
       description: t.profileMatchingDesc,
-      formula: "distance = √Σ(wi × (xi - [min,max])²)",
+      formula: t.profileMatchingFormula,
       color: "#F59E0B",
     },
     {
       icon: Shield,
-      title: t.biasAdjustmentTitle,
-      description: t.biasAdjustmentDesc,
-      formula: "adjusted = raw - (bias × sensitivity × 0.05)",
+      title: t.desirabilityTitle,
+      description: t.desirabilityDesc,
+      formula: t.desirabilityFormula,
       color: "#EC4899",
     },
   ];
+
+  const maxBar = Math.max(...OBSERVED_BARS);
+  const barWidth = 300 / OBSERVED_BARS.length;
 
   return (
     <div className="space-y-6">
@@ -92,7 +102,8 @@ export function FormulaDisplay({ translations: t }: FormulaDisplayProps) {
         ))}
       </div>
 
-      {/* Normal distribution curve illustration */}
+      {/* Observed distribution: the rank is read off the collected responses,
+          never off a modelled normal population. */}
       <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -100,52 +111,41 @@ export function FormulaDisplay({ translations: t }: FormulaDisplayProps) {
         className="glass-card-refined rounded-xl p-6"
       >
         <h3 className="text-lg font-bold text-foreground mb-4 text-center">
-          Distribution Normale (CDF)
+          {t.distributionTitle}
         </h3>
-        <svg viewBox="0 0 400 150" className="w-full max-w-md mx-auto">
+        <svg viewBox="0 0 400 150" className="w-full max-w-md mx-auto" role="img" aria-hidden="true">
           {/* Axes */}
           <line x1="50" y1="120" x2="350" y2="120" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
           <line x1="50" y1="20" x2="50" y2="120" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
 
-          {/* Normal curve */}
-          <path
-            d="M 50,120 Q 100,120 125,110 Q 150,95 175,60 Q 200,25 225,60 Q 250,95 275,110 Q 300,120 350,120"
-            fill="none"
-            stroke="#10B981"
-            strokeWidth="2"
-          />
+          {/* Observed bars */}
+          {OBSERVED_BARS.map((value, index) => {
+            const height = (value / maxBar) * 90;
+            return (
+              <rect
+                key={index}
+                x={50 + index * barWidth + 2}
+                y={120 - height}
+                width={barWidth - 4}
+                height={height}
+                fill="#10B981"
+                opacity={0.45}
+                rx="2"
+              />
+            );
+          })}
 
-          {/* Filled area under curve */}
-          <path
-            d="M 50,120 Q 100,120 125,110 Q 150,95 175,60 Q 200,25 225,60 Q 250,95 275,110 Q 300,120 350,120 L 350,120 L 50,120 Z"
-            fill="url(#curveGradient)"
-            opacity="0.3"
-          />
+          {/* Respondent marker */}
+          <line x1="270" y1="20" x2="270" y2="120" stroke="#F59E0B" strokeWidth="2" strokeDasharray="4 3" />
+          <circle cx="270" cy="20" r="4" fill="#F59E0B" />
 
-          {/* Gradient definition */}
-          <defs>
-            <linearGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#10B981" />
-              <stop offset="100%" stopColor="transparent" />
-            </linearGradient>
-          </defs>
-
-          {/* Labels */}
-          <text x="50" y="135" fill="rgba(255,255,255,0.5)" fontSize="10" textAnchor="middle">-3σ</text>
-          <text x="125" y="135" fill="rgba(255,255,255,0.5)" fontSize="10" textAnchor="middle">-2σ</text>
-          <text x="200" y="135" fill="rgba(255,255,255,0.5)" fontSize="10" textAnchor="middle">μ</text>
-          <text x="275" y="135" fill="rgba(255,255,255,0.5)" fontSize="10" textAnchor="middle">+2σ</text>
-          <text x="350" y="135" fill="rgba(255,255,255,0.5)" fontSize="10" textAnchor="middle">+3σ</text>
-
-          {/* Percentile markers */}
-          <line x1="125" y1="110" x2="125" y2="120" stroke="#F59E0B" strokeWidth="2" strokeDasharray="3" />
-          <text x="125" y="105" fill="#F59E0B" fontSize="9" textAnchor="middle">2.3%</text>
-
-          <line x1="275" y1="110" x2="275" y2="120" stroke="#F59E0B" strokeWidth="2" strokeDasharray="3" />
-          <text x="275" y="105" fill="#F59E0B" fontSize="9" textAnchor="middle">97.7%</text>
+          {/* Axis labels */}
+          <text x="50" y="136" fill="rgba(255,255,255,0.5)" fontSize="10" textAnchor="middle">1</text>
+          <text x="200" y="136" fill="rgba(255,255,255,0.5)" fontSize="10" textAnchor="middle">3</text>
+          <text x="350" y="136" fill="rgba(255,255,255,0.5)" fontSize="10" textAnchor="middle">5</text>
         </svg>
         <p className="text-xs text-muted-foreground text-center mt-4">
-          La fonction CDF (Φ) convertit un z-score en percentile avec une précision mathématique
+          {t.distributionCaption}
         </p>
       </motion.div>
     </div>

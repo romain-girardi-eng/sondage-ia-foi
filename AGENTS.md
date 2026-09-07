@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-Primary routes and layouts live in `src/app`; keep view-specific state or metadata there. Component groups (`survey`, `dashboard`, `ui`) sit in `src/components`, while hooks, utilities, and translations belong in `src/hooks` and `src/lib`. Domain schemas stay in `src/data`, Remotion scenes in `src/remotion`, static files under `public/`, and Supabase SQL plus migrations in `supabase/`. Tests sit beside source files; Playwright specs live in `e2e/` and the shared Vitest bootstrap is `src/test/setup.ts`.
+Primary routes and layouts live in `src/app`; keep view-specific state or metadata there. Component groups (`survey`, `dashboard`, `ui`) sit in `src/components`, while hooks, utilities, and translations belong in `src/hooks` and `src/lib`. Domain schemas stay in `src/data` (`surveySchema.ts`, 58 questions, instrument v2.0.0), scoring in `src/lib/scoring` (7 dimensions, 8 heuristic profiles) and the correlation-interpretation module in `src/lib/analysis`. Remotion scenes live in `src/remotion`, static files under `public/`, and Supabase SQL plus migrations in `supabase/`. Tests sit beside source files; Playwright specs live in `e2e/` and the shared Vitest bootstrap is `src/test/setup.ts`.
 
 ## Build, Test, and Development Commands
 - `npm run dev` – Next.js dev server at `http://localhost:3000`.

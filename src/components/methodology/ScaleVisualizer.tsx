@@ -2,24 +2,40 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Shield, Sparkles } from "lucide-react";
+import { BookOpen, Shield, Sparkles, Bot } from "lucide-react";
+
+interface ScaleItem {
+  readonly name: string;
+  readonly desc: string;
+}
 
 interface ScaleVisualizerProps {
   translations: {
-    validatedScalesTitle: string;
+    scalesTitle: string;
+    scalesNote: string;
+    statusAdapted: string;
+    statusAdHoc: string;
+    statusInspired: string;
     crs5Title: string;
     crs5Description: string;
     crs5Citation: string;
+    crs5Items: readonly ScaleItem[];
     marloweCrowneTitle: string;
     marloweCrowneDescription: string;
     marloweCrowneCitation: string;
+    marloweCrowneItems: readonly ScaleItem[];
+    godspeedTitle: string;
+    godspeedDescription: string;
+    godspeedCitation: string;
+    godspeedItems: readonly ScaleItem[];
     aiasTitle: string;
     aiasDescription: string;
     aiasCitation: string;
+    aiasItems: readonly ScaleItem[];
   };
 }
 
-type Tab = "crs5" | "marlowe" | "aias";
+type Tab = "crs5" | "marlowe" | "godspeed" | "aias";
 
 export function ScaleVisualizer({ translations: t }: ScaleVisualizerProps) {
   const [activeTab, setActiveTab] = useState<Tab>("crs5");
@@ -27,47 +43,52 @@ export function ScaleVisualizer({ translations: t }: ScaleVisualizerProps) {
   const tabs = [
     { id: "crs5" as Tab, label: "CRS-5", icon: BookOpen },
     { id: "marlowe" as Tab, label: "Marlowe-Crowne", icon: Shield },
+    { id: "godspeed" as Tab, label: "Godspeed", icon: Bot },
     { id: "aias" as Tab, label: "AIAS", icon: Sparkles },
   ];
 
-  const content = {
+  const content: Record<
+    Tab,
+    {
+      title: string;
+      status: string;
+      description: string;
+      citation: string;
+      color: string;
+      items: readonly ScaleItem[];
+    }
+  > = {
     crs5: {
       title: t.crs5Title,
+      status: t.statusAdapted,
       description: t.crs5Description,
       citation: t.crs5Citation,
       color: "#6366F1",
-      dimensions: [
-        { name: "Intellect", desc: "Fréquence de réflexion sur les questions religieuses" },
-        { name: "Idéologie", desc: "Conviction dans les croyances religieuses" },
-        { name: "Pratique publique", desc: "Fréquence de participation aux services" },
-        { name: "Pratique privée", desc: "Fréquence de prière personnelle" },
-        { name: "Expérience", desc: "Intensité des expériences spirituelles" },
-      ],
+      items: t.crs5Items,
     },
     marlowe: {
       title: t.marloweCrowneTitle,
+      status: t.statusAdHoc,
       description: t.marloweCrowneDescription,
       citation: t.marloweCrowneCitation,
       color: "#10B981",
-      dimensions: [
-        { name: "Item 1", desc: "Facilité à travailler sans encouragement" },
-        { name: "Item 2", desc: "N'avoir jamais détesté quelqu'un" },
-        { name: "Item 3", desc: "Ne jamais être ennuyé par les demandes d'aide" },
-        { name: "Item 4", desc: "Toujours être courtois" },
-        { name: "Item 5", desc: "N'avoir jamais profité de quelqu'un" },
-      ],
+      items: t.marloweCrowneItems,
+    },
+    godspeed: {
+      title: t.godspeedTitle,
+      status: t.statusInspired,
+      description: t.godspeedDescription,
+      citation: t.godspeedCitation,
+      color: "#F59E0B",
+      items: t.godspeedItems,
     },
     aias: {
       title: t.aiasTitle,
+      status: t.statusInspired,
       description: t.aiasDescription,
       citation: t.aiasCitation,
       color: "#EC4899",
-      dimensions: [
-        { name: "Opacité", desc: "Inquiétude face à l'incompréhensibilité de l'IA" },
-        { name: "Remplacement", desc: "Peur d'être remplacé par l'IA" },
-        { name: "Conscience", desc: "Questionnement sur la conscience de l'IA" },
-        { name: "Imago Dei", desc: "Rapport à l'image de Dieu dans l'humain" },
-      ],
+      items: t.aiasItems,
     },
   };
 
@@ -75,9 +96,10 @@ export function ScaleVisualizer({ translations: t }: ScaleVisualizerProps) {
 
   return (
     <div className="glass-card-refined rounded-2xl p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-foreground text-center">
-        {t.validatedScalesTitle}
-      </h2>
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-bold text-foreground">{t.scalesTitle}</h2>
+        <p className="text-sm text-muted-foreground max-w-2xl mx-auto">{t.scalesNote}</p>
+      </div>
 
       {/* Tabs */}
       <div className="flex justify-center gap-2 flex-wrap">
@@ -109,19 +131,27 @@ export function ScaleVisualizer({ translations: t }: ScaleVisualizerProps) {
           className="p-4 rounded-xl"
           style={{ backgroundColor: `${current.color}15` }}
         >
-          <h3 className="font-bold text-lg mb-2" style={{ color: current.color }}>
-            {current.title}
-          </h3>
+          <div className="flex flex-wrap items-center gap-3 mb-2">
+            <h3 className="font-bold text-lg" style={{ color: current.color }}>
+              {current.title}
+            </h3>
+            <span
+              className="px-2 py-0.5 rounded-full text-[11px] font-medium uppercase tracking-wider border"
+              style={{ color: current.color, borderColor: `${current.color}60` }}
+            >
+              {current.status}
+            </span>
+          </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {current.description}
           </p>
         </div>
 
-        {/* Dimension visualization */}
+        {/* Items */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {current.dimensions.map((dim, index) => (
+          {current.items.map((item, index) => (
             <motion.div
-              key={dim.name}
+              key={item.name}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 }}
@@ -132,9 +162,9 @@ export function ScaleVisualizer({ translations: t }: ScaleVisualizerProps) {
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: current.color }}
                 />
-                <span className="text-sm font-medium text-foreground">{dim.name}</span>
+                <span className="text-sm font-medium text-foreground">{item.name}</span>
               </div>
-              <p className="text-xs text-muted-foreground">{dim.desc}</p>
+              <p className="text-xs text-muted-foreground">{item.desc}</p>
             </motion.div>
           ))}
         </div>

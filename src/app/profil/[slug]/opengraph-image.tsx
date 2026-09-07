@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ALL_ARCHETYPE_SLUGS, getArchetypeBySlug } from "@/lib/profil/archetypes";
 
-export const alt = "Mon profil face à l'IA - Enquête CNEF 2026";
+export const alt = "Mon profil face à l'IA - Enquête IA & Foi 2026";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -101,7 +101,7 @@ export default async function Image({
               color: "#9fb0cf",
             }}
           >
-            {"Mon profil face à l'IA · Enquête CNEF 2026"}
+            {"Mon profil face à l'IA · Enquête IA & Foi 2026"}
           </div>
         </div>
 
@@ -208,7 +208,7 @@ export default async function Image({
                   color: "#dbe4f3",
                 }}
               >
-                100% anonyme · 5 min
+                100 % anonyme · 8 à 12 min
               </div>
             </div>
             <div

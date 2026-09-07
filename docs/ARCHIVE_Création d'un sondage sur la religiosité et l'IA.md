@@ -1,18 +1,20 @@
-# **Protocole Psychométrique Intégré : Analyse Multidimensionnelle des Interactions entre Religiosité, Éthique Artificielle et Dynamiques Ecclésiales**
+> **ARCHIVE, ne fait plus autorité.** Note de cadrage préparatoire (2026-01), antérieure à l'instrument v2.0.0 : elle décrit des échelles (CRS-15, MCSDS Forme C, Godspeed, AIAS complètes) qui ne sont pas administrées. Voir `METHODOLOGY.md` et `docs/SCORING_V2_SPEC.md`.
+
+# **Protocole Psychométrique Intégré : Analyse Multidimensionnelle des Interactions entre Religiosité, Éthique Artificielle et Dynamiques Ecclésiales**
 
 ## **Sommaire Exécutif**
 
 Ce rapport de recherche constitue une réponse exhaustive et techniquement détaillée à la demande de conception d'un instrument de sondage destiné à évaluer l'impact de l'intelligence artificielle (IA) au sein des communautés chrétiennes. Loin de se limiter à une simple agrégation de questions, ce document établit un référentiel méthodologique complet, justifiant chaque variable par la littérature scientifique la plus récente en psychologie de la religion, en sociologie numérique et en psychométrie.
 
-L'avènement de l'IA générative représente un "moment Gutenberg" pour l'Église, remettant en cause les modes de production du savoir théologique et la médiation pastorale.1 Pour mesurer ces bouleversements, nous proposons un instrument composite intégrant quatre échelles validées internationalement : l'**Échelle de Centralité de la Religiosité (CRS-15)** pour qualifier la foi, l'**Échelle d'Anxiété vis-à-vis de l'IA (AIAS)** pour quantifier la technophobie, le **Questionnaire Godspeed** pour évaluer l'anthropomorphisme, et l'**Échelle de Désirabilité Sociale de Marlowe-Crowne (Forme C)** pour contrôler les biais déclaratifs.
+L'avènement de l'IA générative représente un "moment Gutenberg" pour l'Église, remettant en cause les modes de production du savoir théologique et la médiation pastorale.1 Pour mesurer ces bouleversements, nous proposons un instrument composite intégrant quatre échelles validées internationalement : l'**Échelle de Centralité de la Religiosité (CRS-15)** pour qualifier la foi, l'**Échelle d'Anxiété vis-à-vis de l'IA (AIAS)** pour quantifier la technophobie, le **Questionnaire Godspeed** pour évaluer l'anthropomorphisme, et l'**Échelle de Désirabilité Sociale de Marlowe-Crowne (Forme C)** pour contrôler les biais déclaratifs.
 
 Ce rapport détaille la structure théorique, les propriétés métrologiques, le protocole de déploiement et le plan d'analyse statistique de cet instrument. Il est conçu pour fournir aux chercheurs et aux responsables ecclésiaux des données robustes, capables de dépasser les opinions de surface pour atteindre les structures cognitives et spirituelles profondes qui régissent l'acceptation ou le rejet de l'IA dans la sphère religieuse.
 
 ## ---
 
-**1\. Fondements Épistémologiques : La Nécessité d'une Mesure Complexe**
+**1\. Fondements Épistémologiques : La Nécessité d'une Mesure Complexe**
 
-L'intégration de l'intelligence artificielle dans les pratiques ecclésiales ne peut être analysée par de simples enquêtes d'opinion binaire ("Pour ou Contre"). La littérature récente, notamment les travaux du Barna Group et de Gloo, met en évidence une complexité comportementale : alors que 77 % des pasteurs estiment que Dieu peut utiliser l'IA, une majorité reste méfiante quant à son usage pour des tâches spirituelles comme la rédaction de sermons.1 Cette dissonance cognitive suggère que les facteurs déterminants ne sont pas uniquement technologiques, mais profondément ancrés dans la structure de la personnalité religieuse.
+L'intégration de l'intelligence artificielle dans les pratiques ecclésiales ne peut être analysée par de simples enquêtes d'opinion binaire ("Pour ou Contre"). La littérature récente, notamment les travaux du Barna Group et de Gloo, met en évidence une complexité comportementale : alors que 77 % des pasteurs estiment que Dieu peut utiliser l'IA, une majorité reste méfiante quant à son usage pour des tâches spirituelles comme la rédaction de sermons.1 Cette dissonance cognitive suggère que les facteurs déterminants ne sont pas uniquement technologiques, mais profondément ancrés dans la structure de la personnalité religieuse.
 
 ### **1.1. Le Défi de la "Vérité" dans les Enquêtes Religieuses**
 
@@ -34,7 +36,7 @@ Il est également crucial de distinguer les différents types de religiosité. L
 L'instrument proposé est une batterie psychométrique composite structurée en cinq blocs logiques. Chaque bloc répond à une question de recherche spécifique et utilise une échelle standardisée dont la validité transculturelle a été établie.
 
 | Bloc | Variable Latente Mesurée | Instrument Source | Justification Théorique | Nombre d'Items |
-| :---- | :---- | :---- | :---- | :---- |
+| :---- | :---- | :---- | :---- | :---- |
 | **1** | **Profil Religieux** | CRS-15 (Huber & Huber) | Mesure l'intensité et la structure de la foi.7 | 15 |
 | **2** | **Anxiété Technologique** | AIAS (Wang & Wang) | Distingue la peur de l'apprentissage de la peur du remplacement.10 | 12-15 |
 | **3** | **Anthropomorphisme** | Godspeed (Bartneck) | Évalue l'attribution d'une "âme" ou d'une "conscience" à la machine.11 | 5-10 |
@@ -63,45 +65,45 @@ Développée par Stefan Huber, la CRS-15 opérationnalise le modèle multidimens
 
 Cette dimension mesure la fréquence à laquelle l'individu réfléchit à des questions religieuses.
 
-* **Pertinence pour l'IA :** Les croyants ayant un score élevé en "Intellect" sont souvent ceux qui s'engagent dans la théologie systématique. Hypothèse : Ils seront plus enclins à débattre de l'éthique de l'IA (biais, justice) mais moins susceptibles de faire preuve d'anthropomorphisme naïf. Ils intellectualisent la machine plutôt que de la spiritualiser.  
-* *Items clés :* Fréquence de la réflexion religieuse, intérêt pour les questions religieuses.7
+* **Pertinence pour l'IA :** Les croyants ayant un score élevé en "Intellect" sont souvent ceux qui s'engagent dans la théologie systématique. Hypothèse : Ils seront plus enclins à débattre de l'éthique de l'IA (biais, justice) mais moins susceptibles de faire preuve d'anthropomorphisme naïf. Ils intellectualisent la machine plutôt que de la spiritualiser.  
+* *Items clés :* Fréquence de la réflexion religieuse, intérêt pour les questions religieuses.7
 
 #### **3.1.2. Dimension Idéologique**
 
 Elle évalue la plausibilité des croyances fondamentales (existence de Dieu, vie après la mort).
 
-* **Pertinence pour l'IA :** C'est ici que se joue le conflit de vision du monde. Si l'IA est perçue comme une entité créatrice ou omnisciente (super-intelligence), elle entre en concurrence directe avec les attributs divins mesurés par cette dimension.  
-* *Items clés :* Croyance en Dieu, croyance en une puissance supérieure.9
+* **Pertinence pour l'IA :** C'est ici que se joue le conflit de vision du monde. Si l'IA est perçue comme une entité créatrice ou omnisciente (super-intelligence), elle entre en concurrence directe avec les attributs divins mesurés par cette dimension.  
+* *Items clés :* Croyance en Dieu, croyance en une puissance supérieure.9
 
 #### **3.1.3. Dimension de la Pratique Publique**
 
 Mesure l'intégration sociale et rituelle (participation aux cultes).
 
-* **Pertinence pour l'IA :** Cette dimension est sociale. Un score élevé ici peut corréler avec une peur de la "désincarnation" de l'Église par le numérique (Église virtuelle, métavers). L'IA est une menace pour le rassemblement physique (ekklesia).  
-* *Items clés :* Fréquence des services, importance de la communauté.7
+* **Pertinence pour l'IA :** Cette dimension est sociale. Un score élevé ici peut corréler avec une peur de la "désincarnation" de l'Église par le numérique (Église virtuelle, métavers). L'IA est une menace pour le rassemblement physique (ekklesia).  
+* *Items clés :* Fréquence des services, importance de la communauté.7
 
 #### **3.1.4. Dimension de la Pratique Privée**
 
 Mesure la prière et la méditation personnelle.
 
-* **Pertinence pour l'IA :** La prière est un dialogue avec le Transcendant. Si des applications d'IA proposent de "prier" ou de guider la prière, comment réagissent ceux pour qui cette pratique est centrale? Accepteront-ils une médiation algorithmique dans leur intimité spirituelle?  
-* *Items clés :* Fréquence de la prière, importance de la prière personnelle.9
+* **Pertinence pour l'IA :** La prière est un dialogue avec le Transcendant. Si des applications d'IA proposent de "prier" ou de guider la prière, comment réagissent ceux pour qui cette pratique est centrale? Accepteront-ils une médiation algorithmique dans leur intimité spirituelle?  
+* *Items clés :* Fréquence de la prière, importance de la prière personnelle.9
 
 #### **3.1.5. Dimension de l'Expérience Religieuse**
 
 Mesure le sentiment direct de la présence ou de l'intervention divine.
 
-* **Pertinence pour l'IA :** C'est la dimension la plus émotionnelle. Les personnes ayant de fortes expériences mystiques pourraient rejeter violemment l'IA comme étant "froide" ou "sans âme", ou au contraire, dans certains courants charismatiques, interpréter les "hallucinations" de l'IA comme des signes quasi-mystiques.  
-* *Items clés :* Sentiment d'intervention divine, expérience de la présence de Dieu.7
+* **Pertinence pour l'IA :** C'est la dimension la plus émotionnelle. Les personnes ayant de fortes expériences mystiques pourraient rejeter violemment l'IA comme étant "froide" ou "sans âme", ou au contraire, dans certains courants charismatiques, interpréter les "hallucinations" de l'IA comme des signes quasi-mystiques.  
+* *Items clés :* Sentiment d'intervention divine, expérience de la présence de Dieu.7
 
 ### **3.2. L'Échelle d'Anxiété vis-à-vis de l'IA (AIAS)**
 
 L'échelle de Wang et Wang (2019) a été choisie pour sa capacité à distinguer différents types de peurs. L'anxiété n'est pas un bloc monolithique.10
 
-* **Apprentissage (Learning) :** La peur de ne pas être à la hauteur techniquement. Pour un clergé vieillissant, c'est un facteur de stress majeur.  
-* **Remplacement (Job Replacement) :** La peur de l'obsolescence. Dans le contexte ecclésial, cela se traduit par la question : "Si ChatGPT peut écrire un meilleur sermon que moi en 30 secondes, quelle est ma valeur ajoutée?" C'est une anxiété existentielle liée à la vocation.  
-* **Cécité Sociotechnique :** La peur des conséquences imprévues.  
-* **Configuration de l'IA :** La peur que l'IA soit malveillante ou biaisée contre la foi.
+* **Apprentissage (Learning) :** La peur de ne pas être à la hauteur techniquement. Pour un clergé vieillissant, c'est un facteur de stress majeur.  
+* **Remplacement (Job Replacement) :** La peur de l'obsolescence. Dans le contexte ecclésial, cela se traduit par la question : "Si ChatGPT peut écrire un meilleur sermon que moi en 30 secondes, quelle est ma valeur ajoutée?" C'est une anxiété existentielle liée à la vocation.  
+* **Cécité Sociotechnique :** La peur des conséquences imprévues.  
+* **Configuration de l'IA :** La peur que l'IA soit malveillante ou biaisée contre la foi.
 
 ### **3.3. L'Échelle de Désirabilité Sociale (Marlowe-Crowne \- Forme C)**
 
@@ -113,19 +115,19 @@ L'utilisation de la version de Reynolds (1982) est stratégique. Avec seulement 
 
 Ce qui suit est le contenu intégral du sondage, prêt à être implémenté. Les instructions entre crochets \[ \] sont destinées aux concepteurs techniques. Le texte est formulé en français standard, adapté au contexte culturel francophone (France, Québec, Suisse, Belgique, Afrique francophone).
 
-### **Titre : Enquête sur les Perceptions de l'Intelligence Artificielle dans la Vie Chrétienne et l'Église**
+### **Titre : Enquête sur les Perceptions de l'Intelligence Artificielle dans la Vie Chrétienne et l'Église**
 
-**Introduction :**
+**Introduction :**
 
-*« Cette étude vise à comprendre comment les chrétiens et les responsables d'église perçoivent les évolutions technologiques récentes, notamment l'intelligence artificielle (IA). Vos réponses nous aideront à mieux saisir les enjeux éthiques et spirituels de notre temps. Ce questionnaire est strictement anonyme. Il n'y a pas de bonnes ou de mauvaises réponses, seule votre opinion sincère compte. »*
+*« Cette étude vise à comprendre comment les chrétiens et les responsables d'église perçoivent les évolutions technologiques récentes, notamment l'intelligence artificielle (IA). Vos réponses nous aideront à mieux saisir les enjeux éthiques et spirituels de notre temps. Ce questionnaire est strictement anonyme. Il n'y a pas de bonnes ou de mauvaises réponses, seule votre opinion sincère compte. »*
 
-#### **BLOC 1 : Profil Sociodémographique et Ecclésial**
+#### **BLOC 1 : Profil Sociodémographique et Ecclésial**
 
-*Objectif : Segmentation des données.*
+*Objectif : Segmentation des données.*
 
 **Q1.1. Quel est votre âge?** \[Champ numérique\]
 
-**Q1.2. Genre :** \[Homme / Femme / Autre\]
+**Q1.2. Genre :** \[Homme / Femme / Autre\]
 
 **Q1.3. Quel est votre rôle principal dans l'Église?**
 
@@ -143,9 +145,9 @@ Ce qui suit est le contenu intégral du sondage, prêt à être implémenté. Le
 * o Orthodoxe  
 * o Autre / Sans dénomination
 
-#### **BLOC 2 : Échelle de Centralité de la Religiosité (CRS-15)**
+#### **BLOC 2 : Échelle de Centralité de la Religiosité (CRS-15)**
 
-Source : Huber & Huber (2012). Traduction française validée.7 *Échelle de réponse : 1 \= Jamais/Pas du tout, 2 \= Rarement, 3 \= Occasionnellement, 4 \= Souvent, 5 \= Très souvent/Tout à fait.*
+Source : Huber & Huber (2012). Traduction française validée.7 *Échelle de réponse : 1 \= Jamais/Pas du tout, 2 \= Rarement, 3 \= Occasionnellement, 4 \= Souvent, 5 \= Très souvent/Tout à fait.*
 
 **Dimension Intellect**
 
@@ -177,11 +179,11 @@ Source : Huber & Huber (2012). Traduction française validée.7 *Échelle de ré
 * **Q2.14.** À quelle fréquence vivez-vous des situations où vous avez le sentiment que Dieu veut vous communiquer quelque chose?  
 * **Q2.15.** À quelle fréquence ressentez-vous la présence de Dieu (ou du divin)?
 
-#### **BLOC 3 : Usage et Positionnement Éthique sur l'IA**
+#### **BLOC 3 : Usage et Positionnement Éthique sur l'IA**
 
-Source : Adapté des enquêtes Barna & Gloo.12
+Source : Adapté des enquêtes Barna & Gloo.12
 
-**Q3.1. Auto-évaluation de la compétence IA :**
+**Q3.1. Auto-évaluation de la compétence IA :**
 
 * o Je ne sais pas ce que c'est.  
 * o J'en ai entendu parler, mais je ne comprends pas le fonctionnement.  
@@ -189,7 +191,7 @@ Source : Adapté des enquêtes Barna & Gloo.12
 * o Je suis compétent (usage régulier).  
 * o Je suis un expert.
 
-**Q3.2. Scénarios d'usage ecclésial :**
+**Q3.2. Scénarios d'usage ecclésial :**
 
 *Veuillez indiquer votre niveau d'accord (1 \= Désaccord total, 5 \= Accord total).*
 
@@ -199,9 +201,9 @@ Source : Adapté des enquêtes Barna & Gloo.12
 * **d.** Je serais à l'aise de discuter de mes problèmes spirituels avec un chatbot pastoral entraîné sur la Bible.  
 * **e.** Dieu peut utiliser l'IA pour accomplir ses desseins dans le monde.
 
-#### **BLOC 4 : Échelle d'Anxiété vis-à-vis de l'IA (AIAS)**
+#### **BLOC 4 : Échelle d'Anxiété vis-à-vis de l'IA (AIAS)**
 
-Source : Wang & Wang (2019).10 *Échelle : 1 \= Pas du tout d'accord, 5 \= Tout à fait d'accord.*
+Source : Wang & Wang (2019).10 *Échelle : 1 \= Pas du tout d'accord, 5 \= Tout à fait d'accord.*
 
 **Dimension Apprentissage**
 
@@ -221,23 +223,23 @@ Source : Wang & Wang (2019).10 *Échelle : 1 \= Pas du tout d'accord, 5 \= Tout 
 * **Q4.8.** L'IA pose des risques éthiques que l'Église n'est pas prête à gérer.  
 * **Q4.9.** Je crains que l'IA ne conduise à une société "sans âme" et déshumanisée.
 
-#### **BLOC 5 : Anthropomorphisme (Questionnaire Godspeed \- Sous-échelle)**
+#### **BLOC 5 : Anthropomorphisme (Questionnaire Godspeed \- Sous-échelle)**
 
-Source : Bartneck et al. (2009). Traduction française.21 *Instruction : Veuillez évaluer votre perception d'une IA conversationnelle avancée (type ChatGPT) à l'aide des paires d'adjectifs suivantes.*
+Source : Bartneck et al. (2009). Traduction française.21 *Instruction : Veuillez évaluer votre perception d'une IA conversationnelle avancée (type ChatGPT) à l'aide des paires d'adjectifs suivantes.*
 
 | 1 | 2 | 3 | 4 | 5 |
-| :---- | :---- | :---- | :---- | :---- |
+| :---- | :---- | :---- | :---- | :---- |
 | Machinal | ... | ... | ... | Humain |
 | Artificiel | ... | ... | ... | Vivant |
 | Inerte | ... | ... | ... | Interactif |
 | Mécanique | ... | ... | ... | Organique |
 | Inconscient | ... | ... | ... | Conscient |
 
-*(Note : Un score élevé indique une forte tendance à anthropomorphiser l'IA, ce qui corrèle souvent avec des attentes irréalistes ou des peurs théologiques).*
+*(Note : Un score élevé indique une forte tendance à anthropomorphiser l'IA, ce qui corrèle souvent avec des attentes irréalistes ou des peurs théologiques).*
 
-#### **BLOC 6 : Échelle de Désirabilité Sociale (Marlowe-Crowne Forme C)**
+#### **BLOC 6 : Échelle de Désirabilité Sociale (Marlowe-Crowne Forme C)**
 
-Source : Reynolds (1982), trad. Valla et al. (1997).3 *Répondez par VRAI ou FAUX selon ce qui vous correspond personnellement.*
+Source : Reynolds (1982), trad. Valla et al. (1997).3 *Répondez par VRAI ou FAUX selon ce qui vous correspond personnellement.*
 
 1. Il m'est parfois difficile de continuer mon travail si je ne suis pas encouragé(e).  
 2. Il m'arrive parfois d'être contrarié(e) quand les choses ne vont pas comme je le veux.  
@@ -263,45 +265,45 @@ L'efficacité de ce rapport réside non seulement dans la collecte des données,
 
 Le score MCSDS doit être calculé en premier pour servir de variable de contrôle.
 
-* **Clé de correction (Attribution de 1 point) :**  
-  * Réponse "VRAI" aux items : 5, 7, 9, 10, 13 (Comportements vertueux mais rares).  
-  * Réponse "FAUX" aux items : 1, 2, 3, 4, 6, 8, 11, 12 (Comportements humains courants mais socialement désapprouvés).3  
-* **Interprétation :**  
-  * Score 0-4 : Faible désirabilité (Sincérité élevée ou anticonformisme).  
-  * Score 5-9 : Moyenne.  
-  * Score 10-13 : Forte désirabilité (Tendance à la "gestion d'image").  
-* **Action Analytique :** Lors des analyses de régression (ex: impact de la foi sur l'acceptation de l'IA), le score MCSDS doit être inclus comme **covariable**. Si une corrélation significative disparaît après inclusion du MCSDS, cela signifie que le lien était factice, produit par le désir de "bien paraître".
+* **Clé de correction (Attribution de 1 point) :**  
+  * Réponse "VRAI" aux items : 5, 7, 9, 10, 13 (Comportements vertueux mais rares).  
+  * Réponse "FAUX" aux items : 1, 2, 3, 4, 6, 8, 11, 12 (Comportements humains courants mais socialement désapprouvés).3  
+* **Interprétation :**  
+  * Score 0-4 : Faible désirabilité (Sincérité élevée ou anticonformisme).  
+  * Score 5-9 : Moyenne.  
+  * Score 10-13 : Forte désirabilité (Tendance à la "gestion d'image").  
+* **Action Analytique :** Lors des analyses de régression (ex: impact de la foi sur l'acceptation de l'IA), le score MCSDS doit être inclus comme **covariable**. Si une corrélation significative disparaît après inclusion du MCSDS, cela signifie que le lien était factice, produit par le désir de "bien paraître".
 
 ### **5.2. Calcul des Indices de Religiosité (CRS)**
 
 L'indice CRS global est la moyenne des 15 items. Cependant, pour l'analyse de l'IA, les indices dimensionnels sont prioritaires.7
 
-* **Tableau de seuils (Validité Huber) :**
+* **Tableau de seuils (Validité Huber) :**
 
 | Score Moyen | Catégorie | Interprétation pour l'IA |
-| :---- | :---- | :---- |
+| :---- | :---- | :---- |
 | **1.0 – 2.0** | Non-Religieux | Approche l'IA de manière séculière/utilitaire. |
 | **2.1 – 3.9** | Religieux "Moyen" | Position ambiguë, influencée par la culture populaire plus que la théologie. |
 | **4.0 – 5.0** | Haute Centralité | La foi filtre toute perception technologique. Risque élevé de conflit idéologique. |
 
-### **5.3. Analyses Multivariées : Hypothèses à Tester**
+### **5.3. Analyses Multivariées : Hypothèses à Tester**
 
 Grâce à la richesse de l'instrument, nous pouvons tester des hypothèses de second ordre qui dépassent la simple description.
 
-#### **Hypothèse 1 : La modération par l'Intellect**
+#### **Hypothèse 1 : La modération par l'Intellect**
 
-* **H1 :** *La dimension "Intellect" de la CRS modère négativement l'anxiété liée à la "Cécité Sociotechnique" (AIAS).*  
-  * *Raisonnement :* Les croyants qui intellectualisent leur foi (réflexion fréquente) disposent de cadres cognitifs plus robustes pour déconstruire les mythes de l'IA, réduisant ainsi la peur de l'inconnu, contrairement à ceux qui ont une foi purement expérientielle.
+* **H1 :** *La dimension "Intellect" de la CRS modère négativement l'anxiété liée à la "Cécité Sociotechnique" (AIAS).*  
+  * *Raisonnement :* Les croyants qui intellectualisent leur foi (réflexion fréquente) disposent de cadres cognitifs plus robustes pour déconstruire les mythes de l'IA, réduisant ainsi la peur de l'inconnu, contrairement à ceux qui ont une foi purement expérientielle.
 
-#### **Hypothèse 2 : Le conflit Anthropomorphique**
+#### **Hypothèse 2 : Le conflit Anthropomorphique**
 
-* **H2 :** *Il existe une corrélation positive entre l'Orthodoxie (CRS-Idéologie) et le rejet de l'anthropomorphisme (Godspeed-Humain).*  
-  * *Raisonnement :* Plus un croyant adhère aux dogmes traditionnels (Dieu créateur, âme immortelle), plus il devrait résister cognitivement à l'attribution de qualités humaines (conscience, vie) à la machine. Une corrélation inverse indiquerait une faille dans la formation théologique des fidèles.
+* **H2 :** *Il existe une corrélation positive entre l'Orthodoxie (CRS-Idéologie) et le rejet de l'anthropomorphisme (Godspeed-Humain).*  
+  * *Raisonnement :* Plus un croyant adhère aux dogmes traditionnels (Dieu créateur, âme immortelle), plus il devrait résister cognitivement à l'attribution de qualités humaines (conscience, vie) à la machine. Une corrélation inverse indiquerait une faille dans la formation théologique des fidèles.
 
-#### **Hypothèse 3 : L'Anxiété Pastorale Masquée**
+#### **Hypothèse 3 : L'Anxiété Pastorale Masquée**
 
-* **H3 :** *Chez les pasteurs, l'Anxiété de Remplacement (AIAS-Job) est positivement corrélée au score de Désirabilité Sociale (MCSDS).*  
-  * *Raisonnement :* Les pasteurs les plus anxieux d'être remplacés par l'IA sont aussi ceux qui font le plus d'efforts pour cacher cette anxiété derrière une façade de piété confiante. Ce "masque" est détectable par la corrélation entre leurs peurs cachées et leur score de désirabilité.
+* **H3 :** *Chez les pasteurs, l'Anxiété de Remplacement (AIAS-Job) est positivement corrélée au score de Désirabilité Sociale (MCSDS).*  
+  * *Raisonnement :* Les pasteurs les plus anxieux d'être remplacés par l'IA sont aussi ceux qui font le plus d'efforts pour cacher cette anxiété derrière une façade de piété confiante. Ce "masque" est détectable par la corrélation entre leurs peurs cachées et leur score de désirabilité.
 
 ## ---
 
@@ -315,7 +317,7 @@ L'anonymat total est requis. Si les répondants soupçonnent que leurs réponses
 
 ### **6.2. Échantillonnage**
 
-Pour obtenir des résultats représentatifs, il est recommandé d'utiliser une méthode d'échantillonnage par quotas (basée sur les données Pew Research 24) assurant une répartition équilibrée entre :
+Pour obtenir des résultats représentatifs, il est recommandé d'utiliser une méthode d'échantillonnage par quotas (basée sur les données Pew Research 24) assurant une répartition équilibrée entre :
 
 * Les traditions (Catholiques vs Protestants vs Évangéliques).  
 * Les générations (Gen Z vs Boomers, la fracture numérique étant un facteur confondant majeur).  
@@ -338,20 +340,20 @@ Les données issues de ce protocole ne se contenteront pas de dire *combien* de 
 **Références Intégrées au Protocole**
 
 * 7  
-  : Huber, S., & Huber, O. (2012). *The Centrality of Religiosity Scale (CRS)*. Validation et items.  
+ : Huber, S., & Huber, O. (2012). *The Centrality of Religiosity Scale (CRS)*. Validation et items.  
 * 3  
-  : Reynolds, W. M. (1982) & Valla et al. (1997). *Marlowe-Crowne Social Desirability Scale (Form C)*. Traduction et normes.  
+ : Reynolds, W. M. (1982) & Valla et al. (1997). *Marlowe-Crowne Social Desirability Scale (Form C)*. Traduction et normes.  
 * 10  
-  : Wang, Y., & Wang, Y. (2019). *Artificial Intelligence Anxiety Scale (AIAS)*. Validation factorielle.  
+ : Wang, Y., & Wang, Y. (2019). *Artificial Intelligence Anxiety Scale (AIAS)*. Validation factorielle.  
 * 11  
-  : Bartneck, C., et al. (2009). *Godspeed Questionnaire*. Mesure de l'anthropomorphisme.  
+ : Bartneck, C., et al. (2009). *Godspeed Questionnaire*. Mesure de l'anthropomorphisme.  
 * 12  
-  : Barna Group & Gloo (2024). Données contextuelles sur l'IA et l'Église.
+ : Barna Group & Gloo (2024). Données contextuelles sur l'IA et l'Église.
 
 #### **Sources des citations**
 
 1. AI and the Church: How Pastors Can Lead with Wisdom in a Digital Age \- Barna Group, consulté le janvier 22, 2026, [https://www.barna.com/trends/ai-and-the-church/](https://www.barna.com/trends/ai-and-the-church/)  
-2. Êtes-vous prêt pour l'IA apocalyptique ? \- Evangile 21 \- The Gospel Coalition, consulté le janvier 22, 2026, [https://evangile21.thegospelcoalition.org/article/etes-vous-pret-pour-lia-apocalyptique/](https://evangile21.thegospelcoalition.org/article/etes-vous-pret-pour-lia-apocalyptique/)  
+2. Êtes-vous prêt pour l'IA apocalyptique ? \- Evangile 21 \- The Gospel Coalition, consulté le janvier 22, 2026, [https://evangile21.thegospelcoalition.org/article/etes-vous-pret-pour-lia-apocalyptique/](https://evangile21.thegospelcoalition.org/article/etes-vous-pret-pour-lia-apocalyptique/)  
 3. Department of Psychology Dear Colleague: Thank you for your interest in the Marlowe-Crowne Social Desirability – Short For \- ResearchGate, consulté le janvier 22, 2026, [https://www.researchgate.net/profile/William-Reynolds-3/publication/280938637\_Copy\_of\_cmsds\_Short\_Form\_and\_scoring\_instructions/data/55cd00e508aeeaab209b4e42/cmsds.pdf](https://www.researchgate.net/profile/William-Reynolds-3/publication/280938637_Copy_of_cmsds_Short_Form_and_scoring_instructions/data/55cd00e508aeeaab209b4e42/cmsds.pdf)  
 4. \! Université de Montréal La désirabilité sociale a-t-elle ... \- HABITS Lab, consulté le janvier 22, 2026, [https://habitslab.umbc.edu/wp-content/uploads/sites/228/2020/06/French-URICA-article.pdf](https://habitslab.umbc.edu/wp-content/uploads/sites/228/2020/06/French-URICA-article.pdf)  
 5. Social Desirability Scale \- Animal Charity Evaluators, consulté le janvier 22, 2026, [https://animalcharityevaluators.org/for-charities/develop-a-survey/social-desirability-scale/](https://animalcharityevaluators.org/for-charities/develop-a-survey/social-desirability-scale/)  

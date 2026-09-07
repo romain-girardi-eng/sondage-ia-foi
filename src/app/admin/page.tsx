@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Lock,
@@ -57,6 +57,17 @@ import {
   PolarRadiusAxis,
 } from "recharts";
 import { SURVEY_QUESTIONS } from "@/data/surveySchema";
+import type { CorrelationFact } from "@/lib/analysis";
+import { NBSP, NNBSP } from "@/lib/analysis";
+import { CorrelationsSection } from "@/components/admin/CorrelationsSection";
+import {
+  NOT_AVAILABLE,
+  difference,
+  formatNullable,
+  formatStdDev,
+  unattributedCount,
+  usageGapLabel,
+} from "@/components/admin/display-helpers";
 
 // Helper functions to get question labels
 const getQuestionText = (questionId: string): string => {
@@ -103,20 +114,25 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: "📝 Autres",
 };
 
-// Types
+// Types. Every aggregate the API is allowed to withhold is nullable here, so
+// the renderer has to decide what to show instead of a number (§1.8).
 interface SegmentStats {
   count: number;
-  avgReligiosity: number;
-  avgAiAdoption: number;
-  avgResistance: number;
+  avgReligiosity: number | null;
+  avgAiAdoption: number | null;
+  sdReligiosity: number | null;
+  sdAiAdoption: number | null;
   profileDistribution: Record<string, number>;
-  dimensionAverages: Record<string, number>;
+  usageGapDistribution: Record<string, number>;
+  dimensionAverages: Record<string, number | null>;
+  dimensionSds: Record<string, number | null>;
 }
 
 interface DimensionStat {
-  mean: number;
-  stdDev: number;
-  median: number;
+  n: number;
+  mean: number | null;
+  stdDev: number | null;
+  median: number | null;
   distribution: number[];
 }
 
@@ -130,8 +146,8 @@ interface KeyFinding {
 interface ProfileCluster {
   profile: string;
   count: number;
-  avgReligiosity: number;
-  avgAiOpenness: number;
+  avgReligiosity: number | null;
+  avgAiOpenness: number | null;
 }
 
 interface AdminStats {
@@ -155,9 +171,10 @@ interface AdminStats {
   };
   profiles: Record<string, number>;
   scores: {
-    avgReligiosity: number;
-    avgAIAdoption: number;
-    avgResistance: number;
+    avgReligiosity: number | null;
+    avgAIAdoption: number | null;
+    /** Counts of the ordinal usage gap; it replaces the resistance index (§1.7). */
+    usageGapDistribution: Record<string, number>;
     religiosityDistribution: Record<string, number>;
     aiAdoptionDistribution: Record<string, number>;
   };
@@ -191,7 +208,10 @@ interface AdminStats {
     byAge: Record<string, SegmentStats>;
   };
   dimensionStats?: Record<string, DimensionStat>;
-  correlationMatrix?: Record<string, Record<string, number>>;
+  /** Every pairwise-complete correlation, n >= 20, with CI and BH-adjusted p. */
+  correlations?: CorrelationFact[];
+  /** Null unless every pair reached n >= 20: a matrix with holes reads as zeros. */
+  correlationMatrix?: Record<string, Record<string, number>> | null;
   profileClusters?: ProfileCluster[];
   keyFindings?: KeyFinding[];
   feedbacks?: Array<{
@@ -201,7 +221,9 @@ interface AdminStats {
     profile: string;
     text: string;
   }>;
-  populationAverages?: Record<string, number>;
+  populationAverages?: Record<string, number | null>;
+  insufficientSampleSize?: boolean;
+  sampleSizeWarning?: string | null;
   demo?: boolean;
 }
 
@@ -211,22 +233,40 @@ interface ExportFilters {
   language: "" | "fr" | "en";
 }
 
+interface DetailDimension {
+  value: number | null;
+  percentile: number | null;
+  nItems: number;
+  maxItems: number;
+  confidence: number;
+}
+
 interface ResponseDetail {
   id: string;
   createdAt: string;
   language: string;
   completionTime: number | null;
+  instrument: {
+    version: string | null;
+    entryVariant: string | null;
+    screenedOut: boolean;
+  };
   answers: Record<string, string | number | string[]>;
   scores: {
     crs5: {
-      value: number;
-      breakdown: Record<string, number>;
+      value: number | null;
+      breakdown: Record<string, number | null>;
     };
     aiAdoption: {
-      value: number;
-      breakdown: Record<string, number>;
+      value: number | null;
+      breakdown: Record<string, number | null>;
     };
-    resistanceIndex: number;
+    usageGap: string;
+  };
+  socialDesirability: {
+    score: number | null;
+    nItems: number;
+    flag: boolean;
   };
   profile: {
     primary: {
@@ -234,30 +274,24 @@ interface ResponseDetail {
       score: number;
       title: string;
       emoji: string;
-    };
+    } | null;
     secondary: {
       name: string;
       score: number;
       title: string;
     } | null;
-    subProfile: string;
+    subProfile: string | null;
     allMatches: Array<{ name: string; score: number }>;
+    attribution: string;
+    confidence: 'low' | 'medium' | 'high';
   };
-  dimensions: {
-    religiosity: { value: number; percentile: number };
-    aiOpenness: { value: number; percentile: number };
-    sacredBoundary: { value: number; percentile: number };
-    ethicalConcern: { value: number; percentile: number };
-    psychologicalPerception: { value: number; percentile: number };
-    communityInfluence: { value: number; percentile: number };
-    futureOrientation: { value: number; percentile: number };
-  };
+  dimensions: Record<string, DetailDimension>;
   interpretation: {
     headline: string;
     narrative: string;
     uniqueAspects: string[];
     blindSpots: string[];
-  };
+  } | null;
   growthAreas: Array<{
     area: string;
     currentState: string;
@@ -285,9 +319,18 @@ const DIMENSION_LABELS: Record<string, string> = {
   sacredBoundary: "Frontière sacrée",
   ethicalConcern: "Préoccupation éthique",
   psychologicalPerception: "Perception psychologique",
-  communityInfluence: "Influence communautaire",
+  communityContext: "Contexte communautaire",
   futureOrientation: "Orientation future",
 };
+
+const PROFILE_CONFIDENCE_LABELS: Record<string, string> = {
+  low: "Confiance faible",
+  medium: "Confiance moyenne",
+  high: "Confiance élevée",
+};
+
+/** Bucket key for respondents no primary profile could be attributed to (§1.5). */
+const UNATTRIBUTED_PROFILE_KEY = "__unattributed";
 
 const ROLE_LABELS: Record<string, string> = {
   clerge: "Clergé",
@@ -324,6 +367,7 @@ const PROFILE_COLORS: Record<string, string> = {
   pionnier_spirituel: "#3b82f6",
   progressiste_critique: "#8b5cf6",
   explorateur: "#ec4899",
+  [UNATTRIBUTED_PROFILE_KEY]: "#6b7280",
 };
 
 const PROFILE_LABELS: Record<string, string> = {
@@ -335,6 +379,7 @@ const PROFILE_LABELS: Record<string, string> = {
   pionnier_spirituel: "Pionnier Spirituel",
   progressiste_critique: "Progressiste Critique",
   explorateur: "Explorateur",
+  [UNATTRIBUTED_PROFILE_KEY]: "Non attribuable",
 };
 
 export default function AdminPage() {
@@ -343,7 +388,7 @@ export default function AdminPage() {
   const [authError, setAuthError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState<AdminStats | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "responses" | "analytics" | "executive" | "feedback" | "export">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "responses" | "analytics" | "correlations" | "executive" | "feedback" | "export">("overview");
   const [exportLoading, setExportLoading] = useState<"json" | "csv" | null>(null);
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -366,6 +411,16 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [responsesPerPage] = useState(20);
+
+  // Attributed profiles plus the residual bucket: respondents with fewer than
+  // four valued dimensions get no profile at all (§1.5), and hiding them would
+  // make the distribution sum to something other than the sample.
+  const profileDistribution = useMemo<Array<[string, number]>>(() => {
+    if (!stats) return [];
+    const entries = Object.entries(stats.profiles).filter(([, count]) => count > 0);
+    const unattributed = unattributedCount(stats.profiles, stats.overview.completedResponses);
+    return unattributed > 0 ? [...entries, [UNATTRIBUTED_PROFILE_KEY, unattributed]] : entries;
+  }, [stats]);
 
   const fetchStats = useCallback(async (page = 1, search = "") => {
     try {
@@ -734,6 +789,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
             { id: "overview", icon: Activity, label: "Overview" },
             { id: "responses", icon: Users, label: "Responses" },
             { id: "analytics", icon: PieChart, label: "Analytics" },
+            { id: "correlations", icon: GitCompare, label: "Corrélations" },
             { id: "executive", icon: Sparkles, label: "Executive" },
             { id: "feedback", icon: MessageSquare, label: "Feedback" },
             { id: "export", icon: Download, label: "Export" },
@@ -898,6 +954,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
               { id: "overview", icon: Activity, label: "Overview" },
               { id: "responses", icon: Users, label: "Responses" },
               { id: "analytics", icon: PieChart, label: "Analytics" },
+              { id: "correlations", icon: GitCompare, label: "Corrélations" },
               { id: "executive", icon: Sparkles, label: "Executive" },
               { id: "feedback", icon: MessageSquare, label: "Feedback" },
               { id: "export", icon: Download, label: "Export" },
@@ -1600,16 +1657,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     maxScore={5}
                     color="green"
                   />
-                  <ScoreCard
-                    label="Spiritual Resistance"
-                    score={stats.scores.avgResistance}
-                    maxScore={4}
-                    color="amber"
-                  />
+                  <UsageGapCard distribution={stats.scores.usageGapDistribution} />
                 </div>
 
                 {/* Profile Distribution */}
-                {Object.keys(stats.profiles).some((k) => stats.profiles[k] > 0) && (
+                {profileDistribution.length > 0 && (
                   <div className="grid lg:grid-cols-2 gap-6">
                     {/* Profile Pie Chart */}
                     <div className="bg-card border border-border rounded-2xl p-6">
@@ -1618,13 +1670,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                           <RechartsPieChart>
                             <Pie
-                              data={Object.entries(stats.profiles)
-                                .filter(([, count]) => count > 0)
-                                .map(([profile, count]) => ({
-                                  name: PROFILE_LABELS[profile] || profile,
-                                  value: count,
-                                  fill: PROFILE_COLORS[profile] || "#3b82f6",
-                                }))}
+                              data={profileDistribution.map(([profile, count]) => ({
+                                name: PROFILE_LABELS[profile] || profile,
+                                value: count,
+                                fill: PROFILE_COLORS[profile] || "#3b82f6",
+                              }))}
                               cx="50%"
                               cy="50%"
                               innerRadius={60}
@@ -1632,11 +1682,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               paddingAngle={2}
                               dataKey="value"
                             >
-                              {Object.entries(stats.profiles)
-                                .filter(([, count]) => count > 0)
-                                .map(([profile], index) => (
-                                  <Cell key={`cell-${index}`} fill={PROFILE_COLORS[profile] || "#3b82f6"} />
-                                ))}
+                              {profileDistribution.map(([profile], index) => (
+                                <Cell key={`cell-${index}`} fill={PROFILE_COLORS[profile] || "#3b82f6"} />
+                              ))}
                             </Pie>
                             <Tooltip
                               contentStyle={{
@@ -1661,7 +1709,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     <div className="bg-card border border-border rounded-2xl p-6">
                       <h3 className="font-semibold text-foreground mb-6">Profiles by Count</h3>
                       <div className="space-y-3">
-                        {Object.entries(stats.profiles)
+                        {[...profileDistribution]
                           .sort(([, a], [, b]) => b - a)
                           .map(([profile, count]) => (
                             <div key={profile}>
@@ -1891,16 +1939,16 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             </div>
                             <div className="grid grid-cols-3 gap-2 text-center">
                               <div>
-                                <p className="text-lg font-bold text-foreground">{stats.segmentedAnalysis.byRole.clergy.avgReligiosity.toFixed(1)}</p>
-                                <p className="text-xs text-muted-foreground">Religiosity</p>
+                                <p className="text-lg font-bold text-foreground">{formatNullable(stats.segmentedAnalysis.byRole.clergy.avgReligiosity, { count: stats.segmentedAnalysis.byRole.clergy.count })}</p>
+                                <p className="text-xs text-muted-foreground">Religiosité</p>
                               </div>
                               <div>
-                                <p className="text-lg font-bold text-foreground">{stats.segmentedAnalysis.byRole.clergy.avgAiAdoption.toFixed(1)}</p>
-                                <p className="text-xs text-muted-foreground">AI Adoption</p>
+                                <p className="text-lg font-bold text-foreground">{formatNullable(stats.segmentedAnalysis.byRole.clergy.avgAiAdoption, { count: stats.segmentedAnalysis.byRole.clergy.count })}</p>
+                                <p className="text-xs text-muted-foreground">Ouverture IA</p>
                               </div>
                               <div>
-                                <p className="text-lg font-bold text-foreground">{stats.segmentedAnalysis.byRole.clergy.avgResistance.toFixed(1)}</p>
-                                <p className="text-xs text-muted-foreground">Resistance</p>
+                                <p className="text-lg font-bold text-foreground">{formatStdDev(stats.segmentedAnalysis.byRole.clergy.sdReligiosity, stats.segmentedAnalysis.byRole.clergy.count)}</p>
+                                <p className="text-xs text-muted-foreground">ET religiosité</p>
                               </div>
                             </div>
                           </div>
@@ -1912,40 +1960,53 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             </div>
                             <div className="grid grid-cols-3 gap-2 text-center">
                               <div>
-                                <p className="text-lg font-bold text-foreground">{stats.segmentedAnalysis.byRole.laity.avgReligiosity.toFixed(1)}</p>
-                                <p className="text-xs text-muted-foreground">Religiosity</p>
+                                <p className="text-lg font-bold text-foreground">{formatNullable(stats.segmentedAnalysis.byRole.laity.avgReligiosity, { count: stats.segmentedAnalysis.byRole.laity.count })}</p>
+                                <p className="text-xs text-muted-foreground">Religiosité</p>
                               </div>
                               <div>
-                                <p className="text-lg font-bold text-foreground">{stats.segmentedAnalysis.byRole.laity.avgAiAdoption.toFixed(1)}</p>
-                                <p className="text-xs text-muted-foreground">AI Adoption</p>
+                                <p className="text-lg font-bold text-foreground">{formatNullable(stats.segmentedAnalysis.byRole.laity.avgAiAdoption, { count: stats.segmentedAnalysis.byRole.laity.count })}</p>
+                                <p className="text-xs text-muted-foreground">Ouverture IA</p>
                               </div>
                               <div>
-                                <p className="text-lg font-bold text-foreground">{stats.segmentedAnalysis.byRole.laity.avgResistance.toFixed(1)}</p>
-                                <p className="text-xs text-muted-foreground">Resistance</p>
+                                <p className="text-lg font-bold text-foreground">{formatStdDev(stats.segmentedAnalysis.byRole.laity.sdReligiosity, stats.segmentedAnalysis.byRole.laity.count)}</p>
+                                <p className="text-xs text-muted-foreground">ET religiosité</p>
                               </div>
                             </div>
                           </div>
                         </div>
-                        {/* Difference indicator */}
-                        <div className="mt-3 flex items-center justify-center gap-4 text-xs">
-                          <span className="text-muted-foreground/60">Difference:</span>
-                          <span className={cn(
-                            "font-medium",
-                            Math.abs(stats.segmentedAnalysis.byRole.clergy.avgReligiosity - stats.segmentedAnalysis.byRole.laity.avgReligiosity) > 0.5
-                              ? "text-amber-400"
-                              : "text-muted-foreground"
-                          )}>
-                            Δ Rel: {(stats.segmentedAnalysis.byRole.clergy.avgReligiosity - stats.segmentedAnalysis.byRole.laity.avgReligiosity).toFixed(1)}
-                          </span>
-                          <span className={cn(
-                            "font-medium",
-                            Math.abs(stats.segmentedAnalysis.byRole.clergy.avgAiAdoption - stats.segmentedAnalysis.byRole.laity.avgAiAdoption) > 0.5
-                              ? "text-amber-400"
-                              : "text-muted-foreground"
-                          )}>
-                            Δ AI: {(stats.segmentedAnalysis.byRole.clergy.avgAiAdoption - stats.segmentedAnalysis.byRole.laity.avgAiAdoption).toFixed(1)}
-                          </span>
-                        </div>
+                        {/* Difference indicator. A gap is shown only when both
+                            means exist: a suppressed segment has no delta. */}
+                        {(() => {
+                          const deltaReligiosity = difference(
+                            stats.segmentedAnalysis.byRole.clergy.avgReligiosity,
+                            stats.segmentedAnalysis.byRole.laity.avgReligiosity
+                          );
+                          const deltaAi = difference(
+                            stats.segmentedAnalysis.byRole.clergy.avgAiAdoption,
+                            stats.segmentedAnalysis.byRole.laity.avgAiAdoption
+                          );
+                          return (
+                            <div className="mt-3 flex items-center justify-center gap-4 text-xs">
+                              <span className="text-muted-foreground/60">{`Écart${NBSP}:`}</span>
+                              <span className={cn(
+                                "font-medium",
+                                deltaReligiosity !== null && Math.abs(deltaReligiosity) > 0.5
+                                  ? "text-amber-400"
+                                  : "text-muted-foreground"
+                              )}>
+                                {`Δ religiosité${NBSP}: `}{formatNullable(deltaReligiosity, { digits: 1 })}
+                              </span>
+                              <span className={cn(
+                                "font-medium",
+                                deltaAi !== null && Math.abs(deltaAi) > 0.5
+                                  ? "text-amber-400"
+                                  : "text-muted-foreground"
+                              )}>
+                                {`Δ ouverture IA${NBSP}: `}{formatNullable(deltaAi, { digits: 1 })}
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
 
@@ -1976,16 +2037,16 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                     <td className="py-2 px-3 text-foreground">{AGE_LABELS[age] || age}</td>
                                     <td className="py-2 px-3 text-center text-muted-foreground">{data.count}</td>
                                     <td className="py-2 px-3 text-center">
-                                      <span className="text-blue-400 font-medium">{data.avgReligiosity.toFixed(1)}</span>
+                                      <span className="text-blue-400 font-medium">{formatNullable(data.avgReligiosity, { count: data.count })}</span>
                                     </td>
                                     <td className="py-2 px-3 text-center">
-                                      <span className="text-green-400 font-medium">{data.avgAiAdoption.toFixed(1)}</span>
+                                      <span className="text-green-400 font-medium">{formatNullable(data.avgAiAdoption, { count: data.count })}</span>
                                     </td>
                                     <td className="py-2 px-3 text-center">
-                                      <span className="text-amber-400 font-medium">{data.dimensionAverages?.sacredBoundary?.toFixed(1) || '—'}</span>
+                                      <span className="text-amber-400 font-medium">{formatNullable(data.dimensionAverages?.sacredBoundary, { count: data.count })}</span>
                                     </td>
                                     <td className="py-2 px-3 text-center">
-                                      <span className="text-purple-400 font-medium">{data.dimensionAverages?.futureOrientation?.toFixed(1) || '—'}</span>
+                                      <span className="text-purple-400 font-medium">{formatNullable(data.dimensionAverages?.futureOrientation, { count: data.count })}</span>
                                     </td>
                                   </tr>
                                 ))}
@@ -2044,7 +2105,19 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   </div>
                 )}
 
-                {/* Full Correlation Matrix */}
+                {/* Full Correlation Matrix. Null as soon as one pair missed
+                    n >= 20: a partial matrix would be read as zeros (§1.8). */}
+                {!stats.correlationMatrix && (
+                  <div className="bg-card border border-border rounded-2xl p-6">
+                    <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                      <GitCompare className="w-4 h-4 text-purple-400" />
+                      Matrice de corrélation
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {`Matrice non publiée${NBSP}: au moins une paire de dimensions n’atteint pas 20 observations complètes. Les paires calculables figurent dans l’onglet Corrélations.`}
+                    </p>
+                  </div>
+                )}
                 {stats.correlationMatrix && (
                   <div className="bg-card border border-border rounded-2xl p-6">
                     <h3 className="font-semibold text-foreground mb-6 flex items-center gap-2">
@@ -2248,6 +2321,18 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
             )}
 
             {/* Executive Summary Tab */}
+            {activeTab === "correlations" && stats && (
+              <motion.div
+                key="correlations"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-6"
+              >
+                <CorrelationsSection facts={stats.correlations ?? []} />
+              </motion.div>
+            )}
+
             {activeTab === "executive" && stats && (
               <motion.div
                 key="executive"
@@ -2277,11 +2362,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   {/* Research Quality Metrics */}
                   <div className="grid grid-cols-4 gap-4 mt-6">
                     <div className="bg-muted rounded-xl p-4 text-center">
-                      <p className="text-2xl font-bold text-green-400">{stats.overview.completionRate}%</p>
+                      <p className="text-2xl font-bold text-green-400">{`${stats.overview.completionRate}${NNBSP}%`}</p>
                       <p className="text-xs text-muted-foreground mt-1">Completion Rate</p>
                     </div>
                     <div className="bg-muted rounded-xl p-4 text-center">
-                      <p className="text-2xl font-bold text-blue-400">{stats.overview.avgCompletionTime}m</p>
+                      <p className="text-2xl font-bold text-blue-400">
+                        {stats.overview.avgCompletionTime === null ? NOT_AVAILABLE : `${stats.overview.avgCompletionTime} min`}
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1">Avg. Time</p>
                     </div>
                     <div className="bg-muted rounded-xl p-4 text-center">
@@ -2369,8 +2456,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             <div key={i} className="border border-border" />
                           ))}
                         </div>
-                        {/* Bubbles */}
+                        {/* Bubbles. A cluster whose means were suppressed has no
+                            position on the plane, so it is listed below instead. */}
                         {stats.profileClusters.map((cluster) => {
+                          if (cluster.avgReligiosity === null || cluster.avgAiOpenness === null) return null;
                           const x = ((cluster.avgReligiosity - 1) / 4) * 100;
                           const y = 100 - ((cluster.avgAiOpenness - 1) / 4) * 100;
                           const size = Math.max(30, Math.min(80, cluster.count / 5 + 20));
@@ -2400,7 +2489,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 <div className="bg-card border border-border rounded-lg px-3 py-2 text-xs whitespace-nowrap">
                                   <p className="font-medium text-foreground">{PROFILE_LABELS[cluster.profile]}</p>
                                   <p className="text-muted-foreground">n={cluster.count}</p>
-                                  <p className="text-muted-foreground">Rel: {cluster.avgReligiosity} | AI: {cluster.avgAiOpenness}</p>
+                                  <p className="text-muted-foreground">
+                                    {`Religiosité${NBSP}: ${formatNullable(cluster.avgReligiosity, { count: cluster.count })} | Ouverture IA${NBSP}: ${formatNullable(cluster.avgAiOpenness, { count: cluster.count })}`}
+                                  </p>
                                 </div>
                               </div>
                             </div>
@@ -2408,6 +2499,15 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         })}
                       </div>
                     </div>
+                    {stats.profileClusters.some((c) => c.avgReligiosity === null || c.avgAiOpenness === null) && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {`Non représentés (moyennes non publiées, n < 5)${NBSP}: `}
+                        {stats.profileClusters
+                          .filter((c) => c.avgReligiosity === null || c.avgAiOpenness === null)
+                          .map((c) => `${PROFILE_LABELS[c.profile] || c.profile} (n${NBSP}= ${c.count})`)
+                          .join(', ')}
+                      </p>
+                    )}
                     {/* Legend */}
                     <div className="flex flex-wrap gap-3 mt-4 justify-center">
                       {stats.profileClusters.slice(0, 6).map((cluster) => (
@@ -2437,13 +2537,16 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               Dimension
                             </th>
                             <th className="text-center text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-4">
-                              Mean
+                              n
                             </th>
                             <th className="text-center text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-4">
-                              Std Dev
+                              Moyenne
                             </th>
                             <th className="text-center text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-4">
-                              Median
+                              Écart-type
+                            </th>
+                            <th className="text-center text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-4">
+                              Médiane
                             </th>
                             <th className="text-center text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-4">
                               Distribution
@@ -2457,13 +2560,16 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 <span className="text-sm text-foreground">{DIMENSION_LABELS[dim] || dim}</span>
                               </td>
                               <td className="py-3 px-4 text-center">
-                                <span className="text-sm font-medium text-blue-400">{stat.mean.toFixed(2)}</span>
+                                <span className="text-sm text-muted-foreground">{stat.n}</span>
                               </td>
                               <td className="py-3 px-4 text-center">
-                                <span className="text-sm text-muted-foreground">±{stat.stdDev.toFixed(2)}</span>
+                                <span className="text-sm font-medium text-blue-400">{formatNullable(stat.mean, { count: stat.n })}</span>
                               </td>
                               <td className="py-3 px-4 text-center">
-                                <span className="text-sm text-muted-foreground">{stat.median.toFixed(2)}</span>
+                                <span className="text-sm text-muted-foreground">{formatStdDev(stat.stdDev, stat.n)}</span>
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <span className="text-sm text-muted-foreground">{formatNullable(stat.median, { count: stat.n })}</span>
                               </td>
                               <td className="py-3 px-4">
                                 {/* Mini sparkline/distribution */}
@@ -2490,63 +2596,54 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   </div>
                 )}
 
-                {/* Correlation Matrix Preview */}
-                {stats.correlationMatrix && (
+                {/* Top correlations, read from the computed facts rather than
+                    from the matrix: the matrix is null as soon as one pair
+                    missed n >= 20 (§1.8). */}
+                {stats.correlations && stats.correlations.length > 0 && (
                   <div className="bg-card border border-border rounded-2xl p-6">
                     <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                       <GitCompare className="w-4 h-4 text-purple-400" />
-                      Correlation Matrix (7 Dimensions)
+                      Corrélations les plus fortes
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      See full matrix in Analytics tab
+                      {`Interprétations concurrentes dans l’onglet Corrélations${NNBSP}; ici, les faits seuls.`}
                     </p>
-                    {/* Top correlations preview */}
                     <div className="grid md:grid-cols-3 gap-3">
-                      {(() => {
-                        const correlations: { dim1: string; dim2: string; value: number }[] = [];
-                        const dims = Object.keys(stats.correlationMatrix);
-                        for (let i = 0; i < dims.length; i++) {
-                          for (let j = i + 1; j < dims.length; j++) {
-                            correlations.push({
-                              dim1: dims[i],
-                              dim2: dims[j],
-                              value: stats.correlationMatrix[dims[i]][dims[j]],
-                            });
-                          }
-                        }
-                        return correlations
-                          .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
-                          .slice(0, 6)
-                          .map((c, i) => (
-                            <div key={i} className="bg-muted rounded-lg p-3">
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-xs text-muted-foreground">
-                                  {DIMENSION_LABELS[c.dim1]?.split(' ')[0] || c.dim1}
-                                  {' × '}
-                                  {DIMENSION_LABELS[c.dim2]?.split(' ')[0] || c.dim2}
-                                </span>
-                                <span className={cn(
-                                  "text-sm font-bold",
-                                  c.value > 0 ? "text-blue-400" : "text-red-400"
-                                )}>
-                                  {c.value > 0 ? '+' : ''}{c.value.toFixed(2)}
-                                </span>
-                              </div>
-                              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                                <div
-                                  className={cn(
-                                    "h-full rounded-full",
-                                    c.value > 0 ? "bg-blue-500" : "bg-red-500"
-                                  )}
-                                  style={{
-                                    width: `${Math.abs(c.value) * 100}%`,
-                                    marginLeft: c.value < 0 ? 'auto' : 0,
-                                  }}
-                                />
-                              </div>
+                      {[...stats.correlations]
+                        .sort((a, b) => Math.abs(b.r) - Math.abs(a.r))
+                        .slice(0, 6)
+                        .map((fact) => (
+                          <div key={`${fact.x}|${fact.y}`} className="bg-muted rounded-lg p-3">
+                            <div className="flex items-center justify-between mb-1 gap-2">
+                              <span className="text-xs text-muted-foreground">
+                                {DIMENSION_LABELS[fact.x]?.split(' ')[0] || fact.x}
+                                {' × '}
+                                {DIMENSION_LABELS[fact.y]?.split(' ')[0] || fact.y}
+                              </span>
+                              <span className={cn(
+                                "text-sm font-bold",
+                                fact.r > 0 ? "text-blue-400" : "text-red-400"
+                              )}>
+                                {fact.r > 0 ? '+' : ''}{formatNullable(fact.r)}
+                              </span>
                             </div>
-                          ));
-                      })()}
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className={cn(
+                                  "h-full rounded-full",
+                                  fact.r > 0 ? "bg-blue-500" : "bg-red-500"
+                                )}
+                                style={{
+                                  width: `${Math.abs(fact.r) * 100}%`,
+                                  marginLeft: fact.r < 0 ? 'auto' : 0,
+                                }}
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground/70 mt-2 font-mono">
+                              {`n${NBSP}= ${fact.n}`}
+                            </p>
+                          </div>
+                        ))}
                     </div>
                   </div>
                 )}
@@ -2738,37 +2835,107 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                           {/* Profile Type */}
                           <div className="bg-card border border-border rounded-xl p-5">
-                            <h3 className="font-semibold text-foreground mb-4">Profil Typologique</h3>
-                            <div className="flex items-center gap-4 mb-4">
-                              <div
-                                className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl"
-                                style={{ backgroundColor: `${PROFILE_COLORS[responseDetail.profile.primary.name]}30` }}
-                              >
-                                {responseDetail.profile.primary.emoji}
+                            <h3 className="font-semibold text-foreground mb-4">Profil typologique</h3>
+                            {responseDetail.profile.primary ? (
+                              <>
+                                <div className="flex items-center gap-4 mb-4">
+                                  <div
+                                    className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl"
+                                    style={{ backgroundColor: `${PROFILE_COLORS[responseDetail.profile.primary.name]}30` }}
+                                  >
+                                    {responseDetail.profile.primary.emoji}
+                                  </div>
+                                  <div>
+                                    <h4 className="text-lg font-semibold text-foreground">
+                                      {PROFILE_LABELS[responseDetail.profile.primary.name] || responseDetail.profile.primary.name}
+                                    </h4>
+                                    <p className="text-sm text-muted-foreground">
+                                      {`Correspondance${NBSP}: ${Math.round(responseDetail.profile.primary.score)}${NNBSP}%`}
+                                    </p>
+                                  </div>
+                                </div>
+                                {responseDetail.profile.secondary && (
+                                  <div className="pt-3 border-t border-border">
+                                    <p className="text-sm text-muted-foreground">
+                                      {`Profil secondaire${NBSP}: `}
+                                      <span className="text-foreground">
+                                        {PROFILE_LABELS[responseDetail.profile.secondary.name]} ({Math.round(responseDetail.profile.secondary.score)}{NNBSP}%)
+                                      </span>
+                                    </p>
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <p className="text-sm text-muted-foreground mb-4">
+                                {`Aucun profil attribué${NBSP}: moins de quatre dimensions ont pu être valuées.`}
+                              </p>
+                            )}
+                            <div className="pt-3 mt-3 border-t border-border space-y-1">
+                              <p className="text-sm text-muted-foreground">
+                                {`Sous-profil${NBSP}: `}
+                                <span className="text-foreground">{responseDetail.profile.subProfile ?? NOT_AVAILABLE}</span>
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {`Confiance d’attribution${NBSP}: `}
+                                <span className="text-foreground">
+                                  {PROFILE_CONFIDENCE_LABELS[responseDetail.profile.confidence] || responseDetail.profile.confidence}
+                                </span>
+                              </p>
+                              <p className="text-xs text-muted-foreground/70">
+                                {`Attribution ${responseDetail.profile.attribution === 'heuristic' ? 'heuristique' : responseDetail.profile.attribution}, jamais un diagnostic.`}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Instrument and control flags */}
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="bg-card border border-border rounded-xl p-5">
+                            <h3 className="font-semibold text-foreground mb-4">Instrument</h3>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Version</span>
+                                <span className="text-foreground font-medium">{responseDetail.instrument.version ?? NOT_AVAILABLE}</span>
                               </div>
-                              <div>
-                                <h4 className="text-lg font-semibold text-foreground">
-                                  {PROFILE_LABELS[responseDetail.profile.primary.name] || responseDetail.profile.primary.name}
-                                </h4>
-                                <p className="text-sm text-muted-foreground">
-                                  Match: {responseDetail.profile.primary.score}%
-                                </p>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">{`Variante d’entrée`}</span>
+                                <span className="text-foreground font-medium">{responseDetail.instrument.entryVariant ?? NOT_AVAILABLE}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Screen-out</span>
+                                <span className="text-foreground font-medium">
+                                  {responseDetail.instrument.screenedOut ? 'oui' : 'non'}
+                                </span>
                               </div>
                             </div>
-                            {responseDetail.profile.secondary && (
-                              <div className="pt-3 border-t border-border">
-                                <p className="text-sm text-muted-foreground">
-                                  Profil secondaire:{" "}
-                                  <span className="text-foreground">
-                                    {PROFILE_LABELS[responseDetail.profile.secondary.name]} ({responseDetail.profile.secondary.score}%)
-                                  </span>
-                                </p>
+                          </div>
+
+                          <div className="bg-card border border-border rounded-xl p-5">
+                            <h3 className="font-semibold text-foreground mb-4">{`Désirabilité sociale (MCSDS, 5 items)`}</h3>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Score</span>
+                                <span className="text-foreground font-medium">
+                                  {formatNullable(responseDetail.socialDesirability.score)}
+                                </span>
                               </div>
-                            )}
-                            <div className="pt-3 mt-3 border-t border-border">
-                              <p className="text-sm text-muted-foreground">
-                                Sous-profil:{" "}
-                                <span className="text-foreground">{responseDetail.profile.subProfile}</span>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">{`Items répondus`}</span>
+                                <span className="text-foreground font-medium">{responseDetail.socialDesirability.nItems}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Drapeau</span>
+                                <span className={cn(
+                                  "text-xs font-medium px-2 py-0.5 rounded-full border",
+                                  responseDetail.socialDesirability.flag
+                                    ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                                    : "bg-muted text-muted-foreground border-border"
+                                )}>
+                                  {responseDetail.socialDesirability.flag ? 'levé' : 'non levé'}
+                                </span>
+                              </div>
+                              <p className="text-xs text-muted-foreground/70">
+                                {`Covariable seule${NBSP}: aucun score n’est corrigé.`}
                               </p>
                             </div>
                           </div>
@@ -2808,44 +2975,38 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         {/* Main Scores */}
                         <div className="grid md:grid-cols-3 gap-4">
                           <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-5">
-                            <h4 className="text-sm text-blue-400 mb-2">CRS-5 (Religiosité)</h4>
+                            <h4 className="text-sm text-blue-400 mb-2">CRS-5 (religiosité)</h4>
                             <p className="text-3xl font-bold text-foreground">
-                              {responseDetail.scores.crs5.value.toFixed(1)}
+                              {formatNullable(responseDetail.scores.crs5.value, { digits: 1 })}
                               <span className="text-lg text-muted-foreground">/5</span>
                             </p>
                             <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-blue-500 rounded-full"
-                                style={{ width: `${(responseDetail.scores.crs5.value / 5) * 100}%` }}
+                                style={{ width: `${((responseDetail.scores.crs5.value ?? 0) / 5) * 100}%` }}
                               />
                             </div>
                           </div>
                           <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-5">
-                            <h4 className="text-sm text-green-400 mb-2">Adoption IA</h4>
+                            <h4 className="text-sm text-green-400 mb-2">{`Ouverture à l’IA`}</h4>
                             <p className="text-3xl font-bold text-foreground">
-                              {responseDetail.scores.aiAdoption.value.toFixed(1)}
+                              {formatNullable(responseDetail.scores.aiAdoption.value, { digits: 1 })}
                               <span className="text-lg text-muted-foreground">/5</span>
                             </p>
                             <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-green-500 rounded-full"
-                                style={{ width: `${(responseDetail.scores.aiAdoption.value / 5) * 100}%` }}
+                                style={{ width: `${((responseDetail.scores.aiAdoption.value ?? 0) / 5) * 100}%` }}
                               />
                             </div>
                           </div>
                           <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5">
-                            <h4 className="text-sm text-amber-400 mb-2">Résistance Spirituelle</h4>
-                            <p className="text-3xl font-bold text-foreground">
-                              {responseDetail.scores.resistanceIndex.toFixed(1)}
+                            <h4 className="text-sm text-amber-400 mb-2">{`Écart d’usage`}</h4>
+                            <p className="text-xl font-bold text-foreground">
+                              {usageGapLabel(responseDetail.scores.usageGap)}
                             </p>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {responseDetail.scores.resistanceIndex <= 0
-                                ? "Aucune résistance"
-                                : responseDetail.scores.resistanceIndex < 1
-                                ? "Légère réserve"
-                                : responseDetail.scores.resistanceIndex < 2
-                                ? "Résistance modérée"
-                                : "Forte résistance"}
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Catégorie ordinale, sans lecture motivationnelle.
                             </p>
                           </div>
                         </div>
@@ -2860,7 +3021,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 data={Object.entries(responseDetail.dimensions).map(([key, dim]) => ({
                                   dimension: DIMENSION_LABELS[key] || key,
                                   value: dim.value,
-                                  population: stats?.populationAverages?.[key] || 3,
+                                  population: stats?.populationAverages?.[key] ?? null,
                                   fullMark: 5,
                                 }))}
                               >
@@ -2903,13 +3064,15 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           </div>
                         </div>
 
-                        {/* Enhanced Dimension Details with Percentile Visualization */}
+                        {/* Dimension detail. Percentiles are no longer computed
+                            client-side (§1.6), so coverage (nItems / maxItems)
+                            is what qualifies each value. */}
                         <div className="bg-card border border-border rounded-xl p-5">
-                          <h3 className="font-semibold text-foreground mb-4">Détail des Dimensions & Percentiles</h3>
+                          <h3 className="font-semibold text-foreground mb-4">Détail des dimensions</h3>
                           <div className="space-y-4">
                             {Object.entries(responseDetail.dimensions).map(([key, dim]) => {
-                              const popAvg = stats?.populationAverages?.[key] || 3;
-                              const diff = dim.value - popAvg;
+                              const popAvg = stats?.populationAverages?.[key] ?? null;
+                              const diff = difference(dim.value, popAvg);
                               return (
                                 <div key={key} className="bg-card rounded-lg p-4">
                                   <div className="flex items-center justify-between mb-2">
@@ -2918,49 +3081,51 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                         {DIMENSION_LABELS[key] || key}
                                       </p>
                                       <p className="text-xs text-muted-foreground">
-                                        vs Population: {diff > 0 ? '+' : ''}{diff.toFixed(1)}
+                                        {`vs population${NBSP}: `}
+                                        {diff !== null && diff > 0 ? '+' : ''}
+                                        {formatNullable(diff, { digits: 1 })}
                                       </p>
                                     </div>
                                     <div className="text-right">
-                                      <p className="text-lg font-bold text-foreground">{dim.value.toFixed(1)}</p>
-                                      <p className={cn(
-                                        "text-xs",
-                                        dim.percentile > 70 ? "text-green-400" :
-                                        dim.percentile > 30 ? "text-muted-foreground" : "text-amber-400"
-                                      )}>
-                                        Top {100 - dim.percentile}%
+                                      <p className="text-lg font-bold text-foreground">
+                                        {formatNullable(dim.value, { digits: 1 })}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {`${dim.nItems}/${dim.maxItems} items`}
                                       </p>
                                     </div>
                                   </div>
-                                  {/* Percentile visualization */}
                                   <div className="relative h-3 bg-muted rounded-full overflow-hidden">
-                                    {/* Population marker */}
-                                    <div
-                                      className="absolute top-0 bottom-0 w-0.5 bg-muted0 z-10"
-                                      style={{ left: `${(popAvg / 5) * 100}%` }}
-                                    />
-                                    {/* Score bar */}
+                                    {popAvg !== null && (
+                                      <div
+                                        className="absolute top-0 bottom-0 w-0.5 bg-foreground/40 z-10"
+                                        style={{ left: `${(popAvg / 5) * 100}%` }}
+                                      />
+                                    )}
                                     <div
                                       className={cn(
                                         "h-full rounded-full transition-all",
-                                        diff > 0.5 ? "bg-green-500" : diff < -0.5 ? "bg-amber-500" : "bg-blue-500"
+                                        diff !== null && diff > 0.5
+                                          ? "bg-green-500"
+                                          : diff !== null && diff < -0.5
+                                          ? "bg-amber-500"
+                                          : "bg-blue-500"
                                       )}
-                                      style={{ width: `${(dim.value / 5) * 100}%` }}
+                                      style={{ width: `${((dim.value ?? 0) / 5) * 100}%` }}
                                     />
                                   </div>
-                                  {/* Percentile position */}
-                                  <div className="relative h-1.5 mt-2">
-                                    <div className="absolute inset-x-0 h-full bg-gradient-to-r from-red-500/30 via-yellow-500/30 to-green-500/30 rounded-full" />
+                                  {/* Coverage bar: how much of the dimension this respondent actually answered */}
+                                  <div className="h-1.5 mt-2 bg-muted rounded-full overflow-hidden">
                                     <div
-                                      className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-lg border border-border"
-                                      style={{ left: `${dim.percentile}%`, marginLeft: '-4px' }}
+                                      className="h-full rounded-full bg-foreground/30"
+                                      style={{ width: `${Math.round(dim.confidence * 100)}%` }}
                                     />
                                   </div>
-                                  <div className="flex justify-between text-xs text-muted-foreground/50 mt-1">
-                                    <span>0%</span>
-                                    <span>50%</span>
-                                    <span>100%</span>
-                                  </div>
+                                  <p className="text-xs text-muted-foreground/60 mt-1">
+                                    {dim.value === null
+                                      ? `Score non calculé${NBSP}: trop peu d’items répondus.`
+                                      : `Couverture${NBSP}: ${Math.round(dim.confidence * 100)}${NNBSP}%`}
+                                  </p>
                                 </div>
                               );
                             })}
@@ -3042,13 +3207,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             </div>
                             <div>
                               <p className="text-2xl font-bold text-foreground">
-                                {responseDetail.scores.crs5.value.toFixed(1)}
+                                {formatNullable(responseDetail.scores.crs5.value, { digits: 1 })}
                               </p>
                               <p className="text-xs text-muted-foreground">Score CRS-5</p>
                             </div>
                             <div>
                               <p className="text-2xl font-bold text-foreground">
-                                {responseDetail.scores.aiAdoption.value.toFixed(1)}
+                                {formatNullable(responseDetail.scores.aiAdoption.value, { digits: 1 })}
                               </p>
                               <p className="text-xs text-muted-foreground">Score IA</p>
                             </div>
@@ -3063,29 +3228,37 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         {/* Key Summary Banner */}
                         <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-xl p-6">
                           <div className="flex items-start gap-4">
-                            <div
-                              className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl shrink-0"
-                              style={{ backgroundColor: `${PROFILE_COLORS[responseDetail.profile.primary.name]}30` }}
-                            >
-                              {responseDetail.profile.primary.emoji}
-                            </div>
+                            {responseDetail.profile.primary && (
+                              <div
+                                className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl shrink-0"
+                                style={{ backgroundColor: `${PROFILE_COLORS[responseDetail.profile.primary.name]}30` }}
+                              >
+                                {responseDetail.profile.primary.emoji}
+                              </div>
+                            )}
                             <div className="flex-1">
                               <h2 className="text-xl font-bold text-foreground mb-1">
-                                {responseDetail.profile.primary.title}
+                                {responseDetail.profile.primary
+                                  ? responseDetail.profile.primary.title
+                                  : 'Aucun profil attribué'}
                               </h2>
                               <p className="text-sm text-foreground/70 mb-3">
-                                {responseDetail.interpretation.headline}
+                                {responseDetail.interpretation
+                                  ? responseDetail.interpretation.headline
+                                  : `Pas d’interprétation${NBSP}: aucun profil n’a pu être attribué.`}
                               </p>
                               <div className="flex flex-wrap gap-2">
                                 <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full">
-                                  CRS-5: {responseDetail.scores.crs5.value.toFixed(1)}/5
+                                  {`CRS-5${NBSP}: ${formatNullable(responseDetail.scores.crs5.value, { digits: 1 })}/5`}
                                 </span>
                                 <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
-                                  IA: {responseDetail.scores.aiAdoption.value.toFixed(1)}/5
+                                  {`IA${NBSP}: ${formatNullable(responseDetail.scores.aiAdoption.value, { digits: 1 })}/5`}
                                 </span>
-                                <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">
-                                  Match: {responseDetail.profile.primary.score}%
-                                </span>
+                                {responseDetail.profile.primary && (
+                                  <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">
+                                    {`Correspondance${NBSP}: ${Math.round(responseDetail.profile.primary.score)}${NNBSP}%`}
+                                  </span>
+                                )}
                                 {responseDetail.profile.subProfile && (
                                   <span className="text-xs px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full">
                                     {responseDetail.profile.subProfile}
@@ -3097,28 +3270,33 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         </div>
 
                         {/* Interpretation Narrative */}
-                        <div className="bg-card border border-border rounded-xl p-5">
-                          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-blue-400" />
-                            Analyse Narrative
-                          </h3>
-                          <p className="text-foreground/80 text-sm leading-relaxed">
-                            {responseDetail.interpretation.narrative}
-                          </p>
-                        </div>
+                        {responseDetail.interpretation && (
+                          <div className="bg-card border border-border rounded-xl p-5">
+                            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-blue-400" />
+                              Analyse narrative
+                            </h3>
+                            <p className="text-foreground/80 text-sm leading-relaxed">
+                              {responseDetail.interpretation.narrative}
+                            </p>
+                          </div>
+                        )}
 
-                        {/* Why This Profile? Explainer */}
+                        {/* Why This Profile? Explainer. Only dimensions with a
+                            value can distinguish anything (§1.5). */}
                         <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-5">
                           <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                             <Target className="w-4 h-4 text-purple-400" />
-                            Pourquoi ce profil?
+                            {`Pourquoi ce profil${NNBSP}?`}
                           </h3>
                           <p className="text-sm text-muted-foreground mb-4">
-                            Les réponses clés qui ont déterminé la classification:
+                            {`Dimensions les plus éloignées du point médian${NBSP}:`}
                           </p>
                           <div className="space-y-3">
-                            {/* Key dimension indicators */}
                             {Object.entries(responseDetail.dimensions)
+                              .filter((entry): entry is [string, DetailDimension & { value: number }] =>
+                                entry[1].value !== null
+                              )
                               .sort(([, a], [, b]) => Math.abs(b.value - 3) - Math.abs(a.value - 3))
                               .slice(0, 4)
                               .map(([key, dim]) => {
@@ -3135,10 +3313,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                     </div>
                                     <div className="flex-1">
                                       <p className="text-sm font-medium text-foreground">
-                                        {DIMENSION_LABELS[key] || key}: {dim.value.toFixed(1)}/5
+                                        {`${DIMENSION_LABELS[key] || key}${NBSP}: ${formatNullable(dim.value, { digits: 1 })}/5`}
                                       </p>
                                       <p className="text-xs text-muted-foreground">
-                                        {isHigh ? `Score élevé (Top ${100 - dim.percentile}%)` : `Score faible (Bottom ${dim.percentile}%)`}
+                                        {`${dim.nItems}/${dim.maxItems} items répondus`}
                                       </p>
                                     </div>
                                     <span className={cn(
@@ -3154,12 +3332,20 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           {/* Profile match explanation */}
                           <div className="mt-4 p-3 bg-muted rounded-lg">
                             <p className="text-xs text-foreground/70">
-                              <span className="text-purple-400 font-medium">Match {responseDetail.profile.primary.score}%:</span>{" "}
-                              Ce profil correspond le mieux au pattern de réponses observé.
-                              {responseDetail.profile.secondary && (
-                                <span className="text-muted-foreground">
-                                  {" "}Profil secondaire: {PROFILE_LABELS[responseDetail.profile.secondary.name]} ({responseDetail.profile.secondary.score}%)
-                                </span>
+                              {responseDetail.profile.primary ? (
+                                <>
+                                  <span className="text-purple-400 font-medium">
+                                    {`Correspondance ${Math.round(responseDetail.profile.primary.score)}${NNBSP}%${NBSP}:`}
+                                  </span>{" "}
+                                  {`attribution heuristique, ${PROFILE_CONFIDENCE_LABELS[responseDetail.profile.confidence]?.toLowerCase() ?? responseDetail.profile.confidence}.`}
+                                  {responseDetail.profile.secondary && (
+                                    <span className="text-muted-foreground">
+                                      {` Profil secondaire${NBSP}: ${PROFILE_LABELS[responseDetail.profile.secondary.name]} (${Math.round(responseDetail.profile.secondary.score)}${NNBSP}%)`}
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                `Aucun profil attribué${NBSP}: moins de quatre dimensions valuées.`
                               )}
                             </p>
                           </div>
@@ -3183,8 +3369,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             ].map(item => {
                               const answer = responseDetail.answers[item.key];
                               if (!answer) return null;
-                              const dimValue = responseDetail.dimensions[item.dimension as keyof typeof responseDetail.dimensions]?.value || 3;
-                              const impact = Math.abs(dimValue - 3) / 2;
+                              const dimValue = responseDetail.dimensions[item.dimension]?.value ?? null;
+                              const impact = dimValue === null ? 0 : Math.abs(dimValue - 3) / 2;
                               return (
                                 <div key={item.key} className="flex items-center gap-3 p-2 bg-card rounded-lg">
                                   <div className="w-24 text-xs text-muted-foreground/60 truncate">{item.label}</div>
@@ -3225,11 +3411,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               return (
                                 <div key={key} className="text-center p-3 bg-card rounded-lg">
                                   <p className="text-xs text-muted-foreground mb-1">{labels[key] || key}</p>
-                                  <p className="text-2xl font-bold text-blue-400">{value}</p>
+                                  <p className="text-2xl font-bold text-blue-400">
+                                    {formatNullable(value, { digits: 0 })}
+                                  </p>
                                   <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
                                     <div
                                       className="h-full bg-blue-500 rounded-full"
-                                      style={{ width: `${(value / 5) * 100}%` }}
+                                      style={{ width: `${((value ?? 0) / 5) * 100}%` }}
                                     />
                                   </div>
                                 </div>
@@ -3261,7 +3449,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                     <span>{icons[key] || "📈"}</span>
                                     <p className="text-xs text-muted-foreground">{labels[key] || key}</p>
                                   </div>
-                                  <p className="text-2xl font-bold text-green-400">{typeof value === 'number' ? value.toFixed(1) : value}</p>
+                                  <p className="text-2xl font-bold text-green-400">{formatNullable(value, { digits: 1 })}</p>
                                   <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
                                     <div
                                       className="h-full bg-green-500 rounded-full"
@@ -3275,6 +3463,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         </div>
 
                         {/* Unique Aspects & Blind Spots */}
+                        {responseDetail.interpretation && (
                         <div className="grid md:grid-cols-2 gap-4">
                           <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-5">
                             <h4 className="text-sm font-medium text-green-400 mb-3 flex items-center gap-2">
@@ -3311,6 +3500,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             </ul>
                           </div>
                         </div>
+                        )}
 
                         {/* Insights */}
                         {responseDetail.insights.length > 0 && (
@@ -3493,7 +3683,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               dimension: DIMENSION_LABELS[key] || key,
                               ...comparisonData.reduce((acc, d, i) => ({
                                 ...acc,
-                                [`resp${i}`]: d.dimensions[key as keyof typeof d.dimensions]?.value || 0,
+                                [`resp${i}`]: d.dimensions[key]?.value ?? null,
                               }), {}),
                               fullMark: 5,
                             }))}
@@ -3541,27 +3731,35 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             <span className="font-mono text-sm text-foreground/70">#{d.id.slice(0, 8)}</span>
                           </div>
                           <div className="flex items-center gap-3 mb-3">
-                            <div
-                              className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
-                              style={{ backgroundColor: `${PROFILE_COLORS[d.profile.primary.name]}30` }}
-                            >
-                              {d.profile.primary.emoji}
-                            </div>
+                            {d.profile.primary && (
+                              <div
+                                className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+                                style={{ backgroundColor: `${PROFILE_COLORS[d.profile.primary.name]}30` }}
+                              >
+                                {d.profile.primary.emoji}
+                              </div>
+                            )}
                             <div>
                               <p className="text-sm font-medium text-foreground">
-                                {PROFILE_LABELS[d.profile.primary.name] || d.profile.primary.name}
+                                {d.profile.primary
+                                  ? PROFILE_LABELS[d.profile.primary.name] || d.profile.primary.name
+                                  : PROFILE_LABELS[UNATTRIBUTED_PROFILE_KEY]}
                               </p>
-                              <p className="text-xs text-muted-foreground">{d.profile.primary.score}% match</p>
+                              <p className="text-xs text-muted-foreground">
+                                {d.profile.primary
+                                  ? `${Math.round(d.profile.primary.score)}${NNBSP}% de correspondance`
+                                  : NOT_AVAILABLE}
+                              </p>
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-2 text-center">
                             <div className="bg-muted rounded-lg p-2">
-                              <p className="text-lg font-bold text-blue-400">{d.scores.crs5.value.toFixed(1)}</p>
+                              <p className="text-lg font-bold text-blue-400">{formatNullable(d.scores.crs5.value, { digits: 1 })}</p>
                               <p className="text-xs text-muted-foreground/60">CRS-5</p>
                             </div>
                             <div className="bg-muted rounded-lg p-2">
-                              <p className="text-lg font-bold text-green-400">{d.scores.aiAdoption.value.toFixed(1)}</p>
-                              <p className="text-xs text-muted-foreground/60">AI Score</p>
+                              <p className="text-lg font-bold text-green-400">{formatNullable(d.scores.aiAdoption.value, { digits: 1 })}</p>
+                              <p className="text-xs text-muted-foreground/60">Score IA</p>
                             </div>
                           </div>
                         </div>
@@ -3586,21 +3784,25 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           </thead>
                           <tbody>
                             {Object.keys(comparisonData[0]?.dimensions || {}).map((dimKey) => {
-                              const values = comparisonData.map(d => d.dimensions[dimKey as keyof typeof d.dimensions]?.value || 0);
-                              const maxDiff = Math.max(...values) - Math.min(...values);
+                              const values = comparisonData.map(d => d.dimensions[dimKey]?.value ?? null);
+                              const present = values.filter((v): v is number => v !== null);
+                              const maxDiff = present.length > 1 ? Math.max(...present) - Math.min(...present) : null;
                               return (
                                 <tr key={dimKey} className="border-b border-border hover:bg-muted">
                                   <td className="py-2 px-3 text-foreground/70">{DIMENSION_LABELS[dimKey] || dimKey}</td>
                                   {values.map((val, i) => (
                                     <td key={i} className="py-2 px-3 text-center text-foreground font-medium">
-                                      {val.toFixed(1)}
+                                      {formatNullable(val, { digits: 1 })}
                                     </td>
                                   ))}
                                   <td className={cn(
                                     "py-2 px-3 text-center font-medium",
-                                    maxDiff > 1.5 ? "text-red-400" : maxDiff > 0.8 ? "text-amber-400" : "text-green-400"
+                                    maxDiff === null ? "text-muted-foreground"
+                                      : maxDiff > 1.5 ? "text-red-400"
+                                      : maxDiff > 0.8 ? "text-amber-400"
+                                      : "text-green-400"
                                   )}>
-                                    {maxDiff.toFixed(1)}
+                                    {formatNullable(maxDiff, { digits: 1 })}
                                   </td>
                                 </tr>
                               );
@@ -3741,11 +3943,11 @@ function ScoreCard({
   color,
 }: {
   label: string;
-  score: number;
+  score: number | null;
   maxScore: number;
   color: "blue" | "green" | "amber";
 }) {
-  const percentage = (score / maxScore) * 100;
+  const percentage = score === null ? 0 : (score / maxScore) * 100;
 
   const colors = {
     blue: { bg: "bg-blue-500", text: "text-blue-400" },
@@ -3757,7 +3959,9 @@ function ScoreCard({
     <div className="bg-card border border-border rounded-2xl p-6">
       <h4 className="text-sm text-muted-foreground mb-2">{label}</h4>
       <div className="flex items-end gap-2 mb-4">
-        <span className={cn("text-4xl font-bold", colors[color].text)}>{score.toFixed(1)}</span>
+        <span className={cn("text-4xl font-bold", colors[color].text)}>
+          {formatNullable(score, { digits: 1 })}
+        </span>
         <span className="text-muted-foreground/50 text-lg mb-1">/ {maxScore}</span>
       </div>
       <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -3768,6 +3972,41 @@ function ScoreCard({
           className={cn("h-full rounded-full", colors[color].bg)}
         />
       </div>
+    </div>
+  );
+}
+
+/**
+ * Ordinal usage gap (§1.7): counted, never averaged. It replaces the former
+ * "spiritual resistance index", which inferred a motivation from a frequency.
+ */
+function UsageGapCard({ distribution }: { distribution: Record<string, number> }) {
+  const entries = Object.entries(distribution).sort(([, a], [, b]) => b - a);
+  const total = entries.reduce((sum, [, count]) => sum + count, 0);
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-6">
+      <h4 className="text-sm text-muted-foreground mb-4">{`Écart d’usage (n${NBSP}= ${total})`}</h4>
+      {entries.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{NOT_AVAILABLE}</p>
+      ) : (
+        <div className="space-y-2">
+          {entries.map(([key, count]) => (
+            <div key={key}>
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-foreground/70">{usageGapLabel(key)}</span>
+                <span className="text-foreground font-medium">{count}</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-amber-500"
+                  style={{ width: `${total > 0 ? (count / total) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -7,16 +7,16 @@ export const translations = {
       title: "Intelligence Artificielle & Vie Spirituelle",
       title1: "Intelligence Artificielle",
       title2: "Vie Spirituelle",
-      subtitle: "Comment l'IA transforme-t-elle les pratiques religieuses ?",
+      subtitle: "Comment l'IA transforme-t-elle les pratiques religieuses ?",
       description:
         "De la rédaction de sermons à la prière assistée, l'IA transforme silencieusement les pratiques religieuses. Cette grande enquête vise à cartographier ces usages et à comprendre les enjeux éthiques qu'ils soulèvent.",
       privacyTitle: "Protocole de Confidentialité",
       privacyDescription:
-        "Votre participation est essentielle pour la recherche. Nous garantissons la protection de vos droits :",
-      anonymity: "Anonymat total :",
+        "Votre participation est essentielle pour la recherche. Nous garantissons la protection de vos droits :",
+      anonymity: "Anonymat total :",
       anonymityDesc:
-        "Aucune donnée personnelle identifiante (nom, email, IP) n'est enregistrée.",
-      academic: "Usage des données :",
+        "Ni nom, ni email, ni adresse IP en clair : seules des empreintes cryptographiques anti-doublons sont conservées.",
+      academic: "Usage des données :",
       academicDesc:
         "Les réponses sont agrégées uniquement à des fins statistiques.",
       cta: "J'accepte et je commence",
@@ -32,7 +32,7 @@ export const translations = {
       featureAnonymous: "100 % anonyme",
       featureDuration: "8 à 12 minutes",
       anonymousHighlight: "100% anonyme",
-      anonymousHighlightDesc: "Ni nom, ni email, ni adresse IP en clair : seules des empreintes cryptographiques anti-doublons sont conservées.",
+      anonymousHighlightDesc: "Ni nom, ni email, ni adresse IP en clair : seules des empreintes cryptographiques anti-doublons sont conservées.",
     },
 
     // CNEF co-branded landing
@@ -40,8 +40,8 @@ export const translations = {
       partnership: "Enquête proposée par Romain Girardi en partenariat avec le CNEF",
       badge: "Partenariat CNEF",
       logoAlt: "Logo du CNEF",
-      title: "IA et foi : la parole aux évangéliques",
-      subtitle: "Quel est votre usage réel de l'intelligence artificielle dans la vie d'Église ?",
+      title: "IA et foi : la parole aux évangéliques",
+      subtitle: "Quel est votre usage réel de l'intelligence artificielle dans la vie d'Église ?",
       description:
         "Le CNEF prépare une déclaration sur l'intelligence artificielle. Pour l'appuyer sur des chiffres réels, cette enquête recueille la pratique des évangéliques de France. Vos réponses, 100% anonymes, nourriront directement cette réflexion.",
       startButton: "Commencer l'enquête",
@@ -71,28 +71,39 @@ export const translations = {
       huberScale: "Échelle de Huber",
       aiAdoption: "Adoption IA",
       usageLevel: "Niveau d'usage",
-      vsOthers: "vs autres",
-      top: "Top {percent}%",
-      spiritualResistance: "Résistance Spirituelle",
-      generalVsSpiritual: "Usage général vs spirituel",
-      generalAI: "IA Général",
-      spiritualAI: "IA Spirituel",
-      gap: "Écart",
-      resistanceHigh:
-        "Vous utilisez l'IA régulièrement mais résistez à son usage spirituel. Cette distinction est significative.",
-      resistanceMedium:
-        "Légère différence entre vos usages généraux et spirituels de l'IA.",
-      resistanceLow:
-        "Votre usage de l'IA est cohérent entre domaines séculier et spirituel.",
       insightsTitle: "Éclairages personnalisés",
       viewGlobalResults: "Voir les résultats globaux",
       disclaimer:
         "Ce profil est généré à partir de vos réponses à des fins illustratives. Il ne constitue pas une évaluation psychologique ou spirituelle.",
       match: "Correspondance",
+      matchScore: "correspondance {score} / 100",
       profileSpectrum: "Spectre de votre profil",
       sevenDimensions: "Vos 7 dimensions",
-      growthArea: "Piste de croissance",
-      tensionPoint: "Point de tension",
+      reflectionAreas: "Pistes de réflexion, si vous le souhaitez",
+      tensionPoint: "Tension observée",
+      notMeasured: "Non mesuré (trop peu de réponses)",
+      notMeasuredDetail:
+        "Trop peu d'items de cette dimension ont été renseignés pour calculer un score.",
+      heuristicAttribution:
+        "Attribution heuristique, non validée : le profil ci-dessous est une lecture indicative de vos réponses, pas un diagnostic.",
+      noProfileTitle: "Profil non attribuable : trop peu de dimensions mesurées",
+      noProfileDescription:
+        "Au moins quatre dimensions doivent être mesurées pour rapprocher vos réponses d'un profil. Vos scores bruts par dimension restent affichés ci-dessous.",
+      measuredDimensions: "Dimensions mesurées : {count} sur 7",
+      closeProfilesTitle: "Deux profils proches",
+      closeProfilesDescription:
+        "Vos réponses se situent à distance comparable de deux profils. Aucun des deux ne l'emporte ; ils sont présentés ensemble.",
+      normsComparison: "Votre score est supérieur à {percent} % des {count} participants",
+      normsUnavailable: "Comparaison disponible à partir de 30 participants",
+      usageGap: "Écart d'usage",
+      usageGapNote:
+        "Comparaison entre l'usage de l'IA que vous déclarez en général et celui que vous déclarez dans le domaine spirituel ou ministériel.",
+      usageGapNoUse: "Aucun usage de l'IA déclaré",
+      usageGapGeneralOnly: "Usage général déclaré, aucun usage spirituel déclaré",
+      usageGapBoth: "Usage déclaré dans les deux domaines",
+      usageGapUnknown: "Écart non calculable : la question sur l'usage général est sans réponse",
+      socialDesirabilityNote:
+        "Vos réponses aux cinq énoncés vrai/faux suggèrent une tendance à répondre de façon socialement attendue ; votre profil est calculé sans correction, à lire avec cette réserve.",
     },
 
     // Profile names
@@ -132,26 +143,26 @@ export const translations = {
       chercheur_seculier: "Le Chercheur Séculier",
     },
 
-    // Growth areas
+    // Reflection areas: observed gaps, described without prescription
     growthAreas: {
-      exploration_tech: "Exploration technologique",
-      exploration_tech_action: "Essayez un outil d'IA simple dans un contexte non spirituel pour vous familiariser",
-      community_dialogue: "Dialogue communautaire",
-      community_dialogue_action: "Initiez une conversation sur l'IA avec un membre de votre communauté",
-      ethical_reflection: "Réflexion éthique",
-      ethical_reflection_action: "Lisez un article sur les enjeux éthiques de l'IA dans un domaine qui vous concerne",
-      guided_experimentation: "Expérimentation encadrée",
-      guided_experimentation_action: "Identifiez un usage administratif où l'IA pourrait vous libérer du temps pour le relationnel",
-      openness_change: "Ouverture au changement",
-      openness_change_action: "Suivez occasionnellement l'actualité de l'IA dans le domaine religieux",
+      exploration_tech: "Usage déclaré et intention d'usage",
+      exploration_tech_action: "Vos réponses indiquent un usage actuel bas et une intention d'usage plus haute.",
+      community_dialogue: "Place du sujet dans votre communauté",
+      community_dialogue_action: "Vos réponses indiquent une centralité religieuse haute et un contexte communautaire où le sujet est peu présent.",
+      ethical_reflection: "Usage déclaré et préoccupation éthique",
+      ethical_reflection_action: "Vos réponses indiquent un usage fréquent de l'IA et une préoccupation éthique basse.",
+      guided_experimentation: "Frontière sacrée et usage déclaré",
+      guided_experimentation_action: "Vos réponses indiquent une frontière sacrée haute et un usage fréquent de l'IA hors du champ spirituel.",
+      openness_change: "Suivi du sujet",
+      openness_change_action: "Vos réponses indiquent peu d'exposition déclarée aux discussions sur l'IA dans le champ religieux.",
     },
 
-    // Tensions
+    // Tensions: two dimensions read together, no value judgement
     tensions: {
-      tension_ai_sacred: "Vous êtes ouvert à l'IA en général mais maintenez une réserve pour le spirituel.",
-      tension_ethical_future: "Vous voulez avancer mais avec prudence éthique.",
-      tension_community_faith: "Foi profonde mais peu influencée par la communauté.",
-      tension_perception_ethics: "Vous réfléchissez à la nature de l'IA mais sans inquiétude particulière.",
+      tension_ai_sacred: "Vos réponses combinent un usage déclaré de l'IA et une frontière haute sur les actes spirituels.",
+      tension_ethical_future: "Vos réponses combinent une préoccupation éthique haute et une intention d'usage haute.",
+      tension_community_faith: "Vos réponses combinent une centralité religieuse haute et un contexte communautaire peu porteur sur ce sujet.",
+      tension_perception_ethics: "Vos réponses combinent une perception anthropomorphe de l'IA et une préoccupation éthique basse.",
     },
 
     // Thank You Screen
@@ -167,8 +178,8 @@ export const translations = {
       resultsNote:
         "Les résultats présentés sont des tendances anonymisées et agrégées. Aucune donnée individuelle n'est accessible.",
       shareText:
-        "J'ai participé à cette étude sur l'IA dans les pratiques religieuses. Participez aussi !",
-      linkCopied: "Lien copié dans le presse-papier !",
+        "J'ai participé à cette étude sur l'IA dans les pratiques religieuses. Participez aussi !",
+      linkCopied: "Lien copié dans le presse-papier !",
       shareTitle: "Sondage IA & Vie Spirituelle",
       anonymousIdTitle: "Votre identifiant anonyme",
       anonymousIdNote: "Conservez cet identifiant en lieu sûr et ne le partagez pas : il permet à lui seul d'accéder à vos données ou de les supprimer.",
@@ -248,7 +259,7 @@ export const translations = {
       scanQR: "Scannez ce QR code",
       orCopyLink: "Ou copiez le lien",
       copyLink: "Copier le lien",
-      copied: "Copié !",
+      copied: "Copié !",
       download: "Télécharger",
       share: "Partager",
       shareTitle: "Sondage IA & Foi",
@@ -260,7 +271,7 @@ export const translations = {
       subtitle: "Vos amis vont adorer découvrir le leur",
       whatsapp: "Partager sur WhatsApp",
       copyLink: "Copier le lien",
-      copied: "Copié !",
+      copied: "Copié !",
       shareOnX: "Partager sur X",
       shareOnFacebook: "Partager sur Facebook",
     },
@@ -274,8 +285,8 @@ export const translations = {
 
     // Session
     session: {
-      resumeTitle: "Reprendre où vous en étiez ?",
-      resumeDescription: "Nous avons trouvé une session incomplète. Voulez-vous la reprendre ?",
+      resumeTitle: "Reprendre où vous en étiez ?",
+      resumeDescription: "Nous avons trouvé une session incomplète. Voulez-vous la reprendre ?",
       resumeButton: "Reprendre",
       restartButton: "Recommencer",
       saving: "Sauvegarde en cours...",
@@ -291,7 +302,7 @@ export const translations = {
       notFound: "Page introuvable",
       retry: "Réessayer",
       goHome: "Retour à l'accueil",
-      title: "Oups ! Une erreur est survenue",
+      title: "Oups ! Une erreur est survenue",
       description: "Nous rencontrons un problème technique. Notre équipe a été notifiée.",
       errorCode: "Code erreur",
       // Duplicate submission errors
@@ -316,14 +327,14 @@ export const translations = {
       cookieSolution1Desc: "Ouvrez le sondage en navigation privée/incognito.",
       cookieSolution2Title: "Supprimez les données du site",
       cookieSolution2Desc: "Effacez les cookies et le stockage local pour ia-foi.fr puis rechargez la page.",
-      solution3Title: "Ordinateur partagé ?",
+      solution3Title: "Ordinateur partagé ?",
       solution3Desc: "Si quelqu'un d'autre a déjà participé depuis cet appareil, contactez-nous pour obtenir un accès.",
-      stillNeedHelp: "Toujours bloqué ? Nous pouvons vous aider.",
+      stillNeedHelp: "Toujours bloqué ? Nous pouvons vous aider.",
       emailSubject: "Demande d'accès au sondage",
-      emailBody: "Bonjour,\n\nJ'essaie d'accéder au sondage mais je reçois une erreur ({errorCode}).\n\nMa situation :\n\nMerci.",
+      emailBody: "Bonjour,\n\nJ'essaie d'accéder au sondage mais je reçois une erreur ({errorCode}).\n\nMa situation :\n\nMerci.",
       // Network failure during final submission (data must not be silently lost)
       submissionFailedTitle: "Échec de l'envoi",
-      submissionFailedDesc: "Vos réponses n'ont pas pu être enregistrées à cause d'un problème de connexion. Elles restent disponibles sur cet appareil : réessayez dès que possible.",
+      submissionFailedDesc: "Vos réponses n'ont pas pu être enregistrées à cause d'un problème de connexion. Elles restent disponibles sur cet appareil : réessayez dès que possible.",
     },
 
     // Not Found (404)
@@ -392,7 +403,7 @@ export const translations = {
       innovateur_ancre: {
         title: "Innovateur Ancré",
         short: "Alliance rare entre tradition profonde et adoption technologique",
-        description: "Vous êtes un profil rare : profondément ancré dans la tradition, vous voyez dans la technologie non pas une menace mais un outil au service de la mission spirituelle.",
+        description: "Vous êtes un profil rare : profondément ancré dans la tradition, vous voyez dans la technologie non pas une menace mais un outil au service de la mission spirituelle.",
       },
       equilibriste: {
         title: "Équilibriste Spirituel",
@@ -402,7 +413,7 @@ export const translations = {
       pragmatique_moderne: {
         title: "Pragmatique Moderne",
         short: "L'efficacité au service de la mission",
-        description: "Vous êtes orienté vers les résultats. Pour vous, l'IA est avant tout un outil pratique qui peut libérer du temps pour ce qui compte vraiment : les relations humaines.",
+        description: "Vous êtes orienté vers les résultats. Pour vous, l'IA est avant tout un outil pratique qui peut libérer du temps pour ce qui compte vraiment : les relations humaines.",
       },
       pionnier_spirituel: {
         title: "Pionnier Spirituel",
@@ -426,14 +437,14 @@ export const translations = {
       title: "Comprendre vos résultats",
       intro: "Vos résultats sont basés sur l'analyse de vos réponses selon 7 dimensions clés qui définissent votre rapport à l'IA dans un contexte spirituel. Chaque dimension est mesurée sur une échelle de 1 à 5.",
       dimensionsTitle: "Les 7 dimensions",
-      religiosity: "Centralité de la foi (CRS-5) : pratique spirituelle quotidienne",
+      religiosity: "Centralité de la foi (CRS-5) : pratique spirituelle quotidienne",
       aiOpenness: "Disposition générale à intégrer l'IA dans différentes sphères de vie",
       sacredBoundary: "Conviction sur la nécessité d'une présence humaine pour certains actes spirituels",
       ethicalConcern: "Vigilance face aux risques de déshumanisation et d'erreurs doctrinales",
       psychologicalPerception: "Questions sur la nature de l'IA et la spécificité humaine (Imago Dei)",
-      communityInfluence: "Rôle de l'appartenance ecclésiale dans la formation de vos convictions",
+      communityContext: "Position de votre communauté face à l'IA, telle que vous la percevez",
       futureOrientation: "Intention d'approfondir votre engagement avec l'IA",
-      matchExplain: "Le pourcentage de correspondance indique à quel point votre profil de réponses correspond au profil type. Un score élevé signifie une forte adéquation.",
+      matchExplain: "Le score sur 100 mesure la proximité entre vos réponses et les plages du profil type. L'attribution est heuristique : les plages ont été fixées par jugement, pas dérivées de données.",
       disclaimer: "Ces profils sont des outils de réflexion, pas des catégories rigides. Vous pouvez évoluer et présenter des caractéristiques de plusieurs profils.",
       balancedPosition: "Position équilibrée (ni haute ni basse) sur cette dimension",
     },
@@ -441,7 +452,7 @@ export const translations = {
     // Methodology
     methodology: {
       title: "Note méthodologique",
-      description: "Cette enquête utilise des versions adaptées d'échelles validées (Centrality of Religiosity Scale, AI Anxiety Scale) optimisées pour l'engagement numérique. Bien que conçue avec rigueur scientifique, elle est destinée à la réflexion personnelle et à l'analyse sociologique, et non à une catégorisation définitive.",
+      description: "Cette enquête utilise une version adaptée du CRS-5 et, pour le reste, des items originaux inspirés d'instruments publiés qui ne sont pas administrés ici. Elle est destinée à la réflexion personnelle et à une analyse exploratoire, jamais à une catégorisation définitive.",
       learnMore: "En savoir plus sur la méthodologie",
     },
 
@@ -449,23 +460,23 @@ export const translations = {
     scientificDisclaimer: {
       title: "Avertissement scientifique",
       exploratoryStudy: "Étude exploratoire",
-      exploratoryNote: "Cette étude utilise une méthodologie exploratoire. Les profils et percentiles sont calculés à partir de paramètres provisoires qui seront recalibrés après collecte de données suffisantes (N≥500).",
+      exploratoryNote: "Cette étude est exploratoire. Le profil est une attribution heuristique : ses plages et ses poids ont été fixés par jugement, jamais dérivés d'une analyse sur des données réelles.",
 
       // Profile interpretation warning
       profileWarning: "Ce profil reflète vos réponses, non votre identité",
       profileNote: "Les résultats sont indicatifs et invitent à la réflexion. Ils ne constituent pas un diagnostic ni une catégorisation définitive de votre spiritualité.",
 
       // Scale validation notice
-      scaleNotice: "Échelles en cours de validation",
-      scaleNote: "5 des 7 dimensions utilisent des construits exploratoires (non encore validés par analyse factorielle). La dimension Religiosité utilise l'échelle CRS-5 validée internationalement.",
+      scaleNotice: "Construits exploratoires",
+      scaleNote: "6 des 7 dimensions reposent sur des construits exploratoires, non validés par analyse factorielle. La religiosité utilise le CRS-5 dans une version adaptée, dont la traduction française n'est pas validée.",
 
-      // Percentile caveat
-      percentileCaveat: "Percentiles provisoires",
-      percentileNote: "Les percentiles sont basés sur des estimations de population. Ils seront recalculés après collecte de données empiriques.",
+      // Comparison caveat
+      comparisonCaveat: "Comparaisons empiriques",
+      comparisonNote: "Votre score est situé sur la distribution des participants réels, à partir de 30 participants. Il n'existe pas de population de référence.",
 
-      // Bias correction
-      biasNote: "Correction du biais de désirabilité sociale",
-      biasExplanation: "Vos scores sont ajustés en fonction de l'échelle Marlowe-Crowne pour réduire le biais de réponses socialement désirables.",
+      // Social desirability
+      desirabilityNote: "Désirabilité sociale",
+      desirabilityExplanation: "Les cinq affirmations en vrai ou faux servent de covariable pour l'analyse. Aucun de vos scores n'est ajusté à partir d'elles.",
 
       // FAIR compliance
       fairCompliance: "Conformité FAIR",
@@ -481,14 +492,14 @@ export const translations = {
         label: "Intensité Spirituelle",
         description: "Centralité de la foi dans votre vie quotidienne (basée sur l'échelle CRS-5)",
         low: "Foi en questionnement ou pratique occasionnelle",
-        high: "Foi structurante : prière quotidienne, réflexion théologique régulière, participation active aux offices",
+        high: "Foi structurante : prière quotidienne, réflexion théologique régulière, participation active aux offices",
         lowDetail: "Votre pratique spirituelle est peut-être en évolution ou plus intérieure. La centralité de la foi dans vos choix quotidiens reste modérée.",
         highDetail: "Votre foi occupe une place centrale dans votre vie. Prière, réflexion théologique et participation communautaire structurent votre quotidien.",
       },
       aiOpenness: {
         label: "Ouverture à l'IA",
         description: "Disposition à intégrer l'IA dans différentes sphères de vie, y compris spirituelle",
-        low: "Réserve face à l'IA : usage limité ou résistance",
+        low: "Réserve face à l'IA : usage limité ou résistance",
         high: "Intégration active de l'IA dans plusieurs domaines de vie",
         lowDetail: "Vous maintenez une distance prudente avec l'IA, que ce soit par choix réfléchi, méfiance technologique, ou simple désintérêt.",
         highDetail: "Vous avez intégré l'IA dans votre quotidien et êtes ouvert à explorer ses applications, y compris dans des contextes inattendus.",
@@ -496,8 +507,8 @@ export const translations = {
       sacredBoundary: {
         label: "Frontière Sacrée",
         description: "Conviction sur la nécessité d'une présence humaine incarnée pour la validité spirituelle",
-        low: "Frontière perméable : l'IA peut accompagner tous les aspects de la vie spirituelle",
-        high: "Frontière stricte : certains actes spirituels requièrent exclusivement une présence humaine",
+        low: "Frontière perméable : l'IA peut accompagner tous les aspects de la vie spirituelle",
+        high: "Frontière stricte : certains actes spirituels requièrent exclusivement une présence humaine",
         lowDetail: "Vous considérez que l'IA peut être un outil au service de la vie spirituelle dans tous ses aspects, sans que cela diminue l'authenticité de l'expérience.",
         highDetail: "Vous êtes convaincu(e) que la présence humaine incarnée est essentielle pour la validité de certains actes spirituels (sacrements, accompagnement, prédication). L'IA ne peut se substituer à cette dimension relationnelle et incarnée de la foi.",
       },
@@ -507,29 +518,29 @@ export const translations = {
         low: "Confiance dans la capacité humaine à bien utiliser l'IA",
         high: "Vigilance élevée face aux risques d'aliénation et de dérive",
         lowDetail: "Vous faites confiance à la capacité de discernement des croyants et des institutions pour intégrer l'IA de manière responsable.",
-        highDetail: "Vous identifiez des risques sérieux : relations moins authentiques, moindre effort spirituel personnel, ou transmission d'erreurs doctrinales par des systèmes non supervisés.",
+        highDetail: "Vous identifiez des risques sérieux : relations moins authentiques, moindre effort spirituel personnel, ou transmission d'erreurs doctrinales par des systèmes non supervisés.",
       },
       psychologicalPerception: {
         label: "Perception de l'IA",
         description: "Vision de la nature de l'IA et de son rapport à la spécificité humaine (Imago Dei)",
         low: "L'IA est un outil technique sans dimension existentielle",
         high: "L'IA soulève des questions profondes sur la conscience et la singularité humaine",
-        lowDetail: "Pour vous, l'IA reste fondamentalement un outil : sophistiqué, utile, mais sans rapport avec les questions de conscience ou de dignité humaine.",
-        highDetail: "L'IA vous interpelle sur ce qui fait la spécificité de l'être humain créé à l'image de Dieu. Peut-elle avoir une forme de conscience ? Menace-t-elle notre singularité ?",
+        lowDetail: "Pour vous, l'IA reste fondamentalement un outil : sophistiqué, utile, mais sans rapport avec les questions de conscience ou de dignité humaine.",
+        highDetail: "L'IA vous interpelle sur ce qui fait la spécificité de l'être humain créé à l'image de Dieu. Peut-elle avoir une forme de conscience ? Menace-t-elle notre singularité ?",
       },
-      communityInfluence: {
-        label: "Ancrage Communautaire",
-        description: "Importance de l'appartenance ecclésiale dans la formation de vos convictions sur l'IA",
-        low: "Réflexion personnelle indépendante de la communauté",
-        high: "Convictions façonnées par le dialogue communautaire et la tradition",
-        lowDetail: "Vos positions sur l'IA se forment principalement par réflexion personnelle, lectures ou expériences individuelles, indépendamment des positions de votre communauté.",
-        highDetail: "Votre communauté joue un rôle important dans votre réflexion. Vous êtes attentif aux positions officielles, aux échanges avec d'autres croyants, et à la sagesse collective.",
+      communityContext: {
+        label: "Contexte communautaire",
+        description: "Position de votre communauté face à l'IA, telle que vous la percevez, et place du sujet dans vos échanges",
+        low: "Communauté perçue comme réservée face à l'IA, sujet peu discuté",
+        high: "Communauté perçue comme favorable à l'IA, sujet discuté",
+        lowDetail: "Vous décrivez une communauté plutôt réservée face à l'IA, ou dans laquelle le sujet est peu abordé. Cette dimension décrit votre contexte, pas votre position personnelle.",
+        highDetail: "Vous décrivez une communauté plutôt favorable à l'IA, dans laquelle le sujet est discuté. Cette dimension décrit votre contexte, pas votre position personnelle.",
       },
       futureOrientation: {
         label: "Orientation Future",
         description: "Intention d'approfondir votre engagement avec l'IA dans un contexte spirituel",
-        low: "Stabilité : l'approche actuelle vous convient",
-        high: "Curiosité active : désir d'explorer et de se former",
+        low: "Stabilité : l'approche actuelle vous convient",
+        high: "Curiosité active : désir d'explorer et de se former",
         lowDetail: "Votre rapport actuel à l'IA vous satisfait. Vous n'éprouvez pas le besoin particulier d'en savoir plus ou d'expérimenter davantage.",
         highDetail: "Vous êtes curieux(se) d'explorer les possibilités de l'IA dans un contexte religieux et souhaitez vous former pour mieux comprendre les enjeux.",
       },
@@ -541,7 +552,7 @@ export const translations = {
       // Hero
       title: "Notre Méthodologie",
       subtitle: "Comprendre la science derrière vos résultats",
-      heroDescription: "Cette étude combine des échelles psychométriques validées avec une approche exploratoire pour cartographier les attitudes face à l'IA dans les contextes spirituels.",
+      heroDescription: "Cette étude indépendante combine des échelles adaptées et des construits exploratoires pour décrire les attitudes déclarées face à l'IA dans les contextes spirituels. Elle n'est adossée à aucune institution universitaire.",
       scrollToExplore: "Défiler pour explorer",
 
       // Badge
@@ -553,87 +564,131 @@ export const translations = {
       whatItIsNot: "Ce qu'elle n'est pas",
       whatItIsPoints: [
         "Un outil d'engagement pour la réflexion personnelle",
-        "Une recherche exploratoire sur les attitudes",
-        "Une cartographie des postures face à l'IA et la foi",
+        "Une recherche exploratoire sur des attitudes déclarées",
+        "Une description des postures face à l'IA dans le champ spirituel",
         "Un point de départ pour le dialogue communautaire",
       ],
       whatItIsNotPoints: [
-        "Un diagnostic psychologique clinique",
-        "Une évaluation spirituelle définitive",
-        "Un test validé à grande échelle",
-        "Une catégorisation rigide de votre foi",
+        "Un diagnostic psychologique ou spirituel",
+        "Une échelle psychométrique validée",
+        "Une enquête représentative d'une population",
+        "Une catégorisation stable des personnes",
       ],
 
-      // Validated Scales
-      validatedScalesTitle: "Échelles Validées",
-      crs5Title: "CRS-5 : Centrality of Religiosity Scale",
-      crs5Description: "Échelle à 5 dimensions développée par Huber & Huber (2012) pour mesurer la centralité de la religion dans la vie quotidienne. Couvre : l'intellect religieux, l'idéologie, la pratique publique, la pratique privée et l'expérience religieuse.",
+      // Échelles et items
+      scalesTitle: "Échelles et items",
+      scalesNote: "Aucun de ces instruments n'est administré dans une version validée. Les statuts ci-dessous indiquent précisément ce qui est repris et ce qui ne l'est pas.",
+      statusAdapted: "adapté",
+      statusAdHoc: "sélection ad hoc",
+      statusInspired: "inspiré de",
+
+      crs5Title: "CRS-5 : centralité de la religiosité",
+      crs5Description: "Cinq items, un par sous-dimension de Huber & Huber (2012) : intellect, idéologie, pratique publique, pratique privée, expérience. Le score est la moyenne brute des cinq items, sans aucune correction. La traduction française employée ici n'est pas une version validée du CRS et le recodage des fréquences de prière suit celui des auteurs.",
       crs5Citation: "Huber, S., & Huber, O. W. (2012). The Centrality of Religiosity Scale (CRS). Religions, 3(3), 710-724.",
+      crs5Items: [
+        { name: "Intellect", desc: "Fréquence de réflexion sur des questions religieuses" },
+        { name: "Idéologie", desc: "Croyance en l'existence de Dieu ou d'une réalité divine" },
+        { name: "Pratique publique", desc: "Fréquence de participation aux offices" },
+        { name: "Pratique privée", desc: "Fréquence de prière en dehors des offices" },
+        { name: "Expérience", desc: "Fréquence du sentiment d'une intervention divine dans sa vie" },
+      ],
 
-      marloweCrowneTitle: "Marlowe-Crowne : Désirabilité Sociale",
-      marloweCrowneDescription: "Version courte (5 items) pour détecter le biais de désirabilité sociale. Permet d'ajuster les scores pour les réponses potentiellement biaisées vers ce qui est socialement attendu.",
+      marloweCrowneTitle: "Marlowe-Crowne : désirabilité sociale",
+      marloweCrowneDescription: "Cinq affirmations en vrai ou faux, choisies pour leur brièveté parmi celles de Crowne & Marlowe (1960). Ce n'est pas une forme courte validée : les formes validées sont celles de Reynolds (1982) et de Strahan & Gerbasi (1972), qui ne sont pas utilisées ici. Le résultat sert de covariable et n'ajuste aucun score.",
       marloweCrowneCitation: "Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability independent of psychopathology. Journal of Consulting Psychology, 24(4), 349-354.",
+      marloweCrowneItems: [
+        { name: "Item 1", desc: "Difficulté à continuer son travail sans encouragement" },
+        { name: "Item 2", desc: "N'avoir jamais intensément détesté quelqu'un" },
+        { name: "Item 3", desc: "Avoir parfois eu envie de se rebeller contre une autorité que l'on savait pourtant dans son droit" },
+        { name: "Item 4", desc: "Être toujours courtois, même avec des personnes désagréables" },
+        { name: "Item 5", desc: "Avoir déjà profité de quelqu'un" },
+      ],
 
-      aiasTitle: "AIAS : AI Anxiety Scale (Proxies)",
-      aiasDescription: "Inspiré de Wang & Wang (2022) pour mesurer l'anxiété face à l'IA. Notre version utilise des proxies adaptés au contexte religieux : opacité algorithmique, peur du remplacement, perception de la conscience IA.",
-      aiasCitation: "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an AI anxiety scale. Interactive Learning Environments.",
+      godspeedTitle: "Godspeed : anthropomorphisme",
+      godspeedDescription: "Deux items originaux, écrits pour cette enquête, dont la formulation s'appuie sur la dimension d'anthropomorphisme du questionnaire Godspeed (Bartneck et al., 2009). Le différenciateur sémantique original n'est pas administré et ces items n'héritent d'aucune de ses propriétés.",
+      godspeedCitation: "Bartneck, C., Kulić, D., Croft, E., & Zoghbi, S. (2009). Measurement instruments for the anthropomorphism, animacy, likeability, perceived intelligence, and perceived safety of robots. International Journal of Social Robotics, 1(1), 71-81.",
+      godspeedItems: [
+        { name: "Nature", desc: "Situer l'IA sur un continuum de la machine vers l'humain" },
+        { name: "Conscience", desc: "Possibilité d'une forme de conscience artificielle" },
+      ],
+
+      aiasTitle: "AIAS : opacité algorithmique",
+      aiasDescription: "Un item original sur la gêne face à un système dont on ne comprend pas le fonctionnement. Il reprend la thématique d'opacité de l'AI Anxiety Scale (Wang & Wang, 2022), qui n'est pas administrée. Cet item ne mesure pas l'anxiété face à l'IA au sens de cette échelle.",
+      aiasCitation: "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an artificial intelligence anxiety scale. Interactive Learning Environments, 30(4), 619-634.",
+      aiasItems: [
+        { name: "Opacité", desc: "Gêne face à un système dont le fonctionnement échappe" },
+      ],
 
       // 7 Dimensions
       dimensionsTitle: "Les 7 Dimensions",
-      dimensionsDescription: "Chaque profil est calculé à partir de 7 dimensions indépendantes, mesurées sur une échelle de 1 à 5.",
+      dimensionsDescription: "7 dimensions, un item par dimension : chaque question n'alimente qu'un seul score, aucune variable démographique n'entre dans un calcul, et les réponses « je ne sais pas » sont traitées comme manquantes. Échelle de 1 à 5.",
       clickToExplore: "Cliquez sur une dimension pour en savoir plus",
 
-      dimensionReligiosity: "Intensité Spirituelle",
-      dimensionReligiosityDesc: "Centralité de la foi dans la vie quotidienne (CRS-5)",
+      dimensionReligiosity: "Centralité de la religiosité",
+      dimensionReligiosityDesc: "Moyenne brute des 5 items du CRS-5 (adapté), sans correction",
       dimensionAiOpenness: "Ouverture à l'IA",
-      dimensionAiOpennessDesc: "Disposition à adopter l'IA dans différents domaines",
-      dimensionSacredBoundary: "Frontière Sacrée",
-      dimensionSacredBoundaryDesc: "Résistance à l'IA dans les contextes spirituels",
-      dimensionEthicalConcern: "Préoccupation Éthique",
-      dimensionEthicalConcernDesc: "Inquiétude face aux implications éthiques",
+      dimensionAiOpennessDesc: "Fréquence, confort et contextes d'usage déclarés",
+      dimensionSacredBoundary: "Frontière sacrée",
+      dimensionSacredBoundaryDesc: "Actes spirituels que le répondant exclut d'une médiation par un outil génératif",
+      dimensionEthicalConcern: "Préoccupation éthique",
+      dimensionEthicalConcernDesc: "Utilité perçue, opacité des systèmes et rapport à l'image de Dieu",
       dimensionPsychPerception: "Perception de l'IA",
-      dimensionPsychPerceptionDesc: "Vision de la nature de l'IA et du rapport à l'humain",
-      dimensionCommunity: "Ancrage Communautaire",
-      dimensionCommunityDesc: "Influence de la communauté sur les convictions",
-      dimensionFuture: "Orientation Future",
-      dimensionFutureDesc: "Volonté d'évolution du rapport à l'IA",
+      dimensionPsychPerceptionDesc: "Nature attribuée à l'IA, conscience et anticipation de remplacement",
+      dimensionCommunity: "Contexte communautaire",
+      dimensionCommunityDesc: "Position officielle perçue, discussions et attitude des pairs, telles que déclarées",
+      dimensionFuture: "Orientation future",
+      dimensionFutureDesc: "Intention d'usage, souhait de formation et domaines d'intérêt déclarés",
+      dimensionScaleNote: "Échelle de 1 (bas) à 5 (haut). Non calculée si trop peu d'items sont renseignés.",
 
       // 8 Profiles
-      profilesTitle: "Les 8 Profils",
-      profilesDescription: "Les profils représentent des postures-types face à l'IA dans un contexte de foi. Ils ne sont pas des catégories rigides mais des tendances dominantes.",
+      profilesTitle: "Les 8 profils",
+      profilesDescription: "L'attribution du profil est heuristique : les plages idéales et les poids ont été fixés par jugement, puis ajustés contre une simulation, jamais dérivés d'une analyse de classification sur des données réelles. Les profils ne sont pas des construits validés.",
+      profileHeuristicBadge: "Attribution heuristique",
+      profileMotivationLabel: "Ce que décrivent les réponses",
+      profileWatchpointLabel: "Point de vigilance",
+      profileSubProfilesLabel: "Sous-profils",
 
       // Statistical Methods
-      statsTitle: "Méthodes Statistiques",
-      weightedAverageTitle: "Moyenne Pondérée",
-      weightedAverageDesc: "Chaque dimension est calculée comme une moyenne pondérée des réponses pertinentes. Les poids reflètent l'importance de chaque question pour cette dimension.",
-      weightedAverageFormula: "Score = Σ(réponse × poids) / Σ(poids)",
+      statsTitle: "Méthodes de calcul",
+      weightedAverageTitle: "Moyenne pondérée",
+      weightedAverageDesc: "Chaque dimension est la moyenne pondérée des items effectivement répondus. Les réponses « je ne sais pas » et « je préfère ne pas répondre » sont exclues et jamais remplacées par le milieu de l'échelle. En dessous du nombre minimal d'items, la dimension n'est pas calculée.",
+      weightedAverageFormula: "value = Σ(score × poids) / Σ(poids), sinon null",
 
-      percentileTitle: "Calcul des Percentiles",
-      percentileDesc: "Les percentiles sont calculés en utilisant la fonction de distribution cumulative normale (CDF) pour situer votre score par rapport à la population de référence.",
-      percentileFormula: "Percentile = Φ((score - μ) / σ) × 100",
+      empiricalRankTitle: "Rang empirique",
+      empiricalRankDesc: "Votre score est situé sur la distribution réellement observée chez les participants, jamais sur une population de référence hypothétique. La comparaison n'apparaît qu'à partir de 30 participants et évolue au fil de la collecte.",
+      empiricalRankFormula: "rang = min { i : score ≤ quantile_i },  affiché si N ≥ 30",
 
-      profileMatchingTitle: "Matching de Profil",
-      profileMatchingDesc: "Le profil est assigné en mesurant la distance euclidienne pondérée entre vos dimensions et les plages idéales de chaque profil. Le profil avec la plus petite distance (meilleure correspondance) est sélectionné.",
+      profileMatchingTitle: "Attribution du profil",
+      profileMatchingDesc: "Pour chaque dimension renseignée, on mesure l'écart absolu à la plage idéale du profil, on pondère et on renormalise sur les seules dimensions disponibles. Cette distance est convertie en score, puis des bonus liés à certains patrons de réponses sont ajoutés dans l'espace des scores. Il ne s'agit pas d'une distance euclidienne. En dessous de 4 dimensions renseignées, aucun profil n'est attribué.",
+      profileMatchingFormula: "d = Σ(écart à la plage × poids) / Σ(poids)   puis   score = 100 × exp(−0,5 × d)",
 
-      biasAdjustmentTitle: "Ajustement pour le Biais",
-      biasAdjustmentDesc: "Les scores des dimensions sensibles à la désirabilité sociale (ex: religiosité) sont ajustés à la baisse si un biais élevé est détecté via l'échelle Marlowe-Crowne.",
+      desirabilityTitle: "Désirabilité sociale",
+      desirabilityDesc: "Les cinq affirmations en vrai ou faux servent uniquement de covariable. Aucun score n'est ajusté, aucun répondant n'est exclu : le drapeau sert à vérifier, après coup, que les résultats ne changent pas quand on écarte les réponses très consensuelles.",
+      desirabilityFormula: "drapeau = (items répondus ≥ 4) et (part endossée ≥ 0,8)",
+
+      distributionTitle: "Distribution observée",
+      distributionCaption: "Le rang est lu sur la distribution des participants réels, recalculée à chaque nouvelle réponse.",
 
       // Transparency
       transparencyTitle: "Transparence Méthodologique",
       tradeoffsTitle: "Compromis Engagement vs Rigueur",
       tradeoffs: [
-        { aspect: "Longueur du questionnaire", engagement: "Court (5-7 min)", rigor: "Long (30+ min)" },
-        { aspect: "Validation statistique", engagement: "Échelles adaptées", rigor: "Échelles complètes" },
-        { aspect: "Objectif", engagement: "Réflexion personnelle", rigor: "Diagnostic clinique" },
-        { aspect: "Échantillon", engagement: "Auto-sélectionné", rigor: "Randomisé" },
+        { aspect: "Longueur du questionnaire", engagement: "Court (8 à 12 min)", rigor: "Long (30 min et plus)" },
+        { aspect: "Instruments", engagement: "Échelles adaptées et items originaux", rigor: "Échelles administrées intégralement" },
+        { aspect: "Objectif", engagement: "Réflexion personnelle", rigor: "Mesure psychométrique" },
+        { aspect: "Échantillon", engagement: "Convenance et boule de neige", rigor: "Tirage aléatoire" },
       ],
 
-      limitationsTitle: "Limitations Connues",
+      limitationsTitle: "Limites connues",
       limitations: [
-        "Échantillon auto-sélectionné (non représentatif de la population générale)",
-        "Échelles adaptées pour la brièveté (validité réduite vs versions complètes)",
-        "Biais de désirabilité sociale (partiellement corrigé par Marlowe-Crowne)",
-        "Contexte culturel franco-anglophone (généralisabilité limitée)",
+        "Échantillon auto-sélectionné : le sujet est annoncé, les personnes indifférentes répondent moins",
+        "Recrutement par partage : les répondants recrutent leur propre réseau, les observations ne sont pas indépendantes",
+        "6 des 7 dimensions reposent sur des construits exploratoires, sans analyse factorielle",
+        "5 items de désirabilité sociale : signal grossier, fidélité faible",
+        "Traductions non validées pour le CRS-5 et les items inspirés du Godspeed et de l'AIAS",
+        "Clergé et laïcs ne répondent pas aux mêmes items : les comparaisons portent sur un noyau commun",
+        "Enquête transversale : aucun sens de causalité n'est identifiable",
+        "Les résultats agrégés sont visibles pendant la collecte et peuvent influencer les répondants suivants",
       ],
 
       suitableFor: "Cette enquête convient pour...",
@@ -651,42 +706,60 @@ export const translations = {
       ],
 
       // Confessional Structure
-      confessionalTitle: "Structure Confessionnelle",
-      confessionalDesc: "L'enquête distingue les grandes traditions chrétiennes pour permettre des analyses croisées tout en préservant l'anonymat.",
+      confessionalTitle: "Structure confessionnelle",
+      confessionalDesc: "Le questionnaire distingue les grandes traditions chrétiennes, puis un courant à l'intérieur de chacune, pour permettre des comparaisons entre groupes tout en préservant l'anonymat.",
       catholic: "Catholique",
-      protestantMainline: "Historique / Mainline",
-      protestantEvangelical: "Évangélique",
-      protestantPentecostal: "Pentecôtiste",
+      catholicSub: ["Paroissial classique", "Charismatique", "Traditionaliste"],
+      protestant: "Protestant",
+      protestantSub: [
+        "Protestantisme historique",
+        "Évangélique non charismatique",
+        "Évangélique charismatique ou pentecôtiste",
+      ],
       orthodox: "Orthodoxe",
-      orthodoxEastern: "Oriental (Grec, Russe...)",
-      orthodoxOriental: "Oriental ancien (Copte...)",
+      orthodoxSub: ["Byzantin (grec, russe, roumain, serbe...)", "Oriental (copte, arménien, syriaque, éthiopien...)"],
       anglican: "Anglican",
+      anglicanSub: [],
       otherChristian: "Autre chrétien",
+      otherChristianSub: ["Adventiste", "Quaker", "Vieux-catholique", "Non-dénominationnel", "Autre"],
+      confessionalNote: "Aucune part de population n'est associée à ces branches : les effectifs observés décrivent les répondants, pas la démographie confessionnelle francophone. Répondre « Sans religion / Autre » met fin au questionnaire.",
 
       // Research Hypotheses
-      hypothesesTitle: "Hypothèses de Recherche",
-      hypothesesDesc: "Cette étude explore les hypothèses suivantes (à vérifier avec les données collectées) :",
+      hypothesesTitle: "Hypothèses de recherche",
+      hypothesesDesc: "Huit hypothèses directionnelles, formulées avant la collecte. Seuil α = 0,05, correction de Holm à l'intérieur de chaque famille de tests. Aucune n'est testée tant que l'effectif reste insuffisant.",
       hypotheses: [
-        { id: "H1", text: "La religiosité élevée est associée à une frontière sacrée plus stricte" },
-        { id: "H2", text: "L'ouverture à l'IA diminue avec l'âge" },
-        { id: "H3", text: "Le clergé présente une résistance spirituelle plus élevée que les laïcs" },
-        { id: "H4", text: "L'orientation progressiste est associée à une plus grande ouverture à l'IA" },
-        { id: "H5", text: "La préoccupation éthique est corrélée négativement avec l'adoption de l'IA" },
-        { id: "H6", text: "L'ancrage communautaire influence la position face à l'IA" },
-        { id: "H7", text: "Les plus jeunes ont une perception plus anthropomorphique de l'IA" },
-        { id: "H8", text: "La confession (catholique/protestant/orthodoxe) influence la frontière sacrée" },
-        { id: "H9", text: "L'usage quotidien de l'IA réduit la préoccupation éthique" },
-        { id: "H10", text: "Les profils extrêmes (gardien/pionnier) sont minoritaires" },
+        { id: "H1", text: "Une centralité religieuse plus élevée irait de pair avec une frontière sacrée plus stricte" },
+        { id: "H2", text: "Les répondants charismatiques et évangéliques présenteraient une ouverture à l'IA distincte de celle de leurs coreligionnaires non charismatiques" },
+        { id: "H3", text: "Les répondants plus jeunes présenteraient une ouverture à l'IA plus grande, indépendamment de leur niveau de religiosité" },
+        { id: "H4", text: "Une orientation théologique conservatrice irait de pair avec une frontière sacrée plus stricte" },
+        { id: "H5", text: "Le clergé présenterait une frontière sacrée de noyau commun plus stricte que les laïcs" },
+        { id: "H6", text: "La position officielle perçue de la communauté irait de pair avec l'ouverture individuelle à l'IA" },
+        { id: "H7", text: "Une formation théologique formelle irait de pair avec une préoccupation éthique plus articulée, et moins extrême" },
+        { id: "H8", text: "Un usage quotidien de l'IA irait de pair avec une préoccupation éthique plus faible" },
       ],
-      statusToVerify: "À vérifier",
+      statusToVerify: "À tester après la collecte",
+
+      // Comment lire une corrélation
+      correlationTitle: "Comment lire une corrélation",
+      correlationDesc: "Une corrélation est un fait, son explication est une hypothèse. Chaque association est donc accompagnée d'au moins une explication concurrente et d'une note de certitude, qui croise la solidité statistique (effectif, taille d'effet, précision de l'intervalle, seuil franchi après correction) et la plausibilité du mécanisme invoqué.",
+      correlationGrades: [
+        { grade: "A", label: "Association nette, mécanisme plausible", desc: "Reste une hypothèse : l'enquête est transversale." },
+        { grade: "B", label: "Association crédible", desc: "Mécanisme discutable, ou variables de confusion non contrôlées." },
+        { grade: "C", label: "Signal faible", desc: "Effectif limité ou interprétation fragile." },
+        { grade: "D", label: "Non concluant", desc: "Rien ne peut être conclu de cette association." },
+      ],
+      correlationNote: "Si deux mesures partagent un item, l'explication la mieux notée est le recouvrement des mesures, pas un lien entre deux phénomènes. Le mot « prouve » n'est employé nulle part.",
 
       // Citations
       citationsTitle: "Références",
       citations: [
         "Huber, S., & Huber, O. W. (2012). The Centrality of Religiosity Scale (CRS). Religions, 3(3), 710-724.",
-        "Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability. Journal of Consulting Psychology, 24(4), 349.",
-        "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an AI anxiety scale. Interactive Learning Environments.",
-        "Bartneck, C., et al. (2009). Measurement instruments for the anthropomorphism, animacy, likeability, perceived intelligence, and perceived safety of robots. IJSR, 1(1), 71-81.",
+        "Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability independent of psychopathology. Journal of Consulting Psychology, 24(4), 349-354.",
+        "Reynolds, W. M. (1982). Development of reliable and valid short forms of the Marlowe-Crowne Social Desirability Scale. Journal of Clinical Psychology, 38(1), 119-125.",
+        "Strahan, R., & Gerbasi, K. C. (1972). Short, homogeneous versions of the Marlowe-Crowne Social Desirability Scale. Journal of Clinical Psychology, 28(2), 191-193.",
+        "Bartneck, C., Kulić, D., Croft, E., & Zoghbi, S. (2009). Measurement instruments for the anthropomorphism, animacy, likeability, perceived intelligence, and perceived safety of robots. International Journal of Social Robotics, 1(1), 71-81.",
+        "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an artificial intelligence anxiety scale. Interactive Learning Environments, 30(4), 619-634.",
+        "Cohen, J. (1988). Statistical power analysis for the behavioral sciences (2e éd.). Lawrence Erlbaum Associates.",
       ],
 
       // Navigation
@@ -711,7 +784,7 @@ export const translations = {
         "Your participation is essential for research. We guarantee the protection of your rights:",
       anonymity: "Complete anonymity:",
       anonymityDesc:
-        "No personally identifiable data (name, email, IP) is recorded.",
+        "No name, email or IP address is stored in the clear: only keyed cryptographic hashes used to prevent duplicate submissions.",
       academic: "Data usage:",
       academicDesc:
         "Responses are aggregated solely for statistical purposes.",
@@ -767,28 +840,39 @@ export const translations = {
       huberScale: "Huber Scale",
       aiAdoption: "AI Adoption",
       usageLevel: "Usage level",
-      vsOthers: "vs others",
-      top: "Top {percent}%",
-      spiritualResistance: "Spiritual Resistance",
-      generalVsSpiritual: "General vs spiritual usage",
-      generalAI: "General AI",
-      spiritualAI: "Spiritual AI",
-      gap: "Gap",
-      resistanceHigh:
-        "You use AI regularly but resist its spiritual use. This distinction is significant.",
-      resistanceMedium:
-        "Slight difference between your general and spiritual AI uses.",
-      resistanceLow:
-        "Your AI usage is consistent between secular and spiritual domains.",
       insightsTitle: "Personalized insights",
       viewGlobalResults: "View global results",
       disclaimer:
         "This profile is generated from your responses for illustrative purposes. It does not constitute a psychological or spiritual assessment.",
       match: "Match",
+      matchScore: "match {score} / 100",
       profileSpectrum: "Your Profile Spectrum",
       sevenDimensions: "Your 7 Dimensions",
-      growthArea: "Growth Area",
-      tensionPoint: "Tension Point",
+      reflectionAreas: "Points to reflect on, if you wish",
+      tensionPoint: "Observed tension",
+      notMeasured: "Not measured (too few answers)",
+      notMeasuredDetail:
+        "Too few items of this dimension were answered to compute a score.",
+      heuristicAttribution:
+        "Heuristic attribution, not validated: the profile below is an indicative reading of your answers, not a diagnosis.",
+      noProfileTitle: "No profile can be attributed: too few dimensions measured",
+      noProfileDescription:
+        "At least four dimensions must be measured before your answers can be matched to a profile. Your raw dimension scores are still shown below.",
+      measuredDimensions: "Dimensions measured: {count} out of 7",
+      closeProfilesTitle: "Two close profiles",
+      closeProfilesDescription:
+        "Your answers sit at a comparable distance from two profiles. Neither one wins; both are shown together.",
+      normsComparison: "Your score is higher than {percent}% of the {count} participants",
+      normsUnavailable: "Comparison available from 30 participants onwards",
+      usageGap: "Usage gap",
+      usageGapNote:
+        "Comparison between the AI use you report in general and the use you report in the spiritual or ministry domain.",
+      usageGapNoUse: "No AI use reported",
+      usageGapGeneralOnly: "General use reported, no spiritual use reported",
+      usageGapBoth: "Use reported in both domains",
+      usageGapUnknown: "Gap cannot be computed: the general-use question was left unanswered",
+      socialDesirabilityNote:
+        "Your answers to the five true/false statements suggest a tendency to answer in a socially expected way; your profile is computed without correction and should be read with that reservation in mind.",
     },
 
     // Profile names
@@ -828,26 +912,26 @@ export const translations = {
       chercheur_seculier: "The Secular Seeker",
     },
 
-    // Growth areas
+    // Reflection areas: observed gaps, described without prescription
     growthAreas: {
-      exploration_tech: "Tech Exploration",
-      exploration_tech_action: "Try a simple AI tool in a non-spiritual context to get familiar",
-      community_dialogue: "Community Dialogue",
-      community_dialogue_action: "Start a conversation about AI with a member of your community",
-      ethical_reflection: "Ethical Reflection",
-      ethical_reflection_action: "Read an article about AI ethical issues in a field that concerns you",
-      guided_experimentation: "Guided Experimentation",
-      guided_experimentation_action: "Identify an administrative use where AI could free up time for relationships",
-      openness_change: "Openness to Change",
-      openness_change_action: "Occasionally follow AI news in the religious domain",
+      exploration_tech: "Reported use and intended use",
+      exploration_tech_action: "Your answers indicate a low current use and a higher intended use.",
+      community_dialogue: "How present the topic is in your community",
+      community_dialogue_action: "Your answers indicate a high religious centrality and a community context where the topic is rarely present.",
+      ethical_reflection: "Reported use and ethical concern",
+      ethical_reflection_action: "Your answers indicate a frequent use of AI and a low ethical concern.",
+      guided_experimentation: "Sacred boundary and reported use",
+      guided_experimentation_action: "Your answers indicate a high sacred boundary and a frequent use of AI outside the spiritual domain.",
+      openness_change: "Following the topic",
+      openness_change_action: "Your answers indicate little reported exposure to discussions about AI in the religious field.",
     },
 
-    // Tensions
+    // Tensions: two dimensions read together, no value judgement
     tensions: {
-      tension_ai_sacred: "You are open to AI in general but maintain reservations for spiritual matters.",
-      tension_ethical_future: "You want to move forward but with ethical caution.",
-      tension_community_faith: "Deep faith but little influenced by community.",
-      tension_perception_ethics: "You reflect on the nature of AI but without particular concern.",
+      tension_ai_sacred: "Your answers combine a reported use of AI and a high boundary around spiritual acts.",
+      tension_ethical_future: "Your answers combine a high ethical concern and a high intended use.",
+      tension_community_faith: "Your answers combine a high religious centrality and a community context with little traction on this topic.",
+      tension_perception_ethics: "Your answers combine an anthropomorphic perception of AI and a low ethical concern.",
     },
 
     // Thank You Screen
@@ -1127,9 +1211,9 @@ export const translations = {
       sacredBoundary: "Conviction about the necessity of human presence for certain spiritual acts",
       ethicalConcern: "Vigilance towards risks of dehumanization and doctrinal errors",
       psychologicalPerception: "Questions about AI's nature and human uniqueness (Imago Dei)",
-      communityInfluence: "Role of ecclesial belonging in shaping your convictions",
+      communityContext: "Your community's stance toward AI, as you perceive it",
       futureOrientation: "Intention to deepen your engagement with AI",
-      matchExplain: "The match percentage indicates how closely your response profile corresponds to the typical profile. A high score means strong alignment.",
+      matchExplain: "The score out of 100 measures how close your answers are to the typical profile ranges. Attribution is heuristic: ranges were set by judgement, not derived from data.",
       disclaimer: "These profiles are reflection tools, not rigid categories. You can evolve and exhibit characteristics of multiple profiles.",
       balancedPosition: "Balanced position (neither high nor low) on this dimension",
     },
@@ -1137,7 +1221,7 @@ export const translations = {
     // Methodology
     methodology: {
       title: "Methodological note",
-      description: "This survey uses adapted versions of validated scales (Centrality of Religiosity Scale, AI Anxiety Scale) optimized for digital engagement. While designed with scientific rigor, it is intended for self-reflection and sociological analysis, not definitive categorization.",
+      description: "This survey uses an adapted version of the CRS-5 and, for everything else, original items inspired by published instruments that are not themselves administered here. It is intended for self-reflection and exploratory analysis, never for definitive categorization.",
       learnMore: "Learn more about methodology",
     },
 
@@ -1145,23 +1229,23 @@ export const translations = {
     scientificDisclaimer: {
       title: "Scientific Disclaimer",
       exploratoryStudy: "Exploratory Study",
-      exploratoryNote: "This study uses an exploratory methodology. Profiles and percentiles are calculated from provisional parameters that will be recalibrated after sufficient data collection (N≥500).",
+      exploratoryNote: "This study is exploratory. The profile is a heuristic attribution: its ranges and weights were expert-set, never derived from an analysis of real data.",
 
       // Profile interpretation warning
       profileWarning: "This profile reflects your responses, not your identity",
       profileNote: "The results are indicative and invite reflection. They do not constitute a diagnosis or definitive categorization of your spirituality.",
 
       // Scale validation notice
-      scaleNotice: "Scales under validation",
-      scaleNote: "5 of the 7 dimensions use exploratory constructs (not yet validated by factor analysis). The Religiosity dimension uses the internationally validated CRS-5 scale.",
+      scaleNotice: "Exploratory constructs",
+      scaleNote: "6 of the 7 dimensions rest on exploratory constructs, not validated by factor analysis. Religiosity uses the CRS-5 in an adapted form, whose French translation is not a validated version.",
 
-      // Percentile caveat
-      percentileCaveat: "Provisional percentiles",
-      percentileNote: "Percentiles are based on population estimates. They will be recalculated after empirical data collection.",
+      // Comparison caveat
+      comparisonCaveat: "Empirical comparisons",
+      comparisonNote: "Your score is placed on the distribution of actual participants, from 30 participants onwards. There is no reference population.",
 
-      // Bias correction
-      biasNote: "Social desirability bias correction",
-      biasExplanation: "Your scores are adjusted based on the Marlowe-Crowne scale to reduce socially desirable response bias.",
+      // Social desirability
+      desirabilityNote: "Social desirability",
+      desirabilityExplanation: "The five true-or-false statements serve as a covariate for analysis. None of your scores is adjusted from them.",
 
       // FAIR compliance
       fairCompliance: "FAIR Compliance",
@@ -1213,13 +1297,13 @@ export const translations = {
         lowDetail: "For you, AI remains fundamentally a tool: sophisticated, useful, but unrelated to questions of consciousness or human dignity.",
         highDetail: "AI challenges you on what makes human beings unique as created in God's image. Can it have a form of consciousness? Does it threaten our singularity?",
       },
-      communityInfluence: {
-        label: "Community Anchoring",
-        description: "Importance of ecclesial belonging in shaping your convictions about AI",
-        low: "Personal reflection independent of community",
-        high: "Convictions shaped by community dialogue and tradition",
-        lowDetail: "Your positions on AI are formed mainly through personal reflection, reading, or individual experiences, independently of your community's positions.",
-        highDetail: "Your community plays an important role in your reflection. You are attentive to official positions, exchanges with other believers, and collective wisdom.",
+      communityContext: {
+        label: "Community context",
+        description: "Your community's stance toward AI as you perceive it, and how present the topic is in your exchanges",
+        low: "Community perceived as reserved toward AI, topic rarely discussed",
+        high: "Community perceived as favourable to AI, topic discussed",
+        lowDetail: "You describe a community that is rather reserved toward AI, or where the topic is rarely raised. This dimension describes your context, not your personal position.",
+        highDetail: "You describe a community that is rather favourable to AI, where the topic is discussed. This dimension describes your context, not your personal position.",
       },
       futureOrientation: {
         label: "Future Orientation",
@@ -1237,7 +1321,7 @@ export const translations = {
       // Hero
       title: "Our Methodology",
       subtitle: "Understanding the science behind your results",
-      heroDescription: "This study combines validated psychometric scales with an exploratory approach to map attitudes toward AI in spiritual contexts.",
+      heroDescription: "This independent study combines adapted scales and exploratory constructs to describe self-reported attitudes toward AI in spiritual contexts. It is not affiliated with any university.",
       scrollToExplore: "Scroll to explore",
 
       // Badge
@@ -1249,87 +1333,131 @@ export const translations = {
       whatItIsNot: "What it is not",
       whatItIsPoints: [
         "An engagement tool for personal reflection",
-        "Exploratory research on attitudes",
-        "A mapping of stances toward AI and faith",
+        "Exploratory research on self-reported attitudes",
+        "A description of stances toward AI in the spiritual domain",
         "A starting point for community dialogue",
       ],
       whatItIsNotPoints: [
-        "A clinical psychological diagnosis",
-        "A definitive spiritual assessment",
-        "A large-scale validated test",
-        "A rigid categorization of your faith",
+        "A psychological or spiritual diagnosis",
+        "A validated psychometric scale",
+        "A survey representative of any population",
+        "A stable categorization of people",
       ],
 
-      // Validated Scales
-      validatedScalesTitle: "Validated Scales",
-      crs5Title: "CRS-5: Centrality of Religiosity Scale",
-      crs5Description: "A 5-dimension scale developed by Huber & Huber (2012) to measure the centrality of religion in daily life. Covers: religious intellect, ideology, public practice, private practice, and religious experience.",
+      // Scales and items
+      scalesTitle: "Scales and items",
+      scalesNote: "None of these instruments is administered in a validated version. The statuses below state precisely what is reused and what is not.",
+      statusAdapted: "adapted",
+      statusAdHoc: "ad hoc selection",
+      statusInspired: "inspired by",
+
+      crs5Title: "CRS-5: centrality of religiosity",
+      crs5Description: "Five items, one per Huber & Huber (2012) sub-dimension: intellect, ideology, public practice, private practice, experience. The score is the raw mean of the five items, with no correction. The French translation used here is not a validated version of the CRS, and the prayer-frequency recoding follows the authors'.",
       crs5Citation: "Huber, S., & Huber, O. W. (2012). The Centrality of Religiosity Scale (CRS). Religions, 3(3), 710-724.",
+      crs5Items: [
+        { name: "Intellect", desc: "How often the respondent thinks about religious issues" },
+        { name: "Ideology", desc: "Belief in the existence of God or a divine reality" },
+        { name: "Public practice", desc: "How often the respondent takes part in religious services" },
+        { name: "Private practice", desc: "How often the respondent prays outside services" },
+        { name: "Experience", desc: "How often the respondent feels a divine intervention in their life" },
+      ],
 
-      marloweCrowneTitle: "Marlowe-Crowne: Social Desirability",
-      marloweCrowneDescription: "Short version (5 items) to detect social desirability bias. Allows score adjustment for responses potentially biased toward what is socially expected.",
+      marloweCrowneTitle: "Marlowe-Crowne: social desirability",
+      marloweCrowneDescription: "Five true-or-false statements, picked for brevity from Crowne & Marlowe (1960). This is not a validated short form: the validated short forms are those of Reynolds (1982) and Strahan & Gerbasi (1972), neither of which is used here. The result is a covariate and adjusts no score.",
       marloweCrowneCitation: "Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability independent of psychopathology. Journal of Consulting Psychology, 24(4), 349-354.",
+      marloweCrowneItems: [
+        { name: "Item 1", desc: "Finding it hard to keep working without encouragement" },
+        { name: "Item 2", desc: "Having never intensely disliked anyone" },
+        { name: "Item 3", desc: "Having sometimes wanted to rebel against people in authority even when they were right" },
+        { name: "Item 4", desc: "Always being courteous, even with unpleasant people" },
+        { name: "Item 5", desc: "Having taken advantage of someone" },
+      ],
 
-      aiasTitle: "AIAS: AI Anxiety Scale (Proxies)",
-      aiasDescription: "Inspired by Wang & Wang (2022) to measure AI anxiety. Our version uses proxies adapted to the religious context: algorithmic opacity, fear of replacement, perception of AI consciousness.",
-      aiasCitation: "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an AI anxiety scale. Interactive Learning Environments.",
+      godspeedTitle: "Godspeed: anthropomorphism",
+      godspeedDescription: "Two original items, written for this survey, whose wording draws on the anthropomorphism dimension of the Godspeed questionnaire (Bartneck et al., 2009). The original semantic differential is not administered and these items inherit none of its properties.",
+      godspeedCitation: "Bartneck, C., Kulić, D., Croft, E., & Zoghbi, S. (2009). Measurement instruments for the anthropomorphism, animacy, likeability, perceived intelligence, and perceived safety of robots. International Journal of Social Robotics, 1(1), 71-81.",
+      godspeedItems: [
+        { name: "Nature", desc: "Placing AI on a machine-to-human continuum" },
+        { name: "Consciousness", desc: "Possibility of some form of artificial consciousness" },
+      ],
+
+      aiasTitle: "AIAS: algorithmic opacity",
+      aiasDescription: "One original item on unease with a system whose workings cannot be understood. It picks up the opacity theme of the AI Anxiety Scale (Wang & Wang, 2022), which is not administered. This item does not measure AI anxiety in the sense of that scale.",
+      aiasCitation: "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an artificial intelligence anxiety scale. Interactive Learning Environments, 30(4), 619-634.",
+      aiasItems: [
+        { name: "Opacity", desc: "Unease with a system whose workings escape the user" },
+      ],
 
       // 7 Dimensions
       dimensionsTitle: "The 7 Dimensions",
-      dimensionsDescription: "Each profile is calculated from 7 independent dimensions, measured on a scale of 1 to 5.",
+      dimensionsDescription: "7 dimensions, one item per dimension: every question feeds exactly one score, no demographic variable enters a calculation, and \"don't know\" answers are treated as missing. Scale of 1 to 5.",
       clickToExplore: "Click on a dimension to learn more",
 
-      dimensionReligiosity: "Spiritual Intensity",
-      dimensionReligiosityDesc: "Centrality of faith in daily life (CRS-5)",
-      dimensionAiOpenness: "AI Openness",
-      dimensionAiOpennessDesc: "Willingness to adopt AI in different domains",
-      dimensionSacredBoundary: "Sacred Boundary",
-      dimensionSacredBoundaryDesc: "Resistance to AI in spiritual contexts",
-      dimensionEthicalConcern: "Ethical Concern",
-      dimensionEthicalConcernDesc: "Worry about ethical implications",
-      dimensionPsychPerception: "AI Perception",
-      dimensionPsychPerceptionDesc: "View of AI's nature and relation to humanity",
-      dimensionCommunity: "Community Anchoring",
-      dimensionCommunityDesc: "Community influence on convictions",
-      dimensionFuture: "Future Orientation",
-      dimensionFutureDesc: "Willingness to evolve relationship with AI",
+      dimensionReligiosity: "Centrality of religiosity",
+      dimensionReligiosityDesc: "Raw mean of the 5 CRS-5 items (adapted), with no correction",
+      dimensionAiOpenness: "AI openness",
+      dimensionAiOpennessDesc: "Self-reported frequency, comfort and contexts of use",
+      dimensionSacredBoundary: "Sacred boundary",
+      dimensionSacredBoundaryDesc: "Spiritual acts the respondent excludes from any mediation by a generative tool",
+      dimensionEthicalConcern: "Ethical concern",
+      dimensionEthicalConcernDesc: "Perceived usefulness, opacity of systems and relation to the image of God",
+      dimensionPsychPerception: "AI perception",
+      dimensionPsychPerceptionDesc: "Nature attributed to AI, consciousness and anticipation of replacement",
+      dimensionCommunity: "Community context",
+      dimensionCommunityDesc: "Perceived official position, discussions and peer attitudes, as reported",
+      dimensionFuture: "Future orientation",
+      dimensionFutureDesc: "Self-reported intention to use, training wishes and areas of interest",
+      dimensionScaleNote: "Scale from 1 (low) to 5 (high). Not computed when too few items are answered.",
 
       // 8 Profiles
-      profilesTitle: "The 8 Profiles",
-      profilesDescription: "Profiles represent typical stances toward AI in a faith context. They are not rigid categories but dominant tendencies.",
+      profilesTitle: "The 8 profiles",
+      profilesDescription: "Profile attribution is heuristic: ideal ranges and weights were expert-set, then tuned against a simulation, never derived from a cluster analysis of real data. Profiles are not validated constructs.",
+      profileHeuristicBadge: "Heuristic attribution",
+      profileMotivationLabel: "What the answers describe",
+      profileWatchpointLabel: "Watch point",
+      profileSubProfilesLabel: "Sub-profiles",
 
       // Statistical Methods
-      statsTitle: "Statistical Methods",
-      weightedAverageTitle: "Weighted Average",
-      weightedAverageDesc: "Each dimension is calculated as a weighted average of relevant responses. Weights reflect the importance of each question for that dimension.",
-      weightedAverageFormula: "Score = Σ(response × weight) / Σ(weights)",
+      statsTitle: "How the scores are computed",
+      weightedAverageTitle: "Weighted mean",
+      weightedAverageDesc: "Each dimension is the weighted mean of the items actually answered. \"Don't know\" and \"prefer not to answer\" are excluded and never replaced by the midpoint of the scale. Below the minimum number of items, the dimension is not computed.",
+      weightedAverageFormula: "value = Σ(score × weight) / Σ(weights), otherwise null",
 
-      percentileTitle: "Percentile Calculation",
-      percentileDesc: "Percentiles are calculated using the normal cumulative distribution function (CDF) to position your score relative to the reference population.",
-      percentileFormula: "Percentile = Φ((score - μ) / σ) × 100",
+      empiricalRankTitle: "Empirical rank",
+      empiricalRankDesc: "Your score is placed on the distribution actually observed among participants, never on a hypothetical reference population. The comparison only appears from 30 participants onwards and shifts as collection continues.",
+      empiricalRankFormula: "rank = min { i : score ≤ quantile_i }, shown if N ≥ 30",
 
-      profileMatchingTitle: "Profile Matching",
-      profileMatchingDesc: "The profile is assigned by measuring the weighted Euclidean distance between your dimensions and the ideal ranges of each profile. The profile with the smallest distance (best match) is selected.",
+      profileMatchingTitle: "Profile attribution",
+      profileMatchingDesc: "For each dimension with a value, the absolute gap to the profile's ideal range is measured, weighted, and renormalised over the available dimensions only. That distance is converted into a score, then bonuses tied to specific answer patterns are added in score space. This is not a Euclidean distance. Below 4 valued dimensions, no profile is attributed.",
+      profileMatchingFormula: "d = Σ(gap to range × weight) / Σ(weights)   then   score = 100 × exp(−0.5 × d)",
 
-      biasAdjustmentTitle: "Bias Adjustment",
-      biasAdjustmentDesc: "Scores for dimensions sensitive to social desirability (e.g., religiosity) are adjusted downward if high bias is detected via the Marlowe-Crowne scale.",
+      desirabilityTitle: "Social desirability",
+      desirabilityDesc: "The five true-or-false statements serve only as a covariate. No score is adjusted and no respondent is excluded: the flag is used afterwards, to check that results do not change once highly consensual response sets are set aside.",
+      desirabilityFormula: "flag = (answered items ≥ 4) and (endorsed share ≥ 0.8)",
+
+      distributionTitle: "Observed distribution",
+      distributionCaption: "The rank is read off the distribution of actual participants, recomputed with every new response.",
 
       // Transparency
       transparencyTitle: "Methodological Transparency",
       tradeoffsTitle: "Engagement vs Rigor Trade-offs",
       tradeoffs: [
-        { aspect: "Questionnaire length", engagement: "Short (5-7 min)", rigor: "Long (30+ min)" },
-        { aspect: "Statistical validation", engagement: "Adapted scales", rigor: "Full scales" },
-        { aspect: "Objective", engagement: "Personal reflection", rigor: "Clinical diagnosis" },
-        { aspect: "Sample", engagement: "Self-selected", rigor: "Randomized" },
+        { aspect: "Questionnaire length", engagement: "Short (8 to 12 min)", rigor: "Long (30 min and more)" },
+        { aspect: "Instruments", engagement: "Adapted scales and original items", rigor: "Instruments administered in full" },
+        { aspect: "Objective", engagement: "Personal reflection", rigor: "Psychometric measurement" },
+        { aspect: "Sample", engagement: "Convenience and snowball", rigor: "Random sampling" },
       ],
 
-      limitationsTitle: "Known Limitations",
+      limitationsTitle: "Known limitations",
       limitations: [
-        "Self-selected sample (not representative of the general population)",
-        "Scales adapted for brevity (reduced validity vs. full versions)",
-        "Social desirability bias (partially corrected by Marlowe-Crowne)",
-        "French-English cultural context (limited generalizability)",
+        "Self-selected sample: the topic is announced, so indifferent people respond less",
+        "Recruitment by sharing: respondents recruit their own network, so observations are not independent",
+        "6 of the 7 dimensions rest on exploratory constructs, with no factor analysis",
+        "5 social-desirability items: a coarse signal with low reliability",
+        "Unvalidated translations for the CRS-5 and for the items inspired by Godspeed and AIAS",
+        "Clergy and laypeople do not answer the same items: comparisons use a common core",
+        "Cross-sectional survey: no direction of causality is identifiable",
+        "Aggregated results are visible during collection and may influence later respondents",
       ],
 
       suitableFor: "This survey is suitable for...",
@@ -1347,42 +1475,60 @@ export const translations = {
       ],
 
       // Confessional Structure
-      confessionalTitle: "Confessional Structure",
-      confessionalDesc: "The survey distinguishes major Christian traditions to enable cross-analysis while preserving anonymity.",
+      confessionalTitle: "Confessional structure",
+      confessionalDesc: "The questionnaire distinguishes the major Christian traditions, then one stream within each, to allow comparisons between groups while preserving anonymity.",
       catholic: "Catholic",
-      protestantMainline: "Historic / Mainline",
-      protestantEvangelical: "Evangelical",
-      protestantPentecostal: "Pentecostal",
+      catholicSub: ["Regular parish", "Charismatic", "Traditionalist"],
+      protestant: "Protestant",
+      protestantSub: [
+        "Historic Protestantism",
+        "Non-charismatic Evangelical",
+        "Charismatic or Pentecostal Evangelical",
+      ],
       orthodox: "Orthodox",
-      orthodoxEastern: "Eastern (Greek, Russian...)",
-      orthodoxOriental: "Oriental (Coptic...)",
+      orthodoxSub: ["Byzantine (Greek, Russian, Romanian, Serbian...)", "Oriental (Coptic, Armenian, Syriac, Ethiopian...)"],
       anglican: "Anglican",
+      anglicanSub: [],
       otherChristian: "Other Christian",
+      otherChristianSub: ["Adventist", "Quaker", "Old Catholic", "Non-denominational", "Other"],
+      confessionalNote: "No population share is attached to these branches: the counts observed describe the respondents, not the confessional demographics of the French-speaking world. Answering \"No religion / Other\" ends the questionnaire.",
 
       // Research Hypotheses
-      hypothesesTitle: "Research Hypotheses",
-      hypothesesDesc: "This study explores the following hypotheses (to be verified with collected data):",
+      hypothesesTitle: "Research hypotheses",
+      hypothesesDesc: "Eight directional hypotheses, stated before collection. Threshold α = 0.05, Holm correction within each family of tests. None is tested while the sample remains too small.",
       hypotheses: [
-        { id: "H1", text: "High religiosity is associated with a stricter sacred boundary" },
-        { id: "H2", text: "AI openness decreases with age" },
-        { id: "H3", text: "Clergy show higher spiritual resistance than laity" },
-        { id: "H4", text: "Progressive orientation is associated with greater AI openness" },
-        { id: "H5", text: "Ethical concern is negatively correlated with AI adoption" },
-        { id: "H6", text: "Community anchoring influences stance toward AI" },
-        { id: "H7", text: "Younger people have a more anthropomorphic perception of AI" },
-        { id: "H8", text: "Confession (Catholic/Protestant/Orthodox) influences sacred boundary" },
-        { id: "H9", text: "Daily AI use reduces ethical concern" },
-        { id: "H10", text: "Extreme profiles (guardian/pioneer) are in the minority" },
+        { id: "H1", text: "Higher centrality of religiosity would go with a stricter sacred boundary" },
+        { id: "H2", text: "Charismatic and evangelical respondents would show an AI openness distinct from that of their non-charismatic co-religionists" },
+        { id: "H3", text: "Younger respondents would show greater AI openness, independently of their level of religiosity" },
+        { id: "H4", text: "A conservative theological orientation would go with a stricter sacred boundary" },
+        { id: "H5", text: "Clergy would show a stricter common-core sacred boundary than laypeople" },
+        { id: "H6", text: "The perceived official position of the community would go with individual openness to AI" },
+        { id: "H7", text: "Formal theological training would go with a more articulated, less extreme ethical concern" },
+        { id: "H8", text: "Daily use of AI would go with a weaker ethical concern" },
       ],
-      statusToVerify: "To be verified",
+      statusToVerify: "To be tested after collection",
+
+      // How to read a correlation
+      correlationTitle: "How to read a correlation",
+      correlationDesc: "A correlation is a fact; its explanation is a hypothesis. Every association therefore comes with at least one competing explanation and a certainty grade, crossing statistical strength (sample size, effect size, interval precision, threshold crossed after correction) with the plausibility of the mechanism invoked.",
+      correlationGrades: [
+        { grade: "A", label: "Clear association, plausible mechanism", desc: "Still a hypothesis: the survey is cross-sectional." },
+        { grade: "B", label: "Credible association", desc: "Debatable mechanism, or uncontrolled confounders." },
+        { grade: "C", label: "Weak signal", desc: "Limited sample or fragile interpretation." },
+        { grade: "D", label: "Inconclusive", desc: "Nothing can be concluded from this association." },
+      ],
+      correlationNote: "If two measures share an item, the best-graded explanation is the overlap between the measures, not a link between two phenomena. The word \"proves\" is used nowhere.",
 
       // Citations
       citationsTitle: "References",
       citations: [
         "Huber, S., & Huber, O. W. (2012). The Centrality of Religiosity Scale (CRS). Religions, 3(3), 710-724.",
-        "Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability. Journal of Consulting Psychology, 24(4), 349.",
-        "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an AI anxiety scale. Interactive Learning Environments.",
-        "Bartneck, C., et al. (2009). Measurement instruments for the anthropomorphism, animacy, likeability, perceived intelligence, and perceived safety of robots. IJSR, 1(1), 71-81.",
+        "Crowne, D. P., & Marlowe, D. (1960). A new scale of social desirability independent of psychopathology. Journal of Consulting Psychology, 24(4), 349-354.",
+        "Reynolds, W. M. (1982). Development of reliable and valid short forms of the Marlowe-Crowne Social Desirability Scale. Journal of Clinical Psychology, 38(1), 119-125.",
+        "Strahan, R., & Gerbasi, K. C. (1972). Short, homogeneous versions of the Marlowe-Crowne Social Desirability Scale. Journal of Clinical Psychology, 28(2), 191-193.",
+        "Bartneck, C., Kulić, D., Croft, E., & Zoghbi, S. (2009). Measurement instruments for the anthropomorphism, animacy, likeability, perceived intelligence, and perceived safety of robots. International Journal of Social Robotics, 1(1), 71-81.",
+        "Wang, Y. Y., & Wang, Y. S. (2022). Development and validation of an artificial intelligence anxiety scale. Interactive Learning Environments, 30(4), 619-634.",
+        "Cohen, J. (1988). Statistical power analysis for the behavioral sciences (2nd ed.). Lawrence Erlbaum Associates.",
       ],
 
       // Navigation

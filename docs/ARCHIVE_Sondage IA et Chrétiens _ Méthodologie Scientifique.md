@@ -1,4 +1,6 @@
-# **Protocole de Recherche Avancé : Conception et Validation d'un Instrument Psychométrique pour l'Analyse de l'Intégration de l'Intelligence Artificielle dans la Pratique et l'Éthique Chrétiennes**
+> **ARCHIVE, ne fait plus autorité.** Note de cadrage préparatoire (2026-01), antérieure à l'instrument v2.0.0 : le protocole décrit (CRS-15, alpha de Cronbach cible, échelles validées) n'a pas été retenu. Voir `METHODOLOGY.md` et `docs/SCORING_V2_SPEC.md`.
+
+# **Protocole de Recherche Avancé : Conception et Validation d'un Instrument Psychométrique pour l'Analyse de l'Intégration de l'Intelligence Artificielle dans la Pratique et l'Éthique Chrétiennes**
 
 ## **Résumé Exécutif**
 
@@ -6,15 +8,15 @@ L'avènement de l'intelligence artificielle (IA) générative représente un poi
 
 ## ---
 
-**1\. Introduction : La Convergence Algorithmique et le Sacré**
+**1\. Introduction : La Convergence Algorithmique et le Sacré**
 
-L'histoire des technologies de communication est intrinsèquement liée à celle de la propagation religieuse. Cependant, l'émergence de l'intelligence artificielle (IA) ne se contente pas d'offrir un nouveau canal de diffusion ; elle introduit un agent intermédiaire capable de générer du sens, de simuler l'empathie pastorale et de structurer la pensée théologique. Nous nous trouvons à l'aube de ce que certains chercheurs qualifient de "Machina ex Deus", un phénomène où l'automatisation influence non seulement la pratique, mais la substance même de la foi.1
+L'histoire des technologies de communication est intrinsèquement liée à celle de la propagation religieuse. Cependant, l'émergence de l'intelligence artificielle (IA) ne se contente pas d'offrir un nouveau canal de diffusion ; elle introduit un agent intermédiaire capable de générer du sens, de simuler l'empathie pastorale et de structurer la pensée théologique. Nous nous trouvons à l'aube de ce que certains chercheurs qualifient de "Machina ex Deus", un phénomène où l'automatisation influence non seulement la pratique, mais la substance même de la foi.1
 
 La pénétration de l'IA dans la sphère religieuse est rapide et multiforme. Des pasteurs utilisent ChatGPT pour l'exégèse et la rédaction de sermons, cherchant à optimiser un temps pastoral contraint 2, tandis que des laïcs se tournent vers des applications apologétiques pour obtenir des réponses immédiates à des questions existentielles, contournant parfois l'autorité ecclésiale traditionnelle.4 Cette adoption pragmatique se heurte néanmoins à des résistances théologiques profondes concernant l'authenticité, l'incarnation et la nature de la vérité.6
 
 ### **1.1 Problématique de Recherche**
 
-Malgré l'intérêt croissant pour la "théologie numérique", la littérature actuelle souffre d'un déficit de données quantitatives robustes. Les études existantes sont souvent fragmentaires, focalisées soit sur des aspects purement sociologiques, soit sur des réflexions éthiques abstraites sans ancrage empirique.6 Il manque un instrument capable de mesurer finement :
+Malgré l'intérêt croissant pour la "théologie numérique", la littérature actuelle souffre d'un déficit de données quantitatives robustes. Les études existantes sont souvent fragmentaires, focalisées soit sur des aspects purement sociologiques, soit sur des réflexions éthiques abstraites sans ancrage empirique.6 Il manque un instrument capable de mesurer finement :
 
 1. Le degré réel d'intégration de l'IA dans les pratiques rituelles et administratives.  
 2. La divergence des perceptions entre le clergé (gardiens du dogme) et les laïcs (pratiquants).  
@@ -22,7 +24,7 @@ Malgré l'intérêt croissant pour la "théologie numérique", la littérature a
 
 ### **1.2 Objectifs du Rapport**
 
-Ce document a pour vocation de structurer une enquête scientifique de haut niveau. Il ne s'agit pas seulement de poser des questions, mais de construire des variables latentes validées statistiquement. Les objectifs spécifiques sont :
+Ce document a pour vocation de structurer une enquête scientifique de haut niveau. Il ne s'agit pas seulement de poser des questions, mais de construire des variables latentes validées statistiquement. Les objectifs spécifiques sont :
 
 * **Opérationnaliser les concepts** de "validité sacramentelle numérique" et d'"autorité épistémique artificielle".  
 * **Adapter les modèles technologiques (TAM/UTAUT)** au contexte spécifique de la foi chrétienne, en intégrant des variables de religiosité intrinsèque et d'orthodoxie doctrinale.  
@@ -40,18 +42,18 @@ La théorie classique de la sécularisation postulait un recul du religieux face
 
 ### **2.2 Le Modèle d'Acceptation de la Technologie (TAM) dans le Contexte Religieux**
 
-Le TAM (Technology Acceptance Model) est le standard pour mesurer l'adoption technologique, basant ses prédictions sur l'Utilité Perçue (PU) et la Facilité d'Utilisation Perçue (PEOU). Cependant, dans un contexte confessionnel, ces variables sont insuffisantes.10 La littérature suggère l'ajout de dimensions axiologiques :
+Le TAM (Technology Acceptance Model) est le standard pour mesurer l'adoption technologique, basant ses prédictions sur l'Utilité Perçue (PU) et la Facilité d'Utilisation Perçue (PEOU). Cependant, dans un contexte confessionnel, ces variables sont insuffisantes.10 La littérature suggère l'ajout de dimensions axiologiques :
 
-* **Compatibilité Spirituelle :** La technologie est-elle perçue comme un obstacle ou un vecteur de la grâce?  
-* **Anxiété Éthique :** La peur que l'IA déshumanise la relation pastorale ou introduise des biais doctrinaux.12  
-* **Norme Sociale Ecclésiale :** L'influence des directives dénominationnelles (par exemple, la position du Vatican vs celle d'une église indépendante).10
+* **Compatibilité Spirituelle :** La technologie est-elle perçue comme un obstacle ou un vecteur de la grâce?  
+* **Anxiété Éthique :** La peur que l'IA déshumanise la relation pastorale ou introduise des biais doctrinaux.12  
+* **Norme Sociale Ecclésiale :** L'influence des directives dénominationnelles (par exemple, la position du Vatican vs celle d'une église indépendante).10
 
-### **2.3 La Dualité Clergé vs Laïc : Une Fracture Numérique?**
+### **2.3 La Dualité Clergé vs Laïc : Une Fracture Numérique?**
 
-Une distinction cruciale émerge des données préliminaires :
+Une distinction cruciale émerge des données préliminaires :
 
-* **Le Clergé (Producteurs) :** Pour les pasteurs et prêtres, l'IA est un outil de production. L'enjeu est l'efficacité administrative et homilétique face au risque de "plagiat spirituel" et de perte d'authenticité prophétique.7 L'usage de l'IA pour rédiger des sermons soulève des questions éthiques majeures sur la vocation et l'inspiration.16  
-* **Les Laïcs (Consommateurs) :** Pour les fidèles, l'IA est un outil d'exploration et de soutien. L'usage de chatbots pour l'étude biblique ou le conseil spirituel pose la question de la validité des réponses générées et du risque d'isolement communautaire.4
+* **Le Clergé (Producteurs) :** Pour les pasteurs et prêtres, l'IA est un outil de production. L'enjeu est l'efficacité administrative et homilétique face au risque de "plagiat spirituel" et de perte d'authenticité prophétique.7 L'usage de l'IA pour rédiger des sermons soulève des questions éthiques majeures sur la vocation et l'inspiration.16  
+* **Les Laïcs (Consommateurs) :** Pour les fidèles, l'IA est un outil d'exploration et de soutien. L'usage de chatbots pour l'étude biblique ou le conseil spirituel pose la question de la validité des réponses générées et du risque d'isolement communautaire.4
 
 ## ---
 
@@ -63,16 +65,16 @@ La rigueur méthodologique est impérative pour une publication scientifique. Ce
 
 L'étude adoptera une approche transversale (cross-sectional) avec un échantillonnage stratifié pour assurer la représentativité des deux populations cibles.
 
-#### **Tableau 1 : Stratégie d'Échantillonnage et Puissance Statistique**
+#### **Tableau 1 : Stratégie d'Échantillonnage et Puissance Statistique**
 
 | Groupe Cible | Description | Taille d'Échantillon Minimale (Pilot) | Taille d'Échantillon Cible (Finale) | Justification Statistique |
-| :---- | :---- | :---- | :---- | :---- |
-| **Groupe A : Clergé** | Pasteurs, Prêtres, Diacres, leaders rémunérés | N \= 30-50 | N \= 500 | Nécessaire pour SEM multi-groupes 19 |
-| **Groupe B : Laïcs** | Fidèles réguliers, engagés ou pratiquants occasionnels | N \= 30-50 | N \= 500 | Assure une puissance \> 0.80 pour les effets faibles |
+| :---- | :---- | :---- | :---- | :---- |
+| **Groupe A : Clergé** | Pasteurs, Prêtres, Diacres, leaders rémunérés | N \= 30-50 | N \= 500 | Nécessaire pour SEM multi-groupes 19 |
+| **Groupe B : Laïcs** | Fidèles réguliers, engagés ou pratiquants occasionnels | N \= 30-50 | N \= 500 | Assure une puissance \> 0.80 pour les effets faibles |
 
 Pour calculer la taille d'échantillon, nous nous basons sur les recommandations pour les modèles d'équations structurelles (SEM), qui exigent un ratio de 10 à 20 participants par variable observée, ou un minimum absolu de 200 par groupe pour une stabilité des estimations.21
 
-### **3.2 Contrôle des Biais : La Désirabilité Sociale**
+### **3.2 Contrôle des Biais : La Désirabilité Sociale**
 
 Les enquêtes sur la religion sont particulièrement vulnérables au biais de désirabilité sociale (SDB) – la tendance des répondants à se présenter sous un jour favorable (plus pieux, plus éthiques).23 Pour "nettoyer" les données, nous intégrerons la version courte de l'échelle de Marlowe-Crowne (MC-SDS). Les scores obtenus à cette échelle seront utilisés comme covariables dans les analyses finales pour ajuster les corrélations entre religiosité et usage éthique de l'IA.25
 
@@ -86,9 +88,9 @@ L'enquête sera administrée en ligne via une plateforme conforme au RGPD (ex: Q
 
 Le questionnaire est modulaire. Tous les participants complètent les modules 1, 2, 3, 5 et 6\. Le module 4 est divisé en deux branches distinctes (Branching Logic) selon le rôle du répondant.
 
-### **Module 1 : Consentement et Filtrage Sociodémographique**
+### **Module 1 : Consentement et Filtrage Sociodémographique**
 
-*Objectif : Valider l'éligibilité et segmenter la population.*
+*Objectif : Valider l'éligibilité et segmenter la population.*
 
 **Q1.1 Identité Religieuse (Filtre Principal)** "Quelle est votre affiliation religieuse actuelle?" 31
 
@@ -104,107 +106,107 @@ Le questionnaire est modulaire. Tous les participants complètent les modules 1,
 * Membre du clergé / Pasteur / Prêtre / Leader spirituel rémunéré \-\> **Route A**  
 * Laïc / Fidèle / Bénévole sans charge pastorale majeure \-\> **Route B**
 
-### **Module 2 : Mesure de la Religiosité (Variable Indépendante)**
+### **Module 2 : Mesure de la Religiosité (Variable Indépendante)**
 
-*Objectif : Établir le profil spirituel pour corréler avec l'adoption technologique.* Nous recommandons l'utilisation de l'**Échelle de Centralité de la Religiosité (CRS-15)** de Huber, validée internationalement 33, ou l'échelle **Belief into Action (BIAC)**.34 Ces échelles sont supérieures à une simple mesure de la fréquence de participation au culte.
+*Objectif : Établir le profil spirituel pour corréler avec l'adoption technologique.* Nous recommandons l'utilisation de l'**Échelle de Centralité de la Religiosité (CRS-15)** de Huber, validée internationalement 33, ou l'échelle **Belief into Action (BIAC)**.34 Ces échelles sont supérieures à une simple mesure de la fréquence de participation au culte.
 
-**Exemples d'items (Likert 1-5) :**
+**Exemples d'items (Likert 1-5) :**
 
-* **Intellect :** "À quelle fréquence réfléchissez-vous à des questions religieuses?"  
-* **Idéologie :** "Dans quelle mesure croyez-vous que Dieu intervient dans votre vie?"  
-* **Expérience :** "À quelle fréquence ressentez-vous la présence de Dieu?"
+* **Intellect :** "À quelle fréquence réfléchissez-vous à des questions religieuses?"  
+* **Idéologie :** "Dans quelle mesure croyez-vous que Dieu intervient dans votre vie?"  
+* **Expérience :** "À quelle fréquence ressentez-vous la présence de Dieu?"
 
-### **Module 3 : Compétence et Adoption Générale de l'IA**
+### **Module 3 : Compétence et Adoption Générale de l'IA**
 
-*Objectif : Distinguer la compétence technique de l'usage religieux.*
+*Objectif : Distinguer la compétence technique de l'usage religieux.*
 
 **Q3.1 Fréquence d'usage (IA Générative)**
 
 "À quelle fréquence utilisez-vous des outils comme ChatGPT, Claude, Gemini ou des générateurs d'images?"
 
-(Échelle : Jamais à Quotidiennement)
+(Échelle : Jamais à Quotidiennement)
 
 **Q3.2 Perception de l'Utilité Générale (TAM \- Perceived Usefulness)** "Je trouve que l'IA est utile pour améliorer ma productivité dans mes tâches quotidiennes (hors religion)." 10
 
 ### ---
 
-**Module 4A : Spécifique Clergé \- L'IA dans le Ministère**
+**Module 4A : Spécifique Clergé \- L'IA dans le Ministère**
 
 *Ce module explore les tensions éthiques et pratiques de la production religieuse assistée par IA.*
 
-#### **Sous-Section : Homilétique et Préparation (Sermons)**
+#### **Sous-Section : Homilétique et Préparation (Sermons)**
 
 Cette section vise à mesurer le degré de dépendance et l'éthique de l'authenticité.3
 
-**Tableau 2 : Items de l'Échelle d'Adoption Homilétique (Likert 1-7)**
+**Tableau 2 : Items de l'Échelle d'Adoption Homilétique (Likert 1-7)**
 
 | Code Item | Énoncé de la Question | Construct Mesuré | Référence |
-| :---- | :---- | :---- | :---- |
+| :---- | :---- | :---- | :---- |
 | HOM\_01 | "J'utilise l'IA pour générer des idées, des plans ou des structures pour mes prédications." | Aide à la structuration | 2 |
 | HOM\_02 | "Je fais appel à l'IA pour trouver des illustrations, des analogies ou des citations théologiques." | Recherche de contenu | 36 |
 | HOM\_03 | "Il m'arrive d'utiliser des blocs de texte générés par l'IA dans mes sermons sans modification majeure." | Substitution de contenu | 7 |
 | HOM\_04 | "L'utilisation de l'IA pour rédiger un sermon diminue sa valeur spirituelle ou son 'onction'." | Perception de sacralité | 37 |
 | HOM\_05 | "Je me sentirais coupable si mes fidèles savaient que j'utilise l'IA pour préparer mes messages." | Norme subjective / Honte | 7 |
 
-#### **Sous-Section : Soin Pastoral et Administration**
+#### **Sous-Section : Soin Pastoral et Administration**
 
-*Objectif : Évaluer l'IA comme "copilote" administratif vs pastoral.*
+*Objectif : Évaluer l'IA comme "copilote" administratif vs pastoral.*
 
 **Q4A.6** "L'IA m'aide à rédiger des communications administratives (bulletins, emails) pour libérer du temps pastoral." (Accord/Désaccord) 38 **Q4A.7** "Je serais à l'aise d'utiliser l'IA pour m'aider à formuler des réponses à des demandes de conseil spirituel par email." 40
 
 ### ---
 
-**Module 4B : Spécifique Laïcs \- L'IA dans la Vie Spirituelle**
+**Module 4B : Spécifique Laïcs \- L'IA dans la Vie Spirituelle**
 
 *Ce module examine l'IA comme outil de "discipulat numérique" et d'autonomie spirituelle.*
 
-#### **Sous-Section : Étude et Pratique Dévotionnelle**
+#### **Sous-Section : Étude et Pratique Dévotionnelle**
 
-*Objectif : Mesurer l'impact sur l'étude biblique personnelle.*
+*Objectif : Mesurer l'impact sur l'étude biblique personnelle.*
 
-**Tableau 3 : Items de l'Échelle de Pratique Laïque (Likert 1-7)**
+**Tableau 3 : Items de l'Échelle de Pratique Laïque (Likert 1-7)**
 
 | Code Item | Énoncé de la Question | Construct Mesuré | Référence |
-| :---- | :---- | :---- | :---- |
+| :---- | :---- | :---- | :---- |
 | LAY\_01 | "J'utilise l'IA pour expliquer des passages bibliques difficiles ou obtenir le contexte historique." | Compréhension Exégétique | 4 |
 | LAY\_02 | "J'ai déjà demandé à une IA de rédiger une prière pour une situation spécifique." | Ritualisation Automatisée | 43 |
 | LAY\_03 | "Les réponses de l'IA sur la foi me semblent souvent plus objectives ou accessibles que celles de mon église." | Compétition d'Autorité | 44 |
 | LAY\_04 | "J'utilise l'IA pour trouver des arguments pour défendre ma foi (apologétique) face à des non-croyants." | Outillage Apologétique | 5 |
 
-#### **Sous-Section : Confiance Épistémique**
+#### **Sous-Section : Confiance Épistémique**
 
 **Q4B.5** "Je vérifie systématiquement les réponses bibliques de l'IA avec une Bible physique ou une source fiable." (Vigilance) 46 **Q4B.6** "Je serais à l'aise de confier mes problèmes personnels à un chatbot chrétien si je savais qu'il est anonyme et bienveillant." (Substitution Pastorale) 47
 
 ### ---
 
-**Module 5 : Attitudes Théologiques et Éthiques (Module Commun)**
+**Module 5 : Attitudes Théologiques et Éthiques (Module Commun)**
 
-*Objectif : Capturer les variables latentes profondes concernant la nature de l'IA et son rapport au divin. Ces questions sont cruciales pour les modèles d'équations structurelles.*
+*Objectif : Capturer les variables latentes profondes concernant la nature de l'IA et son rapport au divin. Ces questions sont cruciales pour les modèles d'équations structurelles.*
 
 #### **Échelle d'Anthropomorphisme et de Théologie de la Technologie**
 
-Veuillez indiquer votre niveau d'accord (1 \= Pas du tout d'accord, 7 \= Tout à fait d'accord) :
+Veuillez indiquer votre niveau d'accord (1 \= Pas du tout d'accord, 7 \= Tout à fait d'accord) :
 
-1. **Menace à l'Imago Dei :** "L'idée qu'une IA puisse créer du contenu spirituel menace la dignité humaine en tant que porteurs de l'image de Dieu." 6  
-2. **Conscience Artificielle :** "Je crois qu'il est possible qu'une IA développe un jour une forme d'âme ou de conscience spirituelle." 8  
-3. **Providence Technologique :** "Le développement de l'IA fait partie du plan de Dieu et nous devons l'utiliser pour sa gloire (co-création)." 14  
-4. **Eschatologie :** "L'essor rapide de l'IA me semble être un signe des temps de la fin ou avoir une dimension apocalyptique." 9  
-5. **Biais Séculier :** "Je me méfie de l'IA car je pense qu'elle est programmée avec des biais contraires aux valeurs chrétiennes." 49
+1. **Menace à l'Imago Dei :** "L'idée qu'une IA puisse créer du contenu spirituel menace la dignité humaine en tant que porteurs de l'image de Dieu." 6  
+2. **Conscience Artificielle :** "Je crois qu'il est possible qu'une IA développe un jour une forme d'âme ou de conscience spirituelle." 8  
+3. **Providence Technologique :** "Le développement de l'IA fait partie du plan de Dieu et nous devons l'utiliser pour sa gloire (co-création)." 14  
+4. **Eschatologie :** "L'essor rapide de l'IA me semble être un signe des temps de la fin ou avoir une dimension apocalyptique." 9  
+5. **Biais Séculier :** "Je me méfie de l'IA car je pense qu'elle est programmée avec des biais contraires aux valeurs chrétiennes." 49
 
-### **Module 6 : Échelle de Désirabilité Sociale (Contrôle)**
+### **Module 6 : Échelle de Désirabilité Sociale (Contrôle)**
 
-*Indispensable pour la validation scientifique.* Utilisation de la **Marlowe-Crowne Social Desirability Scale (Short Form-C)**.25 Répondre par Vrai ou Faux :
+*Indispensable pour la validation scientifique.* Utilisation de la **Marlowe-Crowne Social Desirability Scale (Short Form-C)**.25 Répondre par Vrai ou Faux :
 
 1. "Je n'hésite jamais à me détourner de mon chemin pour aider quelqu'un en difficulté."  
 2. "Il m'est arrivé de profiter de quelqu'un." (Item inversé)  
 3. "Je suis toujours courtois, même avec les gens qui sont désagréables."  
-   *Note d'analyse : Un score élevé indique une tendance à "fausser" la réalité pour paraître vertueux. Ces participants devront être contrôlés dans l'analyse statistique.*
+   *Note d'analyse : Un score élevé indique une tendance à "fausser" la réalité pour paraître vertueux. Ces participants devront être contrôlés dans l'analyse statistique.*
 
-### **Module 7 : Démographie Détailée**
+### **Module 7 : Démographie Détailée**
 
 * Âge, Genre, Niveau d'éducation.  
 * Ancienneté dans la foi.  
-* **Tendance Théologique :** "Comment décririez-vous votre position théologique?" (Libérale, Modérée, Conservatrice, Fondamentaliste/Traditionaliste).
+* **Tendance Théologique :** "Comment décririez-vous votre position théologique?" (Libérale, Modérée, Conservatrice, Fondamentaliste/Traditionaliste).
 
 ## ---
 
@@ -216,23 +218,23 @@ Pour répondre aux exigences d'une publication scientifique de rang A, l'analyse
 
 Avant le déploiement massif, une étude pilote sur N=50 participants sera menée.
 
-* **Objectif :** Vérifier la cohérence interne des échelles créées (Homilétique, Pratique Laïque, Attitudes Théologiques).  
-* **Critère de succès :** Un **Alpha de Cronbach \> 0.70** est requis pour chaque sous-échelle. Si l'Alpha est inférieur, les items réduisant la cohérence seront identifiés (via "Alpha if Item Deleted") et reformulés ou supprimés.20
+* **Objectif :** Vérifier la cohérence interne des échelles créées (Homilétique, Pratique Laïque, Attitudes Théologiques).  
+* **Critère de succès :** Un **Alpha de Cronbach \> 0.70** est requis pour chaque sous-échelle. Si l'Alpha est inférieur, les items réduisant la cohérence seront identifiés (via "Alpha if Item Deleted") et reformulés ou supprimés.20
 
 ### **5.2 Validité de Construit (Analyse Factorielle)**
 
 Sur l'échantillon final (N=1000), une **Analyse Factorielle Confirmatoire (CFA)** sera réalisée pour valider la structure des variables latentes.
 
 * Nous testerons si les items mesurant l'"Anxiété Éthique" se distinguent clairement de ceux mesurant la "Méfiance Technique".  
-* Les indices d'ajustement visés sont : CFI \> 0.90, TLI \> 0.90, et RMSEA \< 0.08.21
+* Les indices d'ajustement visés sont : CFI \> 0.90, TLI \> 0.90, et RMSEA \< 0.08.21
 
 ### **5.3 Test d'Hypothèses (Modèle Structurel)**
 
-Nous utiliserons la modélisation par équations structurelles (SEM) pour tester les hypothèses suivantes, dérivées de la littérature :
+Nous utiliserons la modélisation par équations structurelles (SEM) pour tester les hypothèses suivantes, dérivées de la littérature :
 
-* **H1 (Médiation Théologique) :** L'impact de la religiosité centrale (CRS) sur l'adoption de l'IA est médiatisé par la perception de l'Imago Dei. Plus la croyance en l'unicité humaine est forte, moins l'adoption pour des tâches spirituelles (prière/sermon) sera élevée.  
-* **H2 (Effet Modérateur du Rôle) :** La relation entre l'"Utilité Perçue" et l'intention d'usage est plus forte chez le clergé (besoin d'efficacité) que chez les laïcs.  
-* **H3 (Inquiétude Doctrinale) :** Une orientation théologique "Conservatrice" est positivement corrélée à la méfiance envers les biais séculiers de l'IA, réduisant l'usage pour l'étude biblique.50
+* **H1 (Médiation Théologique) :** L'impact de la religiosité centrale (CRS) sur l'adoption de l'IA est médiatisé par la perception de l'Imago Dei. Plus la croyance en l'unicité humaine est forte, moins l'adoption pour des tâches spirituelles (prière/sermon) sera élevée.  
+* **H2 (Effet Modérateur du Rôle) :** La relation entre l'"Utilité Perçue" et l'intention d'usage est plus forte chez le clergé (besoin d'efficacité) que chez les laïcs.  
+* **H3 (Inquiétude Doctrinale) :** Une orientation théologique "Conservatrice" est positivement corrélée à la méfiance envers les biais séculiers de l'IA, réduisant l'usage pour l'étude biblique.50
 
 ## ---
 
@@ -244,7 +246,7 @@ L'anonymat est crucial, particulièrement pour le clergé. Admettre l'utilisatio
 
 ### **6.2 Limites Méthodologiques**
 
-Malgré les contrôles, le biais d'auto-sélection est possible (les chrétiens "technophiles" répondant davantage au sondage en ligne). De plus, l'évolution rapide des outils (GPT-4 vs GPT-5) peut rendre certaines questions obsolètes rapidement ; les items sont donc formulés sur des fonctions (ex: "générer du texte") plutôt que sur des marques spécifiques.
+Malgré les contrôles, le biais d'auto-sélection est possible (les chrétiens "technophiles" répondant davantage au sondage en ligne). De plus, l'évolution rapide des outils (GPT-4 vs GPT-5) peut rendre certaines questions obsolètes rapidement ; les items sont donc formulés sur des fonctions (ex: "générer du texte") plutôt que sur des marques spécifiques.
 
 ## ---
 
@@ -256,13 +258,13 @@ En conclusion, ce sondage est conçu non seulement comme un outil de mesure, mai
 
 ### ---
 
-**Annexe A : Liste de Contrôle pour le Déploiement**
+**Annexe A : Liste de Contrôle pour le Déploiement**
 
-1. **Validation Éthique (IRB/Comité d'éthique) :** Soumettre le protocole complet incluant le formulaire de consentement.29  
-2. **Traduction/Adaptation :** Si l'étude est multilingue, utiliser la méthode de traduction-rétrotraduction (back-translation) pour les échelles (notamment Marlowe-Crowne et CRS-15).  
-3. **Pré-test Technique :** Vérifier le "branching logic" (séparation clergé/laïc) sur mobile et desktop.  
-4. **Lancement Pilote :** Collecter 50 réponses, calculer les Alpha de Cronbach, ajuster les questions ambiguës.  
-5. **Lancement Final :** Diffusion via des réseaux ecclésiaux diversifiés pour éviter le biais d'une seule dénomination.
+1. **Validation Éthique (IRB/Comité d'éthique) :** Soumettre le protocole complet incluant le formulaire de consentement.29  
+2. **Traduction/Adaptation :** Si l'étude est multilingue, utiliser la méthode de traduction-rétrotraduction (back-translation) pour les échelles (notamment Marlowe-Crowne et CRS-15).  
+3. **Pré-test Technique :** Vérifier le "branching logic" (séparation clergé/laïc) sur mobile et desktop.  
+4. **Lancement Pilote :** Collecter 50 réponses, calculer les Alpha de Cronbach, ajuster les questions ambiguës.  
+5. **Lancement Final :** Diffusion via des réseaux ecclésiaux diversifiés pour éviter le biais d'une seule dénomination.
 
 #### **Sources des citations**
 
@@ -283,7 +285,7 @@ En conclusion, ce sondage est conçu non seulement comme un outil de mesure, mai
 15. Should Pastors Use AI for Church Ministry? | Answers in Genesis, consulté le janvier 22, 2026, [https://answersingenesis.org/technology/should-pastors-use-ai-church-ministry/](https://answersingenesis.org/technology/should-pastors-use-ai-church-ministry/)  
 16. 4 Ethics Questions Pastors Need To Answer Regarding AI \- ChurchTechToday.com, consulté le janvier 22, 2026, [https://churchtechtoday.com/4-ethics-questions-pastors-need-to-answer-regarding-ai/](https://churchtechtoday.com/4-ethics-questions-pastors-need-to-answer-regarding-ai/)  
 17. How Chat GPT is changing our Bible study | Opinion \- Premier Christianity Magazine, consulté le janvier 22, 2026, [https://www.premierchristianity.com/how-chat-gpt-is-changing-our-bible-study/20094.article](https://www.premierchristianity.com/how-chat-gpt-is-changing-our-bible-study/20094.article)  
-18. What are reasons Christians believe talking to AI like ChatGPT is a sin, and reasons they believe it is not a sin? If it is not a sin, but not completely trustworthy, what are things to be mindful of? : r/AskAChristian \- Reddit, consulté le janvier 22, 2026, [https://www.reddit.com/r/AskAChristian/comments/1ks3pls/what\_are\_reasons\_christians\_believe\_talking\_to\_ai/](https://www.reddit.com/r/AskAChristian/comments/1ks3pls/what_are_reasons_christians_believe_talking_to_ai/)  
+18. What are reasons Christians believe talking to AI like ChatGPT is a sin, and reasons they believe it is not a sin? If it is not a sin, but not completely trustworthy, what are things to be mindful of? : r/AskAChristian \- Reddit, consulté le janvier 22, 2026, [https://www.reddit.com/r/AskAChristian/comments/1ks3pls/what\_are\_reasons\_christians\_believe\_talking\_to\_ai/](https://www.reddit.com/r/AskAChristian/comments/1ks3pls/what_are_reasons_christians_believe_talking_to_ai/)  
 19. Sample size determination for conducting a pilot study to assess reliability of a questionnaire \- Restorative Dentistry & Endodontics, consulté le janvier 22, 2026, [https://rde.ac/journal/view.php?doi=10.5395/rde.2024.49.e3](https://rde.ac/journal/view.php?doi=10.5395/rde.2024.49.e3)  
 20. Sample size determination for conducting a pilot study to assess reliability of a questionnaire, consulté le janvier 22, 2026, [https://pmc.ncbi.nlm.nih.gov/articles/PMC10912549/](https://pmc.ncbi.nlm.nih.gov/articles/PMC10912549/)  
 21. A Review on Sample Size Determination for Cronbach's Alpha Test: A Simple Guide for Researchers \- ResearchGate, consulté le janvier 22, 2026, [https://www.researchgate.net/publication/330754695\_A\_Review\_on\_Sample\_Size\_Determination\_for\_Cronbach's\_Alpha\_Test\_A\_Simple\_Guide\_for\_Researchers](https://www.researchgate.net/publication/330754695_A_Review_on_Sample_Size_Determination_for_Cronbach's_Alpha_Test_A_Simple_Guide_for_Researchers)  
@@ -302,13 +304,13 @@ En conclusion, ce sondage est conçu non seulement comme un outil de mesure, mai
 34. Belief into Action Scale: A Comprehensive and Sensitive Measure of Religious Involvement, consulté le janvier 22, 2026, [https://www.mdpi.com/2077-1444/6/3/1006](https://www.mdpi.com/2077-1444/6/3/1006)  
 35. A Technology Acceptance Model Survey of the Metaverse Prospects \- MDPI, consulté le janvier 22, 2026, [https://www.mdpi.com/2673-2688/3/2/18](https://www.mdpi.com/2673-2688/3/2/18)  
 36. Creating a Christian Apologetics AI \- Reddit, consulté le janvier 22, 2026, [https://www.reddit.com/r/Christians/comments/1am82ha/creating\_a\_christian\_apologetics\_ai/](https://www.reddit.com/r/Christians/comments/1am82ha/creating_a_christian_apologetics_ai/)  
-37. AI in sermons? : r/Reformed \- Reddit, consulté le janvier 22, 2026, [https://www.reddit.com/r/Reformed/comments/1lkkxph/ai\_in\_sermons/](https://www.reddit.com/r/Reformed/comments/1lkkxph/ai_in_sermons/)  
+37. AI in sermons? : r/Reformed \- Reddit, consulté le janvier 22, 2026, [https://www.reddit.com/r/Reformed/comments/1lkkxph/ai\_in\_sermons/](https://www.reddit.com/r/Reformed/comments/1lkkxph/ai_in_sermons/)  
 38. Answering Common Questions About Using AI in Ministry \- Concordia Technology Solutions, consulté le janvier 22, 2026, [https://www.concordiatechnology.org/blog/answering-common-questions-about-using-ai-in-ministry](https://www.concordiatechnology.org/blog/answering-common-questions-about-using-ai-in-ministry)  
 39. How Ministry Leaders and Churches Are Embracing AI with Purpose & Faith, consulté le janvier 22, 2026, [https://blog.hartfordinternational.edu/2025/08/20/how-ministry-leaders-and-churches-are-embracing-ai/](https://blog.hartfordinternational.edu/2025/08/20/how-ministry-leaders-and-churches-are-embracing-ai/)  
 40. The Ethics of AI: How Far Is Too Far? \- Barna Group, consulté le janvier 22, 2026, [https://www.barna.com/research/ai-ethics/](https://www.barna.com/research/ai-ethics/)  
 41. The Theological and Ethical Dangers Associated with Using Artificial Intelligence in Christian Religious Settings \- Firebrand Magazine, consulté le janvier 22, 2026, [https://firebrandmag.com/articles/the-theological-and-ethical-dangers-associated-with-using-artificial-intelligence-in-christian-religious-settings](https://firebrandmag.com/articles/the-theological-and-ethical-dangers-associated-with-using-artificial-intelligence-in-christian-religious-settings)  
 42. I use chatgpt to understand the bible, consulté le janvier 22, 2026, [https://www.reddit.com/r/Christianity/comments/1pzxlqv/i\_use\_chatgpt\_to\_understand\_the\_bible/](https://www.reddit.com/r/Christianity/comments/1pzxlqv/i_use_chatgpt_to_understand_the_bible/)  
-43. Is it cheating to have artificial intelligence write prayers for me? : r/Anglicanism \- Reddit, consulté le janvier 22, 2026, [https://www.reddit.com/r/Anglicanism/comments/108gyv5/is\_it\_cheating\_to\_have\_artificial\_intelligence/](https://www.reddit.com/r/Anglicanism/comments/108gyv5/is_it_cheating_to_have_artificial_intelligence/)  
+43. Is it cheating to have artificial intelligence write prayers for me? : r/Anglicanism \- Reddit, consulté le janvier 22, 2026, [https://www.reddit.com/r/Anglicanism/comments/108gyv5/is\_it\_cheating\_to\_have\_artificial\_intelligence/](https://www.reddit.com/r/Anglicanism/comments/108gyv5/is_it_cheating_to_have_artificial_intelligence/)  
 44. AI Platforms Are Manipulating Answers to Theological Questions \- Reddit, consulté le janvier 22, 2026, [https://www.reddit.com/r/theology/comments/1nnnab3/ai\_platforms\_are\_manipulating\_answers\_to/](https://www.reddit.com/r/theology/comments/1nnnab3/ai_platforms_are_manipulating_answers_to/)  
 45. Apologist.ai: Conversational AI for Seekers of Spiritual Truth, consulté le janvier 22, 2026, [https://apologist.ai/](https://apologist.ai/)  
 46. 7 Church AI Rules Every Pastor Needs in 2026 \- REACHRIGHT, consulté le janvier 22, 2026, [https://reachrightstudios.com/blog/church-ai-rules/](https://reachrightstudios.com/blog/church-ai-rules/)  

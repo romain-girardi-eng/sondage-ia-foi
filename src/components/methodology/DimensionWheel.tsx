@@ -24,6 +24,7 @@ interface DimensionWheelProps {
     dimensionCommunityDesc: string;
     dimensionFuture: string;
     dimensionFutureDesc: string;
+    dimensionScaleNote: string;
   };
 }
 
@@ -36,7 +37,7 @@ const dimensions: Array<{
   { key: "sacredBoundary", angle: 102.8 },
   { key: "ethicalConcern", angle: 154.2 },
   { key: "psychologicalPerception", angle: 205.6 },
-  { key: "communityInfluence", angle: 257 },
+  { key: "communityContext", angle: 257 },
   { key: "futureOrientation", angle: 308.4 },
 ];
 
@@ -49,7 +50,7 @@ export function DimensionWheel({ translations: t }: DimensionWheelProps) {
     sacredBoundary: { name: t.dimensionSacredBoundary, desc: t.dimensionSacredBoundaryDesc },
     ethicalConcern: { name: t.dimensionEthicalConcern, desc: t.dimensionEthicalConcernDesc },
     psychologicalPerception: { name: t.dimensionPsychPerception, desc: t.dimensionPsychPerceptionDesc },
-    communityInfluence: { name: t.dimensionCommunity, desc: t.dimensionCommunityDesc },
+    communityContext: { name: t.dimensionCommunity, desc: t.dimensionCommunityDesc },
     futureOrientation: { name: t.dimensionFuture, desc: t.dimensionFutureDesc },
   };
 
@@ -217,7 +218,7 @@ export function DimensionWheel({ translations: t }: DimensionWheelProps) {
               </p>
               <div className="mt-4 flex items-center gap-2">
                 <span className="text-xs text-muted-foreground/60">
-                  Scale: 1 (low) → 5 (high)
+                  {t.dimensionScaleNote}
                 </span>
               </div>
             </motion.div>

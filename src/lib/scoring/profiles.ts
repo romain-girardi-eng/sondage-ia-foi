@@ -271,12 +271,17 @@ function calculateAllProfileMatches(
   return matches;
 }
 
+export const CONFIDENCE_GAP_HIGH = 15;
+export const CONFIDENCE_GAP_MEDIUM = 6;
+
 function computeProfileConfidence(matches: ProfileMatch[]): ProfileConfidence {
   const primary = matches[0];
   if (!primary) return 'low';
+  // Ambiguity is the gap to the runner-up: the primary score alone stays high
+  // (>= 58 on every simulated persona) and cannot discriminate.
   const gap = primary.matchScore - (matches[1]?.matchScore ?? 0);
-  if (primary.matchScore >= 60 && gap >= 15) return 'high';
-  if (primary.matchScore >= 45) return 'medium';
+  if (gap >= CONFIDENCE_GAP_HIGH) return 'high';
+  if (gap >= CONFIDENCE_GAP_MEDIUM) return 'medium';
   return 'low';
 }
 

@@ -21,13 +21,29 @@ describe("getProfileShareText", () => {
     const text = getProfileShareText("Pionnier Spirituel", url);
     expect(text).toContain("Pionnier Spirituel");
     expect(text).toContain(url);
-    expect(text).toContain("CNEF");
   });
 
-  it("never contains an em dash", () => {
+  it("never names the CNEF outside the cnef entry variant", () => {
+    expect(getProfileShareText("Pionnier Spirituel", url)).not.toContain("CNEF");
+    expect(getProfileShareText("Pionnier Spirituel", url, "fr", "general")).not.toContain("CNEF");
+    expect(getProfileShareText("Spiritual Pioneer", url, "en", "general")).not.toContain("CNEF");
+  });
+
+  it("names the CNEF for respondents recruited through the CNEF page", () => {
+    expect(getProfileShareText("Pionnier Spirituel", url, "fr", "cnef")).toContain("CNEF");
+    expect(getProfileShareText("Spiritual Pioneer", url, "en", "cnef")).toContain("CNEF");
+  });
+
+  it("never contains an em dash or an emoji", () => {
     const text = getProfileShareText("Gardien de la Tradition", url, "fr");
     expect(text).not.toContain("—");
-    expect(text).not.toContain("—");
+    expect(text).not.toMatch(/\p{Extended_Pictographic}/u);
+  });
+
+  it("uses a narrow no-break space before the French question mark", () => {
+    const text = getProfileShareText("Gardien de la Tradition", url, "fr");
+    expect(text).toContain(" ?");
+    expect(text).not.toMatch(/ \?/);
   });
 
   it("supports an English variant", () => {

@@ -22,13 +22,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     fr: {
       title: "Méthodologie — Comment fonctionne l'enquête IA & Foi",
       description:
-        "Découvrez la méthodologie scientifique de l'enquête IA & Foi : 7 dimensions, 8 profils, échelle CRS-5, indice de résistance spirituelle et hypothèses de recherche.",
+        "La méthodologie de l'enquête IA & Foi\u00a0: instrument v2.0.0 à 58 questions, 7 dimensions, 8 profils heuristiques, CRS-5 adapté, écart d'usage et hypothèses H1 à H8.",
       path: `${BASE_URL}/methodology`,
     },
     en: {
       title: "Methodology — How the AI & Faith Survey Works",
       description:
-        "Discover the scientific methodology behind the AI & Faith survey: 7 psychometric dimensions, 8 typological profiles, CRS-5 scale, spiritual resistance index and research hypotheses.",
+        "The methodology behind the AI & Faith survey: a 58-question instrument (v2.0.0), 7 dimensions, 8 heuristic profiles, an adapted CRS-5, a usage-gap indicator and hypotheses H1 to H8.",
       path: `${BASE_URL}/eng/methodology`,
     },
   };
