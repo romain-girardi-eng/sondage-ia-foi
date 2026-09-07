@@ -96,7 +96,7 @@ export function QuestionCard({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="text-2xl md:text-4xl font-light text-center leading-snug px-2 text-balance text-gradient-animated"
+        className="text-2xl md:text-4xl font-light text-center leading-snug px-2 text-balance text-foreground"
       >
         {questionText}
       </motion.h2>

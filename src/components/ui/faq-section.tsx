@@ -222,7 +222,7 @@ export default function FAQSection({ faqs: customFaqs, headingLevel = 1 }: FAQSe
         {/* Header */}
         <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between border-b border-border pb-6 gap-4">
           <div>
-            <HeadingTag className="text-4xl md:text-6xl font-black tracking-tight text-gradient-animated">
+            <HeadingTag className="text-4xl md:text-6xl font-bold tracking-tight text-foreground">
               {title}
             </HeadingTag>
             <p className="mt-2 text-sm md:text-base text-muted-foreground">

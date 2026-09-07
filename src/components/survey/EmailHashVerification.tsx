@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
-import { Mail, Shield, Lock, ChevronRight, AlertCircle, Loader2 } from "lucide-react";
+import { Mail, Shield, Lock, ChevronRight, AlertCircle, Loader2, Check } from "lucide-react";
 import { useLanguage } from "@/lib";
 import { AnimatedBackground } from "@/components/ui";
 
@@ -169,15 +169,15 @@ export function EmailHashVerification({
               </h3>
               <ul className="space-y-2 text-xs text-muted-foreground">
                 <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-0.5">✓</span>
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" aria-hidden="true" />
                   {t("emailHash.privacy1")}
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-0.5">✓</span>
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" aria-hidden="true" />
                   {t("emailHash.privacy2")}
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-0.5">✓</span>
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" aria-hidden="true" />
                   {t("emailHash.privacy3")}
                 </li>
               </ul>

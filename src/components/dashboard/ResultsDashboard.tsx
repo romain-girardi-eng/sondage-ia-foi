@@ -519,7 +519,7 @@ export function ResultsDashboard() {
           className="text-center space-y-4"
         >
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-extralight tracking-tight">
-            <span className="text-gradient-animated">
+            <span className="text-foreground">
               {t("dashboard.dashboardTitle")}
             </span>
           </h1>

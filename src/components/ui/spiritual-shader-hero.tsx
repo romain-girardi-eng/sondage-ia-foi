@@ -231,15 +231,15 @@ const fragmentShader = `
 
     buf[0] = sigmoid(buf[0]);
 
-    // Dark mode: deep purples, warm golds, soft blues
-    float darkR = buf[0].x * 0.4 + buf[0].z * 0.3 + 0.08;
-    float darkG = buf[0].y * 0.25 + buf[0].x * 0.15 + 0.05;
-    float darkB = buf[0].z * 0.5 + buf[0].x * 0.2 + 0.15;
+    // Dark mode: deep navy and slate blues, no magenta
+    float darkR = buf[0].x * 0.10 + buf[0].z * 0.06 + 0.04;
+    float darkG = buf[0].y * 0.16 + buf[0].x * 0.10 + 0.07;
+    float darkB = buf[0].z * 0.34 + buf[0].x * 0.14 + 0.14;
 
-    // Light mode: soft pastels on light background - same pattern, inverted and lighter
-    float lightR = 0.95 - buf[0].x * 0.15 - buf[0].z * 0.1;
-    float lightG = 0.93 - buf[0].y * 0.12 - buf[0].x * 0.08;
-    float lightB = 0.97 - buf[0].z * 0.18 - buf[0].x * 0.08;
+    // Light mode: cool greys on a light background, same pattern inverted
+    float lightR = 0.96 - buf[0].x * 0.10 - buf[0].z * 0.10;
+    float lightG = 0.96 - buf[0].y * 0.07 - buf[0].z * 0.08;
+    float lightB = 0.98 - buf[0].z * 0.05 - buf[0].x * 0.03;
 
     // Mix between light and dark based on uDarkMode (0.0 = light, 1.0 = dark)
     float r = mix(lightR, darkR, uDarkMode);
@@ -386,7 +386,7 @@ function ShaderBackground() {
 
 // ===================== SPIRITUAL HERO COMPONENT =====================
 interface FeatureItem {
-  icon: string;
+  icon: React.ReactNode;
   text: string;
   link?: string;
 }
@@ -694,16 +694,12 @@ export default function SpiritualShaderHero({
                     <Link
                       key={index}
                       href={feature.link}
-                      className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-400/30 bg-blue-500/10 text-blue-400 hover:text-blue-300 hover:border-blue-400/50 hover:bg-blue-500/20 transition-all duration-300 overflow-hidden"
+                      className="group flex items-center gap-2 text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
                     >
-                      {/* Shimmer effect */}
-                      <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                      {/* Pulse glow */}
-                      <span className="absolute inset-0 rounded-full animate-pulse-glow opacity-50" />
-                      <span className="relative text-base">{feature.icon}</span>
-                      <span className="relative">{feature.text}</span>
+                      <span className="flex items-center">{feature.icon}</span>
+                      <span>{feature.text}</span>
                       <svg
-                        className="relative w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
+                        className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -713,7 +709,7 @@ export default function SpiritualShaderHero({
                     </Link>
                   ) : (
                     <div key={index} className="flex items-center gap-2">
-                      <span className="text-base">{feature.icon}</span>
+                      <span className="flex items-center">{feature.icon}</span>
                       <span>{feature.text}</span>
                     </div>
                   )

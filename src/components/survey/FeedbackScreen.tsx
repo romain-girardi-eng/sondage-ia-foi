@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, TrendingUp, Users, Brain, Shield, Target, AlertTriangle, Lightbulb, ChevronRight, HelpCircle } from "lucide-react";
+import { ArrowRight, TrendingUp, Users, Brain, Shield, Target, AlertTriangle, Lightbulb, ChevronRight, HelpCircle } from "lucide-react";
 import { cn, useLanguage, useHasAnimated, useMemoizedProfileSpectrum } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
@@ -130,16 +130,7 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
           transition={{ duration: 0.6 }}
           className="text-center mb-8 md:mb-12"
         >
-          <motion.div
-            initial={hasAnimated ? false : { opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card-refined text-purple-700 dark:text-purple-300 text-xs font-medium uppercase tracking-wider mb-4"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{t("feedback.badge")}</span>
-          </motion.div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-gradient-animated">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
             {t("feedback.title")}
           </h1>
           <motion.button
@@ -410,7 +401,6 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
             {insights.slice(0, 2).map((insight) => (
               <GlowCard key={insight.title} area="md:col-span-6">
                 <div className="flex items-start gap-3">
-                  <span className="text-2xl shrink-0">{insight.icon}</span>
                   <div>
                     <h4 className="font-semibold text-foreground mb-1">{insight.title}</h4>
                     <p className="text-sm text-muted-foreground leading-relaxed">{insight.message}</p>
@@ -481,13 +471,11 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
               "group relative px-8 py-4 bg-primary text-primary-foreground rounded-full font-bold text-lg",
               "hover:scale-105 active:scale-[0.98] transition-all duration-300",
               "shadow-lg shadow-primary/10 flex items-center gap-3 mx-auto",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              "btn-glow overflow-hidden"
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             )}
           >
             <span className="relative z-10">{t("feedback.viewGlobalResults")}</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
-            <span className="absolute inset-0 animate-shimmer" />
           </button>
         </motion.div>
 

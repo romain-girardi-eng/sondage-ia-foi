@@ -100,7 +100,7 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
           className="text-center space-y-6"
         >
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight">
-            <span className="text-gradient-animated">
+            <span className="text-foreground">
               {t("thanks.title")}
             </span>
           </h1>
@@ -186,13 +186,11 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
               "flex-1 group relative px-6 py-4 bg-primary text-primary-foreground rounded-2xl font-semibold",
               "hover:scale-[1.02] transition-all duration-300",
               "shadow-lg shadow-primary/10",
-              "flex items-center justify-center gap-3",
-              "btn-glow overflow-hidden"
+              "flex items-center justify-center gap-3"
             )}
           >
             <BarChart3 className="w-5 h-5" />
             <span className="relative z-10">{t("thanks.viewResults")}</span>
-            <span className="absolute inset-0 animate-shimmer" />
           </button>
 
           <button

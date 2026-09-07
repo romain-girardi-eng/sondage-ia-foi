@@ -4,6 +4,7 @@ import { useLanguage, getLocalizedPath } from "@/lib";
 import { LanguageSwitcher } from "@/components/ui";
 import SpiritualShaderHero from "@/components/ui/spiritual-shader-hero";
 import FAQSection from "@/components/ui/faq-section";
+import { Clock, FlaskConical } from "lucide-react";
 
 interface SurveyIntroShaderProps {
   onStart: () => void;
@@ -27,9 +28,8 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
   const privacyLink = getLocalizedPath(language, "/privacy");
 
   const features = [
-    { icon: "🔬", text: t("intro.featureScientific"), link: methodologyLink },
-    { icon: "🔒", text: t("intro.featureAnonymous") },
-    { icon: "⏱️", text: t("intro.featureDuration") },
+    { icon: <FlaskConical className="h-4 w-4" aria-hidden="true" />, text: t("intro.featureScientific"), link: methodologyLink },
+    { icon: <Clock className="h-4 w-4" aria-hidden="true" />, text: t("intro.featureDuration") },
   ];
 
   // CNEF co-branding header (IA & Foi + official CNEF logo).
@@ -46,8 +46,6 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
       <LanguageSwitcher />
 
       <SpiritualShaderHero
-        badgeLabel={isCnef ? t("cnef.badge") : t("intro.badge")}
-        badgeText={t("intro.badgeText")}
         title={isCnef ? t("cnef.title") : t("intro.title")}
         subtitle={isCnef ? t("cnef.subtitle") : t("intro.subtitle")}
         description={isCnef ? t("cnef.description") : t("intro.description")}

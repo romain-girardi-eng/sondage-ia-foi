@@ -99,7 +99,7 @@ export function MultipleQuestion({
             "w-full py-4 rounded-2xl font-semibold text-lg transition-all duration-300 relative overflow-hidden",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
             multipleSelected.length > 0
-              ? "bg-primary text-primary-foreground hover:shadow-lg btn-glow"
+              ? "bg-primary text-primary-foreground hover:shadow-lg"
               : "bg-muted text-muted-foreground/50 cursor-not-allowed border border-border"
           )}
         >
@@ -113,9 +113,6 @@ export function MultipleQuestion({
               </span>
             )}
           </span>
-          {multipleSelected.length > 0 && (
-            <span className="absolute inset-0 animate-shimmer" />
-          )}
         </button>
       </motion.div>
     </fieldset>
