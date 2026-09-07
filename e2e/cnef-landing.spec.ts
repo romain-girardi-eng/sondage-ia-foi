@@ -8,7 +8,7 @@ test.describe("CNEF co-branded landing", () => {
     await expect(page.getByText(/partenariat avec le CNEF/i)).toBeVisible();
     await expect(page.getByAltText(/Logo du CNEF|CNEF logo/i)).toBeVisible();
     // Anonymity reassurance reinforced just before the CTA.
-    await expect(page.getByText(/Aucune donn[ée]e identifiante/i)).toBeVisible();
+    await expect(page.getByText(/Ni nom, ni email, ni adresse IP/i)).toBeVisible();
   });
 
   test("deep-links into the same survey pre-filled as Protestant", async ({ page }) => {
@@ -52,6 +52,10 @@ test.describe("Aggregated results privacy", () => {
     expect(response.ok()).toBeTruthy();
 
     const data = await response.json();
+    if (data.mode === "insufficient") {
+      expect(data).not.toHaveProperty("results");
+      return;
+    }
     const ids = (data.results as Array<{ questionId: string }>).map((r) => r.questionId);
     expect(ids).not.toContain("commentaires_libres");
   });

@@ -15,7 +15,7 @@ test.describe("Public archetype profile page", () => {
     await expect(cta).toHaveAttribute("href", "/cnef");
 
     await expect(page.getByText(/En partenariat avec le CNEF/i)).toBeVisible();
-    await expect(page.getByText(/100% anonyme · 5 min/i)).toBeVisible();
+    await expect(page.getByText(/100\s?% anonyme · 8 à 12 min/i)).toBeVisible();
   });
 
   test("exposes a 1200x630 PNG Open Graph image and og meta", async ({ page, request }) => {
