@@ -7,50 +7,29 @@ interface ConfessionalTreeProps {
   translations: {
     confessionalTitle: string;
     confessionalDesc: string;
+    confessionalNote: string;
     catholic: string;
-    protestantMainline: string;
-    protestantEvangelical: string;
-    protestantPentecostal: string;
+    catholicSub: readonly string[];
+    protestant: string;
+    protestantSub: readonly string[];
     orthodox: string;
-    orthodoxEastern: string;
-    orthodoxOriental: string;
+    orthodoxSub: readonly string[];
     anglican: string;
+    anglicanSub: readonly string[];
     otherChristian: string;
+    otherChristianSub: readonly string[];
   };
 }
 
 export function ConfessionalTree({ translations: t }: ConfessionalTreeProps) {
+  // Mirrors profil_confession and its sub-questions in surveySchema (v2.0.0).
+  // No population share is displayed: none is known.
   const branches = [
-    {
-      name: t.catholic,
-      color: "#6366F1",
-      sub: ["Paroissial", "Charismatique", "Traditionaliste"],
-      percentage: "~45%",
-    },
-    {
-      name: "Protestant",
-      color: "#10B981",
-      sub: [t.protestantMainline, t.protestantEvangelical, t.protestantPentecostal],
-      percentage: "~30%",
-    },
-    {
-      name: t.orthodox,
-      color: "#F59E0B",
-      sub: [t.orthodoxEastern, t.orthodoxOriental],
-      percentage: "~8%",
-    },
-    {
-      name: t.anglican,
-      color: "#8B5CF6",
-      sub: [],
-      percentage: "~5%",
-    },
-    {
-      name: t.otherChristian,
-      color: "#EC4899",
-      sub: ["Adventiste", "Quaker", "Autre"],
-      percentage: "~5%",
-    },
+    { name: t.catholic, color: "#6366F1", sub: t.catholicSub },
+    { name: t.protestant, color: "#10B981", sub: t.protestantSub },
+    { name: t.orthodox, color: "#F59E0B", sub: t.orthodoxSub },
+    { name: t.anglican, color: "#8B5CF6", sub: t.anglicanSub },
+    { name: t.otherChristian, color: "#EC4899", sub: t.otherChristianSub },
   ];
 
   return (
@@ -121,30 +100,25 @@ export function ConfessionalTree({ translations: t }: ConfessionalTreeProps) {
             >
               {/* Branch card */}
               <div
-                className="p-4 rounded-xl"
+                className="p-4 rounded-xl h-full"
                 style={{ backgroundColor: `${branch.color}15` }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <h3
-                    className="font-bold text-sm"
-                    style={{ color: branch.color }}
-                  >
-                    {branch.name}
-                  </h3>
-                  <span className="text-xs text-muted-foreground">
-                    {branch.percentage}
-                  </span>
-                </div>
+                <h3
+                  className="font-bold text-sm mb-2"
+                  style={{ color: branch.color }}
+                >
+                  {branch.name}
+                </h3>
 
                 {/* Sub-branches */}
                 <div className="space-y-1">
                   {branch.sub.map((sub) => (
                     <div
                       key={sub}
-                      className="flex items-center gap-2 text-xs text-muted-foreground"
+                      className="flex items-start gap-2 text-xs text-muted-foreground"
                     >
                       <div
-                        className="w-1.5 h-1.5 rounded-full"
+                        className="w-1.5 h-1.5 rounded-full mt-1 shrink-0"
                         style={{ backgroundColor: branch.color }}
                       />
                       {sub}
@@ -159,7 +133,7 @@ export function ConfessionalTree({ translations: t }: ConfessionalTreeProps) {
 
       {/* Note */}
       <p className="text-xs text-muted-foreground/60 text-center">
-        Les pourcentages sont indicatifs et basés sur les réponses collectées
+        {t.confessionalNote}
       </p>
     </div>
   );

@@ -3,10 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLanguage } from "@/lib";
 
-interface FAQItem {
-  q: string;
-  a: string;
-}
+import { FAQ_CONTENT, type FAQItem } from "./faq-content";
 
 interface FAQSectionProps {
   faqs?: FAQItem[];
@@ -125,79 +122,8 @@ export default function FAQSection({ faqs: customFaqs, headingLevel = 1 }: FAQSe
     spiralRef.current.appendChild(svg);
   }, [cfg, gradients]);
 
-  // FAQ content with translations
-  const faqContent: Record<string, FAQItem[]> = {
-    fr: [
-      {
-        q: "Pourquoi cette étude ?",
-        a: "L'intelligence artificielle transforme silencieusement les pratiques religieuses, de la rédaction de sermons à la prière assistée. Cette grande enquête vise à cartographier ces usages et comprendre les enjeux éthiques qu'ils soulèvent pour les communautés chrétiennes.",
-      },
-      {
-        q: "Mes réponses sont-elles anonymes ?",
-        a: "Oui. Nous utilisons une empreinte cryptographique (hash) de votre email pour garantir qu'une personne ne réponde qu'une seule fois, mais votre email réel n'est jamais stocké. Si vous choisissez de recevoir vos résultats par email, celui-ci est utilisé uniquement pour l'envoi puis immédiatement effacé. Vos réponses sont agrégées à des fins statistiques, dans le respect du RGPD.",
-      },
-      {
-        q: "Combien de temps dure le sondage ?",
-        a: "Entre 5 et 7 minutes selon votre profil. Le nombre de questions varie : les membres du clergé répondent à des questions supplémentaires sur leur ministère.",
-      },
-      {
-        q: "Qui peut participer ?",
-        a: "Toute personne se reconnaissant dans la foi chrétienne, quelle que soit sa dénomination (catholique, protestant, orthodoxe, évangélique) et son niveau d'engagement (clergé, laïc engagé, pratiquant occasionnel).",
-      },
-      {
-        q: "Comment mes données seront-elles utilisées ?",
-        a: "Les résultats seront publiés sous forme agrégée dans des rapports publics et présentés lors de conférences. Aucune réponse individuelle ne sera jamais divulguée.",
-      },
-      {
-        q: "Qu'est-ce que le score CRS-5 ?",
-        a: "Le CRS-5 (Centrality of Religiosity Scale) est une échelle validée par Huber & Huber (2012) qui mesure 5 dimensions de la religiosité : intellect, idéologie, pratique publique, pratique privée et expérience spirituelle.",
-      },
-      {
-        q: "Qu'est-ce que l'indice de résistance spirituelle ?",
-        a: "C'est un indicateur original de cette étude qui mesure la différence entre votre usage général de l'IA et votre usage spirituel. Un indice positif suggère une réticence spécifique à utiliser l'IA pour des tâches spirituelles.",
-      },
-      {
-        q: "Puis-je voir les résultats ?",
-        a: "Oui ! À la fin du sondage, vous recevez un profil personnalisé avec vos scores et votre typologie. Vous pouvez ensuite consulter les résultats agrégés de l'ensemble des participants.",
-      },
-    ],
-    en: [
-      {
-        q: "Why this study?",
-        a: "Artificial intelligence is silently transforming religious practices, from sermon writing to AI-assisted prayer. This major survey aims to map these uses and understand the ethical issues they raise for Christian communities.",
-      },
-      {
-        q: "Are my responses anonymous?",
-        a: "Yes. We use a cryptographic hash of your email to ensure each person only responds once, but your actual email is never stored. If you choose to receive your results by email, it is used only for sending then immediately deleted. Responses are aggregated for statistical purposes, in compliance with GDPR.",
-      },
-      {
-        q: "How long does the survey take?",
-        a: "Between 5 and 7 minutes depending on your profile. The number of questions varies: clergy members answer additional questions about their ministry.",
-      },
-      {
-        q: "Who can participate?",
-        a: "Anyone who identifies with the Christian faith, regardless of denomination (Catholic, Protestant, Orthodox, Evangelical) and level of engagement (clergy, committed layperson, occasional practitioner).",
-      },
-      {
-        q: "How will my data be used?",
-        a: "Results will be published in aggregated form in public reports and presented at conferences. No individual responses will ever be disclosed.",
-      },
-      {
-        q: "What is the CRS-5 score?",
-        a: "The CRS-5 (Centrality of Religiosity Scale) is a validated scale by Huber & Huber (2012) that measures 5 dimensions of religiosity: intellect, ideology, public practice, private practice, and spiritual experience.",
-      },
-      {
-        q: "What is the spiritual resistance index?",
-        a: "It's an original indicator from this study that measures the difference between your general AI usage and your spiritual usage. A positive index suggests a specific reluctance to use AI for spiritual tasks.",
-      },
-      {
-        q: "Can I see the results?",
-        a: "Yes! At the end of the survey, you receive a personalized profile with your scores and typology. You can then view the aggregated results from all participants.",
-      },
-    ],
-  };
 
-  const faqs = customFaqs || faqContent[language];
+  const faqs = customFaqs || FAQ_CONTENT[language === 'en' ? 'en' : 'fr'];
   const title = t("faq.title");
   const subtitle = t("faq.subtitle");
   const searchPlaceholder = t("faq.searchPlaceholder");

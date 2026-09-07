@@ -1,6 +1,8 @@
 /**
- * Advanced Profiling Types
- * Multi-dimensional spiritual-AI profile typology
+ * Scoring core v2 - shared types
+ *
+ * Every dimension is nullable: a respondent who skipped (or was never asked)
+ * the items feeding a dimension gets `value: null`, never an imputed midpoint.
  */
 
 // ==========================================
@@ -8,20 +10,59 @@
 // ==========================================
 
 export interface DimensionScore {
-  value: number;        // 1-5 scale
-  confidence: number;   // 0-1 how confident we are (based on answered questions)
-  percentile: number;   // 1-99 vs population
+  /** 1-5 mean of the answered items, or null when nItems < the dimension minimum */
+  value: number | null;
+  /** nItems / maxItems, 0-1 */
+  confidence: number;
+  /** Items actually answered (missing values excluded) */
+  nItems: number;
+  /** Items this respondent could have been asked, given their routing */
+  maxItems: number;
+  /** Always null client-side; filled only from GET /api/results/norms */
+  percentile: number | null;
 }
 
 export interface SevenDimensions {
-  religiosity: DimensionScore;          // Centrality of faith
-  aiOpenness: DimensionScore;           // General AI adoption willingness
-  sacredBoundary: DimensionScore;       // Resistance to AI in sacred spaces
-  ethicalConcern: DimensionScore;       // Worry about AI implications
-  psychologicalPerception: DimensionScore; // Views on AI nature/consciousness
-  communityInfluence: DimensionScore;   // Social context impact
-  futureOrientation: DimensionScore;    // Trajectory and openness to change
+  religiosity: DimensionScore;
+  aiOpenness: DimensionScore;
+  sacredBoundary: DimensionScore;
+  ethicalConcern: DimensionScore;
+  psychologicalPerception: DimensionScore;
+  communityContext: DimensionScore;
+  futureOrientation: DimensionScore;
 }
+
+export type DimensionKey = keyof SevenDimensions;
+
+/**
+ * Sub-scores restricted to items asked to every respondent, so clergy and
+ * laypeople remain comparable.
+ */
+export interface CoreSubscores {
+  sacredBoundaryCore: DimensionScore;
+  aiOpennessCore: DimensionScore;
+}
+
+// ==========================================
+// SOCIAL DESIRABILITY
+// ==========================================
+
+export interface SocialDesirability {
+  /** Share of items endorsed in the socially desirable direction, 0-1; null if < 4 answered */
+  score: number | null;
+  nItems: number;
+  flag: boolean;
+}
+
+// ==========================================
+// USAGE GAP (replaces the "spiritual resistance index")
+// ==========================================
+
+export type UsageGap =
+  | 'none'
+  | 'uses_general_not_spiritual'
+  | 'uses_both'
+  | 'no_use';
 
 // ==========================================
 // PROFILE TYPES
@@ -73,8 +114,10 @@ export type SubProfileType =
 
 export interface ProfileMatch {
   profile: PrimaryProfile;
-  matchScore: number;     // 0-100 percentage match
-  distance: number;       // Distance from ideal (lower = better fit)
+  /** 0-100, raw (never normalised across profiles), unrounded */
+  matchScore: number;
+  /** Weighted L1 distance to the ideal ranges, over valued dimensions only */
+  distance: number;
 }
 
 export interface SubProfileMatch {
@@ -83,44 +126,49 @@ export interface SubProfileMatch {
   description: string;
 }
 
+export type ProfileConfidence = 'low' | 'medium' | 'high';
+
 // ==========================================
 // COMPREHENSIVE PROFILE RESULT
 // ==========================================
 
 export interface ProfileSpectrum {
-  // Primary classification
-  primary: ProfileMatch;
+  /** null when fewer than 4 dimensions could be valued */
+  primary: ProfileMatch | null;
   secondary: ProfileMatch | null;
   tertiary: ProfileMatch | null;
 
-  // All profile matches (for visualization)
+  /** All 8 profiles with raw scores, sorted descending */
   allMatches: ProfileMatch[];
 
-  // Sub-profile within primary
-  subProfile: SubProfileMatch;
+  /** null when there is no primary profile */
+  subProfile: SubProfileMatch | null;
 
-  // Raw dimensions
   dimensions: SevenDimensions;
+  core: CoreSubscores;
 
-  // Narrative interpretation
-  interpretation: ProfileInterpretation;
+  /** Profile assignment is a heuristic, never a diagnosis */
+  attribution: 'heuristic';
+  profileConfidence: ProfileConfidence;
 
-  // Personalized insights based on unique combination
+  socialDesirability: SocialDesirability;
+  usageGap: UsageGap;
+
+  /** null when there is no primary profile */
+  interpretation: ProfileInterpretation | null;
+
   insights: AdvancedInsight[];
-
-  // Tension points (where dimensions conflict)
   tensions: TensionPoint[];
-
-  // Growth opportunities
+  /** "Pistes de réflexion" - neutral, never prescriptive */
   growthAreas: GrowthArea[];
 }
 
 export interface ProfileInterpretation {
-  headline: string;           // One-line summary
-  narrative: string;          // 2-3 sentence description
-  uniqueAspects: string[];    // What makes this combination unique
-  blindSpots: string[];       // Potential blind spots
-  strengths: string[];        // Core strengths
+  headline: string;
+  narrative: string;
+  uniqueAspects: string[];
+  blindSpots: string[];
+  strengths: string[];
 }
 
 export interface AdvancedInsight {
@@ -128,12 +176,12 @@ export interface AdvancedInsight {
   icon: string;
   title: string;
   message: string;
-  priority: number;  // 1-5, higher = more important
+  priority: number;
 }
 
 export interface TensionPoint {
-  dimension1: keyof SevenDimensions;
-  dimension2: keyof SevenDimensions;
+  dimension1: DimensionKey;
+  dimension2: DimensionKey;
   description: string;
   suggestion: string;
 }
@@ -149,30 +197,17 @@ export interface GrowthArea {
 // PROFILE DATA STRUCTURES
 // ==========================================
 
+export type DimensionRanges = Record<DimensionKey, [number, number]>;
+export type DimensionWeights = Record<DimensionKey, number>;
+
 export interface ProfileDefinition {
   id: PrimaryProfile;
   title: string;
   emoji: string;
   shortDescription: string;
   fullDescription: string;
-  idealDimensions: {
-    religiosity: [number, number];      // [min, max] ideal range
-    aiOpenness: [number, number];
-    sacredBoundary: [number, number];
-    ethicalConcern: [number, number];
-    psychologicalPerception: [number, number];
-    communityInfluence: [number, number];
-    futureOrientation: [number, number];
-  };
-  weights: {
-    religiosity: number;
-    aiOpenness: number;
-    sacredBoundary: number;
-    ethicalConcern: number;
-    psychologicalPerception: number;
-    communityInfluence: number;
-    futureOrientation: number;
-  };
+  idealDimensions: DimensionRanges;
+  weights: DimensionWeights;
   coreMotivation: string;
   primaryFear: string;
   communicationStyle: string;
@@ -187,7 +222,7 @@ export interface SubProfileDefinition {
   description: string;
   distinguishingTraits: string[];
   idealPattern: {
-    dimension: keyof SevenDimensions;
+    dimension: DimensionKey;
     emphasis: 'high' | 'low' | 'moderate';
   }[];
 }
@@ -197,7 +232,7 @@ export interface SubProfileDefinition {
 // ==========================================
 
 export interface DimensionLabel {
-  dimension: keyof SevenDimensions;
+  dimension: DimensionKey;
   label: string;
   labelEn: string;
   description: string;

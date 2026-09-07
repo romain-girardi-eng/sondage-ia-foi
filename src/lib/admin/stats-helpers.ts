@@ -1,27 +1,56 @@
 /**
  * Admin Statistics Helper Functions
- * Business logic for calculating admin dashboard statistics
+ * Business logic for calculating admin dashboard statistics.
+ *
+ * Disclosure and inference rules (SCORING_V2_SPEC §1.8):
+ * - a segment below MIN_SEGMENT_N publishes null means and null SDs, never a
+ *   number computed on a handful of identifiable people;
+ * - a correlation is computed only from MIN_CORRELATION_N pairwise-complete
+ *   observations, and always travels with its 95 % CI and its BH-adjusted p.
  */
 
-import { calculateStdDev, calculateMedian, calculateCorrelation, calculateDistribution } from "@/lib/utils/statistics";
+import { calculateMedian, calculateDistribution } from "@/lib/utils/statistics";
+import {
+  benjaminiHochberg,
+  fisherCI,
+  pearson as pearsonR,
+  pValueFromR,
+  sampleSd,
+} from "@/lib/analysis/statistics";
 
-// Re-export statistical functions for convenience
-export { calculateStdDev, calculateMedian, calculateCorrelation, calculateDistribution };
+export { calculateMedian, calculateDistribution };
+
+// The numeric core lives in `@/lib/analysis/statistics` and is shared with the
+// interpretation module: one Pearson, one Fisher interval, one incomplete beta,
+// one Benjamini-Hochberg. The thin wrappers below only keep the signatures this
+// admin module and its callers already use.
+export { benjaminiHochberg };
+
+/** Below this, a segment is too small to publish an average without risking re-identification. */
+export const MIN_SEGMENT_N = 5;
+
+/** Below this, a correlation coefficient is too unstable to be reported at all. */
+export const MIN_CORRELATION_N = 20;
 
 // Types
 export interface SegmentStats {
   count: number;
-  avgReligiosity: number;
-  avgAiAdoption: number;
-  avgResistance: number;
+  avgReligiosity: number | null;
+  avgAiAdoption: number | null;
+  sdReligiosity: number | null;
+  sdAiAdoption: number | null;
   profileDistribution: Record<string, number>;
-  dimensionAverages: Record<string, number>;
+  /** Counts of the ordinal usage gap (SCORING_V2_SPEC §1.7). */
+  usageGapDistribution: Record<string, number>;
+  dimensionAverages: Record<string, number | null>;
+  dimensionSds: Record<string, number | null>;
 }
 
 export interface DimensionStat {
-  mean: number;
-  stdDev: number;
-  median: number;
+  n: number;
+  mean: number | null;
+  stdDev: number | null;
+  median: number | null;
   distribution: number[];
 }
 
@@ -40,204 +69,380 @@ export interface ProfileCluster {
 }
 
 export interface SegmentDataItem {
-  religiosity: number[];
-  aiAdoption: number[];
-  resistance: number[];
+  religiosity: Array<number | null>;
+  aiAdoption: Array<number | null>;
   profiles: Record<string, number>;
-  dimensions: Record<string, number[]>;
+  usageGap: Record<string, number>;
+  dimensions: Record<string, Array<number | null>>;
 }
+
+/** One respondent's dimension scores, nulls included (SCORING_V2_SPEC §1.4). */
+export type DimensionRecord = Record<string, number | null>;
+
+/** Shape fixed by SCORING_V2_SPEC §2. */
+export interface CorrelationFact {
+  x: string;
+  y: string;
+  r: number;
+  n: number;
+  ci95: [number, number];
+  pRaw: number;
+  pAdjusted: number;
+  sharedItems: string[];
+}
+
+// Callers pass `DIMENSION_ITEMS` from '@/lib/scoring'. The empty default keeps
+// this module free of a scoring import: with no map, no pair can be flagged as
+// a method artefact, which is also v2's expectation since each item feeds
+// exactly one dimension (SCORING_V2_SPEC §1.3).
+const NO_DIMENSION_ITEMS: Partial<Record<string, string[]>> = {};
+
+// ---------------------------------------------------------------------------
+// Numeric primitives
+// ---------------------------------------------------------------------------
+
+function present(values: Array<number | null>): number[] {
+  return values.filter((v): v is number => typeof v === 'number' && Number.isFinite(v));
+}
+
+export function mean(values: number[]): number | null {
+  if (values.length === 0) return null;
+  return values.reduce((a, b) => a + b, 0) / values.length;
+}
+
+/**
+ * Sample standard deviation (n − 1). The population formula in
+ * `@/lib/utils/statistics` understates the spread of a survey sample.
+ */
+export function sampleStdDev(values: number[]): number | null {
+  return sampleSd(values);
+}
+
+function round(value: number, decimals: number): number {
+  const factor = 10 ** decimals;
+  return Math.round(value * factor) / factor;
+}
+
+function roundOrNull(value: number | null, decimals: number): number | null {
+  return value === null ? null : round(value, decimals);
+}
+
+/** Pearson r on already-paired, complete observations. */
+export function pearson(x: number[], y: number[]): number | null {
+  return pearsonR(x, y)?.r ?? null;
+}
+
+/**
+ * 95 % confidence interval for r through Fisher's z transform. Degenerate
+ * cases (|r| = 1, n <= 3) collapse the interval onto the point estimate rather
+ * than inventing a width.
+ */
+export function fisherCi95(r: number, n: number): [number, number] {
+  return fisherCI(r, n, 0.95) ?? [r, r];
+}
+
+/**
+ * Two-sided p-value for r under H0: rho = 0, via t = r·sqrt((n−2)/(1−r²))
+ * with n−2 degrees of freedom. Undefined below three observations, where the
+ * conservative answer is "no evidence".
+ */
+export function pValueForCorrelation(r: number, n: number): number {
+  if (n < 3) return 1;
+  const p = pValueFromR(r, n);
+  return Number.isFinite(p) ? p : 1;
+}
+
+// ---------------------------------------------------------------------------
+// Segment / dimension statistics
+// ---------------------------------------------------------------------------
 
 /**
  * Get role category (clergy vs laity)
  */
 export function getRoleCategory(role: string): 'clergy' | 'laity' | 'other' {
-  if (['clerge', 'religieux'].includes(role)) return 'clergy';
+  if (['clerge', 'religieux', 'responsable_non_ordonne'].includes(role)) return 'clergy';
   if (['laic_engagé', 'laic_pratiquant', 'curieux'].includes(role)) return 'laity';
   return 'other';
 }
 
+export function emptySegmentDataItem(dimensionKeys: string[]): SegmentDataItem {
+  const dimensions: Record<string, Array<number | null>> = {};
+  for (const key of dimensionKeys) dimensions[key] = [];
+  return { religiosity: [], aiAdoption: [], profiles: {}, usageGap: {}, dimensions };
+}
+
 /**
- * Build segment statistics from raw segment data
+ * Mean and SD of one measure inside a segment, both null unless at least
+ * MIN_SEGMENT_N respondents actually have a value for it. The segment size is
+ * not enough: a dimension can be measured on a single person inside a segment
+ * of forty, and that person's score must not be published as an average.
+ */
+function measure(values: Array<number | null>): { mean: number | null; sd: number | null } {
+  const usable = present(values);
+  if (usable.length < MIN_SEGMENT_N) return { mean: null, sd: null };
+  return { mean: roundOrNull(mean(usable), 2), sd: roundOrNull(sampleStdDev(usable), 2) };
+}
+
+/**
+ * Build segment statistics from raw segment data.
+ *
+ * Two disclosure rules apply (SCORING_V2_SPEC §1.8):
+ * - a segment below MIN_SEGMENT_N publishes its size and nothing else, the
+ *   profile and usage-gap distributions included: a distribution over four
+ *   people is a list of four people;
+ * - above it, each measure is published only if its own non-null count reaches
+ *   MIN_SEGMENT_N.
  */
 export function buildSegmentStats(data: SegmentDataItem): SegmentStats {
   const count = data.religiosity.length;
-  if (count === 0) {
+  const dimensionAverages: Record<string, number | null> = {};
+  const dimensionSds: Record<string, number | null> = {};
+
+  if (count < MIN_SEGMENT_N) {
+    for (const key of Object.keys(data.dimensions)) {
+      dimensionAverages[key] = null;
+      dimensionSds[key] = null;
+    }
     return {
-      count: 0,
-      avgReligiosity: 0,
-      avgAiAdoption: 0,
-      avgResistance: 0,
+      count,
+      avgReligiosity: null,
+      avgAiAdoption: null,
+      sdReligiosity: null,
+      sdAiAdoption: null,
       profileDistribution: {},
-      dimensionAverages: {},
+      usageGapDistribution: {},
+      dimensionAverages,
+      dimensionSds,
     };
   }
 
-  const dimensionAverages: Record<string, number> = {};
-  for (const k of Object.keys(data.dimensions)) {
-    const vals = data.dimensions[k];
-    dimensionAverages[k] = vals.length > 0
-      ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 100) / 100
-      : 0;
+  for (const key of Object.keys(data.dimensions)) {
+    const { mean: m, sd } = measure(data.dimensions[key]);
+    dimensionAverages[key] = m;
+    dimensionSds[key] = sd;
   }
+
+  const religiosity = measure(data.religiosity);
+  const aiAdoption = measure(data.aiAdoption);
 
   return {
     count,
-    avgReligiosity: Math.round((data.religiosity.reduce((a, b) => a + b, 0) / count) * 100) / 100,
-    avgAiAdoption: Math.round((data.aiAdoption.reduce((a, b) => a + b, 0) / count) * 100) / 100,
-    avgResistance: Math.round((data.resistance.reduce((a, b) => a + b, 0) / count) * 100) / 100,
+    avgReligiosity: religiosity.mean,
+    avgAiAdoption: aiAdoption.mean,
+    sdReligiosity: religiosity.sd,
+    sdAiAdoption: aiAdoption.sd,
     profileDistribution: data.profiles,
+    usageGapDistribution: data.usageGap,
     dimensionAverages,
+    dimensionSds,
   };
 }
 
 /**
- * Calculate dimension statistics from dimension data
+ * Calculate dimension statistics from dimension data.
+ * Fewer than MIN_SEGMENT_N usable values: n only, no mean and no SD.
  */
 export function calculateDimensionStats(
-  dimensionData: Record<string, number[]>
+  dimensionData: Record<string, Array<number | null>>
 ): Record<string, DimensionStat> {
   const stats: Record<string, DimensionStat> = {};
 
   for (const key of Object.keys(dimensionData)) {
-    const values = dimensionData[key];
-    if (values.length > 0) {
-      const mean = Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 100) / 100;
-      stats[key] = {
-        mean,
-        stdDev: calculateStdDev(values, mean),
-        median: Math.round(calculateMedian(values) * 100) / 100,
-        distribution: calculateDistribution(values),
-      };
+    const values = present(dimensionData[key]);
+    if (values.length < MIN_SEGMENT_N) {
+      stats[key] = { n: values.length, mean: null, stdDev: null, median: null, distribution: [] };
+      continue;
     }
+    stats[key] = {
+      n: values.length,
+      mean: roundOrNull(mean(values), 2),
+      stdDev: roundOrNull(sampleStdDev(values), 2),
+      median: round(calculateMedian(values), 2),
+      distribution: calculateDistribution(values),
+    };
   }
 
   return stats;
 }
 
-/**
- * Calculate correlation matrix for all dimensions
- */
-export function calculateCorrelationMatrix(
-  dimensionData: Record<string, number[]>
-): Record<string, Record<string, number>> {
-  const dimensionKeys = Object.keys(dimensionData);
-  const matrix: Record<string, Record<string, number>> = {};
+// ---------------------------------------------------------------------------
+// Correlations
+// ---------------------------------------------------------------------------
 
-  for (const dim1 of dimensionKeys) {
-    matrix[dim1] = {};
-    for (const dim2 of dimensionKeys) {
-      if (dim1 === dim2) {
-        matrix[dim1][dim2] = 1;
-      } else {
-        matrix[dim1][dim2] = calculateCorrelation(dimensionData[dim1], dimensionData[dim2]);
-      }
-    }
-  }
-
-  return matrix;
+function sharedItemsBetween(
+  x: string,
+  y: string,
+  dimensionItems: Partial<Record<string, string[]>>
+): string[] {
+  const itemsX = dimensionItems[x];
+  const itemsY = dimensionItems[y];
+  if (!itemsX || !itemsY) return [];
+  const setY = new Set(itemsY);
+  return itemsX.filter((item) => setY.has(item));
 }
 
 /**
- * Generate key findings from analyzed data
+ * Every pairwise-complete correlation with at least MIN_CORRELATION_N
+ * observations, with Fisher CI and a BH adjustment over that exact family.
+ */
+export function computeCorrelations(
+  records: DimensionRecord[],
+  keys: string[],
+  dimensionItems: Partial<Record<string, string[]>> = NO_DIMENSION_ITEMS
+): CorrelationFact[] {
+  const facts: Array<Omit<CorrelationFact, 'pAdjusted'>> = [];
+
+  for (let i = 0; i < keys.length; i++) {
+    for (let j = i + 1; j < keys.length; j++) {
+      const x = keys[i];
+      const y = keys[j];
+      const xs: number[] = [];
+      const ys: number[] = [];
+
+      for (const record of records) {
+        const a = record[x];
+        const b = record[y];
+        if (typeof a === 'number' && typeof b === 'number') {
+          xs.push(a);
+          ys.push(b);
+        }
+      }
+
+      if (xs.length < MIN_CORRELATION_N) continue;
+
+      const r = pearson(xs, ys);
+      if (r === null) continue;
+
+      const n = xs.length;
+      const [lo, hi] = fisherCi95(r, n);
+      facts.push({
+        x,
+        y,
+        r: round(r, 3),
+        n,
+        ci95: [round(lo, 3), round(hi, 3)],
+        pRaw: pValueForCorrelation(r, n),
+        sharedItems: sharedItemsBetween(x, y, dimensionItems),
+      });
+    }
+  }
+
+  const adjusted = benjaminiHochberg(facts.map((f) => f.pRaw));
+
+  return facts.map((fact, index) => ({
+    ...fact,
+    pRaw: round(fact.pRaw, 5),
+    pAdjusted: round(adjusted[index], 5),
+  }));
+}
+
+/**
+ * Square matrix view of the correlation facts, for the legacy heatmap.
+ * Null unless every pair reached MIN_CORRELATION_N: a matrix with holes would
+ * invite reading absence as zero.
+ */
+export function buildCorrelationMatrix(
+  facts: CorrelationFact[],
+  keys: string[]
+): Record<string, Record<string, number>> | null {
+  const expectedPairs = (keys.length * (keys.length - 1)) / 2;
+  if (facts.length < expectedPairs) return null;
+
+  const matrix: Record<string, Record<string, number>> = {};
+  for (const key of keys) {
+    matrix[key] = { [key]: 1 };
+  }
+  for (const fact of facts) {
+    matrix[fact.x][fact.y] = fact.r;
+    matrix[fact.y][fact.x] = fact.r;
+  }
+  return matrix;
+}
+
+// ---------------------------------------------------------------------------
+// Narrative findings
+// ---------------------------------------------------------------------------
+
+/**
+ * Generate key findings from analyzed data. Every sentence is backed by a
+ * number that was actually computed; nothing is inferred when it is null.
  */
 export function generateKeyFindings(
   segmentedAnalysis: Record<string, Record<string, SegmentStats>>,
-  correlationMatrix: Record<string, Record<string, number>>,
+  correlations: CorrelationFact[],
   dimensionStats: Record<string, DimensionStat>,
   totalResponses: number
 ): KeyFinding[] {
   const findings: KeyFinding[] = [];
 
-  // Find strongest correlations
-  const dimensions = Object.keys(correlationMatrix);
-  let strongestPositive = { dims: ['', ''], value: 0 };
-  let strongestNegative = { dims: ['', ''], value: 0 };
+  const significant = correlations
+    .filter((c) => c.pAdjusted < 0.05)
+    .sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
 
-  for (let i = 0; i < dimensions.length; i++) {
-    for (let j = i + 1; j < dimensions.length; j++) {
-      const corr = correlationMatrix[dimensions[i]][dimensions[j]];
-      if (corr > strongestPositive.value) {
-        strongestPositive = { dims: [dimensions[i], dimensions[j]], value: corr };
-      }
-      if (corr < strongestNegative.value) {
-        strongestNegative = { dims: [dimensions[i], dimensions[j]], value: corr };
-      }
-    }
-  }
-
-  if (strongestPositive.value > 0.3) {
+  for (const fact of significant.slice(0, 2)) {
     findings.push({
       type: 'correlation',
-      title: 'Corrélation positive forte',
-      description: `Les dimensions "${strongestPositive.dims[0]}" et "${strongestPositive.dims[1]}" montrent une corrélation positive significative (r=${strongestPositive.value}).`,
-      significance: strongestPositive.value > 0.5 ? 'high' : 'medium'
+      title: fact.r > 0 ? 'Corrélation positive' : 'Corrélation négative',
+      description: `« ${fact.x} » et « ${fact.y} » : r = ${fact.r} (IC 95 % [${fact.ci95[0]} ; ${fact.ci95[1]}], n = ${fact.n}, p ajusté = ${fact.pAdjusted}).`,
+      significance: Math.abs(fact.r) > 0.5 ? 'high' : 'medium',
     });
   }
 
-  if (strongestNegative.value < -0.3) {
-    findings.push({
-      type: 'correlation',
-      title: 'Corrélation négative notable',
-      description: `Les dimensions "${strongestNegative.dims[0]}" et "${strongestNegative.dims[1]}" montrent une corrélation négative (r=${strongestNegative.value}).`,
-      significance: strongestNegative.value < -0.5 ? 'high' : 'medium'
-    });
-  }
+  const clergy = segmentedAnalysis.byRole?.clergy;
+  const laity = segmentedAnalysis.byRole?.laity;
 
-  // Segment differences
-  if (segmentedAnalysis.byRole?.clergy && segmentedAnalysis.byRole?.laity) {
-    const clergyRel = segmentedAnalysis.byRole.clergy.avgReligiosity;
-    const laityRel = segmentedAnalysis.byRole.laity.avgReligiosity;
-    const diff = Math.abs(clergyRel - laityRel);
-
+  if (clergy?.avgReligiosity !== null && clergy?.avgReligiosity !== undefined &&
+      laity?.avgReligiosity !== null && laity?.avgReligiosity !== undefined) {
+    const diff = Math.abs(clergy.avgReligiosity - laity.avgReligiosity);
     if (diff > 0.5) {
       findings.push({
         type: 'segment',
-        title: 'Différence clergé/laïcs notable',
-        description: `La religiosité moyenne diffère de ${diff.toFixed(1)} points entre le clergé (${clergyRel.toFixed(1)}) et les laïcs (${laityRel.toFixed(1)}).`,
-        significance: diff > 1 ? 'high' : 'medium'
+        title: 'Écart clergé/laïcs sur la religiosité',
+        description: `Religiosité moyenne : clergé ${clergy.avgReligiosity.toFixed(1)} (n = ${clergy.count}), laïcs ${laity.avgReligiosity.toFixed(1)} (n = ${laity.count}), écart de ${diff.toFixed(1)} point.`,
+        significance: diff > 1 ? 'high' : 'medium',
       });
     }
+  }
 
-    const clergyAi = segmentedAnalysis.byRole.clergy.avgAiAdoption;
-    const laityAi = segmentedAnalysis.byRole.laity.avgAiAdoption;
-    const aiDiff = Math.abs(clergyAi - laityAi);
-
+  if (clergy?.avgAiAdoption !== null && clergy?.avgAiAdoption !== undefined &&
+      laity?.avgAiAdoption !== null && laity?.avgAiAdoption !== undefined) {
+    const aiDiff = Math.abs(clergy.avgAiAdoption - laity.avgAiAdoption);
     if (aiDiff > 0.3) {
       findings.push({
         type: 'segment',
-        title: 'Adoption IA différenciée',
-        description: `L'adoption de l'IA varie entre le clergé (${clergyAi.toFixed(1)}) et les laïcs (${laityAi.toFixed(1)}).`,
-        significance: aiDiff > 0.6 ? 'high' : 'medium'
+        title: 'Écart clergé/laïcs sur l’ouverture à l’IA',
+        description: `Ouverture à l’IA : clergé ${clergy.avgAiAdoption.toFixed(1)} (n = ${clergy.count}), laïcs ${laity.avgAiAdoption.toFixed(1)} (n = ${laity.count}).`,
+        significance: aiDiff > 0.6 ? 'high' : 'medium',
       });
     }
   }
 
-  // Pattern findings
-  if (dimensionStats.sacredBoundary?.mean > 3.5) {
+  const sacred = dimensionStats.sacredBoundary;
+  if (sacred?.mean !== null && sacred?.mean !== undefined && sacred.mean > 3.5) {
     findings.push({
       type: 'pattern',
       title: 'Frontière sacrée élevée',
-      description: `La population maintient une frontière sacrée moyenne de ${dimensionStats.sacredBoundary.mean.toFixed(1)}/5, indiquant une réticence à utiliser l'IA dans les contextes spirituels.`,
-      significance: 'high'
+      description: `Frontière sacrée moyenne de ${sacred.mean.toFixed(1)}/5 (n = ${sacred.n}, ET ${sacred.stdDev ?? '—'}).`,
+      significance: 'medium',
     });
   }
 
-  if (dimensionStats.futureOrientation?.mean > 3.5) {
+  const future = dimensionStats.futureOrientation;
+  if (future?.mean !== null && future?.mean !== undefined && future.mean > 3.5) {
     findings.push({
       type: 'pattern',
-      title: 'Orientation future positive',
-      description: `${Math.round(dimensionStats.futureOrientation.mean / 5 * 100)}% de la population envisage d'augmenter leur usage de l'IA.`,
-      significance: 'medium'
+      title: 'Orientation future favorable',
+      description: `Orientation future moyenne de ${future.mean.toFixed(1)}/5 (n = ${future.n}, ET ${future.stdDev ?? '—'}).`,
+      significance: 'medium',
     });
   }
 
-  // Sample size indicator
   if (totalResponses >= 100) {
     findings.push({
       type: 'pattern',
-      title: 'Échantillon significatif',
-      description: `Avec ${totalResponses} réponses, l'échantillon permet des analyses statistiques fiables.`,
-      significance: totalResponses >= 500 ? 'high' : 'medium'
+      title: 'Taille d’échantillon',
+      description: `${totalResponses} réponses complètes collectées.`,
+      significance: totalResponses >= 500 ? 'high' : 'medium',
     });
   }
 
@@ -314,9 +519,10 @@ export function calculateScoreDistributions(
 }
 
 /**
- * Calculate average with rounding
+ * Calculate average with rounding. Null on an empty set rather than 0, which
+ * would read as a measured value.
  */
-export function calculateAverage(values: number[]): number {
-  if (values.length === 0) return 0;
+export function calculateAverage(values: number[]): number | null {
+  if (values.length === 0) return null;
   return Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10;
 }

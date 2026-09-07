@@ -33,11 +33,12 @@ src/
 │   ├── sharing/           # PDF/QR sharing
 │   └── ui/                # Reusable UI components
 ├── data/
-│   └── surveySchema.ts    # 55 questions with conditional logic
+│   └── surveySchema.ts    # 58 questions, instrument v2.0.0, conditional routing
 ├── lib/
 │   ├── i18n/              # LanguageContext, translations
 │   ├── hooks/             # useFingerprint, useSurveyPersistence
-│   ├── scoring/           # 7 dimensions, 8 profiles algorithms
+│   ├── scoring/           # 7 dimensions, 8 heuristic profiles, usage gap
+│   ├── analysis/          # Correlation facts, interpretation catalog, certainty A-D
 │   ├── supabase/          # Database client & types
 │   ├── email/             # Resend integration
 │   ├── pdf/               # React PDF report generation
@@ -102,14 +103,21 @@ export function ComponentName({ prop }: Props) {
 ### State Machine Flow
 `intro` → `questions` → `verify-email` → `email` → `feedback` → `thanks`
 
-### Scoring System
-- **7 Dimensions:** Calculated from question responses
-- **8 Profiles:** Derived from dimension quartiles
-- **Bias Detection:** Marlowe-Crowne social desirability scale
+### Scoring System (v2)
+- **7 Dimensions:** Weighted mean over answered items, 1 item feeds exactly 1 dimension, no
+  demographics, missing values never imputed, `value = null` below `MIN_ITEMS`
+- **8 Profiles:** Heuristic attribution (weighted L1 distance to expert-set ranges, then
+  `score = 100 * exp(-0.5 * d)`); not validated constructs
+- **Social Desirability:** Ad hoc selection of 5 Marlowe-Crowne items; covariate flag only,
+  never a score correction
+- **Usage Gap:** Ordinal indicator replacing the former "spiritual resistance index"
+- **Comparisons:** Empirical ranks via `GET /api/results/norms`, from 30 participants onwards.
+  No reference population, no model-based percentile
 
 ### Key Files
 - `src/data/surveySchema.ts` - Question definitions
 - `src/lib/scoring/` - All scoring algorithms
+- `src/lib/analysis/` - Hypotheses H1-H8, interpretation catalog, certainty grades
 - `src/components/survey/SurveyContainer.tsx` - Main state machine
 
 ## Database (Supabase)
@@ -182,7 +190,7 @@ Keep commits concise (<72 chars), imperative mood.
 
 1. **Dark mode is default** - Light mode is secondary
 2. **French is primary language** - Most content in French first
-3. **Academic rigor** - Scoring based on validated scales (CRS-5, Marlowe-Crowne)
+3. **Academic honesty** - CRS-5 is adapted, the 5 Marlowe-Crowne items are an ad hoc selection, Godspeed and AIAS only inspired original items; 6 of 7 dimensions are exploratory
 4. **GDPR compliance** - Full data export/deletion across all tables at `/mes-donnees`
 5. **No plaintext emails or IPs** - Always a keyed HMAC-SHA256 hash; legacy encrypted-email storage is being phased out
 6. **Retention purge** - Abandoned sessions (90 days), anti-abuse tracking (90 days), security audit log (365 days, then anonymized), survey responses (~3 years, then anonymized)
@@ -190,7 +198,8 @@ Keep commits concise (<72 chars), imperative mood.
 ## Related Documentation
 
 - `README.md` - Project overview
-- `METHODOLOGY.md` - Academic methodology details
+- `METHODOLOGY.md` - Methodology (instrument v2.0.0, dimensions, profiles, H1-H8, limits)
+- `docs/PREREGISTRATION.md` - OSF-style pre-registration
 - `SECURITY.md` - Security architecture
 - `ROADMAP.md` - Development phases
 - `AGENTS.md` - Extended coding guidelines

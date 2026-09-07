@@ -10,10 +10,14 @@ import {
   getProfileShareURL,
   getProfileShareText,
   buildProfileShareLinks,
+  type ShareVariant,
 } from "@/lib/profil/share";
 
 interface ProfileShareProps {
-  profileId: PrimaryProfile;
+  /** null when no profile could be attributed: sharing is then disabled. */
+  profileId: PrimaryProfile | null;
+  /** Recruitment channel; only "cnef" names the partner in the share text. */
+  entryVariant?: ShareVariant;
   className?: string;
 }
 
@@ -41,21 +45,27 @@ function FacebookGlyph() {
   );
 }
 
-export function ProfileShare({ profileId, className }: ProfileShareProps) {
+export function ProfileShare({
+  profileId,
+  entryVariant = "general",
+  className,
+}: ProfileShareProps) {
   const { t, language } = useLanguage();
   const [copied, setCopied] = useState(false);
 
-  const archetype = getArchetypeById(profileId);
-  const slug = profileIdToSlug(profileId);
-  const url = getProfileShareURL(slug);
-  const text = getProfileShareText(archetype.title, url, language);
-  const links = buildProfileShareLinks(text, url);
+  const archetype = profileId ? getArchetypeById(profileId) : null;
+  const slug = profileId ? profileIdToSlug(profileId) : null;
+  const url = slug ? getProfileShareURL(slug) : null;
+  const text =
+    archetype && url ? getProfileShareText(archetype.title, url, language, entryVariant) : null;
+  const links = text && url ? buildProfileShareLinks(text, url) : null;
 
   const openExternal = (href: string) => {
     window.open(href, "_blank", "noopener,noreferrer");
   };
 
   const handleWhatsApp = async () => {
+    if (!text || !links) return;
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
         await navigator.share({ text });
@@ -68,6 +78,7 @@ export function ProfileShare({ profileId, className }: ProfileShareProps) {
   };
 
   const handleCopy = async () => {
+    if (!url) return;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -76,6 +87,11 @@ export function ProfileShare({ profileId, className }: ProfileShareProps) {
       console.error("Copy failed:", error);
     }
   };
+
+  // No attributable profile: nothing type-level to share.
+  if (!links) {
+    return null;
+  }
 
   return (
     <motion.div

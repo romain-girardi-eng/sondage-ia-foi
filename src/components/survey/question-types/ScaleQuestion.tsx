@@ -16,11 +16,13 @@ export function ScaleQuestion({
 }: ScaleQuestionProps) {
   const { t } = useLanguage();
 
+  // The chosen value is handed to onNext: the container branches on the answer
+  // being committed, not on the state this closure captured.
   const handleScaleClick = useCallback(
     (num: number) => {
       onChange(num);
       setTimeout(() => {
-        onNext();
+        onNext(num);
       }, 250);
     },
     [onChange, onNext]

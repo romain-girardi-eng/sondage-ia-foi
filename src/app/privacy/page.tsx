@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { PrivacyContent, getPrivacyMetadata } from "../[lang]/privacy/page";
+import { PrivacyContent } from "../[lang]/privacy/page";
+import { getPrivacyMetadata } from "../[lang]/privacy/metadata";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ia-foi.fr";
 

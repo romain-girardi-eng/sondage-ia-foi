@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { type Question } from "@/data";
 import { useLanguage } from "@/lib";
+import { getOptionLabel as getLocalizedOptionLabel, getPlaceholder } from "@/lib/i18n/questions";
+import { type AnswerValue } from "./question-types/types";
 import {
   ChoiceQuestion,
   MultipleQuestion,
@@ -14,9 +16,9 @@ import {
 
 interface QuestionCardProps {
   question: Question;
-  value: string | number | string[] | Record<string, number> | undefined;
-  onChange: (val: string | number | string[] | Record<string, number>) => void;
-  onNext: () => void;
+  value: AnswerValue | undefined;
+  onChange: (val: AnswerValue) => void;
+  onNext: (committedValue?: AnswerValue) => void;
 }
 
 export function QuestionCard({
@@ -25,7 +27,7 @@ export function QuestionCard({
   onChange,
   onNext,
 }: QuestionCardProps) {
-  const { tQuestion, tOption, tScale, tMatrixColumn, tMatrixRow, language } = useLanguage();
+  const { tQuestion, tScale, tMatrixColumn, tMatrixRow, language } = useLanguage();
 
   const multipleSelected = useMemo(
     () => (Array.isArray(value) ? value : []),
@@ -43,11 +45,10 @@ export function QuestionCard({
     ? tQuestion(question.id)
     : question.text;
 
-  // Get translated option label
-  const getOptionLabel = (opt: { value: string; label: string }) => {
-    const translated = tOption(opt.value);
-    return translated !== opt.value ? translated : opt.label;
-  };
+  // Option labels come from the canonical i18n source, keyed by question id
+  // (the same value carries a different wording in different questions).
+  const getOptionLabel = (opt: { value: string; label: string }) =>
+    getLocalizedOptionLabel(language, question.id, opt.value) ?? opt.label;
 
   // Get translated scale labels
   const getScaleLabel = (key: string | undefined, fallback: string | undefined) => {
@@ -84,6 +85,8 @@ export function QuestionCard({
     onNext,
     questionText,
   };
+
+  const placeholder = getPlaceholder(language, question.id) ?? question.placeholder;
 
   return (
     <article
@@ -141,7 +144,7 @@ export function QuestionCard({
         )}
 
         {question.type === "text" && (
-          <TextQuestion {...baseProps} />
+          <TextQuestion {...baseProps} placeholder={placeholder} />
         )}
       </motion.div>
     </article>

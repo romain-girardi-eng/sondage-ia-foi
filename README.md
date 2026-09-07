@@ -7,10 +7,11 @@ Academic survey application studying AI usage in Christian religious practices.
 ## Features
 
 - **Immersive Landing Page** - Custom CPPN shader with Three.js for a spiritual, meditative visual experience
-- **55 Survey Questions** - Comprehensive questionnaire with conditional logic (35-45 shown per respondent based on profile)
+- **58 Survey Questions** - Instrument v2.0.0 with conditional routing (47 to 52 shown per respondent; 1 for screened-out respondents)
 - **Conditional Logic** - Questions adapt based on previous answers
 - **i18n Support** - Full French and English translations with language switcher
-- **Modern Dashboard** - Custom SVG-based visualizations with animated radial charts
+- **Heuristic Profiling** - 7 dimensions and 8 profiles; profile attribution is heuristic and labelled as such, never a diagnosis
+- **Modern Dashboard** - Custom SVG-based visualizations, k-anonymous aggregates (k = 5), published from 30 participants onwards
 - **Privacy First** - Pseudonymous by design (anonymous ID, keyed hashes for email/IP, never raw), retention limits and automated purge, fully GDPR compliant
 - **Responsive Design** - Optimized for mobile and desktop
 
@@ -84,10 +85,13 @@ src/
 │       ├── language-switcher.tsx
 │       └── spiritual-shader-hero.tsx
 ├── data/
-│   └── surveySchema.ts         # 55 survey questions with conditional logic
+│   └── surveySchema.ts         # 58 survey questions, instrument v2.0.0
 └── lib/
     ├── utils.ts                # Utility functions (cn)
     ├── dataService.ts          # Mock data service
+    ├── scoring/                # 7 dimensions, 8 heuristic profiles, usage gap
+    ├── analysis/               # Correlation facts, pre-specified interpretations,
+    │                           # certainty grades A-D
     └── i18n/                   # Internationalization
         ├── translations.ts     # FR/EN translations
         └── LanguageContext.tsx # React context provider
@@ -95,9 +99,9 @@ src/
 
 ## Survey Categories
 
-The survey covers 12 categories across 55 questions:
+The survey covers 12 categories across 58 questions:
 
-1. **Profile** - Religious denomination, status, demographics (14 questions)
+1. **Profile** - Religious denomination, status, demographics (15 questions)
 2. **Religiosity** - CRS-5 scale measuring religious commitment (5 questions)
 3. **Theology** - Theological orientation and perspectives on AI (8 questions)
 4. **AI Usage** - General AI tool usage patterns (3 questions)
@@ -108,7 +112,12 @@ The survey covers 12 categories across 55 questions:
 9. **Community** - Church positions and peer attitudes (3 questions)
 10. **Future** - Intentions and training interests (3 questions)
 11. **Open** - Free-text comments (1 question)
-12. **Social Desirability** - Marlowe-Crowne control items (5 questions)
+12. **Social Desirability** - Ad hoc selection of 5 Marlowe-Crowne items (5 questions)
+
+Scoring: 7 dimensions (1 item feeds exactly 1 dimension, no demographics), 8 heuristic profiles,
+an ordinal `usageGap` indicator, and empirical ranks served from 30 participants onwards. There is
+no reference population and no model-based percentile. See `METHODOLOGY.md` and
+`docs/PREREGISTRATION.md`.
 
 ## Dashboard Visualizations
 
@@ -146,4 +155,4 @@ Romain Girardi
 
 ---
 
-*This survey is part of an academic research project studying the intersection of artificial intelligence and religious practices.*
+*Independent research project studying the intersection of artificial intelligence and Christian religious practices. Not affiliated with any university or laboratory.*

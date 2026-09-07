@@ -6,7 +6,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ia-foi.fr";
 export const metadata: Metadata = {
   title: "Méthodologie — Comment fonctionne l'enquête IA & Foi",
   description:
-    "Découvrez la méthodologie scientifique de l'enquête IA & Foi : 7 dimensions, 8 profils, échelle CRS-5, indice de résistance spirituelle et hypothèses de recherche.",
+    "La méthodologie de l'enquête IA & Foi\u00a0: instrument v2.0.0 à 58 questions, 7 dimensions, 8 profils heuristiques, CRS-5 adapté, écart d'usage et hypothèses H1 à H8.",
   alternates: {
     canonical: `${BASE_URL}/methodology`,
     languages: {
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Méthodologie scientifique — Enquête IA & Foi 2026",
     description:
-      "7 dimensions psychométriques, 8 profils typologiques, échelles validées (CRS-5, Marlowe-Crowne). Transparence totale sur la méthode.",
+      "7 dimensions, 8 profils heuristiques, CRS-5 adapté et sélection ad hoc d'items Marlowe-Crowne. Transparence complète sur ce qui est mesuré et sur ce qui ne l'est pas.",
     url: `${BASE_URL}/methodology`,
     type: "website",
   },

@@ -32,16 +32,16 @@ const EMAIL_SUBJECTS = {
 const EMAIL_CONTENT = {
   fr: {
     greeting: 'Bonjour,',
-    body: 'Merci pour votre participation à notre étude sur l\'Intelligence Artificielle et la vie spirituelle. Vous trouverez ci-joint votre rapport personnalisé avec vos résultats.',
-    note: 'Ce rapport est confidentiel et généré à partir de vos réponses au sondage.',
+    body: 'Merci pour votre participation à notre étude sur l\'Intelligence Artificielle et la vie spirituelle. Vous trouverez ci-joint le rapport établi à partir de vos réponses.',
+    note: 'Ce rapport est confidentiel. L\'attribution d\'un profil y est heuristique et non validée : c\'est une lecture indicative de vos réponses, pas un diagnostic. Les dimensions pour lesquelles trop peu d\'items ont été renseignés sont indiquées comme non mesurées, et la comparaison avec les autres participants n\'est pas incluse dans le rapport.',
     closing: 'Cordialement,',
     team: 'L\'équipe de recherche IA & Foi',
     footer: 'Cette grande enquête respecte la protection de vos données conformément au RGPD.',
   },
   en: {
     greeting: 'Hello,',
-    body: 'Thank you for participating in our study on Artificial Intelligence and spiritual life. Please find attached your personalized report with your results.',
-    note: 'This report is confidential and generated from your survey responses.',
+    body: 'Thank you for participating in our study on Artificial Intelligence and spiritual life. Please find attached the report built from your answers.',
+    note: 'This report is confidential. The profile attribution it contains is heuristic and not validated: it is an indicative reading of your answers, not a diagnosis. Dimensions with too few answered items are reported as not measured, and the comparison with other participants is not included in the report.',
     closing: 'Best regards,',
     team: 'The AI & Faith Research Team',
     footer: 'This major survey respects data protection in accordance with GDPR.',

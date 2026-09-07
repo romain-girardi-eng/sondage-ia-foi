@@ -2,12 +2,16 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { LanguageProvider } from "@/lib";
 import { ProfileShare } from "./ProfileShare";
-import { getProfileShareURL } from "@/lib/profil/share";
+import { getProfileShareURL, type ShareVariant } from "@/lib/profil/share";
+import type { PrimaryProfile } from "@/lib/scoring/types";
 
-function renderShare() {
+function renderShare(
+  profileId: PrimaryProfile | null = "pionnier_spirituel",
+  entryVariant: ShareVariant = "general",
+) {
   return render(
     <LanguageProvider initialLanguage="fr" initialSource="default">
-      <ProfileShare profileId="pionnier_spirituel" />
+      <ProfileShare profileId={profileId} entryVariant={entryVariant} />
     </LanguageProvider>,
   );
 }
@@ -41,6 +45,23 @@ describe("ProfileShare", () => {
     expect(decoded).toContain("Pionnier Spirituel");
     expect(decoded).toContain(getProfileShareURL("pionnier-spirituel"));
     expect(decoded).not.toContain("—");
+    expect(decoded).not.toMatch(/\p{Extended_Pictographic}/u);
+    expect(decoded).not.toContain("CNEF");
+  });
+
+  it("names the CNEF only for the cnef entry variant", () => {
+    renderShare("pionnier_spirituel", "cnef");
+    fireEvent.click(screen.getByText("Partager sur WhatsApp"));
+
+    const decoded = decodeURIComponent(openSpy.mock.calls[0][0] as string);
+    expect(decoded).toContain("CNEF");
+  });
+
+  it("renders nothing when no profile could be attributed", () => {
+    renderShare(null);
+    expect(screen.queryByText("Partager sur WhatsApp")).toBeNull();
+    expect(screen.queryByLabelText("Copier le lien")).toBeNull();
+    expect(screen.queryByRole("button")).toBeNull();
   });
 
   it("copies the slug-only link to the clipboard", async () => {

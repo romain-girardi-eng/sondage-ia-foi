@@ -114,7 +114,7 @@ export default function MethodologyPage() {
             </div>
           </motion.section>
 
-          {/* Validated Scales */}
+          {/* Scales and items */}
           <motion.section {...fadeInUp}>
             <ScaleVisualizer translations={t} />
           </motion.section>
@@ -241,6 +241,37 @@ export default function MethodologyPage() {
                 </motion.div>
               ))}
             </div>
+          </motion.section>
+
+          {/* How to read a correlation */}
+          <motion.section {...fadeInUp} className="glass-card-refined rounded-2xl p-6 space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t.correlationTitle}</h2>
+              <p className="text-sm text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                {t.correlationDesc}
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {t.correlationGrades.map((item) => (
+                <div key={item.grade} className="glass-card rounded-xl p-4 flex items-start gap-3">
+                  <span
+                    className="shrink-0 w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 font-bold flex items-center justify-center"
+                    aria-hidden="true"
+                  >
+                    {item.grade}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground">{item.label}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-xs text-muted-foreground/70 text-center max-w-3xl mx-auto">
+              {t.correlationNote}
+            </p>
           </motion.section>
 
           {/* Citations */}

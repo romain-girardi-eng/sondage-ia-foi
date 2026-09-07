@@ -105,8 +105,14 @@ export async function sendPdfReport(params: SendPdfReportParams): Promise<SendPd
 
   const religiosityScore = calculateCRS5Score(answers);
   const iaComfortScore = calculateAIAdoptionScore(answers);
+  // Scoring v2: no profile is attributed when fewer than four dimensions
+  // could be measured (docs/SCORING_V2_SPEC.md §1.5).
   const profile = getSpiritualAIProfile(answers);
-  const profileData = PROFILE_DATA[profile];
+  const profileTitle = profile
+    ? PROFILE_DATA[profile].title
+    : language === 'fr'
+      ? 'Profil non attribuable'
+      : 'No profile attributed';
 
   const pdfBuffer = await generatePDFReportBuffer({
     language,
@@ -116,7 +122,7 @@ export async function sendPdfReport(params: SendPdfReportParams): Promise<SendPd
     profile: {
       religiosityScore,
       iaComfortScore,
-      theologicalOrientation: profileData.title,
+      theologicalOrientation: profileTitle,
     },
   });
 

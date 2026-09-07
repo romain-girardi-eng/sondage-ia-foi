@@ -76,8 +76,11 @@ test.describe("API Endpoints", () => {
 
     const data = await response.json();
     expect(data).toHaveProperty("participantCount");
-    expect(data).toHaveProperty("results");
     expect(data).toHaveProperty("lastUpdated");
+    expect(["ok", "insufficient"]).toContain(data.mode);
+    if (data.mode === "ok") {
+      expect(Array.isArray(data.results)).toBe(true);
+    }
   });
 
   test("should reject unauthorized export", async ({ request }) => {
@@ -104,7 +107,11 @@ test.describe("API Endpoints", () => {
     expect(response.status()).toBe(400);
   });
 
+  // This test writes a real row into whatever database the dev server points
+  // at. It only runs when the caller explicitly opts in against a disposable
+  // database, never by default (E2E_ALLOW_WRITES=1).
   test("should accept valid survey submission", async ({ request }) => {
+    test.skip(process.env.E2E_ALLOW_WRITES !== "1", "writes to the database; set E2E_ALLOW_WRITES=1 against a disposable database");
     const csrfToken = await getCsrfToken(request);
 
     const response = await request.post("/api/survey/submit", {

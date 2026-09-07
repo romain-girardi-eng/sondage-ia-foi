@@ -4,11 +4,15 @@
 
 import { type Question } from "@/data";
 
+export type AnswerValue = string | number | string[] | Record<string, number>;
+
 export interface QuestionTypeProps {
   question: Question;
-  value: string | number | string[] | Record<string, number> | undefined;
-  onChange: (val: string | number | string[] | Record<string, number>) => void;
-  onNext: () => void;
+  value: AnswerValue | undefined;
+  onChange: (val: AnswerValue) => void;
+  // The value being committed is passed along so the container can branch on
+  // the fresh answer (screen-out) instead of the stale render-time state.
+  onNext: (committedValue?: AnswerValue) => void;
   questionText: string;
 }
 
@@ -33,4 +37,6 @@ export interface MatrixQuestionProps extends QuestionTypeProps {
   getMatrixColumnLabel: (col: { value: number; label: string }) => string;
 }
 
-export type TextQuestionProps = QuestionTypeProps;
+export interface TextQuestionProps extends QuestionTypeProps {
+  placeholder: string | undefined;
+}

@@ -32,9 +32,9 @@ export function MatrixQuestion({
 
   const handleMatrixSubmit = useCallback(() => {
     if (isMatrixComplete) {
-      onNext();
+      onNext(matrixValue);
     }
-  }, [isMatrixComplete, onNext]);
+  }, [isMatrixComplete, matrixValue, onNext]);
 
   if (!question.rows || !question.columns) return null;
 

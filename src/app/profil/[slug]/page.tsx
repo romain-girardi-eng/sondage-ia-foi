@@ -45,8 +45,8 @@ export async function generateMetadata({
     return { title: { absolute: "Profil introuvable | IA & Foi" } };
   }
 
-  const title = `Je suis un·e ${archetype.title} | IA & Foi x CNEF`;
-  const description = `${archetype.coreMotivation}. Et vous, quel est votre profil face à l'IA ? Découvrez-le en 5 minutes, gratuitement et anonymement.`;
+  const title = `Je suis un·e ${archetype.title} | Enquête IA & Foi`;
+  const description = `${archetype.coreMotivation}. Et vous, quel est votre profil face à l'IA ? Découvrez-le en 8 à 12 minutes, gratuitement et anonymement.`;
   const url = getProfileShareURL(slug);
 
   return {
@@ -104,7 +104,7 @@ export default async function ProfilePage({
       <div className="relative z-10 mx-auto flex min-h-[100dvh] max-w-3xl flex-col px-6 py-14 md:px-10 md:py-20">
         {/* Kicker */}
         <p className="font-[family-name:var(--font-grotesk)] text-xs font-semibold uppercase tracking-[0.26em] text-[#9fb0cf]">
-          {"Mon profil face à l'IA · Enquête CNEF 2026"}
+          {"Mon profil face à l'IA · Enquête IA & Foi 2026"}
         </p>
 
         {/* Title */}
@@ -144,10 +144,10 @@ export default async function ProfilePage({
         {/* CTA */}
         <div className="mt-12 rounded-3xl border border-white/[0.12] bg-white/[0.04] p-7 md:p-9">
           <h2 className="font-[family-name:var(--font-newsreader)] text-2xl font-[560] text-[#f6f8fe] md:text-3xl">
-            Et vous, quel est votre profil ?
+            Et vous, quel est votre profil ?
           </h2>
           <p className="mt-2 text-[#b9c5dc]">
-            Découvrez-le en 5 minutes, gratuitement et 100% anonymement.
+            Découvrez-le en 8 à 12 minutes, gratuitement et 100 % anonymement.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link
@@ -183,7 +183,7 @@ export default async function ProfilePage({
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.16] bg-white/[0.05] px-3.5 py-1.5 font-[family-name:var(--font-grotesk)] text-xs font-medium text-[#b9c5dc]">
               <span className="h-2 w-2 rounded-full bg-[#37d399]" />
-              100% anonyme · 5 min
+              100 % anonyme · 8 à 12 min
             </span>
             <span className="font-[family-name:var(--font-grotesk)] text-sm font-semibold text-[#f6f8fe]">
               ia-foi<span className="text-[#e2122a]">.</span>fr

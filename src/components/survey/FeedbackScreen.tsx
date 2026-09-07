@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, TrendingUp, Users, Brain, Shield, Target, AlertTriangle, Lightbulb, ChevronRight, HelpCircle } from "lucide-react";
+import { ArrowRight, TrendingUp, Brain, Shield, Target, AlertTriangle, Lightbulb, ChevronRight, HelpCircle } from "lucide-react";
 import { cn, useLanguage, useHasAnimated, useMemoizedProfileSpectrum } from "@/lib";
 import { AnimatedBackground, LanguageSwitcher } from "@/components/ui";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
@@ -10,28 +10,72 @@ import { ProfilesModal } from "./ProfilesModal";
 import { ProfileShare } from "@/components/sharing";
 import type { Answers } from "@/data";
 import {
-  calculateCRS5Score,
   getReligiosityLevel,
   RELIGIOSITY_LABELS,
-  calculateAIAdoptionScore,
   getAIAdoptionLevel,
   AI_ADOPTION_LABELS,
-  calculateGeneralAIScore,
-  calculateSpiritualResistanceIndex,
-  getResistanceLevel,
-  RESISTANCE_LABELS,
-  getPercentileComparison,
   PROFILE_DEFINITIONS,
   SUB_PROFILE_DEFINITIONS,
   DIMENSION_COLORS,
 } from "@/lib/scoring";
 import { PROFILE_ICONS, SUB_PROFILE_ICONS } from "@/lib/scoring/icons";
-import type { PrimaryProfile } from "@/lib/scoring/types";
+import type {
+  DimensionKey,
+  PrimaryProfile,
+  ProfileMatch,
+  UsageGap,
+} from "@/lib/scoring/types";
+import type { ShareVariant } from "@/lib/profil/share";
+import {
+  getDimensionComparison,
+  parseNormsResponse,
+  type NormsResponse,
+} from "@/lib/profil/norms";
 
 interface FeedbackScreenProps {
   answers: Answers;
   onContinue: () => void;
   anonymousId?: string;
+  /** Recruitment channel, forwarded to the share text. */
+  entryVariant?: ShareVariant;
+}
+
+/** Ordinal usage-gap labels (docs/SCORING_V2_SPEC.md §1.7), no motivational reading. */
+const USAGE_GAP_KEYS: Record<UsageGap, string> = {
+  no_use: "feedback.usageGapNoUse",
+  uses_general_not_spiritual: "feedback.usageGapGeneralOnly",
+  uses_both: "feedback.usageGapBoth",
+  none: "feedback.usageGapUnknown",
+};
+
+/**
+ * Empirical norms (docs/SCORING_V2_SPEC.md §3). The fetch is abortable and
+ * every failure is silent: the screen simply falls back to "comparison
+ * available from 30 participants".
+ */
+function useNorms(): NormsResponse | null {
+  const [norms, setNorms] = useState<NormsResponse | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function load() {
+      try {
+        const response = await fetch("/api/results/norms", { signal: controller.signal });
+        if (!response.ok) return;
+        const payload: unknown = await response.json();
+        if (controller.signal.aborted) return;
+        setNorms(parseNormsResponse(payload));
+      } catch {
+        // Offline, rate-limited or malformed: no comparison is shown.
+      }
+    }
+
+    void load();
+    return () => controller.abort();
+  }, []);
+
+  return norms;
 }
 
 // Reusable card wrapper with glowing effect (matching demo exactly)
@@ -69,8 +113,10 @@ function GlowCard({
   );
 }
 
-export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
-  const { t } = useLanguage();
+export function FeedbackScreen({ answers, onContinue, entryVariant = "general" }: FeedbackScreenProps) {
+  const { t, language } = useLanguage();
+  // French typography: a no-break space before the colon.
+  const labelColon = language === "fr" ? "\u00A0:" : ":";
   const hasAnimated = useHasAnimated();
   const [isProfilesModalOpen, setIsProfilesModalOpen] = useState(false);
   const [selectedProfileForModal, setSelectedProfileForModal] = useState<PrimaryProfile | null>(null);
@@ -80,44 +126,72 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
     setIsProfilesModalOpen(true);
   };
 
-  // Calculate all scores - memoized to prevent expensive recalculations
+  // Scores - memoized to prevent expensive recalculations
   const spectrum = useMemoizedProfileSpectrum(answers);
+  const norms = useNorms();
 
-  // Memoize other score calculations
-  const { crsScore, religiosityLevel, aiScore, aiLevel, generalAIScore, resistanceIndex, resistanceLevel, religiosityPercentile, aiPercentile } = useMemo(() => {
-    const crs = calculateCRS5Score(answers);
-    const ai = calculateAIAdoptionScore(answers);
-    const general = calculateGeneralAIScore(answers);
-    const resistance = calculateSpiritualResistanceIndex(answers);
+  const dimensions = spectrum.dimensions;
+  const crsScore = dimensions.religiosity.value;
+  const aiScore = dimensions.aiOpenness.value;
 
-    return {
-      crsScore: crs,
-      religiosityLevel: getReligiosityLevel(crs),
-      aiScore: ai,
-      aiLevel: getAIAdoptionLevel(ai),
-      generalAIScore: general,
-      resistanceIndex: resistance,
-      resistanceLevel: getResistanceLevel(resistance),
-      religiosityPercentile: getPercentileComparison(crs, 'religiosity'),
-      aiPercentile: getPercentileComparison(ai, 'ai_adoption'),
-    };
-  }, [answers]);
-
-  // Profile data
   const primaryMatch = spectrum.primary;
-  const profileDef = PROFILE_DEFINITIONS[primaryMatch.profile];
+  const runnerUpMatch = spectrum.allMatches[1] ?? null;
+  const isCloseCall = primaryMatch !== null && spectrum.profileConfidence === "low";
   const subProfileMatch = spectrum.subProfile;
-  const subProfileDef = subProfileMatch ? SUB_PROFILE_DEFINITIONS[subProfileMatch.subProfile as keyof typeof SUB_PROFILE_DEFINITIONS] : null;
+  const subProfileDef = subProfileMatch
+    ? SUB_PROFILE_DEFINITIONS[subProfileMatch.subProfile as keyof typeof SUB_PROFILE_DEFINITIONS]
+    : null;
+  const measuredDimensions = (Object.keys(dimensions) as DimensionKey[]).filter(
+    (key) => dimensions[key].value !== null
+  ).length;
+
   const insights = spectrum.insights;
   const tensions = spectrum.tensions;
   const growthAreas = spectrum.growthAreas;
 
-  // Resistance description helper - kept for potential future use
-  // const getResistanceDescription = () => {
-  //   if (resistanceIndex > 1) return t("feedback.resistanceHigh");
-  //   if (resistanceIndex > 0) return t("feedback.resistanceMedium");
-  //   return t("feedback.resistanceLow");
-  // };
+  const formatMatch = (match: ProfileMatch): string =>
+    t("feedback.matchScore", { score: Math.round(match.matchScore) });
+
+  // Empirical rank against collected participants, never a modelled percentile.
+  const renderComparison = (dimension: DimensionKey, score: number | null) => {
+    const comparison = getDimensionComparison(norms, dimension, score);
+    return (
+      <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
+        {comparison
+          ? t("feedback.normsComparison", { percent: comparison.rank, count: comparison.n })
+          : t("feedback.normsUnavailable")}
+      </p>
+    );
+  };
+
+  const renderProfileButton = (match: ProfileMatch, emphasis: "primary" | "secondary") => {
+    const def = PROFILE_DEFINITIONS[match.profile];
+    const Icon = PROFILE_ICONS[match.profile];
+    return (
+      <button
+        key={match.profile}
+        onClick={() => openProfileModal(match.profile)}
+        className="w-full text-left group"
+      >
+        <div className="w-fit rounded-lg border border-border bg-muted/50 p-3 group-hover:bg-muted transition-colors">
+          <Icon className={cn("w-9 h-9", emphasis === "primary" ? "text-purple-400" : "text-muted-foreground")} />
+        </div>
+        <div className="space-y-2 mt-4">
+          <div className="flex items-center gap-2">
+            <h2 className={cn(
+              "font-bold text-foreground",
+              emphasis === "primary" ? "text-2xl md:text-3xl" : "text-xl md:text-2xl"
+            )}>
+              {t(`profiles.${match.profile}`) || def.title}
+            </h2>
+            <ChevronRight className="w-5 h-5 text-muted-foreground/50 group-hover:text-muted-foreground group-hover:translate-x-1 transition-all" />
+          </div>
+          <p className="text-xs text-muted-foreground">{formatMatch(match)}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{def.shortDescription}</p>
+        </div>
+      </button>
+    );
+  };
 
   return (
     <AnimatedBackground variant="default" showGrid showOrbs>
@@ -155,41 +229,59 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
           <ul className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5">
             {/* Main Profile Card - Large */}
             <GlowCard area="md:col-span-8 lg:col-span-5" className="justify-between">
-              <button
-                onClick={() => openProfileModal(primaryMatch.profile)}
-                className="w-full text-left group"
-              >
-                <div className="flex items-start justify-between">
-                  {(() => {
-                    const Icon = PROFILE_ICONS[primaryMatch.profile];
-                    return (
-                      <div className="w-fit rounded-lg border border-border bg-muted/50 p-3 group-hover:bg-muted transition-colors">
-                        <Icon className="w-9 h-9 text-purple-400" />
-                      </div>
-                    );
-                  })()}
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">{t("feedback.match")}</p>
-                    <p className="text-2xl font-bold text-purple-400">{primaryMatch.matchScore}%</p>
-                  </div>
+              <div className="space-y-4">
+                {/* Attribution caveat, above the profile name and visible without scrolling */}
+                <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+                  <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+                    {t("feedback.heuristicAttribution")}
+                  </p>
                 </div>
-                <div className="space-y-3 mt-4">
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-2xl md:text-3xl font-bold text-foreground">{t(`profiles.${primaryMatch.profile}`) || profileDef.title}</h2>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground/50 group-hover:text-muted-foreground group-hover:translate-x-1 transition-all" />
+
+                {primaryMatch === null ? (
+                  <div className="space-y-3">
+                    <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                      {t("feedback.noProfileTitle")}
+                    </h2>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {t("feedback.noProfileDescription")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("feedback.measuredDimensions", { count: measuredDimensions })}
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{profileDef.shortDescription}</p>
-                  {subProfileDef && subProfileMatch && (
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/20 dark:bg-purple-500/20 border border-purple-500/30">
-                      {(() => {
-                        const SubIcon = SUB_PROFILE_ICONS[subProfileMatch.subProfile];
-                        return SubIcon ? <SubIcon className="w-3.5 h-3.5 text-purple-400" /> : null;
-                      })()}
-                      <span className="text-xs font-medium text-purple-700 dark:text-purple-300">{t(`profiles.${subProfileMatch.subProfile}`) || subProfileDef.title}</span>
+                ) : isCloseCall && runnerUpMatch ? (
+                  <div className="space-y-4">
+                    <div>
+                      <h2 className="text-lg font-semibold text-foreground">
+                        {t("feedback.closeProfilesTitle")}
+                      </h2>
+                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                        {t("feedback.closeProfilesDescription")}
+                      </p>
                     </div>
-                  )}
-                </div>
-              </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {renderProfileButton(primaryMatch, "primary")}
+                      {renderProfileButton(runnerUpMatch, "secondary")}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {renderProfileButton(primaryMatch, "primary")}
+                    {subProfileDef && subProfileMatch && (
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/20 dark:bg-purple-500/20 border border-purple-500/30">
+                        {(() => {
+                          const SubIcon = SUB_PROFILE_ICONS[subProfileMatch.subProfile];
+                          return SubIcon ? <SubIcon className="w-3.5 h-3.5 text-purple-400" /> : null;
+                        })()}
+                        <span className="text-xs font-medium text-purple-700 dark:text-purple-300">
+                          {t(`profiles.${subProfileMatch.subProfile}`) || subProfileDef.title}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </GlowCard>
 
             {/* CRS-5 Score */}
@@ -203,27 +295,32 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
                   <p className="text-xs text-muted-foreground">CRS-5</p>
                 </div>
               </div>
-              <div className="flex items-end justify-between mt-auto">
-                <div>
-                  <p className="text-3xl font-bold text-foreground">{crsScore.toFixed(1)}<span className="text-lg text-muted-foreground">/5</span></p>
-                  <p className="text-sm text-blue-500 dark:text-blue-400">{RELIGIOSITY_LABELS[religiosityLevel]}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground flex items-center gap-1"><Users className="w-3 h-3" /> {t("feedback.vsOthers")}</p>
-                  <p className="text-lg font-semibold text-foreground">Top {100 - religiosityPercentile}%</p>
-                </div>
-              </div>
-              <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
-                <motion.div
-                  initial={hasAnimated ? false : { width: 0 }}
-                  animate={{ width: `${(crsScore / 5) * 100}%` }}
-                  transition={{ delay: 0.5, duration: 0.8 }}
-                  className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full"
-                />
+              <div className="mt-auto">
+                {crsScore === null ? (
+                  <p className="text-sm text-muted-foreground">{t("feedback.notMeasured")}</p>
+                ) : (
+                  <>
+                    <p className="text-3xl font-bold text-foreground">
+                      {crsScore.toFixed(1)}<span className="text-lg text-muted-foreground">/5</span>
+                    </p>
+                    <p className="text-sm text-blue-500 dark:text-blue-400">
+                      {RELIGIOSITY_LABELS[getReligiosityLevel(crsScore)]}
+                    </p>
+                    <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
+                      <motion.div
+                        initial={hasAnimated ? false : { width: 0 }}
+                        animate={{ width: `${(crsScore / 5) * 100}%` }}
+                        transition={{ delay: 0.5, duration: 0.8 }}
+                        className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full"
+                      />
+                    </div>
+                  </>
+                )}
+                {renderComparison("religiosity", crsScore)}
               </div>
             </GlowCard>
 
-            {/* AI Adoption Score */}
+            {/* AI openness */}
             <GlowCard area="md:col-span-6 lg:col-span-4">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
@@ -234,102 +331,99 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
                   <p className="text-xs text-muted-foreground">{t("feedback.usageLevel")}</p>
                 </div>
               </div>
-              <div className="flex items-end justify-between mt-auto">
-                <div>
-                  <p className="text-3xl font-bold text-foreground">{aiScore.toFixed(1)}<span className="text-lg text-muted-foreground">/5</span></p>
-                  <p className="text-sm text-emerald-600 dark:text-emerald-400">{AI_ADOPTION_LABELS[aiLevel]}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground flex items-center gap-1"><Users className="w-3 h-3" /> {t("feedback.vsOthers")}</p>
-                  <p className="text-lg font-semibold text-foreground">Top {100 - aiPercentile}%</p>
-                </div>
-              </div>
-              <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
-                <motion.div
-                  initial={hasAnimated ? false : { width: 0 }}
-                  animate={{ width: `${(aiScore / 5) * 100}%` }}
-                  transition={{ delay: 0.6, duration: 0.8 }}
-                  className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full"
-                />
+              <div className="mt-auto">
+                {aiScore === null ? (
+                  <p className="text-sm text-muted-foreground">{t("feedback.notMeasured")}</p>
+                ) : (
+                  <>
+                    <p className="text-3xl font-bold text-foreground">
+                      {aiScore.toFixed(1)}<span className="text-lg text-muted-foreground">/5</span>
+                    </p>
+                    <p className="text-sm text-emerald-600 dark:text-emerald-400">
+                      {AI_ADOPTION_LABELS[getAIAdoptionLevel(aiScore)]}
+                    </p>
+                    <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
+                      <motion.div
+                        initial={hasAnimated ? false : { width: 0 }}
+                        animate={{ width: `${(aiScore / 5) * 100}%` }}
+                        transition={{ delay: 0.6, duration: 0.8 }}
+                        className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full"
+                      />
+                    </div>
+                  </>
+                )}
+                {renderComparison("aiOpenness", aiScore)}
               </div>
             </GlowCard>
 
-            {/* Spiritual Resistance */}
+            {/* Usage gap (replaces the former spiritual resistance index) */}
             <GlowCard area="md:col-span-6 lg:col-span-5">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400">
                   <Shield className="w-5 h-5" />
                 </div>
-                <h3 className="font-semibold text-foreground text-sm">{t("feedback.spiritualResistance")}</h3>
+                <h3 className="font-semibold text-foreground text-sm">{t("feedback.usageGap")}</h3>
               </div>
-              <div className="flex items-center gap-4 mt-auto">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xs text-muted-foreground">{t("feedback.generalAI")}</span>
-                  <span className="text-lg font-bold text-foreground">{generalAIScore.toFixed(1)}</span>
-                </div>
-                <span className="text-xl text-muted-foreground">→</span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xs text-muted-foreground">{t("feedback.spiritualAI")}</span>
-                  <span className="text-lg font-bold text-foreground">{(generalAIScore - resistanceIndex).toFixed(1)}</span>
-                </div>
-                <span className="text-xl text-muted-foreground">=</span>
-                <div className={cn("text-xl font-bold", resistanceIndex > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400")}>
-                  {resistanceIndex > 0 ? "+" : ""}{resistanceIndex.toFixed(1)}
-                </div>
+              <div className="mt-auto space-y-2">
+                <p className="text-lg font-semibold text-foreground leading-snug">
+                  {t(USAGE_GAP_KEYS[spectrum.usageGap])}
+                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {t("feedback.usageGapNote")}
+                </p>
               </div>
-              <p className={cn("text-sm mt-2", resistanceIndex > 1 ? "text-amber-600 dark:text-amber-400" : resistanceIndex > 0 ? "text-amber-500 dark:text-amber-300" : "text-emerald-600 dark:text-emerald-400")}>
-                {RESISTANCE_LABELS[resistanceLevel]}
-              </p>
             </GlowCard>
 
-            {/* Profile Spectrum */}
-            <GlowCard area="md:col-span-12 lg:col-span-7">
-              <div className="flex items-center gap-2 mb-4">
-                <Target className="w-4 h-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                  {t("feedback.profileSpectrum")}
-                </h3>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {spectrum.allMatches.slice(0, 3).map((match, index) => {
-                  const matchDef = PROFILE_DEFINITIONS[match.profile];
-                  return (
-                    <motion.button
-                      key={match.profile}
-                      initial={hasAnimated ? false : { opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4 + index * 0.1 }}
-                      onClick={() => openProfileModal(match.profile)}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 hover:border-border transition-all cursor-pointer text-left"
-                    >
-                      {(() => {
-                        const MatchIcon = PROFILE_ICONS[match.profile];
-                        return <MatchIcon className="w-6 h-6 text-muted-foreground" />;
-                      })()}
-                      <div className="flex-1 min-w-0">
-                        <p className={cn("text-sm font-medium truncate", index === 0 ? "text-foreground" : "text-muted-foreground")}>
-                          {t(`profiles.${match.profile}`) || matchDef.title}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                            <motion.div
-                              initial={hasAnimated ? false : { width: 0 }}
-                              animate={{ width: `${match.matchScore}%` }}
-                              transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
-                              className={cn("h-full rounded-full bg-purple-500", index === 0 ? "opacity-100" : "opacity-50")}
-                            />
+            {/* Profile spectrum - raw match scores, never normalised percentages */}
+            {primaryMatch !== null && (
+              <GlowCard area="md:col-span-12 lg:col-span-7">
+                <div className="flex items-center gap-2 mb-4">
+                  <Target className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                    {t("feedback.profileSpectrum")}
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {spectrum.allMatches.slice(0, 3).map((match, index) => {
+                    const matchDef = PROFILE_DEFINITIONS[match.profile];
+                    return (
+                      <motion.button
+                        key={match.profile}
+                        initial={hasAnimated ? false : { opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 + index * 0.1 }}
+                        onClick={() => openProfileModal(match.profile)}
+                        className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 hover:border-border transition-all cursor-pointer text-left"
+                      >
+                        {(() => {
+                          const MatchIcon = PROFILE_ICONS[match.profile];
+                          return <MatchIcon className="w-6 h-6 text-muted-foreground" />;
+                        })()}
+                        <div className="flex-1 min-w-0">
+                          <p className={cn("text-sm font-medium truncate", index === 0 ? "text-foreground" : "text-muted-foreground")}>
+                            {t(`profiles.${match.profile}`) || matchDef.title}
+                          </p>
+                          <div className="mt-1">
+                            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                              <motion.div
+                                initial={hasAnimated ? false : { width: 0 }}
+                                animate={{ width: `${match.matchScore}%` }}
+                                transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
+                                className={cn("h-full rounded-full bg-purple-500", index === 0 ? "opacity-100" : "opacity-50")}
+                              />
+                            </div>
+                            <span className={cn("mt-1 block text-xs", index === 0 ? "text-purple-600 dark:text-purple-400" : "text-muted-foreground")}>
+                              {formatMatch(match)}
+                            </span>
                           </div>
-                          <span className={cn("text-xs font-bold", index === 0 ? "text-purple-600 dark:text-purple-400" : "text-muted-foreground")}>
-                            {match.matchScore}%
-                          </span>
                         </div>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </GlowCard>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </GlowCard>
+            )}
 
             {/* 7 Dimensions */}
             <GlowCard area="md:col-span-12 lg:col-span-12" allowOverflow>
@@ -340,10 +434,12 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
                 </h3>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
-                {Object.entries(spectrum.dimensions).map(([key, dimension], index) => {
-                  const color = DIMENSION_COLORS[key as keyof typeof DIMENSION_COLORS];
-                  const isHigh = dimension.value >= 3.5;
-                  const isLow = dimension.value <= 2.5;
+                {(Object.keys(dimensions) as DimensionKey[]).map((key, index) => {
+                  const dimension = dimensions[key];
+                  const color = DIMENSION_COLORS[key];
+                  const value = dimension.value;
+                  const isHigh = value !== null && value >= 3.5;
+                  const isLow = value !== null && value <= 2.5;
                   const dimKey = `dimensions.${key}`;
                   return (
                     <motion.div
@@ -356,23 +452,30 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
                       <div className="relative w-12 h-12 mx-auto mb-2">
                         <svg className="w-12 h-12 -rotate-90">
                           <circle cx="24" cy="24" r="20" fill="none" className="stroke-muted" strokeWidth="4" />
-                          <motion.circle
-                            cx="24" cy="24" r="20"
-                            fill="none"
-                            stroke={color}
-                            strokeWidth="4"
-                            strokeLinecap="round"
-                            strokeDasharray={`${(dimension.value / 5) * 125.6} 125.6`}
-                            initial={hasAnimated ? false : { strokeDasharray: "0 125.6" }}
-                            animate={{ strokeDasharray: `${(dimension.value / 5) * 125.6} 125.6` }}
-                            transition={{ delay: 0.6 + index * 0.05, duration: 0.8 }}
-                          />
+                          {value !== null && (
+                            <motion.circle
+                              cx="24" cy="24" r="20"
+                              fill="none"
+                              stroke={color}
+                              strokeWidth="4"
+                              strokeLinecap="round"
+                              strokeDasharray={`${(value / 5) * 125.6} 125.6`}
+                              initial={hasAnimated ? false : { strokeDasharray: "0 125.6" }}
+                              animate={{ strokeDasharray: `${(value / 5) * 125.6} 125.6` }}
+                              transition={{ delay: 0.6 + index * 0.05, duration: 0.8 }}
+                            />
+                          )}
                         </svg>
                         <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-foreground">
-                          {dimension.value.toFixed(1)}
+                          {value === null ? "—" : value.toFixed(1)}
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground leading-tight">{t(`${dimKey}.label`)}</p>
+                      {value === null && (
+                        <p className="mt-1 text-[10px] text-muted-foreground/70 leading-tight">
+                          {t("feedback.notMeasured")}
+                        </p>
+                      )}
 
                       {/* Tooltip on hover - appears below */}
                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 p-3 rounded-xl bg-popover border border-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left pointer-events-none">
@@ -382,7 +485,13 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
                         <p className="text-[11px] text-muted-foreground mb-2">{t(`${dimKey}.description`)}</p>
                         <div className="pt-2 border-t border-border space-y-1.5">
                           <p className="text-[11px] font-medium" style={{ color }}>
-                            {isHigh ? t(`${dimKey}.high`) : isLow ? t(`${dimKey}.low`) : t("resultsExplain.balancedPosition")}
+                            {value === null
+                              ? t("feedback.notMeasuredDetail")
+                              : isHigh
+                                ? t(`${dimKey}.high`)
+                                : isLow
+                                  ? t(`${dimKey}.low`)
+                                  : t("resultsExplain.balancedPosition")}
                           </p>
                           {(isHigh || isLow) && (
                             <p className="text-[10px] text-muted-foreground leading-relaxed">
@@ -409,13 +518,13 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
               </GlowCard>
             ))}
 
-            {/* Growth Areas */}
+            {/* "Pistes de réflexion, si vous le souhaitez" */}
             {growthAreas.length > 0 && (
               <GlowCard area="md:col-span-6">
                 <div className="flex items-center gap-2 mb-3">
                   <Lightbulb className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <h3 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                    {t("feedback.growthArea")}
+                    {t("feedback.reflectionAreas")}
                   </h3>
                 </div>
                 <div className="flex items-start gap-3">
@@ -439,24 +548,35 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
                 </div>
                 <div className="text-sm text-foreground mb-1">
                   <span className="text-amber-600 dark:text-amber-400">{t(`dimensions.${tensions[0].dimension1}.label`)}</span>
-                  <span className="text-muted-foreground"> vs </span>
+                  <span className="text-muted-foreground"> / </span>
                   <span className="text-amber-600 dark:text-amber-400">{t(`dimensions.${tensions[0].dimension2}.label`)}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">{t(`tensions.${tensions[0].description}`)}</p>
               </GlowCard>
             )}
+
+            {/* Social desirability: a reservation, never a score */}
+            {spectrum.socialDesirability.flag && (
+              <GlowCard area="md:col-span-12" className="min-h-0">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {t("feedback.socialDesirabilityNote")}
+                </p>
+              </GlowCard>
+            )}
           </ul>
         </motion.div>
 
-        {/* Share my profile - viral loop */}
-        <motion.div
-          initial={hasAnimated ? false : { opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
-          className="mx-auto mt-10 max-w-2xl"
-        >
-          <ProfileShare profileId={primaryMatch.profile} />
-        </motion.div>
+        {/* Share my profile - only when a profile could be attributed */}
+        {primaryMatch !== null && (
+          <motion.div
+            initial={hasAnimated ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            className="mx-auto mt-10 max-w-2xl"
+          >
+            <ProfileShare profileId={primaryMatch.profile} entryVariant={entryVariant} />
+          </motion.div>
+        )}
 
         {/* CTA Button */}
         <motion.div
@@ -511,7 +631,7 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
           {/* Methodology Link */}
           <div className="pt-3 border-t border-border/50">
             <p className="text-[10px] text-muted-foreground/40 leading-relaxed">
-              <span className="font-medium text-muted-foreground/50">{t("methodology.title")}:</span>{" "}
+              <span className="font-medium text-muted-foreground/50">{t("methodology.title")}{labelColon}</span>{" "}
               {t("methodology.description")}
             </p>
             <p className="text-[9px] text-muted-foreground/30 mt-2 italic">
@@ -525,7 +645,7 @@ export function FeedbackScreen({ answers, onContinue }: FeedbackScreenProps) {
       <ProfilesModal
         isOpen={isProfilesModalOpen}
         onClose={() => setIsProfilesModalOpen(false)}
-        currentProfile={primaryMatch.profile}
+        currentProfile={primaryMatch?.profile}
         initialSelectedProfile={selectedProfileForModal ?? undefined}
       />
     </AnimatedBackground>

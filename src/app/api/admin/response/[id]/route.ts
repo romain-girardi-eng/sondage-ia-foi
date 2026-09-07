@@ -4,27 +4,31 @@ import {
   calculateProfileSpectrum,
   calculateCRS5Score,
   calculateAIAdoptionScore,
-  calculateSpiritualResistanceIndex,
+  computeUsageGap,
   calculateAllDimensions,
+  scoreItem,
+  DIMENSION_KEYS,
   PROFILE_DATA,
 } from "@/lib/scoring";
+import type { ProfileInterpretation, ProfileSpectrum } from "@/lib/scoring";
 import type { Answers } from "@/data";
 import { authorizeAdminRequest } from "@/lib/security/adminAuth";
 
-// Generate interpretation based on profile spectrum
+/**
+ * The interpretation is null whenever no primary profile could be attributed
+ * (SCORING_V2_SPEC §1.5). The admin renders that absence, it never invents one.
+ */
 function generateInterpretation(
-  spectrum: ReturnType<typeof calculateProfileSpectrum>
-) {
-  const headline = spectrum.interpretation.headline;
-  const narrative = spectrum.interpretation.narrative;
-  const uniqueAspects = spectrum.interpretation.uniqueAspects;
-  const blindSpots = spectrum.interpretation.blindSpots;
+  spectrum: ProfileSpectrum
+): Pick<ProfileInterpretation, "headline" | "narrative" | "uniqueAspects" | "blindSpots"> | null {
+  const interpretation = spectrum.interpretation;
+  if (!interpretation) return null;
 
   return {
-    headline,
-    narrative,
-    uniqueAspects,
-    blindSpots,
+    headline: interpretation.headline,
+    narrative: interpretation.narrative,
+    uniqueAspects: interpretation.uniqueAspects,
+    blindSpots: interpretation.blindSpots,
   };
 }
 
@@ -77,7 +81,16 @@ export async function GET(
     const response = responseData as {
       id: string;
       created_at: string;
-      metadata: { language?: string; completionTime?: number; timeSpent?: number; startedAt?: string; completedAt?: string } | null;
+      metadata: {
+        language?: string;
+        completionTime?: number;
+        timeSpent?: number;
+        startedAt?: string;
+        completedAt?: string;
+        instrumentVersion?: string;
+        entryVariant?: string;
+        screenedOut?: boolean;
+      } | null;
       consent_given: boolean | null;
       answers: Record<string, unknown> | null;
     };
@@ -96,111 +109,76 @@ export async function GET(
     const dimensions = calculateAllDimensions(answers);
     const crs5Score = calculateCRS5Score(answers);
     const aiAdoptionScore = calculateAIAdoptionScore(answers);
-    const resistanceIndex = calculateSpiritualResistanceIndex(answers);
+    const usageGap = computeUsageGap(answers);
 
-    // CRS-5 score mapping
-    const CRS_SCORE_MAP: Record<string, number> = {
-      'jamais': 1, 'pas_du_tout': 1,
-      'rarement': 2, 'peu': 2,
-      'occasionnellement': 3, 'moderement': 3,
-      'souvent': 4, 'beaucoup': 4,
-      'tres_souvent': 5, 'totalement': 5,
-      'quelques_fois_an': 2,
-      'mensuel': 3,
-      'hebdo': 4,
-      'pluri_hebdo': 5,
-      'quotidien': 4,
-      'pluri_quotidien': 5,
+    // Item-level breakdowns come from the scoring module: an unanswered item is
+    // null, never an imputed midpoint (SCORING_V2_SPEC §1.3).
+    const crsBreakdown: Record<string, number | null> = {
+      intellect: scoreItem("crs_intellect", answers),
+      ideology: scoreItem("crs_ideology", answers),
+      public: scoreItem("crs_public_practice", answers),
+      private: scoreItem("crs_private_practice", answers),
+      experience: scoreItem("crs_experience", answers),
     };
 
-    // Calculate real CRS-5 breakdown
-    const getScore = (key: string): number => {
-      const val = answers[key];
-      if (typeof val === 'string' && CRS_SCORE_MAP[val] !== undefined) {
-        return CRS_SCORE_MAP[val];
+    const aiBreakdown: Record<string, number | null> = {
+      frequency: scoreItem("ctrl_ia_frequence", answers),
+      comfort: scoreItem("ctrl_ia_confort", answers),
+      contexts: scoreItem("ctrl_ia_contextes", answers),
+    };
+
+    // Seven dimensions, each with its coverage (nItems / maxItems)
+    const dimensionsResult: Record<
+      string,
+      {
+        value: number | null;
+        percentile: number | null;
+        nItems: number;
+        maxItems: number;
+        confidence: number;
       }
-      return 3; // Default middle score
-    };
-
-    const crsBreakdown = {
-      intellect: getScore('crs_intellect'),
-      ideology: getScore('crs_ideology'),
-      public: getScore('crs_public_practice'),
-      private: getScore('crs_private_practice'),
-      experience: getScore('crs_experience'),
-    };
-
-    // AI adoption scoring
-    const AI_FREQ_SCORES: Record<string, number> = {
-      'jamais': 1, 'essaye': 2, 'occasionnel': 3, 'regulier': 4, 'quotidien': 5,
-    };
-
-    // Calculate real AI adoption breakdown
-    const freq = answers.ctrl_ia_frequence;
-    const comfort = answers.ctrl_ia_confort;
-    const contextes = answers.ctrl_ia_contextes;
-
-    const aiBreakdown = {
-      frequency: typeof freq === 'string' && AI_FREQ_SCORES[freq] ? AI_FREQ_SCORES[freq] : 2.5,
-      comfort: typeof comfort === 'number' ? comfort : 2.5,
-      contexts: Array.isArray(contextes) ? Math.min(5, 1 + contextes.length * 0.7) : 2.5,
-    };
-
-    // Build 7 dimensions with percentiles
-    const dimensionsResult = {
-      religiosity: {
-        value: dimensions.religiosity.value,
-        percentile: dimensions.religiosity.percentile,
-      },
-      aiOpenness: {
-        value: dimensions.aiOpenness.value,
-        percentile: dimensions.aiOpenness.percentile,
-      },
-      sacredBoundary: {
-        value: dimensions.sacredBoundary.value,
-        percentile: dimensions.sacredBoundary.percentile,
-      },
-      ethicalConcern: {
-        value: dimensions.ethicalConcern.value,
-        percentile: dimensions.ethicalConcern.percentile,
-      },
-      psychologicalPerception: {
-        value: dimensions.psychologicalPerception.value,
-        percentile: dimensions.psychologicalPerception.percentile,
-      },
-      communityInfluence: {
-        value: dimensions.communityInfluence.value,
-        percentile: dimensions.communityInfluence.percentile,
-      },
-      futureOrientation: {
-        value: dimensions.futureOrientation.value,
-        percentile: dimensions.futureOrientation.percentile,
-      },
-    };
+    > = {};
+    for (const key of DIMENSION_KEYS) {
+      const dimension = dimensions[key];
+      dimensionsResult[key] = {
+        value: dimension.value,
+        percentile: dimension.percentile,
+        nItems: dimension.nItems,
+        maxItems: dimension.maxItems,
+        confidence: dimension.confidence,
+      };
+    }
 
     // Generate interpretation
     const interpretation = generateInterpretation(spectrum);
 
-    // Build complete profile data
+    // Build complete profile data. Every field is null when fewer than four
+    // dimensions could be valued, rather than a fabricated best guess.
+    const primary = spectrum.primary;
+    const secondary = spectrum.secondary;
     const profileData = {
-      primary: {
-        name: spectrum.primary.profile,
-        score: spectrum.primary.matchScore,
-        title: PROFILE_DATA[spectrum.primary.profile]?.title || spectrum.primary.profile,
-        emoji: PROFILE_DATA[spectrum.primary.profile]?.emoji || "",
-      },
-      secondary: spectrum.secondary
+      primary: primary
         ? {
-            name: spectrum.secondary.profile,
-            score: spectrum.secondary.matchScore,
-            title: PROFILE_DATA[spectrum.secondary.profile]?.title || spectrum.secondary.profile,
+            name: primary.profile,
+            score: primary.matchScore,
+            title: PROFILE_DATA[primary.profile]?.title || primary.profile,
+            emoji: PROFILE_DATA[primary.profile]?.emoji || "",
           }
         : null,
-      subProfile: spectrum.subProfile.subProfile,
+      secondary: secondary
+        ? {
+            name: secondary.profile,
+            score: secondary.matchScore,
+            title: PROFILE_DATA[secondary.profile]?.title || secondary.profile,
+          }
+        : null,
+      subProfile: spectrum.subProfile ? spectrum.subProfile.subProfile : null,
       allMatches: spectrum.allMatches.map((m) => ({
         name: m.profile,
         score: m.matchScore,
       })),
+      attribution: spectrum.attribution,
+      confidence: spectrum.profileConfidence,
     };
 
     const completionMinutes = computeCompletionMinutes(response.metadata, response.created_at, response.created_at);
@@ -211,6 +189,11 @@ export async function GET(
       createdAt: response.created_at,
       language: response.metadata?.language || "unknown",
       completionTime: completionMinutes,
+      instrument: {
+        version: response.metadata?.instrumentVersion ?? null,
+        entryVariant: response.metadata?.entryVariant ?? null,
+        screenedOut: response.metadata?.screenedOut === true,
+      },
 
       // All raw answers
       answers,
@@ -225,10 +208,13 @@ export async function GET(
           value: aiAdoptionScore,
           breakdown: aiBreakdown,
         },
-        resistanceIndex,
+        usageGap,
       },
 
-      // Profile typologique complet
+      // Social desirability is a covariate flag, never a score correction (§1.2)
+      socialDesirability: spectrum.socialDesirability,
+
+      // Profil typologique complet
       profile: profileData,
 
       // 7 dimensions

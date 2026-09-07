@@ -12,7 +12,8 @@ import {
   SUB_PROFILE_DEFINITIONS,
   DIMENSION_LABELS,
 } from '@/lib/scoring/constants';
-import type { SevenDimensions, ProfileSpectrum } from '@/lib/scoring/types';
+import type { DimensionKey, ProfileSpectrum, UsageGap } from '@/lib/scoring/types';
+import { translations as uiStrings } from '@/lib/i18n/translations';
 
 // Register Open Sans fonts (TTF format required by react-pdf)
 // Using Open Sans as it has good Unicode/international support
@@ -31,8 +32,9 @@ export interface ReportData {
   completedAt: string;
   answers: Record<string, string | string[] | number | Record<string, number>>;
   profile: {
-    religiosityScore: number;
-    iaComfortScore: number;
+    /** null when the dimension could not be measured */
+    religiosityScore: number | null;
+    iaComfortScore: number | null;
     theologicalOrientation: string;
   };
 }
@@ -53,19 +55,39 @@ const translations = {
     uniqueAspects: 'Ce qui vous caractérise',
     blindSpots: 'Points d\'attention',
     strengths: 'Vos forces',
-    insights: 'Insights Personnalisés',
-    tensions: 'Points de Tension',
-    tensionIntro: 'Ces tensions internes peuvent être sources de croissance',
-    growthAreas: 'Pistes de Développement',
-    growthIntro: 'Suggestions pour enrichir votre réflexion',
-    currentState: 'Situation actuelle',
-    potential: 'Potentiel',
-    action: 'Action suggérée',
+    insights: 'Lectures de vos scores',
+    tensions: 'Tensions observées',
+    tensionIntro: 'Deux dimensions lues ensemble, sans jugement de valeur',
+    growthAreas: 'Pistes de réflexion, si vous le souhaitez',
+    growthIntro: 'Écarts observés entre deux dimensions, décrits sans recommandation',
+    heuristicAttribution:
+      'Attribution heuristique, non validée : le profil ci-dessous est une lecture indicative de vos réponses, pas un diagnostic.',
+    noProfileTitle: 'Profil non attribuable : trop peu de dimensions mesurées',
+    noProfileDescription:
+      'Au moins quatre dimensions doivent être mesurées pour rapprocher vos réponses d\'un profil. Vos scores bruts par dimension sont indiqués page suivante.',
+    measuredDimensions: 'Dimensions mesurées :',
+    closeProfiles: 'Deux profils proches',
+    closeProfilesDescription:
+      'Vos réponses se situent à distance comparable de ces deux profils. Aucun des deux ne l\'emporte.',
+    notMeasured: 'Non mesuré (trop peu de réponses)',
+    comparisonNotIncluded:
+      'Comparaison avec les autres participants non incluse dans ce rapport : elle est calculée en ligne, sur les réponses collectées à la date de consultation.',
+    usageGap: 'Écart d\'usage',
+    usageGapNote:
+      'Comparaison entre l\'usage de l\'IA que vous déclarez en général et celui que vous déclarez dans le domaine spirituel ou ministériel.',
+    usageGapNoUse: 'Aucun usage de l\'IA déclaré',
+    usageGapGeneralOnly: 'Usage général déclaré, aucun usage spirituel déclaré',
+    usageGapBoth: 'Usage déclaré dans les deux domaines',
+    usageGapUnknown: 'Écart non calculable : la question sur l\'usage général est sans réponse',
+    socialDesirability: 'Réserve de lecture',
+    socialDesirabilityNote:
+      'Vos réponses aux cinq énoncés vrai/faux suggèrent une tendance à répondre de façon socialement attendue ; votre profil est calculé sans correction, à lire avec cette réserve.',
     thankYou: 'Merci pour votre participation à cette grande enquête sur l\'IA et la foi.',
     dataProtection: 'Vos données sont protégées conformément au RGPD. Ce rapport est personnel et confidentiel.',
     footer: 'Sondage IA & Foi - Grande Enquête 2026',
     page: 'Page',
     of: 'sur',
+    colon: ' :',
   },
   en: {
     title: 'Your Spiritual & AI Profile',
@@ -82,19 +104,39 @@ const translations = {
     uniqueAspects: 'What characterizes you',
     blindSpots: 'Points of attention',
     strengths: 'Your strengths',
-    insights: 'Personalized Insights',
-    tensions: 'Tension Points',
-    tensionIntro: 'These internal tensions can be sources of growth',
-    growthAreas: 'Growth Areas',
-    growthIntro: 'Suggestions to enrich your reflection',
-    currentState: 'Current situation',
-    potential: 'Potential',
-    action: 'Suggested action',
+    insights: 'Readings of your scores',
+    tensions: 'Observed tensions',
+    tensionIntro: 'Two dimensions read together, with no value judgement',
+    growthAreas: 'Points to reflect on, if you wish',
+    growthIntro: 'Gaps observed between two dimensions, described without recommendation',
+    heuristicAttribution:
+      'Heuristic attribution, not validated: the profile below is an indicative reading of your answers, not a diagnosis.',
+    noProfileTitle: 'No profile can be attributed: too few dimensions measured',
+    noProfileDescription:
+      'At least four dimensions must be measured before your answers can be matched to a profile. Your raw dimension scores are listed on the next page.',
+    measuredDimensions: 'Dimensions measured:',
+    closeProfiles: 'Two close profiles',
+    closeProfilesDescription:
+      'Your answers sit at a comparable distance from these two profiles. Neither one wins.',
+    notMeasured: 'Not measured (too few answers)',
+    comparisonNotIncluded:
+      'Comparison with other participants is not included in this report: it is computed online, on the answers collected at the time of viewing.',
+    usageGap: 'Usage gap',
+    usageGapNote:
+      'Comparison between the AI use you report in general and the use you report in the spiritual or ministry domain.',
+    usageGapNoUse: 'No AI use reported',
+    usageGapGeneralOnly: 'General use reported, no spiritual use reported',
+    usageGapBoth: 'Use reported in both domains',
+    usageGapUnknown: 'Gap cannot be computed: the general-use question was left unanswered',
+    socialDesirability: 'Reading reservation',
+    socialDesirabilityNote:
+      'Your answers to the five true/false statements suggest a tendency to answer in a socially expected way; your profile is computed without correction and should be read with that reservation in mind.',
     thankYou: 'Thank you for participating in this major survey on AI and faith.',
     dataProtection: 'Your data is protected in accordance with GDPR. This report is personal and confidential.',
     footer: 'AI & Faith Survey - Major Survey 2026',
     page: 'Page',
     of: 'of',
+    colon: ':',
   },
 };
 
@@ -113,13 +155,13 @@ const colors = {
   border: '#e2e8f0',
 };
 
-const dimensionColors: Record<keyof SevenDimensions, string> = {
+const dimensionColors: Record<DimensionKey, string> = {
   religiosity: '#6366f1',
   aiOpenness: '#10b981',
   sacredBoundary: '#f59e0b',
   ethicalConcern: '#ef4444',
   psychologicalPerception: '#8b5cf6',
-  communityInfluence: '#3b82f6',
+  communityContext: '#3b82f6',
   futureOrientation: '#ec4899',
 };
 
@@ -440,6 +482,41 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     color: colors.white,
   },
+  disclaimerBox: {
+    backgroundColor: '#fffbeb',
+    borderLeftWidth: 3,
+    borderLeftColor: colors.warning,
+    padding: 10,
+    marginBottom: 12,
+  },
+  disclaimerText: {
+    fontSize: 9,
+    color: colors.text,
+    lineHeight: 1.4,
+  },
+  notMeasuredText: {
+    fontSize: 9,
+    color: colors.textMuted,
+    marginBottom: 4,
+  },
+  noteText: {
+    fontSize: 8,
+    color: colors.textMuted,
+    marginBottom: 12,
+    lineHeight: 1.4,
+  },
+  usageGapBox: {
+    backgroundColor: colors.background,
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 12,
+  },
+  usageGapValue: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: colors.text,
+    marginBottom: 4,
+  },
 });
 
 // Components
@@ -460,24 +537,39 @@ const Footer: React.FC<FooterProps> = ({ pageNum, totalPages, t }) => (
 
 interface DimensionBarProps {
   label: string;
-  value: number;
+  /** null when fewer items than the dimension minimum were answered */
+  value: number | null;
   color: string;
   lowDesc: string;
   highDesc: string;
+  notMeasuredLabel: string;
 }
 
-const DimensionBar: React.FC<DimensionBarProps> = ({ label, value, color, lowDesc, highDesc }) => (
+const DimensionBar: React.FC<DimensionBarProps> = ({
+  label,
+  value,
+  color,
+  lowDesc,
+  highDesc,
+  notMeasuredLabel,
+}) => (
   <View style={styles.dimensionRow}>
     <Text style={styles.dimensionLabel}>{label}</Text>
-    <View style={styles.dimensionBarContainer}>
-      <View style={[styles.dimensionBar, { width: `${(value / 5) * 100}%`, backgroundColor: color }]}>
-        <Text style={styles.dimensionValue}>{value.toFixed(1)}</Text>
-      </View>
-    </View>
-    <View style={styles.dimensionScaleRow}>
-      <Text style={styles.dimensionScaleText}>{lowDesc}</Text>
-      <Text style={styles.dimensionScaleText}>{highDesc}</Text>
-    </View>
+    {value === null ? (
+      <Text style={styles.notMeasuredText}>{notMeasuredLabel}</Text>
+    ) : (
+      <>
+        <View style={styles.dimensionBarContainer}>
+          <View style={[styles.dimensionBar, { width: `${(value / 5) * 100}%`, backgroundColor: color }]}>
+            <Text style={styles.dimensionValue}>{value.toFixed(1)}</Text>
+          </View>
+        </View>
+        <View style={styles.dimensionScaleRow}>
+          <Text style={styles.dimensionScaleText}>{lowDesc}</Text>
+          <Text style={styles.dimensionScaleText}>{highDesc}</Text>
+        </View>
+      </>
+    )}
   </View>
 );
 
@@ -486,20 +578,53 @@ interface ReportDocumentProps {
   spectrum: ProfileSpectrum;
 }
 
+const USAGE_GAP_LABEL_KEYS: Record<UsageGap, 'usageGapNoUse' | 'usageGapGeneralOnly' | 'usageGapBoth' | 'usageGapUnknown'> = {
+  no_use: 'usageGapNoUse',
+  uses_general_not_spiritual: 'usageGapGeneralOnly',
+  uses_both: 'usageGapBoth',
+  none: 'usageGapUnknown',
+};
+
+/** Raw match score, rounded only for display (docs/SCORING_V2_SPEC.md §1.5). */
+function formatMatch(language: ReportData['language'], score: number): string {
+  const rounded = Math.round(score);
+  return language === 'fr' ? `correspondance ${rounded} / 100` : `match ${rounded} / 100`;
+}
+
+/** Resolve a scoring i18n key (growth areas, tensions) to its displayed text. */
+function uiString(
+  language: ReportData['language'],
+  group: 'growthAreas' | 'tensions',
+  key: string,
+): string {
+  const entries = uiStrings[language][group] as Record<string, string>;
+  return entries[key] ?? key;
+}
+
 export const ReportDocument: React.FC<ReportDocumentProps> = ({ data, spectrum }) => {
   const t = translations[data.language];
-  const primaryDef = PROFILE_DEFINITIONS[spectrum.primary.profile];
-  const subDef = SUB_PROFILE_DEFINITIONS[spectrum.subProfile.subProfile];
+  const primary = spectrum.primary;
+  const primaryDef = primary ? PROFILE_DEFINITIONS[primary.profile] : null;
+  const subDef = spectrum.subProfile
+    ? SUB_PROFILE_DEFINITIONS[spectrum.subProfile.subProfile]
+    : null;
+  const interpretation = spectrum.interpretation;
+  const runnerUp = spectrum.allMatches[1] ?? null;
+  const isCloseCall = primary !== null && spectrum.profileConfidence === 'low';
 
   const dateStr = new Date(data.completedAt).toLocaleDateString(
     data.language === 'fr' ? 'fr-FR' : 'en-US',
     { year: 'numeric', month: 'long', day: 'numeric' }
   );
 
-  const dimensionKeys: (keyof SevenDimensions)[] = [
+  const dimensionKeys: DimensionKey[] = [
     'religiosity', 'aiOpenness', 'sacredBoundary', 'ethicalConcern',
-    'psychologicalPerception', 'communityInfluence', 'futureOrientation'
+    'psychologicalPerception', 'communityContext', 'futureOrientation'
   ];
+
+  const measuredDimensions = dimensionKeys.filter(
+    (key) => spectrum.dimensions[key].value !== null
+  ).length;
 
   return (
     <Document>
@@ -509,7 +634,7 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({ data, spectrum }
           <Text style={styles.headerTitle}>{t.title}</Text>
           <Text style={styles.headerSubtitle}>{t.subtitle}</Text>
           <Text style={styles.headerMeta}>
-            {t.generatedAt}: {dateStr} | {t.anonymousId}: {data.anonymousId.slice(0, 8)}...
+            {t.generatedAt}{t.colon} {dateStr} | {t.anonymousId}{t.colon} {data.anonymousId.slice(0, 8)}...
           </Text>
         </View>
 
@@ -519,59 +644,101 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({ data, spectrum }
             <Text style={styles.sectionTitleText}>{t.yourProfile}</Text>
           </View>
 
-          <View style={styles.profileCard}>
-            <View style={styles.profileHeader}>
-              <Text style={styles.profileTitle}>{primaryDef.title}</Text>
-              <View style={styles.matchBadge}>
-                <Text style={styles.matchBadgeText}>{spectrum.primary.matchScore}%</Text>
-              </View>
-            </View>
-            <Text style={styles.profileDescription}>{primaryDef.shortDescription}</Text>
-            <Text style={styles.profileMotivation}>« {primaryDef.coreMotivation} »</Text>
+          {/* Attribution caveat, above the profile name */}
+          <View style={styles.disclaimerBox}>
+            <Text style={styles.disclaimerText}>{t.heuristicAttribution}</Text>
           </View>
 
-          {/* Sub-profile */}
-          <View style={styles.subProfileBox}>
-            <Text style={styles.subProfileTitle}>{t.subProfile}: {subDef.title}</Text>
-            <Text style={styles.subProfileDescription}>{subDef.description}</Text>
-          </View>
-
-          {/* Secondary tendency */}
-          {spectrum.secondary && spectrum.secondary.matchScore >= 15 && (
-            <Text style={styles.secondaryText}>
-              {t.secondaryTendency}: {PROFILE_DEFINITIONS[spectrum.secondary.profile].title} ({spectrum.secondary.matchScore}%)
-            </Text>
-          )}
-
-          {/* Interpretation */}
-          <View style={styles.sectionTitleWithBg}>
-            <Text style={styles.sectionTitleText}>{t.interpretation}</Text>
-          </View>
-          <View style={styles.interpretationBox}>
-            <Text style={styles.interpretationText}>{spectrum.interpretation.narrative}</Text>
-          </View>
-
-          {/* Strengths */}
-          <View style={styles.strengthsSection}>
-            <Text style={styles.strengthsTitle}>{t.strengths}</Text>
-            {spectrum.interpretation.strengths.slice(0, 3).map((strength, i) => (
-              <View key={i} style={styles.bulletPoint}>
-                <View style={styles.bullet} />
-                <Text style={styles.bulletText}>{strength}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Unique aspects */}
-          {spectrum.interpretation.uniqueAspects.length > 0 && (
-            <View style={styles.strengthsSection}>
-              <Text style={styles.uniqueTitle}>{t.uniqueAspects}</Text>
-              {spectrum.interpretation.uniqueAspects.slice(0, 2).map((aspect, i) => (
-                <View key={i} style={styles.bulletPoint}>
-                  <View style={styles.bullet} />
-                  <Text style={styles.bulletText}>{aspect}</Text>
+          {primary && primaryDef ? (
+            <>
+              <View style={styles.profileCard}>
+                <View style={styles.profileHeader}>
+                  <Text style={styles.profileTitle}>{primaryDef.title}</Text>
+                  <View style={styles.matchBadge}>
+                    <Text style={styles.matchBadgeText}>
+                      {formatMatch(data.language, primary.matchScore)}
+                    </Text>
+                  </View>
                 </View>
-              ))}
+                <Text style={styles.profileDescription}>{primaryDef.shortDescription}</Text>
+                <Text style={styles.profileMotivation}>« {primaryDef.coreMotivation} »</Text>
+              </View>
+
+              {/* Low confidence: the runner-up is shown beside the primary, not below it */}
+              {isCloseCall && runnerUp && (
+                <View style={styles.profileCard}>
+                  <View style={styles.profileHeader}>
+                    <Text style={styles.profileTitle}>
+                      {PROFILE_DEFINITIONS[runnerUp.profile].title}
+                    </Text>
+                    <View style={styles.matchBadge}>
+                      <Text style={styles.matchBadgeText}>
+                        {formatMatch(data.language, runnerUp.matchScore)}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.profileDescription}>{t.closeProfilesDescription}</Text>
+                </View>
+              )}
+
+              {/* Sub-profile */}
+              {subDef && (
+                <View style={styles.subProfileBox}>
+                  <Text style={styles.subProfileTitle}>{t.subProfile}{t.colon} {subDef.title}</Text>
+                  <Text style={styles.subProfileDescription}>{subDef.description}</Text>
+                </View>
+              )}
+
+              {/* Secondary tendency */}
+              {!isCloseCall && spectrum.secondary && spectrum.secondary.matchScore >= 15 && (
+                <Text style={styles.secondaryText}>
+                  {t.secondaryTendency}{t.colon} {PROFILE_DEFINITIONS[spectrum.secondary.profile].title} ({formatMatch(data.language, spectrum.secondary.matchScore)})
+                </Text>
+              )}
+
+              {interpretation && (
+                <>
+                  {/* Interpretation */}
+                  <View style={styles.sectionTitleWithBg}>
+                    <Text style={styles.sectionTitleText}>{t.interpretation}</Text>
+                  </View>
+                  <View style={styles.interpretationBox}>
+                    <Text style={styles.interpretationText}>{interpretation.narrative}</Text>
+                  </View>
+
+                  {/* Strengths */}
+                  <View style={styles.strengthsSection}>
+                    <Text style={styles.strengthsTitle}>{t.strengths}</Text>
+                    {interpretation.strengths.slice(0, 3).map((strength, i) => (
+                      <View key={i} style={styles.bulletPoint}>
+                        <View style={styles.bullet} />
+                        <Text style={styles.bulletText}>{strength}</Text>
+                      </View>
+                    ))}
+                  </View>
+
+                  {/* Unique aspects */}
+                  {interpretation.uniqueAspects.length > 0 && (
+                    <View style={styles.strengthsSection}>
+                      <Text style={styles.uniqueTitle}>{t.uniqueAspects}</Text>
+                      {interpretation.uniqueAspects.slice(0, 2).map((aspect, i) => (
+                        <View key={i} style={styles.bulletPoint}>
+                          <View style={styles.bullet} />
+                          <Text style={styles.bulletText}>{aspect}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </>
+              )}
+            </>
+          ) : (
+            <View style={styles.profileCard}>
+              <Text style={styles.profileTitle}>{t.noProfileTitle}</Text>
+              <Text style={styles.profileDescription}>{t.noProfileDescription}</Text>
+              <Text style={styles.profileDescription}>
+                {t.measuredDimensions} {measuredDimensions} / 7
+              </Text>
             </View>
           )}
         </View>
@@ -586,9 +753,11 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({ data, spectrum }
         </View>
 
         <View style={styles.content}>
-          <Text style={{ fontSize: 9, color: colors.textMuted, marginBottom: 16 }}>
+          <Text style={{ fontSize: 9, color: colors.textMuted, marginBottom: 8 }}>
             {t.dimensionsIntro}
           </Text>
+          {/* The empirical rank lives online only: no norms are fetched here. */}
+          <Text style={styles.noteText}>{t.comparisonNotIncluded}</Text>
 
           {dimensionKeys.map((dimKey) => {
             const dim = spectrum.dimensions[dimKey];
@@ -602,9 +771,29 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({ data, spectrum }
                 color={color}
                 lowDesc={label.lowDescription}
                 highDesc={label.highDescription}
+                notMeasuredLabel={t.notMeasured}
               />
             );
           })}
+
+          {/* Usage gap (replaces the former spiritual resistance index) */}
+          <View style={[styles.sectionTitleWithBg, { marginTop: 16 }]}>
+            <Text style={styles.sectionTitleText}>{t.usageGap}</Text>
+          </View>
+          <View style={styles.usageGapBox}>
+            <Text style={styles.usageGapValue}>{t[USAGE_GAP_LABEL_KEYS[spectrum.usageGap]]}</Text>
+            <Text style={styles.noteText}>{t.usageGapNote}</Text>
+          </View>
+
+          {/* Social desirability: a reservation, never a score */}
+          {spectrum.socialDesirability.flag && (
+            <>
+              <View style={styles.sectionTitleWithBg}>
+                <Text style={styles.sectionTitleText}>{t.socialDesirability}</Text>
+              </View>
+              <Text style={styles.noteText}>{t.socialDesirabilityNote}</Text>
+            </>
+          )}
 
           {/* Insights */}
           {spectrum.insights.length > 0 && (
@@ -642,16 +831,17 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({ data, spectrum }
                 {t.tensionIntro}
               </Text>
               {spectrum.tensions.map((tension, i) => {
-                const dim1Label = DIMENSION_LABELS[tension.dimension1 as keyof SevenDimensions];
-                const dim2Label = DIMENSION_LABELS[tension.dimension2 as keyof SevenDimensions];
+                const dim1Label = DIMENSION_LABELS[tension.dimension1];
+                const dim2Label = DIMENSION_LABELS[tension.dimension2];
                 return (
                   <View key={i} style={styles.tensionCard}>
                     <Text style={styles.tensionHeader}>
-                      {data.language === 'fr' ? dim1Label.label : dim1Label.labelEn} ↔{' '}
+                      {data.language === 'fr' ? dim1Label.label : dim1Label.labelEn} /{' '}
                       {data.language === 'fr' ? dim2Label.label : dim2Label.labelEn}
                     </Text>
-                    <Text style={styles.tensionDescription}>{tension.description}</Text>
-                    <Text style={styles.tensionSuggestion}>→ {tension.suggestion}</Text>
+                    <Text style={styles.tensionDescription}>
+                      {uiString(data.language, 'tensions', tension.description)}
+                    </Text>
                   </View>
                 );
               })}
@@ -669,22 +859,24 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({ data, spectrum }
               </Text>
               {spectrum.growthAreas.map((area, i) => (
                 <View key={i} style={styles.growthCard}>
-                  <Text style={styles.growthTitle}>{area.area}</Text>
-                  <Text style={styles.growthDetail}>{t.currentState}: {area.currentState}</Text>
-                  <Text style={styles.growthDetail}>{t.potential}: {area.potentialGrowth}</Text>
-                  <Text style={styles.growthAction}>→ {area.actionableStep}</Text>
+                  <Text style={styles.growthTitle}>
+                    {uiString(data.language, 'growthAreas', area.area)}
+                  </Text>
+                  <Text style={styles.growthDetail}>
+                    {uiString(data.language, 'growthAreas', area.actionableStep)}
+                  </Text>
                 </View>
               ))}
             </>
           )}
 
           {/* Blind spots */}
-          {spectrum.interpretation.blindSpots.length > 0 && (
+          {interpretation && interpretation.blindSpots.length > 0 && (
             <>
               <View style={[styles.sectionTitleWithBg, { marginTop: 12 }]}>
                 <Text style={styles.sectionTitleText}>{t.blindSpots}</Text>
               </View>
-              {spectrum.interpretation.blindSpots.map((spot, i) => (
+              {interpretation.blindSpots.map((spot, i) => (
                 <View key={i} style={styles.blindSpotCard}>
                   <View style={styles.bulletPoint}>
                     <View style={styles.bullet} />

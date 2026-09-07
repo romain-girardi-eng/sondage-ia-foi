@@ -5,10 +5,10 @@ import { cn, useLanguage } from "@/lib";
 import { type TextQuestionProps } from "./types";
 
 export function TextQuestion({
-  question,
   value,
   onChange,
   onNext,
+  placeholder,
 }: TextQuestionProps) {
   const { t } = useLanguage();
 
@@ -17,7 +17,7 @@ export function TextQuestion({
       <textarea
         value={typeof value === "string" ? value : ""}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={question.placeholder || t("survey.textPlaceholder")}
+        placeholder={placeholder || t("survey.textPlaceholder")}
         rows={5}
         className={cn(
           "w-full p-4 md:p-5 rounded-2xl resize-none transition-all duration-300",
@@ -32,7 +32,7 @@ export function TextQuestion({
         transition={{ delay: 0.3 }}
       >
         <button
-          onClick={onNext}
+          onClick={() => onNext()}
           className={cn(
             "w-full py-4 rounded-2xl font-semibold text-lg transition-all duration-300 relative overflow-hidden",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
