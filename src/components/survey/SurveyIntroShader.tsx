@@ -27,6 +27,10 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
   const methodologyLink = getLocalizedPath(language, "/methodology");
   const privacyLink = getLocalizedPath(language, "/privacy");
 
+  // Consent v2.0: minimum age, open dataset publication, right to withdraw,
+  // plus the CNEF partner clause on the co-branded entry point.
+  const consentLabel = `${isCnef ? t("consent.checkboxCnef") : t("consent.checkbox")} ${t("consent.details")}`;
+
   const features = [
     { icon: <FlaskConical className="h-4 w-4" aria-hidden="true" />, text: t("intro.featureScientific"), link: methodologyLink },
     { icon: <Clock className="h-4 w-4" aria-hidden="true" />, text: t("intro.featureDuration") },
@@ -59,7 +63,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
         anonymityDescription={t("intro.anonymousHighlightDesc")}
         consentGiven={consentGiven}
         onConsentChange={onConsentChange}
-        consentLabel={t("consent.checkbox")}
+        consentLabel={consentLabel}
         privacyLink={privacyLink}
         privacyLinkText={t("intro.learnMore")}
         authorLabel={t("footer.createdBy")}

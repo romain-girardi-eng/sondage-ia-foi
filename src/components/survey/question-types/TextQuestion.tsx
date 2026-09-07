@@ -5,10 +5,10 @@ import { cn, useLanguage } from "@/lib";
 import { type TextQuestionProps } from "./types";
 
 export function TextQuestion({
-  question,
   value,
   onChange,
   onNext,
+  placeholder,
 }: TextQuestionProps) {
   const { t } = useLanguage();
 
@@ -17,7 +17,7 @@ export function TextQuestion({
       <textarea
         value={typeof value === "string" ? value : ""}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={question.placeholder || t("survey.textPlaceholder")}
+        placeholder={placeholder || t("survey.textPlaceholder")}
         rows={5}
         className={cn(
           "w-full p-4 md:p-5 rounded-2xl resize-none transition-all duration-300",

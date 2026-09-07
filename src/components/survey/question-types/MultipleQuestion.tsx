@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { motion } from "framer-motion";
 import { cn, useLanguage } from "@/lib";
+import { isExclusiveOptionValue } from "@/data/surveySchema";
 import { Check } from "lucide-react";
 import { type MultipleQuestionProps } from "./types";
 
@@ -16,12 +17,23 @@ export function MultipleQuestion({
 }: MultipleQuestionProps) {
   const { t } = useLanguage();
 
+  // "Aucun / Aucune" answers are exclusive: picking one clears every other
+  // selection, and picking anything else clears it (server-side validation
+  // enforces the same invariant).
   const handleMultipleToggle = useCallback(
     (optionValue: string) => {
-      const newSelection = multipleSelected.includes(optionValue)
-        ? multipleSelected.filter((v) => v !== optionValue)
-        : [...multipleSelected, optionValue];
-      onChange(newSelection);
+      if (multipleSelected.includes(optionValue)) {
+        onChange(multipleSelected.filter((v) => v !== optionValue));
+        return;
+      }
+      if (isExclusiveOptionValue(optionValue)) {
+        onChange([optionValue]);
+        return;
+      }
+      onChange([
+        ...multipleSelected.filter((v) => !isExclusiveOptionValue(v)),
+        optionValue,
+      ]);
     },
     [multipleSelected, onChange]
   );

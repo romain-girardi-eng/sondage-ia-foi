@@ -33,4 +33,6 @@ export interface MatrixQuestionProps extends QuestionTypeProps {
   getMatrixColumnLabel: (col: { value: number; label: string }) => string;
 }
 
-export type TextQuestionProps = QuestionTypeProps;
+export interface TextQuestionProps extends QuestionTypeProps {
+  placeholder: string | undefined;
+}

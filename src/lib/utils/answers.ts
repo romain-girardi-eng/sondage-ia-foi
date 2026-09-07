@@ -29,12 +29,27 @@ export function getArrayAnswer(answers: Answers, key: string): string[] {
   return Array.isArray(value) ? value : [];
 }
 
+/** Statuses routed through the ministry block */
+export const CLERGY_STATUSES: readonly string[] = [
+  'clerge',
+  'religieux',
+  'responsable_non_ordonne',
+];
+
+/** Statuses routed through the lay block */
+export const LAY_STATUSES: readonly string[] = [
+  'laic_engagé',
+  'laic_pratiquant',
+  'curieux',
+];
+
 /**
- * Check if respondent is clergy (ordained minister or religious)
+ * Check if respondent is clergy (ordained minister, religious, or a
+ * non-ordained leader/preacher, who faces the same ministry questions)
  */
 export function isClergy(answers: Answers): boolean {
   const statut = getStringAnswer(answers, 'profil_statut');
-  return ['clerge', 'religieux'].includes(statut);
+  return CLERGY_STATUSES.includes(statut);
 }
 
 /**
@@ -42,7 +57,7 @@ export function isClergy(answers: Answers): boolean {
  */
 export function isLayperson(answers: Answers): boolean {
   const statut = getStringAnswer(answers, 'profil_statut');
-  return ['laic_engagé', 'laic_pratiquant', 'curieux'].includes(statut);
+  return LAY_STATUSES.includes(statut);
 }
 
 /**

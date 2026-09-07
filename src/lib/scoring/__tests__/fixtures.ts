@@ -1,465 +1,249 @@
 /**
- * Test Fixtures for Scoring Module
- * Mock answers for different profiles, edge cases, clergy vs layperson scenarios
+ * Test fixtures for the scoring core.
+ * All option values below exist in the instrument (v1 or v2).
  */
 
 import type { Answers } from '@/data';
 
-// ==========================================
-// HELPER: Create base answers with common fields
-// ==========================================
-
-function createBaseAnswers(overrides: Partial<Answers> = {}): Answers {
+function base(overrides: Partial<Answers> = {}): Answers {
   return {
-    // Profile info
     profil_statut: 'laic_pratiquant',
     profil_confession: 'catholique',
     profil_age: '36-50',
-    profil_genre: 'homme',
-    profil_pays: 'france',
     profil_anciennete_foi: 'plus_20_ans',
-    profil_taille_communaute: 'moyenne',
 
-    // Basic AI usage (moderate defaults)
+    theo_orientation: 'modere',
+
+    // religiosity (moderate)
+    crs_intellect: 'occasionnellement',
+    crs_ideology: 'moderement',
+    crs_public_practice: 'mensuel',
+    crs_private_practice: 'mensuel',
+    crs_experience: 'occasionnellement',
+
+    // aiOpenness (moderate)
     ctrl_ia_frequence: 'occasionnel',
     ctrl_ia_confort: 3,
-    ctrl_ia_contextes: ['travail'],
+    ctrl_ia_contextes: ['travail_pro', 'recherche_info'],
     digital_attitude_generale: 'neutre',
 
-    // Theological orientation
-    theo_orientation: 'modere',
+    // sacredBoundary (moderate)
     theo_inspiration: 'possible_indirect',
     theo_liturgie_ia: 3,
-    theo_activites_sacrees: ['confession', 'eucharistie'],
+    theo_activites_sacrees: ['sacrements', 'predication'],
     theo_mediation_humaine: 'partiellement',
-    theo_risque_futur: 'autre',
-    theo_utilite_percue: 'neutre',
 
-    // Psychological
+    // ethicalConcern (moderate)
+    theo_utilite_percue: 'neutre',
+    psych_aias_opacity: 'peu',
+    psych_imago_dei: 'moderement',
+
+    // psychologicalPerception (moderate)
     psych_godspeed_nature: '3_neutre',
     psych_godspeed_conscience: 'incertain',
-    psych_imago_dei: 'moderement',
     psych_anxiete_remplacement: 'possible_partiel',
-    psych_aias_opacity: 'peu',
 
-    // Community
-    communaute_position_officielle: 'ne_sait_pas',
-    communaute_discussions: 'rarement',
+    // communityContext (moderate)
+    communaute_position_officielle: 'oui_prudent',
     communaute_perception_pairs: 'neutre',
+    communaute_discussions: 'parfois',
 
-    // Future
+    // futureOrientation (moderate)
     futur_intention_usage: 'peut_etre',
     futur_formation_souhait: 'peut_etre',
     futur_domaines_interet: ['administration'],
 
-    // CRS-5 (moderate religiosity)
-    crs_intellect: 'occasionnellement',
-    crs_ideology: 'moderement',
-    crs_public_practice: 'mensuel',
-    crs_private_practice: 'occasionnellement',
-    crs_experience: 'moderement',
-
-    // Marlowe-Crowne (low bias)
-    ctrl_mc_1: 'true',  // NOT target (target is 'false')
-    ctrl_mc_2: 'false', // NOT target (target is 'true')
-    ctrl_mc_3: 'true',  // NOT target (target is 'false')
-    ctrl_mc_4: 'false', // NOT target (target is 'true')
-    ctrl_mc_5: 'true',  // NOT target (target is 'false')
+    // Marlowe-Crowne, none in the keyed direction
+    ctrl_mc_1: 'true',
+    ctrl_mc_2: 'false',
+    ctrl_mc_3: 'true',
+    ctrl_mc_4: 'false',
+    ctrl_mc_5: 'true',
 
     ...overrides,
   };
 }
 
-// ==========================================
-// PROFILE-SPECIFIC FIXTURES
-// ==========================================
+export const moderateAnswers: Answers = base();
 
-/**
- * Gardien de la Tradition profile
- * High religiosity, low AI openness, high sacred boundary
- */
-export const gardienTraditionAnswers: Answers = createBaseAnswers({
-  profil_statut: 'clerge',
+export const gardienTraditionAnswers: Answers = base({
   theo_orientation: 'traditionaliste',
 
-  // High religiosity (CRS-5)
   crs_intellect: 'tres_souvent',
   crs_ideology: 'totalement',
-  crs_public_practice: 'pluri_hebdo',
+  crs_public_practice: 'hebdo',
   crs_private_practice: 'pluri_quotidien',
-  crs_experience: 'totalement',
+  crs_experience: 'tres_souvent',
 
-  // Low AI openness
   ctrl_ia_frequence: 'jamais',
   ctrl_ia_confort: 1,
-  ctrl_ia_contextes: [],
   digital_attitude_generale: 'negatif',
 
-  // High sacred boundary
-  theo_liturgie_ia: 1,
-  theo_activites_sacrees: ['confession', 'eucharistie', 'predication', 'benediction', 'accompagnement'],
-  theo_mediation_humaine: 'oui_absolument',
   theo_inspiration: 'impossible',
+  theo_liturgie_ia: 1,
+  theo_activites_sacrees: [
+    'sacrements',
+    'predication',
+    'priere_personnelle',
+    'accompagnement',
+    'discernement',
+  ],
+  theo_mediation_humaine: 'oui_absolument',
 
-  // High ethical concern
-  theo_risque_futur: 'deshumanisation',
   theo_utilite_percue: 'negatif',
+  psych_aias_opacity: 'oui_moderement',
+  psych_imago_dei: 'beaucoup',
 
-  // High community influence
-  communaute_position_officielle: 'oui_prudent',
-  communaute_discussions: 'souvent',
+  communaute_position_officielle: 'oui_defavorable',
   communaute_perception_pairs: 'mefiant',
+  communaute_discussions: 'rarement',
 
-  // Low future orientation
   futur_intention_usage: 'non_certain',
   futur_formation_souhait: 'non_pas_du_tout',
-  futur_domaines_interet: ['aucun'],
+  futur_domaines_interet: ['aucun_domaines'],
 });
 
-/**
- * Pionnier Spirituel profile
- * High AI openness, low sacred boundary, progressive orientation
- */
-export const pionnierSpirituelAnswers: Answers = createBaseAnswers({
+export const pionnierSpirituelAnswers: Answers = base({
   theo_orientation: 'progressiste',
 
-  // Moderate-high religiosity
   crs_intellect: 'souvent',
   crs_ideology: 'beaucoup',
-  crs_public_practice: 'hebdo',
+  crs_public_practice: 'mensuel',
   crs_private_practice: 'quotidien',
-  crs_experience: 'beaucoup',
+  crs_experience: 'souvent',
 
-  // Very high AI openness
   ctrl_ia_frequence: 'quotidien',
   ctrl_ia_confort: 5,
-  ctrl_ia_contextes: ['travail', 'personnel', 'spirituel', 'creatif'],
+  ctrl_ia_contextes: ['travail_pro', 'recherche_info', 'creation', 'loisirs', 'spirituel'],
   digital_attitude_generale: 'tres_positif',
 
-  // Low sacred boundary
+  theo_inspiration: 'possible',
   theo_liturgie_ia: 5,
   theo_activites_sacrees: ['aucune'],
   theo_mediation_humaine: 'non_pas_necessairement',
-  theo_inspiration: 'possible',
 
-  // Low ethical concern
-  theo_risque_futur: 'aucune',
   theo_utilite_percue: 'tres_positif',
+  psych_aias_opacity: 'non_confiance',
+  psych_imago_dei: 'peu',
 
-  // Moderate community
-  communaute_discussions: 'parfois',
-
-  // Very high future orientation
-  futur_intention_usage: 'oui_certain',
-  futur_formation_souhait: 'oui_tres',
-  futur_domaines_interet: ['priere_meditation', 'catechese', 'communication', 'administration', 'accompagnement'],
-});
-
-/**
- * Equilibriste Spirituel profile
- * Balanced/moderate on all dimensions
- */
-export const equilibristeAnswers: Answers = createBaseAnswers({
-  theo_orientation: 'modere',
-
-  // Moderate religiosity
-  crs_intellect: 'occasionnellement',
-  crs_ideology: 'moderement',
-  crs_public_practice: 'mensuel',
-  crs_private_practice: 'occasionnellement',
-  crs_experience: 'moderement',
-
-  // Moderate AI openness
-  ctrl_ia_frequence: 'occasionnel',
-  ctrl_ia_confort: 3,
-  ctrl_ia_contextes: ['travail', 'personnel'],
-  digital_attitude_generale: 'neutre',
-
-  // Moderate sacred boundary
-  theo_liturgie_ia: 3,
-  theo_activites_sacrees: ['confession', 'eucharistie'],
-  theo_mediation_humaine: 'partiellement',
-  theo_inspiration: 'possible_indirect',
-
-  // Moderate ethical concern
-  theo_risque_futur: 'autre',
-  theo_utilite_percue: 'neutre',
-
-  // Moderate everything else
-  psych_godspeed_nature: '3_neutre',
-  psych_godspeed_conscience: 'incertain',
-  psych_imago_dei: 'moderement',
-
-  communaute_discussions: 'parfois',
-
-  futur_intention_usage: 'peut_etre',
-  futur_formation_souhait: 'peut_etre',
-});
-
-/**
- * Progressiste Critique profile
- * High ethical concern, moderate AI openness, progressive theology
- */
-export const progressisteCritiqueAnswers: Answers = createBaseAnswers({
-  theo_orientation: 'progressiste',
-
-  // Moderate religiosity
-  crs_intellect: 'souvent',
-  crs_ideology: 'beaucoup',
-  crs_public_practice: 'hebdo',
-  crs_private_practice: 'souvent',
-  crs_experience: 'beaucoup',
-
-  // Moderate AI openness
-  ctrl_ia_frequence: 'occasionnel',
-  ctrl_ia_confort: 3,
-  ctrl_ia_contextes: ['travail', 'personnel'],
-  digital_attitude_generale: 'neutre',
-
-  // Moderate sacred boundary
-  theo_liturgie_ia: 2,
-  theo_activites_sacrees: ['confession', 'eucharistie', 'accompagnement'],
-  theo_mediation_humaine: 'oui_pour_essentiel',
-
-  // Very high ethical concern
-  theo_risque_futur: 'deshumanisation',
-  theo_utilite_percue: 'neutre',
-  psych_aias_opacity: 'oui_fortement',
-  psych_imago_dei: 'beaucoup',
-  psych_anxiete_remplacement: 'possible_partiel',
-
-  // High psychological perception
   psych_godspeed_nature: '4_humain_moins',
   psych_godspeed_conscience: 'possible_emergence',
 
-  // Moderate future orientation
+  futur_intention_usage: 'oui_certain',
+  futur_formation_souhait: 'oui_tres',
+  futur_domaines_interet: ['priere_meditation', 'catechese', 'communication', 'administration'],
+});
+
+export const progressisteCritiqueAnswers: Answers = base({
+  theo_orientation: 'progressiste',
+
+  ctrl_ia_frequence: 'occasionnel',
+  ctrl_ia_confort: 3,
+
+  theo_utilite_percue: 'negatif',
+  psych_aias_opacity: 'oui_fortement',
+  psych_imago_dei: 'totalement',
+
+  psych_godspeed_nature: '4_humain_moins',
+  psych_godspeed_conscience: 'possible_emergence',
+  psych_anxiete_remplacement: 'oui_probable',
+
   futur_intention_usage: 'oui_probable',
   futur_formation_souhait: 'oui_assez',
 });
 
-/**
- * Explorateur profile
- * Theological uncertainty, lower religiosity, exploring
- */
-export const explorateurAnswers: Answers = createBaseAnswers({
+export const explorateurAnswers: Answers = base({
   profil_statut: 'curieux',
-  theo_orientation: 'ne_sait_pas',
   profil_anciennete_foi: '1_5_ans',
+  theo_orientation: 'ne_sait_pas',
 
-  // Lower religiosity
   crs_intellect: 'rarement',
   crs_ideology: 'peu',
   crs_public_practice: 'quelques_fois_an',
   crs_private_practice: 'rarement',
-  crs_experience: 'peu',
+  crs_experience: 'rarement',
 
-  // Moderate AI openness
-  ctrl_ia_frequence: 'occasionnel',
-  ctrl_ia_confort: 3,
-  ctrl_ia_contextes: ['personnel'],
-  digital_attitude_generale: 'positif',
-
-  // Many "ne_sait_pas" answers
   theo_inspiration: 'ne_sait_pas',
   theo_utilite_percue: 'ne_sait_pas',
-  psych_godspeed_conscience: 'incertain',
   psych_imago_dei: 'ne_sait_pas',
   psych_anxiete_remplacement: 'ne_sait_pas',
-  theo_risque_futur: 'ne_sait_pas',
-
-  // Low community influence
-  communaute_position_officielle: 'ne_sait_pas',
-  communaute_discussions: 'jamais',
   communaute_perception_pairs: 'ne_sait_pas',
-
-  // Moderate-high future orientation
-  futur_intention_usage: 'peut_etre',
-  futur_formation_souhait: 'oui_assez',
+  communaute_position_officielle: 'ne_sait_pas',
 });
 
-/**
- * Innovateur Ancré profile
- * High religiosity AND high AI openness, traditionalist theology
- */
-export const innovateurAncreAnswers: Answers = createBaseAnswers({
+export const clergyAnswers: Answers = base({
   profil_statut: 'clerge',
-  theo_orientation: 'traditionaliste',
-
-  // Very high religiosity
-  crs_intellect: 'tres_souvent',
-  crs_ideology: 'totalement',
-  crs_public_practice: 'pluri_hebdo',
-  crs_private_practice: 'pluri_quotidien',
-  crs_experience: 'totalement',
-
-  // Very high AI openness
-  ctrl_ia_frequence: 'quotidien',
-  ctrl_ia_confort: 5,
-  ctrl_ia_contextes: ['travail', 'personnel', 'creatif', 'spirituel'],
-  digital_attitude_generale: 'tres_positif',
-
-  // Lower sacred boundary (permeable)
-  theo_liturgie_ia: 4,
-  theo_activites_sacrees: ['confession'],
-  theo_mediation_humaine: 'partiellement',
-  theo_inspiration: 'possible_indirect',
-
-  // Moderate ethical concern
-  theo_risque_futur: 'paresse',
-  theo_utilite_percue: 'positif',
-
-  // High future orientation
-  futur_intention_usage: 'oui_certain',
-  futur_formation_souhait: 'oui_tres',
-  futur_domaines_interet: ['catechese', 'communication', 'administration'],
-});
-
-// ==========================================
-// CLERGY-SPECIFIC FIXTURES
-// ==========================================
-
-/**
- * Clergy member with ministry questions answered
- */
-export const clergyAnswers: Answers = createBaseAnswers({
-  profil_statut: 'clerge',
-
-  // Ministry-specific
   min_pred_usage: 'regulier',
+  min_pred_nature: { plan: 2, exegese: 2, illustration: 1, images: 0, redaction: 1 },
   min_pred_sentiment: 3,
-  min_care_email: 'oui_brouillon',
+  min_care_email: 'oui_relu',
   min_admin_burden: 4,
 });
 
-/**
- * Clergy who never uses AI for ministry
- */
-export const clergyNoAIAnswers: Answers = createBaseAnswers({
+export const clergyNoAIAnswers: Answers = base({
   profil_statut: 'clerge',
-
   ctrl_ia_frequence: 'jamais',
   ctrl_ia_confort: 1,
-  ctrl_ia_contextes: [],
-
-  // Ministry-specific - never uses
   min_pred_usage: 'jamais',
-  min_care_email: 'non_jamais',
-  min_admin_burden: 2,
+  min_care_email: 'non',
 });
 
-// ==========================================
-// LAYPERSON-SPECIFIC FIXTURES
-// ==========================================
+export const nonOrdainedLeaderAnswers: Answers = base({
+  profil_statut: 'responsable_non_ordonne',
+  min_pred_usage: 'rare',
+  min_care_email: 'non',
+});
 
-/**
- * Layperson with specific lay questions answered
- */
-export const laypersonAnswers: Answers = createBaseAnswers({
+export const laypersonAnswers: Answers = base({
   profil_statut: 'laic_engagé',
-
-  // Lay-specific
   laic_substitution_priere: 'oui_neutre',
   laic_conseil_spirituel: 'complement',
 });
 
-/**
- * Layperson who would never use AI for spiritual purposes
- */
-export const laypersonNoSpiritualAIAnswers: Answers = createBaseAnswers({
+export const laypersonNoSpiritualAIAnswers: Answers = base({
   profil_statut: 'laic_pratiquant',
-
   ctrl_ia_frequence: 'regulier',
   ctrl_ia_confort: 4,
-  ctrl_ia_contextes: ['travail', 'personnel'], // No 'spirituel'
-
-  // Lay-specific - resistant
+  ctrl_ia_contextes: ['travail_pro', 'recherche_info'],
   laic_substitution_priere: 'non',
   laic_conseil_spirituel: 'jamais',
 });
 
-// ==========================================
-// BIAS SCENARIO FIXTURES
-// ==========================================
-
-/**
- * High social desirability bias (all MC items answered in "target" direction)
- */
-export const highBiasAnswers: Answers = createBaseAnswers({
-  ctrl_mc_1: 'false', // Target (claims easy to work without encouragement)
-  ctrl_mc_2: 'true',  // Target (claims never disliked anyone)
-  ctrl_mc_3: 'false', // Target (claims never rebels)
-  ctrl_mc_4: 'true',  // Target (claims always courteous)
-  ctrl_mc_5: 'false', // Target (claims never taken advantage)
+/** All 5 Marlowe-Crowne items answered in the keyed (desirable) direction */
+export const highSocialDesirabilityAnswers: Answers = base({
+  ctrl_mc_1: 'false',
+  ctrl_mc_2: 'true',
+  ctrl_mc_3: 'false',
+  ctrl_mc_4: 'true',
+  ctrl_mc_5: 'false',
 });
 
-/**
- * Low social desirability bias (no MC items in target direction)
- */
-export const lowBiasAnswers: Answers = createBaseAnswers({
-  ctrl_mc_1: 'true',  // NOT target
-  ctrl_mc_2: 'false', // NOT target
-  ctrl_mc_3: 'true',  // NOT target
-  ctrl_mc_4: 'false', // NOT target
-  ctrl_mc_5: 'true',  // NOT target
-});
+export const lowSocialDesirabilityAnswers: Answers = base();
 
-// ==========================================
-// EDGE CASE FIXTURES
-// ==========================================
-
-/**
- * Minimal answers - only required fields
- */
-export const minimalAnswers: Answers = {
-  profil_statut: 'laic_pratiquant',
-  profil_confession: 'catholique',
-  ctrl_ia_frequence: 'occasionnel',
-  crs_intellect: 'occasionnellement',
-  crs_ideology: 'moderement',
+/** Only CRS-5 answered: religiosity valued, every other dimension null */
+export const crsOnlyAnswers: Answers = {
+  crs_intellect: 'souvent',
+  crs_ideology: 'beaucoup',
   crs_public_practice: 'mensuel',
-  crs_private_practice: 'occasionnellement',
-  crs_experience: 'moderement',
+  crs_private_practice: 'quotidien',
+  crs_experience: 'souvent',
 };
 
-/**
- * Empty answers (edge case)
- */
 export const emptyAnswers: Answers = {};
 
-/**
- * Extreme high values across the board
- */
-export const extremeHighAnswers: Answers = createBaseAnswers({
-  crs_intellect: 'tres_souvent',
-  crs_ideology: 'totalement',
-  crs_public_practice: 'pluri_hebdo',
-  crs_private_practice: 'pluri_quotidien',
-  crs_experience: 'totalement',
-
-  ctrl_ia_frequence: 'quotidien',
-  ctrl_ia_confort: 5,
-  ctrl_ia_contextes: ['travail', 'personnel', 'spirituel', 'creatif'],
-
-  theo_liturgie_ia: 5,
-  futur_intention_usage: 'oui_certain',
-  futur_formation_souhait: 'oui_tres',
-});
-
-/**
- * Extreme low values across the board
- */
-export const extremeLowAnswers: Answers = createBaseAnswers({
-  crs_intellect: 'jamais',
-  crs_ideology: 'pas_du_tout',
-  crs_public_practice: 'jamais',
-  crs_private_practice: 'jamais',
-  crs_experience: 'pas_du_tout',
-
-  ctrl_ia_frequence: 'jamais',
-  ctrl_ia_confort: 1,
-  ctrl_ia_contextes: [],
-
-  theo_liturgie_ia: 1,
-  futur_intention_usage: 'non_certain',
-  futur_formation_souhait: 'non_pas_du_tout',
-});
+/** Every scored item answered with a documented missing code */
+export const allMissingAnswers: Answers = {
+  crs_intellect: 'sans_reponse',
+  crs_ideology: 'sans_reponse',
+  crs_public_practice: 'sans_reponse',
+  crs_private_practice: 'sans_reponse',
+  crs_experience: 'sans_reponse',
+  theo_inspiration: 'ne_sait_pas',
+  theo_mediation_humaine: 'ne_sait_pas',
+  theo_utilite_percue: 'ne_sait_pas',
+  psych_imago_dei: 'ne_sait_pas',
+  psych_anxiete_remplacement: 'ne_sait_pas',
+  communaute_position_officielle: 'ne_sait_pas',
+  communaute_perception_pairs: 'ne_sait_pas',
+  futur_intention_usage: 'ne_sait_pas',
+};

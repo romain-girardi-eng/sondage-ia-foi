@@ -9,9 +9,23 @@ import {
   BarChart3,
   PieChart as PieChartIcon,
 } from "lucide-react";
-import { cn, useLanguage, type AggregatedResult } from "@/lib";
+import { cn, useLanguage } from "@/lib";
 import { type Question } from "@/data";
 import { AnimatedBarChart, ScaleVisualization, type BarChartColor } from "./charts";
+
+/**
+ * One question as served by /api/results/aggregated: arrays and matrices are
+ * already expanded server-side (one cell per option, or per "row:col"), and
+ * cells below the k-anonymity threshold are merged into K_ANONYMITY_BUCKET.
+ */
+export interface DashboardResult {
+  questionId: string;
+  distribution: Record<string, number>;
+  totalResponses: number;
+}
+
+/** Cell name used by the SQL aggregate for the merged rare modalities. */
+export const K_ANONYMITY_BUCKET = "_autres";
 
 // Modern color palette
 const COLORS: BarChartColor[] = [
@@ -27,17 +41,22 @@ export { COLORS };
 
 interface ModernChartCardProps {
   question: Question;
-  data: AggregatedResult;
+  data: DashboardResult;
   index: number;
   isExpanded: boolean;
   onToggle: () => void;
 }
 
 export function ModernChartCard({ question, data, index, isExpanded, onToggle }: ModernChartCardProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const bucketLabel = language === "fr" ? "Autres (regroupés)" : "Other (grouped)";
+
   const chartData = useMemo(() => {
     return Object.entries(data.distribution)
       .map(([key, value]) => {
+        if (key === K_ANONYMITY_BUCKET) {
+          return { name: bucketLabel, value, fullName: bucketLabel };
+        }
         let label = key;
         let fullLabel = key;
         if (question.options) {
@@ -48,7 +67,7 @@ export function ModernChartCard({ question, data, index, isExpanded, onToggle }:
         return { name: label, value, fullName: fullLabel };
       })
       .sort((a, b) => b.value - a.value);
-  }, [data.distribution, question.options]);
+  }, [data.distribution, question.options, bucketLabel]);
 
   const totalResponses = useMemo(() => {
     return Object.values(data.distribution).reduce((sum, val) => sum + val, 0);
@@ -123,7 +142,10 @@ export function ModernChartCard({ question, data, index, isExpanded, onToggle }:
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10">
               <TrendingUp className="w-3 h-3 text-emerald-500" />
               <span className="text-xs text-emerald-500 font-medium">
-                {topPercentage.toFixed(0)}% {t("dashboard.majority")}
+                {language === "fr"
+                  ? `${topPercentage.toFixed(0)}\u202f%`
+                  : `${topPercentage.toFixed(0)}%`}{" "}
+                {t("dashboard.majority")}
               </span>
             </div>
           </div>

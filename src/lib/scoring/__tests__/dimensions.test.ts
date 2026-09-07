@@ -1,371 +1,296 @@
-/**
- * Unit Tests for Dimension Calculations
- */
-
 import { describe, it, expect } from 'vitest';
 import {
+  calculateAllDimensions,
   calculateReligiosityDimension,
   calculateAIOpennessDimension,
   calculateSacredBoundaryDimension,
-  calculateEthicalConcernDimension,
-  calculatePsychologicalPerceptionDimension,
-  calculateCommunityInfluenceDimension,
+  calculateCommunityContextDimension,
   calculateFutureOrientationDimension,
-  calculateAllDimensions,
+  computeCoreSubscores,
+  scoreItem,
+  isMissing,
+  DIMENSION_KEYS,
+  DIMENSION_ITEMS,
+  MIN_ITEMS,
+  MIN_ITEMS_RELIGIOSITY,
 } from '../dimensions';
 import {
+  moderateAnswers,
   gardienTraditionAnswers,
   pionnierSpirituelAnswers,
-  equilibristeAnswers,
-  progressisteCritiqueAnswers,
-  explorateurAnswers,
-  minimalAnswers,
-  emptyAnswers,
-  extremeHighAnswers,
-  extremeLowAnswers,
-  highBiasAnswers,
-  lowBiasAnswers,
   clergyAnswers,
   laypersonAnswers,
+  crsOnlyAnswers,
+  emptyAnswers,
+  allMissingAnswers,
+  highSocialDesirabilityAnswers,
+  lowSocialDesirabilityAnswers,
+  nonOrdainedLeaderAnswers,
 } from './fixtures';
+import type { Answers } from '@/data';
 
-// ==========================================
-// DIMENSION 1: RELIGIOSITY (CRS-5)
-// ==========================================
-
-describe('calculateReligiosityDimension', () => {
-  it('should calculate high religiosity for gardien_tradition profile', () => {
-    const result = calculateReligiosityDimension(gardienTraditionAnswers);
-    expect(result.value).toBeGreaterThanOrEqual(4);
-    expect(result.value).toBeLessThanOrEqual(5);
-    expect(result.confidence).toBeGreaterThan(0.8);
+describe('missing values', () => {
+  it('treats documented codes, empty strings and undefined as missing', () => {
+    expect(isMissing(undefined)).toBe(true);
+    expect(isMissing('')).toBe(true);
+    expect(isMissing('ne_sait_pas')).toBe(true);
+    expect(isMissing('sans_reponse')).toBe(true);
+    expect(isMissing([])).toBe(true);
+    expect(isMissing('souvent')).toBe(false);
+    expect(isMissing(3)).toBe(false);
   });
 
-  it('should calculate low religiosity for explorateur profile', () => {
-    const result = calculateReligiosityDimension(explorateurAnswers);
-    expect(result.value).toBeLessThanOrEqual(2.5);
-    expect(result.confidence).toBeGreaterThan(0.5);
+  it('never imputes a missing item into the mean', () => {
+    const withMissing: Answers = { ...moderateAnswers, theo_inspiration: 'ne_sait_pas' };
+    const full = calculateSacredBoundaryDimension(moderateAnswers);
+    const partial = calculateSacredBoundaryDimension(withMissing);
+    expect(partial.nItems).toBe(full.nItems - 1);
+    expect(partial.maxItems).toBe(full.maxItems);
   });
 
-  it('should calculate moderate religiosity for equilibriste profile', () => {
-    const result = calculateReligiosityDimension(equilibristeAnswers);
-    expect(result.value).toBeGreaterThanOrEqual(2.5);
-    expect(result.value).toBeLessThanOrEqual(3.5);
-  });
-
-  it('should return fallback value for empty answers', () => {
-    const result = calculateReligiosityDimension(emptyAnswers);
-    // Empty answers should return a neutral/middle value (around 2.5-3.5)
-    expect(result.value).toBeGreaterThanOrEqual(2);
-    expect(result.value).toBeLessThanOrEqual(4);
-    expect(result.confidence).toBe(0);
-  });
-
-  it('should handle minimal answers gracefully', () => {
-    const result = calculateReligiosityDimension(minimalAnswers);
-    expect(result.value).toBeGreaterThanOrEqual(1);
-    expect(result.value).toBeLessThanOrEqual(5);
-    expect(result.confidence).toBeGreaterThan(0);
-  });
-
-  it('should return percentile between 1 and 99', () => {
-    const highResult = calculateReligiosityDimension(extremeHighAnswers);
-    const lowResult = calculateReligiosityDimension(extremeLowAnswers);
-
-    expect(highResult.percentile).toBeGreaterThanOrEqual(1);
-    expect(highResult.percentile).toBeLessThanOrEqual(99);
-    expect(lowResult.percentile).toBeGreaterThanOrEqual(1);
-    expect(lowResult.percentile).toBeLessThanOrEqual(99);
-  });
-
-  it('should apply bias adjustment for high bias scores', () => {
-    const withLowBias = calculateReligiosityDimension(lowBiasAnswers, 0);
-    const withHighBias = calculateReligiosityDimension(highBiasAnswers, 10);
-
-    // High bias should deflate the score
-    expect(withHighBias.value).toBeLessThanOrEqual(withLowBias.value);
+  it('yields null everywhere when every scored item is a missing code', () => {
+    const dimensions = calculateAllDimensions(allMissingAnswers);
+    for (const key of DIMENSION_KEYS) {
+      expect(dimensions[key].value).toBeNull();
+      expect(dimensions[key].nItems).toBe(0);
+    }
   });
 });
 
-// ==========================================
-// DIMENSION 2: AI OPENNESS
-// ==========================================
-
-describe('calculateAIOpennessDimension', () => {
-  it('should calculate high AI openness for pionnier profile', () => {
-    const result = calculateAIOpennessDimension(pionnierSpirituelAnswers);
-    expect(result.value).toBeGreaterThanOrEqual(4);
+describe('religiosity (raw CRS-5)', () => {
+  it('is the unweighted mean of the answered CRS-5 items', () => {
+    const answers: Answers = {
+      crs_intellect: 'tres_souvent', // 5
+      crs_ideology: 'moderement', // 3
+      crs_public_practice: 'mensuel', // 4
+      crs_private_practice: 'rarement', // 2
+      crs_experience: 'souvent', // 4
+    };
+    const score = calculateReligiosityDimension(answers);
+    expect(score.value).toBeCloseTo((5 + 3 + 4 + 2 + 4) / 5, 5);
+    expect(score.nItems).toBe(5);
+    expect(score.maxItems).toBe(5);
+    expect(score.confidence).toBe(1);
   });
 
-  it('should calculate low AI openness for gardien_tradition profile', () => {
-    const result = calculateAIOpennessDimension(gardienTraditionAnswers);
-    expect(result.value).toBeLessThanOrEqual(2);
+  it('scores quotidien and pluri_quotidien identically (Huber recoding)', () => {
+    const daily = scoreItem('crs_private_practice', { crs_private_practice: 'quotidien' });
+    const multiDaily = scoreItem('crs_private_practice', { crs_private_practice: 'pluri_quotidien' });
+    expect(daily).toBe(5);
+    expect(multiDaily).toBe(5);
   });
 
-  it('should factor in clergy-specific questions when applicable', () => {
-    const result = calculateAIOpennessDimension(clergyAnswers);
-    // Should have higher confidence due to more questions answered
-    expect(result.confidence).toBeGreaterThan(0.5);
+  it('requires 4 items', () => {
+    const three: Answers = {
+      crs_intellect: 'souvent',
+      crs_ideology: 'beaucoup',
+      crs_experience: 'souvent',
+    };
+    expect(calculateReligiosityDimension(three).value).toBeNull();
+    expect(MIN_ITEMS_RELIGIOSITY).toBe(4);
+
+    const four: Answers = { ...three, crs_public_practice: 'mensuel' };
+    expect(calculateReligiosityDimension(four).value).not.toBeNull();
   });
 
-  it('should factor in layperson-specific questions when applicable', () => {
-    const result = calculateAIOpennessDimension(laypersonAnswers);
-    expect(result.confidence).toBeGreaterThan(0.5);
+  it('is unaffected by Marlowe-Crowne answers', () => {
+    const biased = calculateReligiosityDimension(highSocialDesirabilityAnswers);
+    const unbiased = calculateReligiosityDimension(lowSocialDesirabilityAnswers);
+    expect(biased.value).toBe(unbiased.value);
   });
 
-  it('should handle empty answers', () => {
-    const result = calculateAIOpennessDimension(emptyAnswers);
-    expect(result.value).toBe(2.5);
+  it('leaves every other dimension untouched by Marlowe-Crowne answers', () => {
+    const biased = calculateAllDimensions(highSocialDesirabilityAnswers);
+    const unbiased = calculateAllDimensions(lowSocialDesirabilityAnswers);
+    for (const key of DIMENSION_KEYS) {
+      expect(biased[key].value).toBe(unbiased[key].value);
+    }
   });
 });
 
-// ==========================================
-// DIMENSION 3: SACRED BOUNDARY
-// ==========================================
-
-describe('calculateSacredBoundaryDimension', () => {
-  it('should calculate high sacred boundary for gardien_tradition', () => {
-    const result = calculateSacredBoundaryDimension(gardienTraditionAnswers);
-    expect(result.value).toBeGreaterThanOrEqual(4);
+describe('one item, one dimension', () => {
+  it('never lists the same question id in two dimensions', () => {
+    const seen = new Map<string, string>();
+    for (const key of DIMENSION_KEYS) {
+      for (const itemId of DIMENSION_ITEMS[key]) {
+        expect(seen.has(itemId)).toBe(false);
+        seen.set(itemId, key);
+      }
+    }
   });
 
-  it('should calculate low sacred boundary for pionnier_spirituel', () => {
-    const result = calculateSacredBoundaryDimension(pionnierSpirituelAnswers);
-    expect(result.value).toBeLessThanOrEqual(2.5);
+  it('excludes demographics and theo_risque_futur from every dimension', () => {
+    const excluded = [
+      'profil_age',
+      'profil_statut',
+      'profil_taille_communaute',
+      'profil_genre',
+      'profil_formation_theologique',
+      'theo_risque_futur',
+      'theo_orientation',
+    ];
+    const all = DIMENSION_KEYS.flatMap((key) => DIMENSION_ITEMS[key]);
+    for (const itemId of excluded) {
+      expect(all).not.toContain(itemId);
+    }
+  });
+});
+
+describe('confidence and routing', () => {
+  it('counts clergy items in maxItems only for clergy', () => {
+    const clergy = calculateSacredBoundaryDimension(clergyAnswers);
+    const lay = calculateSacredBoundaryDimension(laypersonAnswers);
+    expect(clergy.maxItems).toBeGreaterThan(4);
+    expect(lay.maxItems).toBeGreaterThan(4);
+    expect(clergy.maxItems).not.toBe(0);
   });
 
-  it('should detect general AI user who excludes spiritual use (high boundary)', () => {
-    const usesAIButNotSpiritual = {
-      ...equilibristeAnswers,
+  it('routes responsable_non_ordonne through the clergy branch', () => {
+    const score = calculateSacredBoundaryDimension(nonOrdainedLeaderAnswers);
+    expect(score.nItems).toBeGreaterThan(4);
+  });
+
+  it('never exceeds a confidence of 1', () => {
+    for (const answers of [moderateAnswers, clergyAnswers, laypersonAnswers, emptyAnswers]) {
+      const dimensions = calculateAllDimensions(answers);
+      for (const key of DIMENSION_KEYS) {
+        expect(dimensions[key].confidence).toBeGreaterThanOrEqual(0);
+        expect(dimensions[key].confidence).toBeLessThanOrEqual(1);
+        expect(dimensions[key].nItems).toBeLessThanOrEqual(dimensions[key].maxItems);
+      }
+    }
+  });
+
+  it('drops ctrl_ia_contextes from maxItems when the respondent never uses AI', () => {
+    const never = calculateAIOpennessDimension({
+      ctrl_ia_frequence: 'jamais',
+      ctrl_ia_confort: 1,
+      digital_attitude_generale: 'negatif',
+    });
+    const user = calculateAIOpennessDimension({
       ctrl_ia_frequence: 'regulier',
-      ctrl_ia_contextes: ['travail', 'personnel'], // No 'spirituel'
-    };
-    const result = calculateSacredBoundaryDimension(usesAIButNotSpiritual);
-    expect(result.value).toBeGreaterThan(3);
-  });
-
-  it('should handle "aucune" in sacred activities (no boundaries)', () => {
-    const noBoundaries = {
-      ...equilibristeAnswers,
-      theo_activites_sacrees: ['aucune'],
-    };
-    const result = calculateSacredBoundaryDimension(noBoundaries);
-    expect(result.value).toBeLessThan(3);
+      ctrl_ia_confort: 4,
+      digital_attitude_generale: 'positif',
+      ctrl_ia_contextes: ['travail_pro'],
+    });
+    expect(never.maxItems).toBe(3);
+    expect(user.maxItems).toBe(4);
   });
 });
 
-// ==========================================
-// DIMENSION 4: ETHICAL CONCERN
-// ==========================================
-
-describe('calculateEthicalConcernDimension', () => {
-  it('should calculate high ethical concern for progressiste_critique', () => {
-    const result = calculateEthicalConcernDimension(progressisteCritiqueAnswers);
-    expect(result.value).toBeGreaterThanOrEqual(3.5);
-  });
-
-  it('should calculate low ethical concern for pionnier_spirituel', () => {
-    const result = calculateEthicalConcernDimension(pionnierSpirituelAnswers);
-    expect(result.value).toBeLessThanOrEqual(2.5);
-  });
-
-  it('should weight risk perception heavily', () => {
-    const highRisk = {
-      ...equilibristeAnswers,
-      theo_risque_futur: 'deshumanisation',
-      psych_anxiete_remplacement: 'oui_probable',
-    };
-    const result = calculateEthicalConcernDimension(highRisk);
-    expect(result.value).toBeGreaterThan(3);
+describe('percentiles', () => {
+  it('is always null client-side', () => {
+    const dimensions = calculateAllDimensions(moderateAnswers);
+    for (const key of DIMENSION_KEYS) {
+      expect(dimensions[key].percentile).toBeNull();
+    }
   });
 });
 
-// ==========================================
-// DIMENSION 5: PSYCHOLOGICAL PERCEPTION
-// ==========================================
-
-describe('calculatePsychologicalPerceptionDimension', () => {
-  it('should calculate high perception when AI is seen as human-like', () => {
-    const humanLike = {
-      ...equilibristeAnswers,
-      psych_godspeed_nature: '5_humain',
-      psych_godspeed_conscience: 'probable',
-      psych_imago_dei: 'totalement',
-    };
-    const result = calculatePsychologicalPerceptionDimension(humanLike);
-    expect(result.value).toBeGreaterThan(4);
+describe('dimension direction', () => {
+  it('puts the traditional profile high on sacredBoundary and low on aiOpenness', () => {
+    const dimensions = calculateAllDimensions(gardienTraditionAnswers);
+    expect(dimensions.sacredBoundary.value).toBeGreaterThanOrEqual(4);
+    expect(dimensions.aiOpenness.value).toBeLessThanOrEqual(2);
+    expect(dimensions.religiosity.value).toBeGreaterThanOrEqual(4);
   });
 
-  it('should calculate low perception when AI is seen as tool', () => {
-    const toolLike = {
-      ...equilibristeAnswers,
-      psych_godspeed_nature: '1_machine',
-      psych_godspeed_conscience: 'impossible',
-      psych_imago_dei: 'pas_du_tout',
-    };
-    const result = calculatePsychologicalPerceptionDimension(toolLike);
-    expect(result.value).toBeLessThan(2);
+  it('puts the pioneer profile low on sacredBoundary and high on aiOpenness', () => {
+    const dimensions = calculateAllDimensions(pionnierSpirituelAnswers);
+    expect(dimensions.sacredBoundary.value).toBeLessThanOrEqual(2);
+    expect(dimensions.aiOpenness.value).toBeGreaterThanOrEqual(4);
   });
-});
 
-// ==========================================
-// DIMENSION 6: COMMUNITY INFLUENCE
-// ==========================================
-
-describe('calculateCommunityInfluenceDimension', () => {
-  it('should calculate higher influence for engaged participants', () => {
-    const engaged = {
-      ...equilibristeAnswers,
-      profil_statut: 'laic_engagé',
-      communaute_discussions: 'organise',
+  it('scores communityContext on valence, not on awareness', () => {
+    const favourable = calculateCommunityContextDimension({
       communaute_position_officielle: 'oui_favorable',
-    };
-    const result = calculateCommunityInfluenceDimension(engaged);
-    expect(result.value).toBeGreaterThan(3);
-  });
-
-  it('should calculate lower influence for curious/seekers', () => {
-    const result = calculateCommunityInfluenceDimension(explorateurAnswers);
-    expect(result.value).toBeLessThan(3);
-  });
-});
-
-// ==========================================
-// DIMENSION 7: FUTURE ORIENTATION
-// ==========================================
-
-describe('calculateFutureOrientationDimension', () => {
-  it('should calculate high future orientation for pionnier', () => {
-    const result = calculateFutureOrientationDimension(pionnierSpirituelAnswers);
-    expect(result.value).toBeGreaterThanOrEqual(4);
-  });
-
-  it('should calculate low future orientation for gardien', () => {
-    const result = calculateFutureOrientationDimension(gardienTraditionAnswers);
-    expect(result.value).toBeLessThanOrEqual(2);
-  });
-
-  it('should factor in training interest', () => {
-    const wantsTraining = {
-      ...equilibristeAnswers,
-      futur_formation_souhait: 'oui_tres',
-      futur_intention_usage: 'oui_certain',
-      futur_domaines_interet: ['priere_meditation', 'catechese', 'communication'],
-    };
-    const result = calculateFutureOrientationDimension(wantsTraining);
-    expect(result.value).toBeGreaterThan(4);
-  });
-});
-
-// ==========================================
-// CALCULATE ALL DIMENSIONS
-// ==========================================
-
-describe('calculateAllDimensions', () => {
-  it('should return all 7 dimensions', () => {
-    const result = calculateAllDimensions(equilibristeAnswers);
-
-    expect(result).toHaveProperty('religiosity');
-    expect(result).toHaveProperty('aiOpenness');
-    expect(result).toHaveProperty('sacredBoundary');
-    expect(result).toHaveProperty('ethicalConcern');
-    expect(result).toHaveProperty('psychologicalPerception');
-    expect(result).toHaveProperty('communityInfluence');
-    expect(result).toHaveProperty('futureOrientation');
-  });
-
-  it('should return valid dimension scores for all dimensions', () => {
-    const result = calculateAllDimensions(equilibristeAnswers);
-
-    Object.values(result).forEach((dim) => {
-      expect(dim.value).toBeGreaterThanOrEqual(1);
-      expect(dim.value).toBeLessThanOrEqual(5);
-      expect(dim.confidence).toBeGreaterThanOrEqual(0);
-      expect(dim.confidence).toBeLessThanOrEqual(1);
-      expect(dim.percentile).toBeGreaterThanOrEqual(1);
-      expect(dim.percentile).toBeLessThanOrEqual(99);
+      communaute_perception_pairs: 'tres_favorable',
+      communaute_discussions: 'souvent',
     });
-  });
-
-  it('should handle empty answers without crashing', () => {
-    expect(() => calculateAllDimensions(emptyAnswers)).not.toThrow();
-    const result = calculateAllDimensions(emptyAnswers);
-
-    Object.values(result).forEach((dim) => {
-      expect(typeof dim.value).toBe('number');
-      expect(typeof dim.confidence).toBe('number');
-      expect(typeof dim.percentile).toBe('number');
+    const hostile = calculateCommunityContextDimension({
+      communaute_position_officielle: 'oui_defavorable',
+      communaute_perception_pairs: 'hostile',
+      communaute_discussions: 'souvent',
     });
+    expect(favourable.value).toBeGreaterThan(hostile.value as number);
   });
 
-  it('should produce distinct profiles for distinct inputs', () => {
-    const gardien = calculateAllDimensions(gardienTraditionAnswers);
-    const pionnier = calculateAllDimensions(pionnierSpirituelAnswers);
-
-    // Gardien should have higher religiosity
-    expect(gardien.religiosity.value).toBeGreaterThan(pionnier.religiosity.value - 0.5);
-
-    // Pionnier should have higher AI openness
-    expect(pionnier.aiOpenness.value).toBeGreaterThan(gardien.aiOpenness.value);
-
-    // Gardien should have higher sacred boundary
-    expect(gardien.sacredBoundary.value).toBeGreaterThan(pionnier.sacredBoundary.value);
-  });
-});
-
-// ==========================================
-// PERCENTILE CALCULATION ACCURACY
-// ==========================================
-
-describe('Percentile calculation accuracy', () => {
-  it('should calculate ~97.7 percentile for z=2', () => {
-    // If mean=3, stdDev=1, and score=5, z = (5-3)/1 = 2
-    // CDF(2) ≈ 0.9772, so percentile ≈ 98
-    const result = calculateAllDimensions(extremeHighAnswers);
-
-    // At least one dimension should have a high percentile (> 90)
-    const maxPercentile = Math.max(...Object.values(result).map(d => d.percentile));
-    expect(maxPercentile).toBeGreaterThanOrEqual(90);
+  it('treats "no official position" and "ne sait pas" as missing on communityContext', () => {
+    const noPosition = calculateCommunityContextDimension({
+      communaute_position_officielle: 'non',
+      communaute_perception_pairs: 'neutre',
+      communaute_discussions: 'parfois',
+    });
+    expect(noPosition.nItems).toBe(2);
+    expect(scoreItem('communaute_position_officielle', { communaute_position_officielle: 'non' })).toBeNull();
+    expect(
+      scoreItem('communaute_perception_pairs', { communaute_perception_pairs: 'ne_sait_pas' }),
+    ).toBeNull();
   });
 
-  it('should calculate ~2.3 percentile for z=-2', () => {
-    const result = calculateAllDimensions(extremeLowAnswers);
-
-    // At least one dimension should have a low percentile (< 15)
-    const minPercentile = Math.min(...Object.values(result).map(d => d.percentile));
-    expect(minPercentile).toBeLessThanOrEqual(15);
+  it('scores opinions_variees at the midpoint on peer perception', () => {
+    expect(
+      scoreItem('communaute_perception_pairs', { communaute_perception_pairs: 'opinions_variees' }),
+    ).toBe(3);
   });
 
-  it('should calculate ~50 percentile for z=0 (average score)', () => {
-    const result = calculateAllDimensions(equilibristeAnswers);
+  it('reads the exclusive "aucun_domaines" option on futur_domaines_interet', () => {
+    const none = calculateFutureOrientationDimension({
+      futur_intention_usage: 'non_certain',
+      futur_formation_souhait: 'non_pas_du_tout',
+      futur_domaines_interet: ['aucun_domaines'],
+    });
+    expect(scoreItem('futur_domaines_interet', { futur_domaines_interet: ['aucun_domaines'] })).toBe(1);
+    expect(none.value).toBe(1);
+  });
 
-    // For a balanced profile, some dimensions should be near 50th percentile
-    const closeToMiddle = Object.values(result).some(
-      d => d.percentile >= 30 && d.percentile <= 70
-    );
-    expect(closeToMiddle).toBe(true);
+  it('scores min_care_email with "non" as the strongest boundary', () => {
+    expect(scoreItem('min_care_email', { min_care_email: 'non' })).toBe(5);
+    expect(scoreItem('min_care_email', { min_care_email: 'oui_relu' })).toBe(3);
+    expect(scoreItem('min_care_email', { min_care_email: 'oui_tel_quel' })).toBe(1);
+  });
+
+  it('accepts sans_reponse on any item', () => {
+    for (const key of DIMENSION_KEYS) {
+      for (const itemId of DIMENSION_ITEMS[key]) {
+        expect(scoreItem(itemId, { [itemId]: 'sans_reponse' })).toBeNull();
+      }
+    }
   });
 });
 
-// ==========================================
-// CONFIDENCE SCORES
-// ==========================================
-
-describe('Confidence scores', () => {
-  it('should have low confidence for minimal answers', () => {
-    const result = calculateAllDimensions(minimalAnswers);
-    const avgConfidence = Object.values(result).reduce((sum, d) => sum + d.confidence, 0) / 7;
-    expect(avgConfidence).toBeLessThan(0.8);
+describe('core sub-scores', () => {
+  it('uses universal items only', () => {
+    const clergyCore = computeCoreSubscores(clergyAnswers);
+    const layCore = computeCoreSubscores(laypersonAnswers);
+    expect(clergyCore.sacredBoundaryCore.maxItems).toBe(4);
+    expect(layCore.sacredBoundaryCore.maxItems).toBe(4);
+    expect(clergyCore.aiOpennessCore.maxItems).toBe(3);
+    expect(layCore.aiOpennessCore.maxItems).toBe(3);
   });
 
-  it('should have higher confidence for complete answers', () => {
-    const result = calculateAllDimensions(gardienTraditionAnswers);
-    const avgConfidence = Object.values(result).reduce((sum, d) => sum + d.confidence, 0) / 7;
-    expect(avgConfidence).toBeGreaterThan(0.5);
+  it('returns null below the minimum item count', () => {
+    const core = computeCoreSubscores({ theo_inspiration: 'impossible' });
+    expect(core.sacredBoundaryCore.value).toBeNull();
+    expect(MIN_ITEMS).toBe(2);
+  });
+});
+
+describe('empty and partial answers', () => {
+  it('returns all-null dimensions for an empty answers object', () => {
+    const dimensions = calculateAllDimensions(emptyAnswers);
+    for (const key of DIMENSION_KEYS) {
+      expect(dimensions[key].value).toBeNull();
+      expect(dimensions[key].nItems).toBe(0);
+      expect(dimensions[key].confidence).toBe(0);
+    }
   });
 
-  it('should have zero confidence for empty answers', () => {
-    const result = calculateAllDimensions(emptyAnswers);
-    expect(result.religiosity.confidence).toBe(0);
+  it('values religiosity alone when only CRS-5 was answered', () => {
+    const dimensions = calculateAllDimensions(crsOnlyAnswers);
+    expect(dimensions.religiosity.value).not.toBeNull();
+    for (const key of DIMENSION_KEYS.filter((k) => k !== 'religiosity')) {
+      expect(dimensions[key].value).toBeNull();
+    }
   });
 });

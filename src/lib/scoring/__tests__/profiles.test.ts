@@ -1,393 +1,205 @@
-/**
- * Unit Tests for Profile Matching
- */
-
 import { describe, it, expect } from 'vitest';
+import { calculateProfileSpectrum, getSimpleProfile, getEnhancedProfileData } from '../profiles';
+import { PROFILE_DEFINITIONS, SUB_PROFILE_DEFINITIONS } from '../constants';
+import { DIMENSION_KEYS } from '../dimensions';
+import type { PrimaryProfile } from '../types';
 import {
-  calculateProfileSpectrum,
-  getSimpleProfile,
-  getEnhancedProfileData,
-} from '../profiles';
-import {
+  moderateAnswers,
   gardienTraditionAnswers,
   pionnierSpirituelAnswers,
-  equilibristeAnswers,
   progressisteCritiqueAnswers,
   explorateurAnswers,
-  innovateurAncreAnswers,
+  crsOnlyAnswers,
   emptyAnswers,
-  highBiasAnswers,
 } from './fixtures';
-import type { PrimaryProfile } from '../types';
+import type { Answers } from '@/data';
 
-// ==========================================
-// PROFILE MATCHING RETURNS SORTED MATCHES
-// ==========================================
-
-describe('Profile matching returns sorted matches', () => {
-  it('should return allMatches sorted by matchScore descending', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-
-    for (let i = 0; i < result.allMatches.length - 1; i++) {
-      expect(result.allMatches[i].matchScore).toBeGreaterThanOrEqual(
-        result.allMatches[i + 1].matchScore
+describe('spectrum shape', () => {
+  it('exposes the 8 profiles sorted by raw score, without normalising to 100', () => {
+    const spectrum = calculateProfileSpectrum(moderateAnswers);
+    expect(spectrum.allMatches).toHaveLength(8);
+    for (let i = 1; i < spectrum.allMatches.length; i++) {
+      expect(spectrum.allMatches[i - 1].matchScore).toBeGreaterThanOrEqual(
+        spectrum.allMatches[i].matchScore,
       );
     }
+    const total = spectrum.allMatches.reduce((sum, m) => sum + m.matchScore, 0);
+    expect(total).not.toBeCloseTo(100, 5);
   });
 
-  it('should have primary match with highest score', () => {
-    const result = calculateProfileSpectrum(gardienTraditionAnswers);
-    expect(result.primary.matchScore).toBe(result.allMatches[0].matchScore);
+  it('keeps raw (unrounded) match scores', () => {
+    const spectrum = calculateProfileSpectrum(moderateAnswers);
+    const hasFraction = spectrum.allMatches.some((m) => !Number.isInteger(m.matchScore));
+    expect(hasFraction).toBe(true);
   });
 
-  it('should have all 8 profiles in allMatches', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-    expect(result.allMatches.length).toBe(8);
-
-    const profiles: PrimaryProfile[] = [
-      'gardien_tradition',
-      'prudent_eclaire',
-      'innovateur_ancre',
-      'equilibriste',
-      'pragmatique_moderne',
-      'pionnier_spirituel',
-      'progressiste_critique',
-      'explorateur',
-    ];
-
-    profiles.forEach((profile) => {
-      expect(result.allMatches.some((m) => m.profile === profile)).toBe(true);
-    });
-  });
-
-  it('should normalize match scores to sum to 100%', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-    const totalScore = result.allMatches.reduce((sum, m) => sum + m.matchScore, 0);
-    // Allow small rounding error
-    expect(totalScore).toBeGreaterThanOrEqual(99);
-    expect(totalScore).toBeLessThanOrEqual(101);
-  });
-});
-
-// ==========================================
-// PRIMARY PROFILE ASSIGNMENT
-// ==========================================
-
-describe('Primary profile assignment', () => {
-  it('should assign gardien_tradition for traditional high-religiosity answers', () => {
-    const result = calculateProfileSpectrum(gardienTraditionAnswers);
-    expect(result.primary.profile).toBe('gardien_tradition');
-  });
-
-  it('should assign pionnier_spirituel for progressive high-AI answers', () => {
-    const result = calculateProfileSpectrum(pionnierSpirituelAnswers);
-    expect(result.primary.profile).toBe('pionnier_spirituel');
-  });
-
-  it('should assign progressiste_critique for high ethical concern', () => {
-    const result = calculateProfileSpectrum(progressisteCritiqueAnswers);
-    expect(result.primary.profile).toBe('progressiste_critique');
-  });
-
-  it('should assign explorateur for theological uncertainty', () => {
-    const result = calculateProfileSpectrum(explorateurAnswers);
-    expect(result.primary.profile).toBe('explorateur');
-  });
-
-  it('should assign innovateur_ancre for high religiosity + high AI combination', () => {
-    const result = calculateProfileSpectrum(innovateurAncreAnswers);
-    expect(result.primary.profile).toBe('innovateur_ancre');
-  });
-
-  it('should handle empty answers without crashing', () => {
-    expect(() => calculateProfileSpectrum(emptyAnswers)).not.toThrow();
-  });
-});
-
-// ==========================================
-// SUB-PROFILE ASSIGNMENT
-// ==========================================
-
-describe('Sub-profile assignment', () => {
-  it('should assign a valid sub-profile for gardien', () => {
-    const result = calculateProfileSpectrum(gardienTraditionAnswers);
-    const validSubProfiles = ['protecteur_sacre', 'sage_prudent', 'berger_communautaire'];
-    expect(validSubProfiles).toContain(result.subProfile.subProfile);
-  });
-
-  it('should assign a valid sub-profile for pionnier', () => {
-    const result = calculateProfileSpectrum(pionnierSpirituelAnswers);
-    const validSubProfiles = ['visionnaire', 'experimentateur', 'prophete_digital'];
-    expect(validSubProfiles).toContain(result.subProfile.subProfile);
-  });
-
-  it('should provide a description for the sub-profile', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-    expect(result.subProfile.description).toBeTruthy();
-    expect(typeof result.subProfile.description).toBe('string');
-  });
-
-  it('should provide a match score for the sub-profile', () => {
-    const result = calculateProfileSpectrum(gardienTraditionAnswers);
-    expect(result.subProfile.matchScore).toBeGreaterThanOrEqual(0);
-    expect(result.subProfile.matchScore).toBeLessThanOrEqual(100);
-  });
-});
-
-// ==========================================
-// THEOLOGICAL ORIENTATION BONUSES
-// ==========================================
-
-describe('Theological orientation bonuses', () => {
-  it('should favor gardien for traditionaliste orientation', () => {
-    const result = calculateProfileSpectrum(gardienTraditionAnswers);
-    const gardienMatch = result.allMatches.find((m) => m.profile === 'gardien_tradition');
-    // Gardien should have a significant score (normalized scores sum to 100)
-    expect(gardienMatch?.matchScore).toBeGreaterThanOrEqual(10);
-    // Should be in top 3
-    const topThree = result.allMatches.slice(0, 3).map((m) => m.profile);
-    expect(topThree).toContain('gardien_tradition');
-  });
-
-  it('should favor pionnier/progressiste for progressiste orientation', () => {
-    const result = calculateProfileSpectrum(pionnierSpirituelAnswers);
-    const progressive = result.allMatches.find(
-      (m) => m.profile === 'pionnier_spirituel' || m.profile === 'progressiste_critique'
+  it('labels the attribution as heuristic and carries the v2 payload', () => {
+    const spectrum = calculateProfileSpectrum(moderateAnswers);
+    expect(spectrum.attribution).toBe('heuristic');
+    expect(['low', 'medium', 'high']).toContain(spectrum.profileConfidence);
+    expect(spectrum.core).toHaveProperty('sacredBoundaryCore');
+    expect(spectrum.core).toHaveProperty('aiOpennessCore');
+    expect(spectrum.socialDesirability).toHaveProperty('flag');
+    expect(['none', 'uses_general_not_spiritual', 'uses_both', 'no_use']).toContain(
+      spectrum.usageGap,
     );
-    // Should have a significant score
-    expect(progressive?.matchScore).toBeGreaterThanOrEqual(10);
-  });
-
-  it('should favor equilibriste for modere orientation', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-    // May not be highest, but should have decent score
-    const equilibriste = result.allMatches.find((m) => m.profile === 'equilibriste');
-    expect(equilibriste?.matchScore).toBeGreaterThanOrEqual(10);
-  });
-
-  it('should favor explorateur for ne_sait_pas orientation', () => {
-    const result = calculateProfileSpectrum(explorateurAnswers);
-    expect(result.primary.profile).toBe('explorateur');
-  });
-});
-
-// ==========================================
-// SPECTRUM COMPLETENESS
-// ==========================================
-
-describe('Spectrum completeness', () => {
-  it('should include all required fields in ProfileSpectrum', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-
-    expect(result).toHaveProperty('primary');
-    expect(result).toHaveProperty('secondary');
-    expect(result).toHaveProperty('tertiary');
-    expect(result).toHaveProperty('allMatches');
-    expect(result).toHaveProperty('subProfile');
-    expect(result).toHaveProperty('dimensions');
-    expect(result).toHaveProperty('interpretation');
-    expect(result).toHaveProperty('insights');
-    expect(result).toHaveProperty('tensions');
-    expect(result).toHaveProperty('growthAreas');
-  });
-
-  it('should include all 7 dimensions', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-
-    expect(result.dimensions).toHaveProperty('religiosity');
-    expect(result.dimensions).toHaveProperty('aiOpenness');
-    expect(result.dimensions).toHaveProperty('sacredBoundary');
-    expect(result.dimensions).toHaveProperty('ethicalConcern');
-    expect(result.dimensions).toHaveProperty('psychologicalPerception');
-    expect(result.dimensions).toHaveProperty('communityInfluence');
-    expect(result.dimensions).toHaveProperty('futureOrientation');
-  });
-
-  it('should provide interpretation with all required fields', () => {
-    const result = calculateProfileSpectrum(gardienTraditionAnswers);
-
-    expect(result.interpretation.headline).toBeTruthy();
-    expect(result.interpretation.narrative).toBeTruthy();
-    expect(Array.isArray(result.interpretation.uniqueAspects)).toBe(true);
-    expect(Array.isArray(result.interpretation.blindSpots)).toBe(true);
-    expect(Array.isArray(result.interpretation.strengths)).toBe(true);
-  });
-
-  it('should provide insights array (possibly empty)', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-    expect(Array.isArray(result.insights)).toBe(true);
-    // Should have at least one insight (fallback)
-    expect(result.insights.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it('should limit insights to max 4', () => {
-    const result = calculateProfileSpectrum(gardienTraditionAnswers);
-    expect(result.insights.length).toBeLessThanOrEqual(4);
-  });
-});
-
-// ==========================================
-// SECONDARY AND TERTIARY PROFILES
-// ==========================================
-
-describe('Secondary and tertiary profiles', () => {
-  it('should set secondary when second match >= 10%', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-    // Balanced profile should have significant secondary
-    if (result.allMatches[1].matchScore >= 10) {
-      expect(result.secondary).not.toBeNull();
-    }
-  });
-
-  it('should set tertiary when third match >= 5%', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-    if (result.allMatches[2].matchScore >= 5) {
-      expect(result.tertiary).not.toBeNull();
-    }
-  });
-
-  it('should have different profiles for primary, secondary, tertiary', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-
-    if (result.secondary) {
-      expect(result.secondary.profile).not.toBe(result.primary.profile);
-    }
-
-    if (result.tertiary) {
-      expect(result.tertiary.profile).not.toBe(result.primary.profile);
-      expect(result.tertiary.profile).not.toBe(result.secondary?.profile);
+    for (const key of DIMENSION_KEYS) {
+      expect(spectrum.dimensions).toHaveProperty(key);
     }
   });
 });
 
-// ==========================================
-// BIAS IMPACT ON PROFILE MATCHING
-// ==========================================
+describe('no profile without enough dimensions', () => {
+  it('returns primary === null for empty answers', () => {
+    const spectrum = calculateProfileSpectrum(emptyAnswers);
+    expect(spectrum.primary).toBeNull();
+    expect(spectrum.subProfile).toBeNull();
+    expect(spectrum.interpretation).toBeNull();
+    expect(spectrum.profileConfidence).toBe('low');
+    expect(getSimpleProfile(emptyAnswers)).toBeNull();
+  });
 
-describe('Bias impact on profile matching', () => {
-  it('should reduce theological orientation bonus weight for high bias', () => {
-    // High bias respondents self-identified orientation is less trusted
-    const highBiasWithTradition = {
-      ...highBiasAnswers,
-      theo_orientation: 'traditionaliste',
-      // But dimension scores don't support it
-      ctrl_ia_frequence: 'quotidien',
-      ctrl_ia_confort: 5,
-    };
+  it('returns primary === null when only religiosity is valued', () => {
+    expect(calculateProfileSpectrum(crsOnlyAnswers).primary).toBeNull();
+  });
 
-    const result = calculateProfileSpectrum(highBiasWithTradition);
-    // Should not automatically be gardien just due to self-reported orientation
-    expect(result.primary.profile).not.toBe('gardien_tradition');
+  it('returns a primary once at least 4 dimensions are valued', () => {
+    expect(calculateProfileSpectrum(moderateAnswers).primary).not.toBeNull();
   });
 });
 
-// ==========================================
-// UTILITY FUNCTIONS
-// ==========================================
+describe('primary assignment on archetypal answers', () => {
+  const cases: Array<[string, Answers, PrimaryProfile]> = [
+    ['gardien_tradition', gardienTraditionAnswers, 'gardien_tradition'],
+    ['pionnier_spirituel', pionnierSpirituelAnswers, 'pionnier_spirituel'],
+    ['progressiste_critique', progressisteCritiqueAnswers, 'progressiste_critique'],
+    ['explorateur', explorateurAnswers, 'explorateur'],
+  ];
 
-describe('getSimpleProfile', () => {
-  it('should return primary profile as string', () => {
-    const result = getSimpleProfile(gardienTraditionAnswers);
-    expect(result).toBe('gardien_tradition');
-  });
-
-  it('should return valid PrimaryProfile type', () => {
-    const validProfiles: PrimaryProfile[] = [
-      'gardien_tradition',
-      'prudent_eclaire',
-      'innovateur_ancre',
-      'equilibriste',
-      'pragmatique_moderne',
-      'pionnier_spirituel',
-      'progressiste_critique',
-      'explorateur',
-    ];
-
-    const result = getSimpleProfile(equilibristeAnswers);
-    expect(validProfiles).toContain(result);
-  });
-});
-
-describe('getEnhancedProfileData', () => {
-  it('should return enhanced profile data object', () => {
-    const result = getEnhancedProfileData(gardienTraditionAnswers);
-
-    expect(result).toHaveProperty('profile');
-    expect(result).toHaveProperty('title');
-    expect(result).toHaveProperty('emoji');
-    expect(result).toHaveProperty('description');
-    expect(result).toHaveProperty('matchPercentage');
-    expect(result).toHaveProperty('dimensions');
-    expect(result).toHaveProperty('strengths');
-    expect(result).toHaveProperty('blindSpots');
-    expect(result).toHaveProperty('insights');
-  });
-
-  it('should include secondary profile when available', () => {
-    const result = getEnhancedProfileData(equilibristeAnswers);
-    // For balanced profiles, secondary should often be available
-    if (result.secondaryProfile) {
-      expect(result.secondaryProfile).toHaveProperty('profile');
-      expect(result.secondaryProfile).toHaveProperty('title');
-      expect(result.secondaryProfile).toHaveProperty('matchPercentage');
-    }
-  });
-
-  it('should combine profile and sub-profile in title', () => {
-    const result = getEnhancedProfileData(gardienTraditionAnswers);
-    expect(result.title).toContain(' - ');
-  });
-
-  it('should combine emojis from profile and sub-profile', () => {
-    const result = getEnhancedProfileData(gardienTraditionAnswers);
-    expect(result.emoji.length).toBeGreaterThan(2);
-  });
-});
-
-// ==========================================
-// TENSION IDENTIFICATION
-// ==========================================
-
-describe('Tension identification', () => {
-  it('should identify tension between high AI openness and high sacred boundary', () => {
-    const mixedAnswers = {
-      ...equilibristeAnswers,
-      ctrl_ia_frequence: 'quotidien',
-      ctrl_ia_confort: 5,
-      theo_liturgie_ia: 1,
-      theo_activites_sacrees: ['confession', 'eucharistie', 'predication', 'benediction'],
-      theo_mediation_humaine: 'oui_absolument',
-    };
-
-    const result = calculateProfileSpectrum(mixedAnswers);
-    expect(Array.isArray(result.tensions)).toBe(true);
-  });
-
-  it('should limit tensions to max 3', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-    expect(result.tensions.length).toBeLessThanOrEqual(3);
-  });
-});
-
-// ==========================================
-// GROWTH AREAS
-// ==========================================
-
-describe('Growth areas identification', () => {
-  it('should identify growth areas based on dimension patterns', () => {
-    const result = calculateProfileSpectrum(gardienTraditionAnswers);
-    expect(Array.isArray(result.growthAreas)).toBe(true);
-  });
-
-  it('should limit growth areas to max 3', () => {
-    const result = calculateProfileSpectrum(equilibristeAnswers);
-    expect(result.growthAreas.length).toBeLessThanOrEqual(3);
-  });
-
-  it('should provide actionable step for each growth area', () => {
-    const result = calculateProfileSpectrum(gardienTraditionAnswers);
-    result.growthAreas.forEach((area) => {
-      expect(area.actionableStep).toBeTruthy();
+  for (const [name, answers, expected] of cases) {
+    it(`assigns ${name}`, () => {
+      expect(calculateProfileSpectrum(answers).primary?.profile).toBe(expected);
     });
+  }
+});
+
+describe('deterministic ordering', () => {
+  it('produces the exact same ranking on repeated calls', () => {
+    const first = calculateProfileSpectrum(moderateAnswers).allMatches.map((m) => m.profile);
+    const second = calculateProfileSpectrum(moderateAnswers).allMatches.map((m) => m.profile);
+    expect(second).toEqual(first);
+  });
+
+  it('breaks exact ties alphabetically when confidences are equal', () => {
+    // Symmetrical answers: several profiles land on the same score, and the
+    // tie-break must be stable rather than dependent on object key order.
+    const spectrum = calculateProfileSpectrum(moderateAnswers);
+    const groups = new Map<number, string[]>();
+    for (const match of spectrum.allMatches) {
+      const bucket = groups.get(match.matchScore) ?? [];
+      bucket.push(match.profile);
+      groups.set(match.matchScore, bucket);
+    }
+    for (const bucket of groups.values()) {
+      if (bucket.length > 1) {
+        expect(bucket).toEqual([...bucket].sort((a, b) => a.localeCompare(b)));
+      }
+    }
+  });
+});
+
+describe('sub-profiles', () => {
+  it('picks a sub-profile that belongs to the primary profile', () => {
+    for (const answers of [gardienTraditionAnswers, pionnierSpirituelAnswers, moderateAnswers]) {
+      const spectrum = calculateProfileSpectrum(answers);
+      const primary = spectrum.primary?.profile;
+      expect(primary).toBeDefined();
+      const subId = spectrum.subProfile?.subProfile;
+      expect(subId).toBeDefined();
+      expect(PROFILE_DEFINITIONS[primary as PrimaryProfile].subProfiles).toContain(subId);
+      expect(SUB_PROFILE_DEFINITIONS[subId!].description.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('descriptions carry no Barnum phrasing', () => {
+  const banned = [
+    "n'est pas",
+    'rare et précieux',
+    'sagesse',
+    'exceptionnel',
+    '15 %',
+    '15%',
+    'les plus ouverts',
+  ];
+
+  it('avoids banned phrasing in profile and sub-profile texts', () => {
+    const texts: string[] = [];
+    for (const def of Object.values(PROFILE_DEFINITIONS)) {
+      texts.push(def.shortDescription, def.fullDescription, def.coreMotivation, def.primaryFear);
+    }
+    for (const def of Object.values(SUB_PROFILE_DEFINITIONS)) {
+      texts.push(def.description, ...def.distinguishingTraits);
+    }
+    for (const text of texts) {
+      for (const phrase of banned) {
+        expect(text.toLowerCase()).not.toContain(phrase.toLowerCase());
+      }
+    }
+  });
+
+  it('avoids banned phrasing in generated insights', () => {
+    for (const answers of [gardienTraditionAnswers, pionnierSpirituelAnswers, moderateAnswers]) {
+      for (const insight of calculateProfileSpectrum(answers).insights) {
+        for (const phrase of banned) {
+          expect(insight.message.toLowerCase()).not.toContain(phrase.toLowerCase());
+        }
+      }
+    }
+  });
+});
+
+describe('French typography in user-facing strings', () => {
+  it('uses non-breaking spaces before : ; ? ! and %', () => {
+    const texts: string[] = [];
+    for (const def of Object.values(PROFILE_DEFINITIONS)) {
+      texts.push(def.title, def.shortDescription, def.fullDescription, def.coreMotivation, def.primaryFear, def.communicationStyle);
+    }
+    for (const def of Object.values(SUB_PROFILE_DEFINITIONS)) {
+      texts.push(def.title, def.description, ...def.distinguishingTraits);
+    }
+    for (const spectrum of [
+      calculateProfileSpectrum(gardienTraditionAnswers),
+      calculateProfileSpectrum(pionnierSpirituelAnswers),
+    ]) {
+      for (const insight of spectrum.insights) texts.push(insight.title, insight.message);
+      if (spectrum.interpretation) {
+        texts.push(
+          spectrum.interpretation.headline,
+          spectrum.interpretation.narrative,
+          ...spectrum.interpretation.uniqueAspects,
+          ...spectrum.interpretation.blindSpots,
+        );
+      }
+    }
+    for (const text of texts) {
+      expect(text).not.toMatch(/ [:;?!%]/);
+    }
+  });
+});
+
+describe('accessors', () => {
+  it('exposes enhanced data with a rounded match percentage', () => {
+    const data = getEnhancedProfileData(gardienTraditionAnswers);
+    expect(data.profile).toBe('gardien_tradition');
+    expect(Number.isInteger(data.matchPercentage)).toBe(true);
+    expect(data.attribution).toBe('heuristic');
+  });
+
+  it('degrades gracefully when no profile can be attributed', () => {
+    const data = getEnhancedProfileData(emptyAnswers);
+    expect(data.profile).toBeNull();
+    expect(data.matchPercentage).toBeNull();
+    expect(data.strengths).toEqual([]);
   });
 });

@@ -176,3 +176,111 @@ describe('userDataSchema', () => {
     expect(result.success).toBe(false);
   });
 });
+
+describe('surveySubmissionSchema — instrument v2 metadata', () => {
+  const base = {
+    sessionId: '550e8400-e29b-41d4-a716-446655440000',
+    answers: { profil_confession: 'protestant' },
+    consentGiven: true,
+    consentVersion: '2.0',
+    anonymousId: '550e8400-e29b-41d4-a716-446655440001',
+  };
+
+  it('accepts the CNEF entry variant', () => {
+    const result = surveySubmissionSchema.safeParse({
+      ...base,
+      metadata: { instrumentVersion: '2.0.0', entryVariant: 'cnef', language: 'fr' },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.metadata?.entryVariant).toBe('cnef');
+    }
+  });
+
+  it('accepts the general entry variant', () => {
+    const result = surveySubmissionSchema.safeParse({
+      ...base,
+      metadata: { entryVariant: 'general' },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects an unknown entry variant', () => {
+    const result = surveySubmissionSchema.safeParse({
+      ...base,
+      metadata: { entryVariant: 'newsletter' },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts a screened-out submission', () => {
+    const result = surveySubmissionSchema.safeParse({
+      ...base,
+      answers: { profil_confession: 'sans_religion' },
+      metadata: { instrumentVersion: '2.0.0', entryVariant: 'general', screenedOut: true },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.metadata?.screenedOut).toBe(true);
+    }
+  });
+
+  it('rejects a non-boolean screenedOut flag', () => {
+    const result = surveySubmissionSchema.safeParse({
+      ...base,
+      metadata: { screenedOut: 'yes' },
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('"aucun" exclusivity', () => {
+  const base = {
+    sessionId: '550e8400-e29b-41d4-a716-446655440000',
+    consentGiven: true,
+    consentVersion: '2.0',
+    anonymousId: '550e8400-e29b-41d4-a716-446655440001',
+  };
+
+  it('accepts an exclusive option on its own', () => {
+    const result = surveySubmissionSchema.safeParse({
+      ...base,
+      answers: { digital_outils_existants: ['aucun'] },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects an exclusive option combined with others', () => {
+    const result = surveySubmissionSchema.safeParse({
+      ...base,
+      answers: { digital_outils_existants: ['bible_app', 'aucun'] },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects "aucune" combined with others', () => {
+    const result = surveySubmissionSchema.safeParse({
+      ...base,
+      answers: { theo_activites_sacrees: ['aucune', 'sacrements'] },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects "aucun_domaines" combined with others on a partial save', () => {
+    const result = partialSaveSchema.safeParse({
+      sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      answers: { futur_domaines_interet: ['etude_bible', 'aucun_domaines'] },
+      lastQuestionIndex: 12,
+      language: 'fr',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('still accepts a normal multiple-choice answer', () => {
+    const result = surveySubmissionSchema.safeParse({
+      ...base,
+      answers: { digital_outils_existants: ['bible_app', 'podcast'] },
+    });
+    expect(result.success).toBe(true);
+  });
+});

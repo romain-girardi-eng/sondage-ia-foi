@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef } from "react";
 import { SURVEY_QUESTIONS } from "@/data";
-import { getMockResults, type AggregatedResult, useLanguage, cn } from "@/lib";
+import { useLanguage, cn } from "@/lib";
 import { motion, useInView, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import {
   RefreshCw,
@@ -20,7 +20,10 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { DonutChart } from "./charts";
-import { ModernChartCard } from "./ModernChartCard";
+import { ModernChartCard, K_ANONYMITY_BUCKET, type DashboardResult } from "./ModernChartCard";
+
+// Below this the API answers `mode: "insufficient"` and publishes no figure.
+const MIN_PARTICIPANTS_FOR_PUBLICATION = 30;
 
 const RELIGIOSITY_QUESTION_IDS = [
   "crs_intellect",
@@ -35,6 +38,7 @@ const SPIRITUAL_CONTEXT_OPTION = "spirituel";
 type SummaryStats = {
   catholicShare: number | null;
   aiRegularShare: number | null;
+  aiAnyUseShare: number | null;
   crsAverage: number | null;
   spiritualUsageShare: number | null;
 };
@@ -42,28 +46,36 @@ type SummaryStats = {
 const INITIAL_SUMMARY_STATS: SummaryStats = {
   catholicShare: null,
   aiRegularShare: null,
+  aiAnyUseShare: null,
   crsAverage: null,
   spiritualUsageShare: null,
 };
 
-function findAggregatedResult(results: AggregatedResult[], questionId: string) {
+function findAggregatedResult(results: DashboardResult[], questionId: string) {
   return results.find((result) => result.questionId === questionId);
 }
 
+/** Total of a distribution, k-anonymity bucket included: it holds real answers. */
+function totalOf(distribution: Record<string, number>): number {
+  return Object.values(distribution).reduce((sum, count) => sum + count, 0);
+}
+
 function calculatePercentage(
-  result: AggregatedResult | undefined,
+  result: DashboardResult | undefined,
   predicate: (value: string) => boolean
 ): number | null {
   if (!result) return null;
-  const total = Object.values(result.distribution).reduce((sum, count) => sum + count, 0);
+  const total = totalOf(result.distribution);
   if (!total) return null;
   const matched = Object.entries(result.distribution).reduce((sum, [key, count]) => {
+    // The merged bucket has no identifiable modality: it can never match.
+    if (key === K_ANONYMITY_BUCKET) return sum;
     return predicate(key) ? sum + count : sum;
   }, 0);
   return (matched / total) * 100;
 }
 
-function computeAverageScore(questionId: string, results: AggregatedResult[]): number | null {
+function computeAverageScore(questionId: string, results: DashboardResult[]): number | null {
   const aggregated = findAggregatedResult(results, questionId);
   if (!aggregated) return null;
   const question = SURVEY_QUESTIONS.find((q) => q.id === questionId);
@@ -92,22 +104,31 @@ function computeAverageScore(questionId: string, results: AggregatedResult[]): n
   return weightedSum / totalResponses;
 }
 
+/**
+ * Share of participants who selected one option of a multi-select question.
+ * Since migration 011 the SQL aggregate expands arrays, so the distribution
+ * holds one cell per option and the count is directly readable. An option
+ * merged into the k-anonymity bucket is reported as unknown, not as zero.
+ */
 function calculateOptionShare(
-  result: AggregatedResult | undefined,
+  result: DashboardResult | undefined,
   optionValue: string,
   participantCount: number | null
 ): number | null {
   if (!result) return null;
-  const optionCount = result.distribution[optionValue] ?? 0;
+  const optionCount = result.distribution[optionValue];
+  if (optionCount === undefined) {
+    return K_ANONYMITY_BUCKET in result.distribution ? null : 0;
+  }
   if (participantCount && participantCount > 0) {
     return (optionCount / participantCount) * 100;
   }
-  const totalSelections = Object.values(result.distribution).reduce((sum, count) => sum + count, 0);
+  const totalSelections = totalOf(result.distribution);
   if (!totalSelections) return null;
   return (optionCount / totalSelections) * 100;
 }
 
-function calculateSummary(results: AggregatedResult[], participantCount: number | null): SummaryStats {
+function calculateSummary(results: DashboardResult[], participantCount: number | null): SummaryStats {
   const confessionResult = findAggregatedResult(results, "profil_confession");
   const catholicShare = calculatePercentage(confessionResult, (value) => value === "catholique");
 
@@ -116,6 +137,7 @@ function calculateSummary(results: AggregatedResult[], participantCount: number 
     aiFrequencyResult,
     (value) => value === "regulier" || value === "quotidien"
   );
+  const aiAnyUseShare = calculatePercentage(aiFrequencyResult, (value) => value !== "jamais");
 
   const aiContextResult = findAggregatedResult(results, "ctrl_ia_contextes");
   const spiritualUsageShare = calculateOptionShare(
@@ -136,19 +158,25 @@ function calculateSummary(results: AggregatedResult[], participantCount: number 
   return {
     catholicShare,
     aiRegularShare,
+    aiAnyUseShare,
     crsAverage,
     spiritualUsageShare,
   };
 }
 
-function estimateParticipantCount(results: AggregatedResult[]): number | null {
-  for (const result of results) {
-    const total = Object.values(result.distribution).reduce((sum, value) => sum + value, 0);
-    if (total > 0) {
-      return total;
-    }
-  }
-  return null;
+/**
+ * Usage split for the highlight donut, built only from measured shares.
+ * Returns null as soon as one of them is missing: no placeholder slice.
+ */
+function buildUsageSplit(summary: SummaryStats) {
+  const { aiAnyUseShare, spiritualUsageShare } = summary;
+  if (aiAnyUseShare === null || spiritualUsageShare === null) return null;
+  const spiritual = Math.min(spiritualUsageShare, aiAnyUseShare);
+  return {
+    spiritual,
+    otherUse: Math.max(0, aiAnyUseShare - spiritual),
+    noUse: Math.max(0, 100 - aiAnyUseShare),
+  };
 }
 
 // Animated counter with spring physics
@@ -275,17 +303,16 @@ const CATEGORY_KEYS = [
 
 export function ResultsDashboard() {
   const { t, language } = useLanguage();
-  const [results, setResults] = useState<AggregatedResult[]>([]);
+  const [results, setResults] = useState<DashboardResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const [participantCount, setParticipantCount] = useState<number | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [summaryStats, setSummaryStats] = useState<SummaryStats>(INITIAL_SUMMARY_STATS);
-  const [isDemoData, setIsDemoData] = useState(false);
-  // Only set when the fetch itself fails (network/HTTP error) - distinct from
-  // the legitimate demo-mode fallback below, which is a valid API response
-  // that simply has no real responses yet.
+  // The API withholds every figure below the publication floor.
+  const [isBelowPublicationFloor, setIsBelowPublicationFloor] = useState(false);
+  // Only set when the fetch itself fails (network/HTTP error).
   const [hasLoadError, setHasLoadError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
@@ -306,29 +333,34 @@ export function ResultsDashboard() {
           throw new Error(`Failed to fetch results: ${response.status}`);
         }
 
-        const data = await response.json();
+        const data: {
+          mode?: "ok" | "insufficient";
+          participantCount?: number;
+          results?: DashboardResult[];
+          lastUpdated?: string;
+        } = await response.json();
 
         if (!isMounted) {
           return;
         }
 
-        const hasValidResults = Array.isArray(data?.results) && data.results.length > 0;
-        const resolvedResults = hasValidResults ? data.results : getMockResults();
-        const derivedCount =
-          typeof data?.participantCount === "number" && data.participantCount > 0
-            ? data.participantCount
-            : estimateParticipantCount(resolvedResults);
-        const summary = calculateSummary(resolvedResults, derivedCount);
+        const count = typeof data.participantCount === "number" ? data.participantCount : 0;
+        setParticipantCount(count);
+        setLastUpdated(data.lastUpdated ?? null);
 
-        if (!isMounted) return;
+        if (data.mode !== "ok" || !Array.isArray(data.results)) {
+          setIsBelowPublicationFloor(true);
+          setResults([]);
+          setSummaryStats(INITIAL_SUMMARY_STATS);
+          setExpandedCards(new Set());
+          return;
+        }
 
-        setResults(resolvedResults);
-        setSummaryStats(summary);
-        setParticipantCount(derivedCount);
-        setLastUpdated(data?.lastUpdated ?? null);
-        setIsDemoData(Boolean(data?.demo) || !hasValidResults);
+        setIsBelowPublicationFloor(false);
+        setResults(data.results);
+        setSummaryStats(calculateSummary(data.results, count));
         // Expand all cards by default so charts are visible
-        setExpandedCards(new Set(resolvedResults.map((r: AggregatedResult) => r.questionId)));
+        setExpandedCards(new Set(data.results.map((r) => r.questionId)));
       } catch (error) {
         console.error("Unable to load aggregated results:", error);
         if (isMounted) {
@@ -447,34 +479,95 @@ export function ResultsDashboard() {
     );
   }
 
+  if (isBelowPublicationFloor) {
+    const collected = participantCount ?? 0;
+    const progress = Math.min(100, (collected / MIN_PARTICIPANTS_FOR_PUBLICATION) * 100);
+
+    return (
+      <div className="flex items-center justify-center min-h-[70vh] p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+          className="max-w-lg w-full glass-card-refined rounded-3xl p-8 text-center space-y-6"
+        >
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-500/10 flex items-center justify-center">
+            <Users className="w-7 h-7 text-blue-400" />
+          </div>
+
+          <div className="space-y-3">
+            <h2 className="text-2xl font-light text-foreground">
+              {language === "fr"
+                ? "Collecte en cours, résultats publiés à partir de 30 participants"
+                : "Collection in progress, results are published from 30 participants"}
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {language === "fr"
+                ? "Aucun chiffre n’est affiché avant ce seuil : un échantillon plus petit n’aurait pas la stabilité qu’un pourcentage laisse croire."
+                : "No figure is shown below that threshold: a smaller sample would not have the stability a percentage suggests."}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-500"
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.9, ease: [0.32, 0.72, 0, 1] }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground/70">
+              {language === "fr"
+                ? `${collected} sur ${MIN_PARTICIPANTS_FOR_PUBLICATION} participants`
+                : `${collected} of ${MIN_PARTICIPANTS_FOR_PUBLICATION} participants`}
+            </p>
+          </div>
+
+          <button
+            onClick={handleRetryLoad}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-muted hover:bg-accent text-foreground text-sm font-medium transition-colors"
+          >
+            <RotateCcw className="w-4 h-4" />
+            {t("errors.retry")}
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // French sets a narrow no-break space before "%"; English does not.
+  const formatPercent = (value: number) =>
+    language === "fr" ? `${value.toFixed(0)}\u202f%` : `${value.toFixed(0)}%`;
+
   const participantValue =
     participantCount !== null ? <AnimatedNumber value={participantCount} /> : "—";
   const catholicValue =
-    summaryStats.catholicShare !== null ? `${summaryStats.catholicShare.toFixed(0)}%` : "—";
+    summaryStats.catholicShare !== null ? formatPercent(summaryStats.catholicShare) : "—";
   const aiValue =
-    summaryStats.aiRegularShare !== null ? `${summaryStats.aiRegularShare.toFixed(0)}%` : "—";
+    summaryStats.aiRegularShare !== null ? formatPercent(summaryStats.aiRegularShare) : "—";
   const crsValue =
     summaryStats.crsAverage !== null ? `${summaryStats.crsAverage.toFixed(1)}/5` : "—";
   const aiShareText = summaryStats.aiRegularShare !== null ? summaryStats.aiRegularShare.toFixed(0) : null;
   const spiritualShareText =
     summaryStats.spiritualUsageShare !== null ? summaryStats.spiritualUsageShare.toFixed(0) : null;
 
-  const formattedLastUpdated =
-    lastUpdated && !isDemoData
-      ? new Date(lastUpdated).toLocaleString(language === "fr" ? "fr-FR" : "en-US", {
-          dateStyle: "medium",
-          timeStyle: "short",
-        })
-      : null;
+  const formattedLastUpdated = lastUpdated
+    ? new Date(lastUpdated).toLocaleString(language === "fr" ? "fr-FR" : "en-US", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+    : null;
 
+  // Only the measured phrasing survives: with no figure there is no insight.
   const insightTitleText =
-    aiShareText !== null
-      ? t("dashboard.insightTitleDynamic", { percent: aiShareText })
-      : t("dashboard.insightTitle");
+    aiShareText !== null ? t("dashboard.insightTitleDynamic", { percent: aiShareText }) : null;
   const insightDescriptionText =
     spiritualShareText !== null
       ? t("dashboard.insightDescriptionDynamic", { percent: spiritualShareText })
-      : t("dashboard.insightDescription");
+      : null;
+  const usageSplit = buildUsageSplit(summaryStats);
+  const showHighlight = insightTitleText !== null || usageSplit !== null;
 
   return (
     <div className="relative w-full max-w-7xl mx-auto px-4 pb-20">
@@ -503,12 +596,6 @@ export function ResultsDashboard() {
               {t("dashboard.realTimeResults")}
             </span>
           </div>
-
-          {isDemoData && (
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 text-sm">
-              {t("dashboard.demoData")}
-            </div>
-          )}
         </motion.div>
 
         {/* Title */}
@@ -540,7 +627,7 @@ export function ResultsDashboard() {
             icon={Users}
             title={t("dashboard.participants")}
             value={participantValue}
-            subtitle={`${t("dashboard.responsesCollected")}${isDemoData ? ` • ${t("dashboard.demoData")}` : ""}`}
+            subtitle={t("dashboard.responsesCollected")}
             color="#3b82f6"
             delay={0.2}
           />
@@ -571,54 +658,72 @@ export function ResultsDashboard() {
         </div>
       </motion.section>
 
-      {/* Highlight Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="relative mb-12"
-      >
-        <div className="relative p-8 rounded-3xl glass-card-refined overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+      {/* Highlight Section - rendered only when measured on real answers */}
+      {showHighlight && (
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="relative mb-12"
+        >
+          <div className="relative p-8 rounded-3xl glass-card-refined overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
-          <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8">
-            <div className="flex-1 space-y-4">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-emerald-500" />
-                <span className="text-sm text-emerald-500 font-medium">
-                  {t("dashboard.keyInsight")}
-                </span>
+            <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8">
+              <div className="flex-1 space-y-4">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-emerald-500" />
+                  <span className="text-sm text-emerald-500 font-medium">
+                    {t("dashboard.keyInsight")}
+                  </span>
+                </div>
+                {insightTitleText && (
+                  <h2 className="text-2xl md:text-3xl font-light text-foreground">
+                    {insightTitleText}
+                  </h2>
+                )}
+                {insightDescriptionText && (
+                  <p className="text-muted-foreground">{insightDescriptionText}</p>
+                )}
+                <motion.button
+                  whileHover={{ x: 5 }}
+                  className="flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors"
+                >
+                  <span>{t("dashboard.exploreData")}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </motion.button>
               </div>
-              <h2 className="text-2xl md:text-3xl font-light text-foreground">
-                {insightTitleText}
-              </h2>
-              <p className="text-muted-foreground">
-                {insightDescriptionText}
-              </p>
-              <motion.button
-                whileHover={{ x: 5 }}
-                className="flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors"
-              >
-                <span>{t("dashboard.exploreData")}</span>
-                <ArrowRight className="w-4 h-4" />
-              </motion.button>
-            </div>
 
-            <div className="flex-shrink-0">
-              <DonutChart
-                data={[
-                  { name: "IA général", value: 42, color: "#3b82f6" },
-                  { name: "IA spirituel", value: 12, color: "#8b5cf6" },
-                  { name: "Non utilisateurs", value: 46, color: "#374151" },
-                ]}
-                total={100}
-                size={180}
-              />
+              {usageSplit && (
+                <div className="flex-shrink-0">
+                  <DonutChart
+                    data={[
+                      {
+                        name: language === "fr" ? "Usage spirituel" : "Spiritual use",
+                        value: Math.round(usageSplit.spiritual),
+                        color: "#8b5cf6",
+                      },
+                      {
+                        name: language === "fr" ? "Autres usages" : "Other uses",
+                        value: Math.round(usageSplit.otherUse),
+                        color: "#3b82f6",
+                      },
+                      {
+                        name: language === "fr" ? "Aucun usage" : "No use",
+                        value: Math.round(usageSplit.noUse),
+                        color: "#374151",
+                      },
+                    ]}
+                    total={100}
+                    size={180}
+                  />
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      </motion.section>
+        </motion.section>
+      )}
 
       {/* Category Filter */}
       <motion.div

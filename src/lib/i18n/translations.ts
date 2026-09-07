@@ -22,15 +22,15 @@ export const translations = {
       cta: "J'accepte et je commence",
       startButton: "Commencer le sondage",
       learnMore: "En savoir plus",
-      time: "Temps estimé : 5 à 7 minutes",
+      time: "Temps estimé : 8 à 12 minutes",
       consent:
         "En cliquant sur \"J'accepte\", vous consentez à participer à cette étude dans le respect du RGPD.",
       faqLink: "Consulter la FAQ",
       skipVideo: "Passer",
       videoNotSupported: "Votre navigateur ne prend pas en charge la vidéo.",
       featureScientific: "Méthodologie scientifique",
-      featureAnonymous: "100% anonyme",
-      featureDuration: "5-7 minutes",
+      featureAnonymous: "100 % anonyme",
+      featureDuration: "8 à 12 minutes",
       anonymousHighlight: "100% anonyme",
       anonymousHighlightDesc: "Ni nom, ni email, ni adresse IP en clair : seules des empreintes cryptographiques anti-doublons sont conservées.",
     },
@@ -171,8 +171,11 @@ export const translations = {
       linkCopied: "Lien copié dans le presse-papier !",
       shareTitle: "Sondage IA & Vie Spirituelle",
       anonymousIdTitle: "Votre identifiant anonyme",
-      anonymousIdNote: "Conservez cet identifiant en lieu sûr et ne le partagez pas : il permet à lui seul d'accéder à vos données ou de les supprimer.",
+      anonymousIdNote: "Conservez cet identifiant en lieu sûr et ne le partagez pas : il permet à lui seul d'accéder à vos données ou de les supprimer.",
       manageData: "Gérer mes données →",
+      debrief: "Les cinq affirmations « vrai ou faux » du questionnaire mesuraient la désirabilité sociale, c'est-à-dire la tendance à se présenter sous un jour favorable. Elles servent uniquement à contrôler ce biais dans l'analyse et n'entrent pas dans votre profil.",
+      screenedOutTitle: "Merci de votre intérêt",
+      screenedOutDescription: "Cette enquête porte sur les pratiques des personnes rattachées à une tradition chrétienne. Votre réponse a été enregistrée et le questionnaire s'arrête ici. Merci du temps que vous y avez consacré.",
     },
 
     // FAQ
@@ -356,7 +359,10 @@ export const translations = {
 
     // Consent
     consent: {
-      checkbox: "J'accepte les conditions de participation et la politique de confidentialité, et je consens explicitement au traitement de mes réponses relatives à mes convictions religieuses dans le cadre de cette recherche académique (art. 9§2.a du RGPD).",
+      checkbox: "J'ai 18 ans ou plus, j'accepte les conditions de participation et la politique de confidentialité, et je consens explicitement au traitement de mes réponses relatives à mes convictions religieuses dans le cadre de cette recherche académique (art. 9§2.a du RGPD).",
+      checkboxCnef: "J'ai 18 ans ou plus, j'accepte les conditions de participation et la politique de confidentialité, et je consens explicitement au traitement de mes réponses relatives à mes convictions religieuses dans le cadre de cette recherche académique (art. 9§2.a du RGPD), ainsi qu'à leur exploitation sous forme agrégée et anonyme par le CNEF, partenaire de cette enquête.",
+      details: "Les réponses anonymisées seront publiées sous forme de jeu de données ouvert à des fins de recherche et de réplication. Vous pouvez retirer votre participation et faire supprimer vos données à tout moment depuis la page « Mes données ».",
+      minimumAge: "La participation est réservée aux personnes majeures (18 ans ou plus).",
       required: "Votre consentement est requis pour participer",
       privacyLink: "Politique de confidentialité",
       termsLink: "Conditions d'utilisation",
@@ -712,7 +718,7 @@ export const translations = {
       cta: "I agree and start",
       startButton: "Start the survey",
       learnMore: "Learn more",
-      time: "Estimated time: 5 to 7 minutes",
+      time: "Estimated time: 8 to 12 minutes",
       consent:
         "By clicking \"I agree\", you consent to participate in this study in compliance with GDPR.",
       faqLink: "View FAQ",
@@ -720,7 +726,7 @@ export const translations = {
       videoNotSupported: "Your browser does not support video.",
       featureScientific: "Scientific methodology",
       featureAnonymous: "100% anonymous",
-      featureDuration: "5-7 minutes",
+      featureDuration: "8 to 12 minutes",
       anonymousHighlight: "100% anonymous",
       anonymousHighlightDesc: "No name, email, or IP address is stored in the clear: only cryptographic anti-duplicate fingerprints are kept.",
     },
@@ -863,6 +869,9 @@ export const translations = {
       anonymousIdTitle: "Your anonymous ID",
       anonymousIdNote: "Keep this ID safe and don't share it: on its own, it grants access to your data and lets anyone delete it.",
       manageData: "Manage my data →",
+      debrief: "The five true-or-false statements in the questionnaire measured social desirability, that is, the tendency to present oneself favourably. They are only used to control for that bias in the analysis and are not part of your profile.",
+      screenedOutTitle: "Thank you for your interest",
+      screenedOutDescription: "This survey looks at the practices of people who belong to a Christian tradition. Your answer has been recorded and the questionnaire ends here. Thank you for the time you gave it.",
     },
 
     // FAQ
@@ -1046,7 +1055,10 @@ export const translations = {
 
     // Consent
     consent: {
-      checkbox: "I accept the participation conditions and privacy policy, and I explicitly consent to the processing of my answers revealing my religious beliefs for the purposes of this academic research (GDPR Art. 9(2)(a)).",
+      checkbox: "I am 18 or older, I accept the participation conditions and privacy policy, and I explicitly consent to the processing of my answers revealing my religious beliefs for the purposes of this academic research (GDPR Art. 9(2)(a)).",
+      checkboxCnef: "I am 18 or older, I accept the participation conditions and privacy policy, and I explicitly consent to the processing of my answers revealing my religious beliefs for the purposes of this academic research (GDPR Art. 9(2)(a)), as well as to their use in aggregated, anonymous form by the CNEF, partner of this survey.",
+      details: "Anonymised answers will be published as an open dataset for research and replication purposes. You can withdraw your participation and have your data deleted at any time from the \"My data\" page.",
+      minimumAge: "Participation is restricted to adults (18 or older).",
       required: "Your consent is required to participate",
       privacyLink: "Privacy policy",
       termsLink: "Terms of use",

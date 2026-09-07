@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import { SURVEY_QUESTIONS } from "@/data";
+import {
+  CONSENT_VERSION,
+  INSTRUMENT_VERSION,
+  getVisibleQuestions,
+  isScreenedOut,
+} from "@/data/surveySchema";
 import { useLanguage } from "@/lib";
 import { useFingerprint } from "@/lib/hooks/useFingerprint";
 import { LazyResultsDashboard as ResultsDashboard } from "@/components/dashboard";
@@ -13,16 +18,21 @@ import { ThankYouScreen } from "./ThankYouScreen";
 import { AlreadySubmittedScreen } from "./AlreadySubmittedScreen";
 import { EmailHashVerification } from "./EmailHashVerification";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Save, RotateCcw, PlayCircle, AlertTriangle } from "lucide-react";
+import { ChevronLeft, Save, RotateCcw, PlayCircle, AlertTriangle, CheckCircle } from "lucide-react";
 import { useCSRF } from "@/hooks/useCSRF";
 
-type SurveyStep = "intro" | "questions" | "verify-email" | "feedback" | "thanks" | "results";
+type SurveyStep =
+  | "intro"
+  | "questions"
+  | "verify-email"
+  | "feedback"
+  | "thanks"
+  | "screened-out"
+  | "results";
 
 const STORAGE_KEY = "survey-progress";
 const SESSION_KEY = "survey-session";
 const ANONYMOUS_ID_KEY = "survey-anonymous-id";
-// Survey instrument version, stamped on each response for schema/cutover lineage.
-const INSTRUMENT_VERSION = "1.4.0";
 const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
 const SAVE_DEBOUNCE_MS = 1000; // 1 second debounce for localStorage writes
 const ALLOW_VIEW_OVERRIDE = process.env.NEXT_PUBLIC_ENABLE_SURVEY_VIEW_OVERRIDE === "true" || process.env.NODE_ENV !== "production";
@@ -43,6 +53,7 @@ function getViewFromUrl(): SurveyStep | null {
   if (view === "results") return "results";
   if (view === "feedback") return "feedback";
   if (view === "thanks") return "thanks";
+  if (view === "screened-out") return "screened-out";
   return null;
 }
 
@@ -144,6 +155,8 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   // failure - never persisted, cleared once the survey is actually submitted.
   const lastEmailHashRef = useRef<string>("");
   const lastEmailForPdfRef = useRef<string | null>(null);
+  // Which submission a retry should replay after a network failure.
+  const retryModeRef = useRef<"email" | "screen-out">("email");
 
   // Use refs for values only used internally (not during render)
   const containerRef = useRef<HTMLDivElement>(null);
@@ -279,17 +292,25 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [step, answers, t]);
 
-  // Filter questions based on conditions
-  const visibleQuestions = useMemo(() => {
-    return SURVEY_QUESTIONS.filter((q) => {
-      if (!q.condition) return true;
-      return q.condition(answers);
-    });
-  }, [answers]);
+  // Filter questions based on conditions. A respondent outside the studied
+  // population (profil_confession = sans_religion) is screened out: the
+  // schema helper then exposes the confession question only.
+  const visibleQuestions = useMemo(() => getVisibleQuestions(answers), [answers]);
+  const screenedOut = useMemo(() => isScreenedOut(answers), [answers]);
 
   const currentQuestion = visibleQuestions[currentIndex];
   const totalQuestions = visibleQuestions.length;
   const progress = totalQuestions > 0 ? (currentIndex / totalQuestions) * 100 : 0;
+
+  // A shrinking visible list (a resumed session whose answers now screen the
+  // respondent out, or a changed ancestor answer) can leave the index past the
+  // end of the list: clamp it instead of rendering nothing.
+  useEffect(() => {
+    if (totalQuestions > 0 && currentIndex > totalQuestions - 1) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clamps a derived bound
+      setCurrentIndex(totalQuestions - 1);
+    }
+  }, [currentIndex, totalQuestions]);
 
   const handleResume = useCallback(() => {
     if (savedProgress) {
@@ -341,44 +362,24 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     [currentQuestion]
   );
 
-  const handleNext = useCallback(async () => {
-    if (currentIndex >= totalQuestions - 1) {
-      // Survey questions complete - go to email verification first
-      localStorage.removeItem(STORAGE_KEY);
-      setStep("verify-email");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      setCurrentIndex((prev) => prev + 1);
-    }
-  }, [currentIndex, totalQuestions]);
+  // Single submission path, shared by the normal end of the questionnaire and
+  // by the screen-out shortcut. Returns the created response id on success.
+  const submitAnswers = useCallback(
+    async (
+      options: { emailHash?: string; screenedOut?: boolean }
+    ): Promise<{ ok: true; responseId?: string } | { ok: false }> => {
+      // Submit only answers whose question is currently visible: a respondent
+      // who backtracked and changed an ancestor (e.g. confession) can leave
+      // stale sub-answers that would otherwise pollute the public aggregates.
+      const visibleIds = new Set(visibleQuestions.map((q) => q.id));
+      const cleanAnswers = Object.fromEntries(
+        Object.entries(answers).filter(([key]) => visibleIds.has(key))
+      );
 
-  // Handle email hash verification - submits survey after verification
-  // email parameter is only provided if user wants PDF results (not stored, only used to send)
-  const handleEmailHashVerified = useCallback(async (hash: string, email: string | null) => {
-    // Show loading state immediately to prevent blank page during transition
-    setIsTransitioning(true);
-    // Keep the last verification result around so a network failure below
-    // can be retried without asking the user to re-verify their email.
-    lastEmailHashRef.current = hash;
-    lastEmailForPdfRef.current = email;
+      const timeSpent = surveyStartTime.current > 0
+        ? Date.now() - surveyStartTime.current
+        : undefined;
 
-    // Submit only answers whose question is currently visible: a respondent who
-    // backtracked and changed an ancestor (e.g. confession) can leave stale
-    // sub-answers that would otherwise pollute the public aggregates.
-    const visibleIds = new Set(visibleQuestions.map((q) => q.id));
-    const cleanAnswers = Object.fromEntries(
-      Object.entries(answers).filter(([key]) => visibleIds.has(key))
-    );
-
-    // Calculate time spent
-    const timeSpent = surveyStartTime.current > 0
-      ? Date.now() - surveyStartTime.current
-      : undefined;
-
-    let submittedResponseId: string | undefined;
-
-    // Submit to API with email hash
-    if (consentGiven) {
       try {
         const response = await fetchWithCSRF("/api/survey/submit", {
           method: "POST",
@@ -394,12 +395,14 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
               timeSpent,
               language,
               instrumentVersion: INSTRUMENT_VERSION,
+              entryVariant: variant,
+              ...(options.screenedOut ? { screenedOut: true } : {}),
             },
             consentGiven: true,
-            consentVersion: "1.0",
+            consentVersion: CONSENT_VERSION,
             anonymousId: anonymousIdState,
             fingerprint: fingerprint || undefined,
-            emailHash: hash,
+            emailHash: options.emailHash,
           }),
         });
 
@@ -408,43 +411,98 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
         // Check for any 403 error (duplicate submission OR CSRF failure)
         if (response.status === 403) {
           setIsTransitioning(false);
-          if (data.code) {
-            setSubmissionError({ code: data.code, message: data.error });
-          } else {
-            // CSRF or other validation error
-            setSubmissionError({ code: "SUBMISSION_FAILED", message: data.error || "Submission failed" });
-          }
-          return;
+          setSubmissionError(
+            data.code
+              ? { code: data.code, message: data.error }
+              : { code: "SUBMISSION_FAILED", message: data.error || "Submission failed" }
+          );
+          return { ok: false };
         }
 
-        // Check for other errors
         if (!response.ok) {
           setIsTransitioning(false);
           console.error("Survey submission failed:", data);
-          setSubmissionError({ code: "SUBMISSION_ERROR", message: data.error || "Failed to save survey" });
-          return;
+          setSubmissionError({
+            code: "SUBMISSION_ERROR",
+            message: data.error || "Failed to save survey",
+          });
+          return { ok: false };
         }
 
-        // Store response ID
-        if (data.responseId) {
-          submittedResponseId = data.responseId;
-        }
+        return { ok: true, responseId: data.responseId };
       } catch (error) {
         // Network failure: this is an academic dataset, so we must not lose
-        // the response silently. Surface a retry state instead of
-        // advancing to the feedback screen as if the submission succeeded.
+        // the response silently. Surface a retry state instead of advancing
+        // as if the submission succeeded.
         console.error("Failed to submit survey:", error);
         setIsTransitioning(false);
         setSubmissionError({
           code: "SUBMISSION_NETWORK_ERROR",
           message: error instanceof Error ? error.message : "Network error",
         });
-        return;
+        return { ok: false };
       }
+    },
+    [answers, anonymousIdState, fetchWithCSRF, fingerprint, language, variant, visibleQuestions]
+  );
+
+  // Screened-out respondent: store the response (flagged, never scored) and
+  // end on a short thank-you screen, with no email step and no profile.
+  const handleScreenOutSubmit = useCallback(async () => {
+    retryModeRef.current = "screen-out";
+    setIsTransitioning(true);
+    localStorage.removeItem(STORAGE_KEY);
+
+    if (consentGiven) {
+      const result = await submitAnswers({ screenedOut: true });
+      if (!result.ok) return;
+    }
+
+    setStep("screened-out");
+    setIsTransitioning(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [consentGiven, submitAnswers]);
+
+  const handleNext = useCallback(async () => {
+    if (screenedOut) {
+      await handleScreenOutSubmit();
+      return;
+    }
+    if (currentIndex >= totalQuestions - 1) {
+      // Survey questions complete - go to email verification first
+      localStorage.removeItem(STORAGE_KEY);
+      setStep("verify-email");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      setCurrentIndex((prev) => prev + 1);
+    }
+  }, [currentIndex, handleScreenOutSubmit, screenedOut, totalQuestions]);
+
+  // Handle email hash verification - submits survey after verification
+  // email parameter is only provided if user wants PDF results (not stored, only used to send)
+  const handleEmailHashVerified = useCallback(async (hash: string, email: string | null) => {
+    // Show loading state immediately to prevent blank page during transition
+    setIsTransitioning(true);
+    // Keep the last verification result around so a network failure below
+    // can be retried without asking the user to re-verify their email.
+    retryModeRef.current = "email";
+    lastEmailHashRef.current = hash;
+    lastEmailForPdfRef.current = email;
+
+    let submittedResponseId: string | undefined;
+
+    if (consentGiven) {
+      const result = await submitAnswers({ emailHash: hash });
+      if (!result.ok) return;
+      submittedResponseId = result.responseId;
     }
 
     // Send PDF immediately if email provided (email is NOT stored, only used to send)
     if (email && csrfToken) {
+      const visibleIds = new Set(visibleQuestions.map((q) => q.id));
+      const cleanAnswers = Object.fromEntries(
+        Object.entries(answers).filter(([key]) => visibleIds.has(key))
+      );
       try {
         await fetchWithCSRF("/api/email/send-pdf", {
           method: "POST",
@@ -470,14 +528,18 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     setStep("feedback");
     setIsTransitioning(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [consentGiven, answers, language, anonymousIdState, fingerprint, visibleQuestions, fetchWithCSRF, csrfToken]);
+  }, [answers, anonymousIdState, consentGiven, csrfToken, fetchWithCSRF, language, submitAnswers, visibleQuestions]);
 
   // Retry the submission after a network failure, reusing the email hash
   // already obtained (no need to re-verify the email against the API).
   const handleRetrySubmission = useCallback(() => {
     setSubmissionError(null);
+    if (retryModeRef.current === "screen-out") {
+      void handleScreenOutSubmit();
+      return;
+    }
     void handleEmailHashVerified(lastEmailHashRef.current, lastEmailForPdfRef.current);
-  }, [handleEmailHashVerified]);
+  }, [handleEmailHashVerified, handleScreenOutSubmit]);
 
   // Handle when email already used (from hash verification)
   const handleEmailAlreadyUsed = useCallback(() => {
@@ -645,6 +707,33 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
           anonymousId={anonymousIdState}
         />
       </div>
+    );
+  }
+
+  // Screened-out screen: outside the studied population, no scoring, no
+  // profile, no email step - only an acknowledgement.
+  if (step === "screened-out") {
+    return (
+      <AnimatedBackground variant="subtle" showGrid showOrbs>
+        <LanguageSwitcher />
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="max-w-md w-full glass-card-refined rounded-3xl p-8 text-center"
+          >
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-emerald-500" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground mb-2">
+              {t("thanks.screenedOutTitle")}
+            </h1>
+            <p className="text-muted-foreground">
+              {t("thanks.screenedOutDescription")}
+            </p>
+          </motion.div>
+        </div>
+      </AnimatedBackground>
     );
   }
 

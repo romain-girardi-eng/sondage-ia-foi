@@ -10,18 +10,29 @@ export {
   type KeyFinding,
   type ProfileCluster,
   type SegmentDataItem,
+  type DimensionRecord,
+  type CorrelationFact,
+  // Thresholds
+  MIN_SEGMENT_N,
+  MIN_CORRELATION_N,
   // Functions
   getRoleCategory,
+  emptySegmentDataItem,
   buildSegmentStats,
   calculateDimensionStats,
-  calculateCorrelationMatrix,
+  computeCorrelations,
+  buildCorrelationMatrix,
   generateKeyFindings,
   getCompletionMinutes,
   calculateScoreDistributions,
   calculateAverage,
-  // Re-exported statistics
-  calculateStdDev,
+  // Statistical primitives
+  mean,
+  sampleStdDev,
+  pearson,
+  fisherCi95,
+  pValueForCorrelation,
+  benjaminiHochberg,
   calculateMedian,
-  calculateCorrelation,
   calculateDistribution,
 } from './stats-helpers';

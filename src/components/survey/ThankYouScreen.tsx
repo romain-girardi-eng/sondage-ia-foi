@@ -227,12 +227,22 @@ export function ThankYouScreen({ onViewResults, anonymousId }: ThankYouScreenPro
           <span>{t("thanks.profileAvailable")}</span>
         </motion.div>
 
+        {/* Debriefing: the five true/false items measured social desirability */}
+        <motion.p
+          initial={hasAnimated ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }}
+          className="mt-8 text-xs text-muted-foreground/70 text-center max-w-md leading-relaxed"
+        >
+          {t("thanks.debrief")}
+        </motion.p>
+
         {/* Footer Note */}
         <motion.p
           initial={hasAnimated ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
-          className="mt-8 text-xs text-muted-foreground/50 text-center max-w-md"
+          className="mt-4 text-xs text-muted-foreground/50 text-center max-w-md"
         >
           {t("thanks.resultsNote")}
         </motion.p>
