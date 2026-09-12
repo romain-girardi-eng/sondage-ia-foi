@@ -20,7 +20,7 @@ Convention de notation : les lettres statistiques (p, r, ρ, d, f, n, N) sont �
 | **Date de dépôt** | 12 septembre 2026 |
 | **Date de début de la collecte v2.0.0** | 7 septembre 2026 (mise en production de l'instrument v2.0.0) |
 | **Date de clôture de la collecte** | 31 décembre 2026 à 23 h 59, heure de Paris |
-| **Version de l'instrument** | 2.0.0, code figé au tag `v2.0.0` (commit [hash au dépôt]) |
+| **Version de l'instrument** | 2.0.0, code figé au tag `v2.0.0` (commit c8f3242) |
 | **Version du consentement** | 2.0 |
 | **Licence** | MIT pour le code, CC-BY-4.0 pour les données et la documentation |
 | **Documentation de référence** | `METHODOLOGY.md`, `docs/SCORING_V2_SPEC.md`, `docs/INSTRUMENT_V2_CHANGES.md`, `docs/codebook.json`, `docs/data-dictionary.csv` |
@@ -100,7 +100,7 @@ Vingt-trois réponses ont été collectées sous les versions v1.x de l'instrume
 
 Ces 23 réponses sont exclues des analyses confirmatoires et du jeu de données ouvert : la version 1.0 du consentement ne mentionnait ni la publication d'un jeu de données ni l'âge minimal. Elles sont conservées dans les agrégats publics et dans les normes empiriques, comme strate `instrumentVersion`, et servent à une note descriptive de comparabilité v1 et v2 (section 6.6). Les items dont le remappage v1 vers v2 est marqué « null » dans `docs/INSTRUMENT_V2_CHANGES.md` sont inutilisables pour ces réponses.
 
-**État de la base au dépôt.** Réponses v2.0.0 : 0 au 12 septembre 2026, [heure au dépôt] UTC. Réponses v1.x : 23, dont [n au dépôt] lignes `sans_religion` écartées.
+**État de la base au dépôt.** Réponses v2.0.0 : 0 au 12 septembre 2026, 20 h 11 UTC. Réponses v1.x : 23, dont 0 ligne `sans_religion`.
 
 ### 4.1 Recrutement
 
@@ -143,7 +143,7 @@ Population visée : personnes majeures se reconnaissant dans la foi chrétienne
 | Analyse confirmatoire | 200 prévues, à la clôture | Les huit hypothèses sont testées, une seule fois, selon le plan de la section 6 |
 | Analyse factorielle exploratoire | 120 | AFE sur les 24 items de noyau posés à tous (5 observations par item) ; séparément pour le clergé et pour les laïcs dès 120 dans chaque groupe |
 
-**Verrou de l'interface d'administration.** L'interface d'administration désactive le calcul de toute corrélation entre dimensions et entre une dimension et un item d'hypothèse tant que l'effectif exploitable est inférieur à 200 (constante `CONFIRMATORY_N = 200` et fonction `buildCorrelationsLock` dans `src/lib/admin/stats-helpers.ts`, garde appliquée à `computeCorrelations`, commit [hash au dépôt]). Les phrases de synthèse qui rapportaient un coefficient ou un p ajusté sont supprimées dans le même état. Toute consultation d'une statistique bivariée avant la clôture est consignée comme écart au plan.
+**Verrou de l'interface d'administration.** L'interface d'administration désactive le calcul de toute corrélation entre dimensions et entre une dimension et un item d'hypothèse tant que l'effectif exploitable est inférieur à 200 (constante `CONFIRMATORY_N = 200` et fonction `buildCorrelationsLock` dans `src/lib/admin/stats-helpers.ts`, garde appliquée à `computeCorrelations`, commit c8f3242). Les phrases de synthèse qui rapportaient un coefficient ou un p ajusté sont supprimées dans le même état. Toute consultation d'une statistique bivariée avant la clôture est consignée comme écart au plan.
 
 Le tableau de bord public affiche des distributions univariées pendant la collecte. Il n'affiche aucune association bivariée ni aucun test. Sa consultation ne donne donc aucune information utile à une décision d'arrêt.
 
@@ -231,7 +231,7 @@ Chacune des huit hypothèses de la section 2 est testée une seule fois, avec la
 
 **Indépendance des observations.** Les tests supposent l'indépendance des observations. Le recrutement en boule de neige et par une organisation la viole d'une ampleur non mesurable. Aucune correction n'est possible ; les intervalles de confiance sont à lire comme des bornes optimistes. `entryVariant` est le seul proxy de grappe disponible et est utilisé en strate (section 6.6).
 
-**Script et version du code.** Le code de l'instrument et du scoring est figé au tag `v2.0.0` (commit [hash au dépôt]). Le script d'analyse confirmatoire `analysis/confirmatory.py` (Python, versionné, graine 20260907) implémente la corrélation de Spearman avec correction des ex æquo, le test U de Mann-Whitney avec delta de Cliff, le test de Jonckheere-Terpstra, le test de Brown-Forsythe, la régression de H3, la correction de Holm et les intervalles bootstrap ; il est déposé sur OSF avec ce document, avant l'extraction des données de clôture. L'extrait analysé est archivé avec son empreinte SHA-256, publiée dans le rapport. Toute modification de `score-maps.ts`, `dimensions.ts`, `bias.ts`, `usage-gap.ts` ou du script après le dépôt est un écart au plan.
+**Script et version du code.** Le code de l'instrument et du scoring est figé au tag `v2.0.0` (commit c8f3242). Le script d'analyse confirmatoire `analysis/confirmatory.py` (Python, versionné, graine 20260907) implémente la corrélation de Spearman avec correction des ex æquo, le test U de Mann-Whitney avec delta de Cliff, le test de Jonckheere-Terpstra, le test de Brown-Forsythe, la régression de H3, la correction de Holm et les intervalles bootstrap ; il est déposé sur OSF avec ce document, avant l'extraction des données de clôture. L'extrait analysé est archivé avec son empreinte SHA-256, publiée dans le rapport. Toute modification de `score-maps.ts`, `dimensions.ts`, `bias.ts`, `usage-gap.ts` ou du script après le dépôt est un écart au plan.
 
 **Rapport.** Pour chaque hypothèse sont rapportés l'effectif analysé, la statistique de test, la taille d'effet et son IC à 95 %, le p brut, le p ajusté par Holm et la décision. Les résultats non significatifs sont rapportés au même niveau de détail que les résultats significatifs.
 
