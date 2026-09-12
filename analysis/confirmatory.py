@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """Confirmatory analysis for the pre-registered hypotheses H1 to H8.
 
-Reads a CSV export of exploitable v2 responses, recomputes the seven dimensions
-and the two core sub-scores with the instrument's own scoring rules, runs the
-eight pre-registered tests under two Holm families, and writes a Markdown report
-plus a JSON file holding every number, including the SHA-256 of the input.
+Reads a CSV export of exploitable v2 responses, keeps the confirmatory cohort
+(the first ``--cohort-size`` rows by ``submittedAt``, 200 by default, since the
+collection has no end date), recomputes the seven dimensions and the two core
+sub-scores with the instrument's own scoring rules, runs the eight
+pre-registered tests under two Holm families, and writes a Markdown report plus
+a JSON file holding every number, including the SHA-256 of the input and of the
+cohort extract. Fewer rows than the cohort size is an error unless
+``--allow-partial`` is passed, in which case the report is labelled
+« exploratoire ».
 
 The script never reaches the network and never opens a database connection: it
 takes a file and writes files. Run it with ``--dry-run`` to exercise the whole
@@ -12,6 +17,8 @@ pipeline on a synthetic dataset.
 
 Usage:
     python3 analysis/confirmatory.py --input export.csv --out analysis/out
+    python3 analysis/confirmatory.py --input export.csv --cohort-size 200
+    python3 analysis/confirmatory.py --input partial.csv --allow-partial
     python3 analysis/confirmatory.py --dry-run
 """
 
@@ -57,6 +64,13 @@ SECONDARY = "secondaire"
 
 SCORE_COLUMNS = list(DIMENSION_KEYS) + ["sacredBoundaryCore", "aiOpennessCore"]
 
+# Pre-registered stopping rule (PREREGISTRATION 4.3): the confirmatory sample is
+# the first COHORT_SIZE exploitable responses in order of submission.
+COHORT_SIZE = 200
+SUBMITTED_AT = "submittedAt"
+STATUS_CONFIRMATORY = "confirmatoire"
+STATUS_EXPLORATORY = "exploratoire"
+
 
 # ---------------------------------------------------------------------------
 # Loading
@@ -71,13 +85,126 @@ def sha256_of(path: Path) -> str:
     return digest.hexdigest()
 
 
-def load_answers(path: Path) -> list[dict[str, object]]:
-    """One dict of typed answers per row of the export."""
-    frame = pd.read_csv(path, dtype=str, keep_default_na=False)
+def read_export(path: Path) -> pd.DataFrame:
+    """The raw export, every cell kept as text."""
+    return pd.read_csv(path, dtype=str, keep_default_na=False)
+
+
+def parse_rows(frame: pd.DataFrame) -> list[dict[str, object]]:
+    """One dict of typed answers per row."""
     return [
         {column: parse_cell(row[column]) for column in frame.columns}
         for _, row in frame.iterrows()
     ]
+
+
+def load_answers(path: Path) -> list[dict[str, object]]:
+    """One dict of typed answers per row of the export."""
+    return parse_rows(read_export(path))
+
+
+class CohortError(ValueError):
+    """The export cannot yield the pre-registered cohort."""
+
+
+def _parse_submitted_at(value: str, row_number: int) -> datetime:
+    text = value.strip()
+    if not text:
+        raise CohortError(f"ligne {row_number} : `{SUBMITTED_AT}` vide")
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise CohortError(
+            f"ligne {row_number} : `{SUBMITTED_AT}` n'est pas une date ISO 8601 ({text!r})"
+        ) from error
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
+
+
+@dataclass
+class Cohort:
+    rows: pd.DataFrame
+    requested: int
+    available: int
+    partial: bool
+    first_submitted_at: str
+    last_submitted_at: str
+
+    @property
+    def size(self) -> int:
+        return int(self.rows.shape[0])
+
+    @property
+    def status(self) -> str:
+        return STATUS_EXPLORATORY if self.partial else STATUS_CONFIRMATORY
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "rule": (
+                f"{self.requested} premières réponses exploitables par ordre de "
+                f"soumission (`{SUBMITTED_AT}` croissant)"
+            ),
+            "requested": self.requested,
+            "size": self.size,
+            "available": self.available,
+            "partial": self.partial,
+            "status": self.status,
+            "firstSubmittedAt": self.first_submitted_at,
+            "lastSubmittedAt": self.last_submitted_at,
+        }
+
+
+def select_cohort(frame: pd.DataFrame, cohort_size: int, allow_partial: bool = False) -> Cohort:
+    """The first ``cohort_size`` rows by ``submittedAt``, ties kept in file order.
+
+    Fewer rows than the cohort size is an error unless ``allow_partial`` is set,
+    in which case the run is labelled exploratory: it is not the pre-registered
+    test.
+    """
+    if cohort_size < 1:
+        raise CohortError("la taille de cohorte doit être au moins 1")
+    if SUBMITTED_AT not in frame.columns:
+        raise CohortError(f"colonne `{SUBMITTED_AT}` absente de l'export (ISO 8601 requis)")
+    stamps = [
+        _parse_submitted_at(str(value), number)
+        for number, value in enumerate(frame[SUBMITTED_AT].tolist(), start=2)
+    ]
+    order = sorted(range(len(stamps)), key=lambda index: (stamps[index], index))
+    available = len(order)
+    partial = available < cohort_size
+    if partial and not allow_partial:
+        raise CohortError(
+            f"{available} ligne(s) dans l'export, {cohort_size} requises pour la "
+            "cohorte confirmatoire ; passer --allow-partial pour une analyse exploratoire"
+        )
+    kept = order[:cohort_size]
+    rows = frame.iloc[kept].reset_index(drop=True)
+    first = stamps[kept[0]].isoformat() if kept else ""
+    last = stamps[kept[-1]].isoformat() if kept else ""
+    return Cohort(rows, cohort_size, available, partial, first, last)
+
+
+def cohort_report_lines(cohort: dict[str, object], sha256: str, extract_file: str) -> list[str]:
+    """The cohort block of the report header."""
+    lines = [
+        f"- Règle d'arrêt{NBSP}: {cohort['rule']}",
+        f"- Extrait de la cohorte{NBSP}: `{extract_file}`",
+        f"- SHA-256 de la cohorte{NBSP}: `{sha256}`",
+        f"- Cohorte{NBSP}: {cohort['size']} ligne(s) retenue(s) sur {cohort['available']} "
+        f"(taille demandée{NBSP}: {cohort['requested']})",
+        f"- Première réponse de la cohorte ({SUBMITTED_AT}){NBSP}: {cohort['firstSubmittedAt']}",
+        f"- Dernière réponse de la cohorte ({SUBMITTED_AT}){NBSP}: {cohort['lastSubmittedAt']}",
+    ]
+    if cohort["partial"]:
+        lines.append(
+            f"- **Statut{NBSP}: {STATUS_EXPLORATORY}.** Cohorte incomplète "
+            f"({cohort['size']} < {cohort['requested']}){NNBSP}; ce rapport n'est pas le "
+            "test préenregistré."
+        )
+    else:
+        lines.append(f"- Statut{NBSP}: {STATUS_CONFIRMATORY}")
+    return lines
 
 
 def build_dataset(answer_rows: list[dict[str, object]]) -> pd.DataFrame:
@@ -540,11 +667,19 @@ def build_report(payload: dict[str, object]) -> str:
     assert isinstance(description, dict)
 
     parts: list[str] = []
-    parts.append("# Analyse confirmatoire, IA et foi")
+    cohort = payload["cohort"]
+    assert isinstance(cohort, dict)
+    title = "# Analyse confirmatoire, IA et foi"
+    if cohort["partial"]:
+        title = "# Analyse exploratoire (cohorte incomplète), IA et foi"
+    parts.append(title)
     parts.append("")
     parts.append(f"- Exécutée le{NBSP}: {payload['generatedAt']}")
     parts.append(f"- Fichier analysé{NBSP}: `{payload['inputFile']}`")
-    parts.append(f"- SHA-256 de l’extrait{NBSP}: `{payload['inputSha256']}`")
+    parts.append(f"- SHA-256 de l’export{NBSP}: `{payload['inputSha256']}`")
+    parts.extend(
+        cohort_report_lines(cohort, str(payload["cohortSha256"]), str(payload["cohortFile"]))
+    )
     parts.append(f"- Graine{NBSP}: {payload['seed']}")
     parts.append(f"- Permutations (Jonckheere-Terpstra){NBSP}: {payload['permutations']}")
     parts.append(f"- Tirages bootstrap{NBSP}: {payload['bootstrapDraws']}")
@@ -668,8 +803,21 @@ def analyse(frame: pd.DataFrame, permutations: int) -> dict[str, object]:
     }
 
 
-def run(input_path: Path, out_dir: Path, permutations: int) -> dict[str, object]:
-    answer_rows = load_answers(input_path)
+def run(
+    input_path: Path,
+    out_dir: Path,
+    permutations: int,
+    cohort_size: int = COHORT_SIZE,
+    allow_partial: bool = False,
+) -> dict[str, object]:
+    export = read_export(input_path)
+    cohort = select_cohort(export, cohort_size, allow_partial)
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    cohort_path = out_dir / "cohort_extract.csv"
+    cohort.rows.to_csv(cohort_path, index=False, lineterminator="\n")
+
+    answer_rows = parse_rows(cohort.rows)
     frame = build_dataset(answer_rows)
 
     non_v2 = int((~frame["instrumentVersion"].astype(str).str.startswith("2.")).sum())
@@ -694,16 +842,20 @@ def run(input_path: Path, out_dir: Path, permutations: int) -> dict[str, object]
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "inputFile": str(input_path),
         "inputSha256": sha256_of(input_path),
+        "cohortFile": str(cohort_path),
+        "cohortSha256": sha256_of(cohort_path),
+        "cohort": cohort.as_dict(),
+        "status": cohort.status,
         "seed": st.SEED,
         "permutations": permutations,
         "bootstrapDraws": st.BOOTSTRAP_DRAWS,
-        "rowsRead": len(answer_rows),
+        "rowsRead": int(export.shape[0]),
+        "rowsAnalysed": len(answer_rows),
         "rowsNotV2": non_v2,
         "main": main,
         "sensitivity": sensitivity,
     }
 
-    out_dir.mkdir(parents=True, exist_ok=True)
     report = build_report(payload)
     (out_dir / "confirmatory_report.md").write_text(report, encoding="utf-8")
 
@@ -751,6 +903,20 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--dry-run-n", type=int, default=260, help="synthetic sample size")
     parser.add_argument(
+        "--cohort-size",
+        type=int,
+        default=COHORT_SIZE,
+        help=(
+            "confirmatory cohort: the first N rows by submittedAt "
+            f"(the pre-registered value is {COHORT_SIZE})"
+        ),
+    )
+    parser.add_argument(
+        "--allow-partial",
+        action="store_true",
+        help="run on fewer rows than the cohort size; the report is then labelled exploratoire",
+    )
+    parser.add_argument(
         "--permutations",
         type=int,
         default=st.PERMUTATIONS,
@@ -774,14 +940,22 @@ def main(argv: list[str] | None = None) -> int:
     else:
         parser.error("either --input or --dry-run is required")
 
-    payload = run(input_path, out_dir, args.permutations)
+    try:
+        payload = run(input_path, out_dir, args.permutations, args.cohort_size, args.allow_partial)
+    except CohortError as error:
+        parser.error(str(error))
 
     main_block = payload["main"]
     assert isinstance(main_block, dict)
     results: list[st.TestResult] = main_block["_objects"]  # type: ignore[assignment]
+    cohort = payload["cohort"]
+    assert isinstance(cohort, dict)
 
-    print(f"Lignes lues : {payload['rowsRead']} (hors v2 : {payload['rowsNotV2']})")
-    print(f"SHA-256 de l'extrait : {payload['inputSha256']}")
+    print(f"Lignes lues : {payload['rowsRead']} ; cohorte : {cohort['size']} (hors v2 : {payload['rowsNotV2']})")
+    print(f"Statut : {payload['status']}")
+    print(f"SHA-256 de l'export : {payload['inputSha256']}")
+    print(f"SHA-256 de la cohorte : {payload['cohortSha256']}")
+    print(f"Cohorte du {cohort['firstSubmittedAt']} au {cohort['lastSubmittedAt']}")
     for r in results:
         print(
             f"  {r.hypothesis}: n={r.n} p={_fmt_p(r.p_value)} "

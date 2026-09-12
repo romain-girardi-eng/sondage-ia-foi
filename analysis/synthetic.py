@@ -2,8 +2,9 @@
 
 The numbers it produces are fiction. They exist only to exercise every branch of
 ``confirmatory.py`` — routing, missing codes, multi-select and matrix items,
-both entry variants, the social-desirability flag — before a single real
-response has been collected. Effects are planted in the pre-registered
+both entry variants, the social-desirability flag, the ``submittedAt`` cohort
+cut — before a single real response has been collected. Rows come out shuffled
+so that the cohort selection has to sort them. Effects are planted in the pre-registered
 directions so that a successful dry run also shows what a supported hypothesis
 looks like in the report.
 """
@@ -12,6 +13,7 @@ from __future__ import annotations
 
 import json
 import math
+from datetime import datetime, timedelta, timezone
 
 import numpy as np
 import pandas as pd
@@ -24,6 +26,7 @@ from scoring_maps import (
 )
 
 DEFAULT_N = 260
+COLLECTION_START = datetime(2026, 9, 7, 8, 0, tzinfo=timezone.utc)
 
 
 def _ascending_options(item_id: str) -> list[str]:
@@ -72,8 +75,10 @@ def generate(n: int = DEFAULT_N, seed: int = 20260907) -> pd.DataFrame:
     """One synthetic export, one row per response."""
     rng = np.random.default_rng(seed)
     rows: list[dict[str, object]] = []
+    submitted_at = COLLECTION_START
 
     for _ in range(n):
+        submitted_at = submitted_at + timedelta(minutes=float(rng.exponential(90.0)) + 1.0)
         variant = "cnef" if rng.random() < 0.4 else "general"
         age_code = int(rng.integers(1, 5))
         age = {1: "18-35", 2: "36-50", 3: "51-65", 4: "66+"}[age_code]
@@ -125,6 +130,7 @@ def generate(n: int = DEFAULT_N, seed: int = 20260907) -> pd.DataFrame:
             )
 
         row: dict[str, object] = {
+            "submittedAt": submitted_at.isoformat(timespec="seconds").replace("+00:00", "Z"),
             "instrumentVersion": "2.0.0",
             "entryVariant": variant,
             "profil_age": age,
@@ -246,11 +252,12 @@ def generate(n: int = DEFAULT_N, seed: int = 20260907) -> pd.DataFrame:
 
         # A share of unanswered items, so the missing-data paths are exercised.
         for key in list(row.keys()):
-            if key in ("instrumentVersion", "entryVariant", "profil_statut"):
+            if key in ("submittedAt", "instrumentVersion", "entryVariant", "profil_statut"):
                 continue
             if rng.random() < 0.03:
                 row[key] = "sans_reponse"
 
         rows.append(row)
 
-    return pd.DataFrame(rows)
+    frame = pd.DataFrame(rows)
+    return frame.iloc[rng.permutation(len(frame))].reset_index(drop=True)

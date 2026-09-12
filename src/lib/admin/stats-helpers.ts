@@ -37,8 +37,10 @@ export const MIN_CORRELATION_N = 20;
 /**
  * Pre-registered analytic threshold (PREREGISTRATION §4.3). Below it the admin
  * dashboard must not surface a single bivariate statistic: seeing one before
- * the sample is closed is what makes optional stopping possible, so the guard
- * is in the code and not only in the plan.
+ * the confirmatory cohort (the first 200 exploitable responses) is complete is
+ * what makes optional stopping possible, so the guard is in the code and not
+ * only in the plan. Collection has no end date; once the gate opens, the
+ * bivariate statistics cover every exploitable response and are exploratory.
  */
 export const CONFIRMATORY_N = 200;
 

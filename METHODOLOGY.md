@@ -40,7 +40,7 @@ L'application a deux fonctions. Les confondre conduit à surinterpréter ses sor
 
 **Un outil d'engagement.** Le répondant reçoit à la fin du questionnaire un profil, ses scores de dimension et des lectures descriptives de ses réponses. Cette restitution existe pour rendre la participation intéressante et pour nourrir une réflexion personnelle. Elle n'a aucune valeur de diagnostic ni d'évaluation.
 
-**Une recherche.** Les réponses agrégées servent à décrire des distributions, à estimer des associations et à tester les huit hypothèses de la section 9. Le devis est transversal, l'échantillon est de convenance, et les construits sont pour l'essentiel exploratoires. Les huit hypothèses sont testées de façon confirmatoire, une seule fois, à la clôture de la collecte ; tout le reste est exploratoire.
+**Une recherche.** Les réponses agrégées servent à décrire des distributions, à estimer des associations et à tester les huit hypothèses de la section 9. Le devis est transversal, l'échantillon est de convenance, et les construits sont pour l'essentiel exploratoires. Les huit hypothèses sont testées de façon confirmatoire, une seule fois, sur la cohorte des 200 premières réponses exploitables par ordre de soumission ; la collecte n'a pas de date de fin, et tout le reste est exploratoire.
 
 ### 1.3 Échantillonnage
 
@@ -206,7 +206,7 @@ Deux points de cette table ne se déduisent pas de l'ordre des modalités. En pr
 
 **Compatibilité v1 → v2.** La même table est appliquée aux deux versions. Le détail du remappage figure en section 2.5 ; seule la modalité v1 `occasionnellement` de la pratique privée reste sans ancre et devient manquante.
 
-**Ordre des modalités.** Les deux items de pratique sont présentés du plus fréquent au moins fréquent, les trois autres du moins fréquent au plus fréquent. Cet écart, hérité de la v1 pour les items inchangés, est conservé jusqu'à la clôture de la collecte et documenté comme limite (section 11.9).
+**Ordre des modalités.** Les deux items de pratique sont présentés du plus fréquent au moins fréquent, les trois autres du moins fréquent au plus fréquent. Cet écart, hérité de la v1 pour les items inchangés, est conservé tant que l'instrument v2.0.0 est en collecte et documenté comme limite (section 11.9).
 
 **Calcul.** Moyenne arithmétique non pondérée des cinq items cotés de 1 à 5. Aucune correction par la désirabilité sociale n'est appliquée. Le score est `null` si moins de quatre items sont renseignés.
 
@@ -532,7 +532,7 @@ Les variables comparées sont brutes ou sont des dimensions ne contenant pas la 
 
 ### 9.3 Effectif et règle d'arrêt
 
-L'effectif prévu est de 200 réponses exploitables. La définition d'une réponse exploitable, la règle d'arrêt (clôture le 31 décembre 2026, tests conduits une seule fois à cette date) et la règle applicable aux hypothèses sous-puissantes sont celles du préenregistrement, sections 4.3 et 4.4.
+L'effectif prévu est de 200 réponses exploitables. La définition d'une réponse exploitable, la règle d'arrêt (effectif fixe : les huit tests sont conduits une seule fois, sur les 200 premières réponses exploitables par ordre de soumission ; la collecte n'a pas de date de fin) et la règle applicable aux hypothèses sous-puissantes sont celles du préenregistrement, sections 4.3 et 4.4.
 
 ---
 
@@ -705,7 +705,7 @@ Les dates ci-dessous ont été rétablies dans un ordre chronologique cohérent.
 
 ### 12 septembre 2026, révision documentaire et verrou d'administration
 
-**Préenregistrement.** Réécriture de `docs/PREREGISTRATION.md` dans l'ordre du formulaire OSF : définition de la réponse exploitable, règle d'arrêt unique à la date de clôture, hiérarchie primaire (H1, H8) et secondaire, une statistique confirmatoire par hypothèse, familles de Holm alignées sur cette hiérarchie, hypothèses H1 à H6 portées sur les sous-scores de noyau, H2 directionnelle, H7 reformulée en test de dispersion, conditions d'effectif par hypothèse, plan de fidélité, méthodes d'intervalle de confiance, filtres de recrutement, règle d'anonymisation du jeu de données, statut des réponses v1, cadre éthique.
+**Préenregistrement.** Réécriture de `docs/PREREGISTRATION.md` dans l'ordre du formulaire OSF : définition de la réponse exploitable, règle d'arrêt à effectif fixe (cohorte des 200 premières réponses exploitables, collecte sans date de fin), hiérarchie primaire (H1, H8) et secondaire, une statistique confirmatoire par hypothèse, familles de Holm alignées sur cette hiérarchie, hypothèses H1 à H6 portées sur les sous-scores de noyau, H2 directionnelle, H7 reformulée en test de dispersion, conditions d'effectif par hypothèse, plan de fidélité, méthodes d'intervalle de confiance, filtres de recrutement, règle d'anonymisation du jeu de données, statut des réponses v1, cadre éthique.
 
 **Administration.** Constante `CONFIRMATORY_N = 200` et fonction `isExploitableV2Response` dans `src/lib/admin/stats-helpers.ts` ; aucune corrélation n'est calculée avant ce seuil.
 
@@ -770,7 +770,7 @@ Les livrables vérifiables sont les suivants :
 | Préenregistrement | révisé le 12 septembre 2026, dépôt OSF en cours | `docs/PREREGISTRATION.md` |
 | Script d'analyse confirmatoire | en cours de dépôt avec le préenregistrement | `analysis/confirmatory.py` |
 | Identifiant pérenne (DOI) | absent | à obtenir au dépôt |
-| Jeu de données ouvert anonymisé | absent | prévu après la clôture |
+| Jeu de données ouvert anonymisé | absent | prévu après l'extraction confirmatoire et le rapport de fidélité |
 | Enregistrement sur un registre public | en cours | OSF |
 
 Aucun score global n'est revendiqué tant qu'une évaluation externe n'a pas été conduite.

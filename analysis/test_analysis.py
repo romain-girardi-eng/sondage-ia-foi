@@ -18,7 +18,16 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import stats as st
-from confirmatory import build_dataset, run_hypotheses
+from confirmatory import (
+    STATUS_CONFIRMATORY,
+    STATUS_EXPLORATORY,
+    CohortError,
+    build_dataset,
+    cohort_report_lines,
+    run,
+    run_hypotheses,
+    select_cohort,
+)
 from scoring import (
     calculate_dimension,
     compute_core_subscores,
@@ -320,3 +329,81 @@ def test_non_testable_hypothesis_leaves_its_family_before_holm():
     assert testable.p_holm == pytest.approx(0.04)
     assert untestable.p_holm is None
     assert any("retirée de la famille" in note and "m = 1" in note for note in untestable.notes)
+
+
+# ---------------------------------------------------------------------------
+# Stopping rule: the first N exploitable responses by submittedAt
+# ---------------------------------------------------------------------------
+
+
+def test_cohort_is_the_first_n_rows_by_submitted_at():
+    export = generate(n=30, seed=3)
+    stamps = sorted(export["submittedAt"].tolist())
+    # The generator shuffles rows, so the cut has to sort.
+    assert export["submittedAt"].tolist() != stamps
+
+    cohort = select_cohort(export, cohort_size=20)
+    kept = cohort.rows["submittedAt"].tolist()
+    assert kept == stamps[:20]
+    assert cohort.size == 20
+    assert cohort.available == 30
+    assert not cohort.partial
+    assert cohort.status == STATUS_CONFIRMATORY
+    assert cohort.first_submitted_at.startswith(stamps[0][:19])
+    assert cohort.last_submitted_at.startswith(stamps[19][:19])
+    # Every other column of the kept rows is the original row, untouched.
+    original = export.set_index("submittedAt").loc[kept]
+    assert original["profil_statut"].tolist() == cohort.rows["profil_statut"].tolist()
+
+
+def test_cohort_requires_a_submitted_at_column():
+    export = generate(n=10, seed=3).drop(columns=["submittedAt"])
+    with pytest.raises(CohortError, match="submittedAt"):
+        select_cohort(export, cohort_size=5)
+
+
+def test_partial_cohort_errors_out_unless_allowed_and_is_labelled_exploratory(tmp_path):
+    export = generate(n=12, seed=3)
+    with pytest.raises(CohortError, match="--allow-partial"):
+        select_cohort(export, cohort_size=200)
+
+    cohort = select_cohort(export, cohort_size=200, allow_partial=True)
+    assert cohort.partial
+    assert cohort.size == 12
+    assert cohort.status == STATUS_EXPLORATORY
+    lines = "\n".join(cohort_report_lines(cohort.as_dict(), "0" * 64, "cohort_extract.csv"))
+    assert STATUS_EXPLORATORY in lines
+    assert "12 < 200" in lines
+
+    # The same guard at the pipeline entry: no statistic is computed.
+    input_path = tmp_path / "export.csv"
+    export.to_csv(input_path, index=False)
+    with pytest.raises(CohortError):
+        run(input_path, tmp_path / "out", permutations=10, cohort_size=200)
+    assert not (tmp_path / "out" / "confirmatory_report.md").exists()
+
+
+def test_full_run_archives_the_cohort_with_its_hash(tmp_path):
+    import hashlib
+    import json
+
+    input_path = tmp_path / "export.csv"
+    generate(n=40, seed=3).to_csv(input_path, index=False)
+    out = tmp_path / "out"
+    payload = run(input_path, out, permutations=10, cohort_size=30)
+
+    extract = out / "cohort_extract.csv"
+    assert extract.exists()
+    assert payload["cohortSha256"] == hashlib.sha256(extract.read_bytes()).hexdigest()
+    assert payload["status"] == STATUS_CONFIRMATORY
+    assert payload["rowsRead"] == 40
+    assert payload["rowsAnalysed"] == 30
+
+    results = json.loads((out / "confirmatory_results.json").read_text(encoding="utf-8"))
+    assert results["cohort"]["size"] == 30
+    assert results["cohort"]["partial"] is False
+    assert results["cohortSha256"] == payload["cohortSha256"]
+    assert results["cohort"]["firstSubmittedAt"] <= results["cohort"]["lastSubmittedAt"]
+    report = (out / "confirmatory_report.md").read_text(encoding="utf-8")
+    assert payload["cohortSha256"] in report
+    assert results["cohort"]["firstSubmittedAt"] in report

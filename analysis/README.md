@@ -17,8 +17,14 @@ analysis/.venv/bin/pip install -r analysis/requirements.txt
 ## Exécution
 
 ```bash
-# Sur un export réel
+# Sur un export réel : cohorte des 200 premières lignes par submittedAt
 analysis/.venv/bin/python analysis/confirmatory.py --input export.csv --out analysis/out
+
+# Taille de cohorte explicite (200 est la valeur préenregistrée)
+analysis/.venv/bin/python analysis/confirmatory.py --input export.csv --cohort-size 200
+
+# Moins de 200 lignes : refus, sauf --allow-partial (rapport étiqueté « exploratoire »)
+analysis/.venv/bin/python analysis/confirmatory.py --input partiel.csv --allow-partial
 
 # Sans données : jeu synthétique généré puis analysé de bout en bout
 analysis/.venv/bin/python analysis/confirmatory.py --dry-run
@@ -29,9 +35,32 @@ analysis/.venv/bin/python -m pytest analysis -q
 
 Sorties, dans `--out` (`analysis/out` par défaut) :
 
-- `confirmatory_report.md` : rapport lisible ;
+- `cohort_extract.csv` : la cohorte analysée, à archiver avec le rapport ;
+- `confirmatory_report.md` : rapport lisible ;
 - `confirmatory_results.json` : tous les nombres, y compris le SHA-256 de
-  l'extrait analysé.
+  l'export lu et celui de la cohorte.
+
+## Règle de cohorte
+
+La collecte n'a pas de date de fin. L'échantillon confirmatoire est la cohorte
+des 200 premières réponses exploitables par ordre de soumission
+(préenregistrement, §4.3). Le script applique cette règle lui-même :
+
+1. il exige une colonne `submittedAt` (ISO 8601 ; `created_at` de la table
+   `responses`), trie l'export sur cette colonne en ordre croissant, les ex æquo
+   restant dans l'ordre du fichier, et retient les `--cohort-size` premières
+   lignes (200 par défaut) ;
+2. il écrit la cohorte dans `cohort_extract.csv`, calcule son SHA-256 et
+   reporte, dans le rapport et dans le JSON, cette empreinte ainsi que le
+   `submittedAt` de la première et de la dernière ligne retenue ;
+3. si l'export compte moins de lignes que la taille de cohorte, il s'arrête en
+   erreur avant tout calcul. Avec `--allow-partial`, il s'exécute quand même et
+   le rapport porte le statut « exploratoire » dans son titre et son en-tête :
+   ce rapport n'est pas le test préenregistré.
+
+Les tests, les analyses de sensibilité et la fidélité portent sur la cohorte
+seule. Les réponses postérieures à la 200e sont exploratoires et ne passent
+pas par ce script sans addendum préenregistré.
 
 ## Format de l'export attendu
 
@@ -46,6 +75,7 @@ Colonnes :
 
 | Colonne | Contenu |
 | --- | --- |
+| `submittedAt` | `created_at` de la réponse, ISO 8601 (`2026-09-07T10:15:00Z`) ; obligatoire, sert à la cohorte |
 | `instrumentVersion` | `metadata.instrumentVersion`, par exemple `2.0.0` |
 | `entryVariant` | `metadata.entryVariant` : `general`, `cnef`, … |
 | un identifiant de question par colonne | la réponse brute, telle que stockée dans `answers` |
@@ -67,9 +97,9 @@ corriger un score.
 L'export CSV actuel de l'administration (`/api/results/export?format=csv`) ne
 produit pas ce format : ses colonnes sont déduites de la première ligne, donc
 les items conditionnels manquent, les valeurs multi-choix contiennent des
-virgules non échappées, et `instrumentVersion` et `entryVariant` n'y figurent
-pas. L'extrait de clôture doit être produit par un export dédié, puis archivé
-avec son SHA-256.
+virgules non échappées, et `submittedAt`, `instrumentVersion` et `entryVariant`
+n'y figurent pas. L'export soumis au script doit être produit par un export
+dédié, puis archivé avec son SHA-256 ; la cohorte extraite l'est à son tour.
 
 ## Ce que fait le script
 
@@ -182,8 +212,8 @@ discrétisés, bruit d'item 0,3, seuils ±0,5 et ±1,5, 2 000 réplications, gr
 
 Graine unique : **20260907**, pour les permutations comme pour le bootstrap.
 Deux exécutions sur le même fichier donnent les mêmes nombres. Le SHA-256 de
-l'extrait analysé figure dans le rapport et dans le JSON ; il doit être archivé
-avec eux.
+l'export lu et celui de la cohorte analysée figurent dans le rapport et dans le
+JSON ; la cohorte (`cohort_extract.csv`) doit être archivée avec eux.
 
 ## Fichiers
 
@@ -193,6 +223,6 @@ avec eux.
 | `scoring_maps.py` | tables de cotation, transcrites du TypeScript |
 | `scoring.py` | calcul des sept dimensions et des deux sous-scores de noyau |
 | `stats.py` | Spearman, Mann-Whitney, Jonckheere-Terpstra, Brown-Forsythe, MCO, Holm, bootstrap, alpha, omega |
-| `synthetic.py` | générateur de jeu synthétique pour `--dry-run` |
+| `synthetic.py` | générateur de jeu synthétique pour `--dry-run`, avec `submittedAt` et lignes mélangées |
 | `power_h7.py` | simulation de puissance de H7, paramètres écrits dans le fichier |
 | `test_analysis.py` | tests : dérive vis-à-vis du TypeScript, fixtures calculées à la main, procédures statistiques |
