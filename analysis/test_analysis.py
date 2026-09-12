@@ -295,3 +295,28 @@ def test_pipeline_runs_on_a_synthetic_sample():
     for result in results:
         if result.p_value is not None:
             assert 0.0 <= result.p_value <= 1.0
+
+
+def test_sidedness_matches_the_pre_registration():
+    # Every confirmatory statistic is two-sided except H7, whose omnibus
+    # dispersion test has no sign and is coded one-sided (PREREGISTRATION 6.1).
+    rows = [
+        {key: parse_cell(value) for key, value in row.items()}
+        for row in generate(n=80, seed=1).to_dict(orient="records")
+    ]
+    results = run_hypotheses(build_dataset(rows), permutations=50)
+    sides = {r.hypothesis: r.alternative for r in results}
+    assert sides["H7"] == "unilatéral"
+    assert all(side == "bilatéral" for h, side in sides.items() if h != "H7")
+
+
+def test_non_testable_hypothesis_leaves_its_family_before_holm():
+    from confirmatory import apply_holm
+
+    testable = st.TestResult("H2", "", "t", "secondaire", "bilatéral", 40, 1.0, 0.04, "d", 0.1)
+    untestable = st.TestResult("H7", "", "t", "secondaire", "unilatéral", 4, None, None, "r", None)
+    apply_holm([testable, untestable])
+    # m = 1: the p-value is not multiplied, and the exclusion is written down.
+    assert testable.p_holm == pytest.approx(0.04)
+    assert untestable.p_holm is None
+    assert any("retirée de la famille" in note and "m = 1" in note for note in untestable.notes)

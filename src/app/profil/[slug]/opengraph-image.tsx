@@ -208,7 +208,7 @@ export default async function Image({
                   color: "#dbe4f3",
                 }}
               >
-                100 % anonyme · 8 à 12 min
+                Réponses pseudonymisées · 8 à 12 min
               </div>
             </div>
             <div

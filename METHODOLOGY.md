@@ -5,7 +5,7 @@
 **Dernière révision :** 12 septembre 2026
 **Responsable de l'étude :** Romain Girardi
 
-Cette étude est un projet indépendant. Elle n'est adossée à aucune institution universitaire ni à aucun laboratoire, et aucune institution ne cautionne ses résultats. Le plan d'analyse confirmatoire est fixé par le préenregistrement (`docs/PREREGISTRATION.md`), déposé sur OSF ; ce document décrit l'instrument, le scoring, les profils, le module d'interprétation et les limites, et renvoie au préenregistrement pour les hypothèses, les tests, les effectifs, la règle d'arrêt et les exclusions.
+Cette étude est un projet indépendant. Elle n'est adossée à aucune institution universitaire ni à aucun laboratoire, et aucune institution ne cautionne ses résultats. Le plan d'analyse confirmatoire est fixé par le préenregistrement (`docs/PREREGISTRATION.md`), à déposer sur OSF ; ce document décrit l'instrument, le scoring, les profils, le module d'interprétation et les limites, et renvoie au préenregistrement pour les hypothèses, les tests, les effectifs, la règle d'arrêt et les exclusions.
 
 Convention de notation : les lettres statistiques (p, r, ρ, d, f, n, N) sont écrites en romain. N désigne l'effectif total d'un échantillon analysé, n l'effectif d'un groupe ou d'une paire.
 
@@ -44,7 +44,7 @@ L'application a deux fonctions. Les confondre conduit à surinterpréter ses sor
 
 ### 1.3 Échantillonnage
 
-Le recrutement combine trois canaux non probabilistes : diffusion publique du lien, partage encouragé par l'application, et porte d'entrée dédiée (`/cnef`) diffusée par le Conseil national des évangéliques de France. Le canal d'entrée est enregistré dans `metadata.entryVariant` (`general` ou `cnef`) et traité comme strate. Les deux portes, leurs textes d'accueil et les filtres de recrutement sont décrits dans le préenregistrement, section 4.1.
+Le recrutement combine trois canaux non probabilistes : diffusion publique du lien, partage encouragé par l'application, et porte d'entrée dédiée (`/cnef`) diffusée par le Conseil national des évangéliques de France. Le canal d'entrée est enregistré dans `metadata.entryVariant` (`general` ou `cnef`) ; les huit effets sont réestimés séparément dans chaque canal comptant au moins 20 réponses exploitables (préenregistrement, section 6.6). Les deux portes, leurs textes d'accueil et les filtres de recrutement sont décrits dans le préenregistrement, section 4.1.
 
 L'échantillon n'est pas représentatif : il n'existe pas de base de sondage du christianisme francophone et aucune pondération n'est appliquée. Les proportions observées décrivent les répondants. Une phrase de la forme « X % des chrétiens francophones » n'est pas déductible de ces données.
 
@@ -121,12 +121,12 @@ Aucune part de population n'est associée à ces branches ; les effectifs par 
 
 ### 2.5 Changements v1.4.0 vers v2.0.0 et traitement des réponses v1
 
-Vingt-trois réponses ont été collectées sous les versions v1.x de l'instrument. Elles sont conservées en base. Le préenregistrement (section 4.0) les exclut des analyses confirmatoires et du jeu de données publié, la version 1.0 du consentement ne couvrant pas la publication d'un jeu de données ; elles restent dans les agrégats publics et dans les normes empiriques comme strate `metadata.instrumentVersion`, et servent à une note descriptive de comparabilité. Le détail complet du remappage figure dans `docs/INSTRUMENT_V2_CHANGES.md` ; le tableau ci-dessous en donne la synthèse.
+Vingt-trois réponses ont été collectées sous les versions v1.x de l'instrument. Elles sont conservées en base. Le préenregistrement (section 4.0) les exclut des analyses confirmatoires et du jeu de données publié, la version 1.0 du consentement ne couvrant pas la publication d'un jeu de données ; elles sont poolées avec les réponses v2 dans les agrégats publics et dans les normes empiriques, la route des normes publiant l'effectif par version d'instrument, et servent à une note descriptive de comparabilité. Le détail complet du remappage figure dans `docs/INSTRUMENT_V2_CHANGES.md` ; le tableau ci-dessous en donne la synthèse.
 
 Conventions de remappage :
 
 - **conservé** : identifiant, modalités et formulation inchangés.
-- **conservé\*** : modalités inchangées, libellé reformulé. La comparabilité v1 et v2 est à traiter en strate.
+- **conservé\*** : modalités inchangées, libellé reformulé. La comparabilité v1 et v2 fait l'objet d'une note descriptive par version, sans test.
 - **recodé** : correspondance explicite entre valeurs v1 et v2.
 - **null** : non comparable. La réponse v1 est mise à `null` pour toute analyse v2.
 - **nouveau** : item absent en v1, donc `null` pour les 23 réponses v1.
@@ -364,7 +364,7 @@ Toute comparaison entre clergé et laïcs porte sur les sous-scores de noyau, ja
 | Contexte communautaire | exploratoire | construit ad hoc |
 | Orientation future | exploratoire | construit ad hoc |
 
-Six dimensions sur sept sont exploratoires ou seulement inspirées d'un instrument publié. Aucune analyse factorielle exploratoire ou confirmatoire n'a été conduite. La structure en sept dimensions est une hypothèse de travail du concepteur ; elle n'a pas été testée empiriquement. L'alpha de Cronbach et l'omega ordinal de chaque dimension et de chaque sous-score de noyau sont calculés avant tout test et publiés ; une analyse factorielle exploratoire sur les 24 items de noyau est prévue à partir de 120 réponses exploitables (préenregistrement, sections 4.3 et 6.7).
+Six dimensions sur sept sont exploratoires ou seulement inspirées d'un instrument publié. Aucune analyse factorielle exploratoire ou confirmatoire n'a été conduite. La structure en sept dimensions est une hypothèse de travail du concepteur ; elle n'a pas été testée empiriquement. L'alpha de Cronbach et l'omega ordinal approximé (saturations d'une solution à un facteur sur la matrice de corrélations de Spearman, faute d'estimateur polychorique) de chaque dimension et de chaque sous-score de noyau sont calculés avant tout test et publiés ; une analyse factorielle exploratoire sur les 24 items de noyau est prévue à partir de 120 réponses exploitables (préenregistrement, sections 4.3 et 6.7).
 
 ---
 
@@ -381,7 +381,7 @@ Les huit profils sont des étiquettes attachées à des régions de l'espace des
 Pour chaque profil p, une distance L1 pondérée est calculée entre le vecteur des dimensions du répondant et les plages idéales du profil.
 
 ```
-Pour chaque dimension k dont value(k) n'est pas null :
+Pour chaque dimension k dont value(k) n'est pas null :
     d_k = max(0, min_pk − value(k)) + max(0, value(k) − max_pk)
 distance(p) = Σ (d_k × w_pk) / Σ w_pk
 ```
@@ -506,7 +506,7 @@ Le tableau de bord public expose des distributions par question, calculées par 
 
 ### 9.1 Principes
 
-Les hypothèses sont directionnelles, énoncées avant la collecte v2 et encodées dans `src/lib/analysis/interpretationCatalog.ts` (constante `HYPOTHESES`, identifiants de variables et énoncés). Le test confirmatoire, la famille de correction, l'effet attendu, l'effectif requis et la condition d'effectif de chaque hypothèse sont fixés par le préenregistrement, section 2 (tableau) et section 6.1 (modèles statistiques). Ce document ne les restate pas.
+Les hypothèses sont directionnelles et énoncées avant la collecte v2. Le tableau de la section 2 du préenregistrement est la seule formulation qui fait foi ; la constante `HYPOTHESES` de `src/lib/analysis/interpretationCatalog.ts` en reprend les énoncés sur les identifiants de scores complets et n'alimente que le module d'interprétation exploratoire (section 10). Le test confirmatoire, la famille de correction, l'effet attendu, l'effectif requis et la condition d'effectif de chaque hypothèse sont fixés par le préenregistrement, section 2 (tableau) et section 6.1 (modèles statistiques). Ce document ne les restate pas.
 
 Toute hypothèse dont la vérification serait une propriété de l'algorithme de scoring a été retirée ; l'ancienne liste en comptait plusieurs, dont une sur la rareté des profils extrêmes, conséquence directe des plages idéales choisies.
 
@@ -516,7 +516,7 @@ Les variables comparées sont brutes ou sont des dimensions ne contenant pas la 
 
 **H1. Religiosité et frontière sacrée.** Une centralité religieuse plus élevée est associée à une frontière sacrée de noyau plus stricte. Variables : `religiosity` et `sacredBoundaryCore`. Items partagés : aucun. Hypothèse primaire.
 
-**H2. Courant charismatique et ouverture à l'IA.** Les évangéliques charismatiques présentent une ouverture à l'IA de noyau plus élevée que les évangéliques non charismatiques. Variables : `profil_confession_evangelique` et `aiOpennessCore`. Réserve : la porte CNEF surreprésente les évangéliques par construction, ce qui est traité en strate.
+**H2. Courant charismatique et ouverture à l'IA.** Les évangéliques charismatiques présentent une ouverture à l'IA de noyau plus élevée que les évangéliques non charismatiques. Variables : `profil_confession_evangelique` et `aiOpennessCore`. Réserve : la porte CNEF surreprésente les évangéliques par construction ; les huit effets sont réestimés séparément dans chaque canal d'entrée comptant au moins 20 réponses exploitables (préenregistrement, section 6.6).
 
 **H3. Âge et ouverture à l'IA.** Les répondants plus jeunes présentent une ouverture à l'IA de noyau plus élevée, à religiosité égale. Variables : `profil_age` (codé 1 à 4) et `aiOpennessCore`, avec `religiosity` en covariable. Réserve : `profil_age` est exclu de toute dimension depuis la v2 ; sans cette règle, l'hypothèse serait partiellement tautologique.
 
@@ -526,7 +526,7 @@ Les variables comparées sont brutes ou sont des dimensions ne contenant pas la 
 
 **H6. Position officielle perçue et ouverture individuelle.** Chez les répondants qui déclarent une position officielle de leur Église, une position perçue plus favorable est associée à une ouverture à l'IA de noyau plus élevée. Variables : `communaute_position_officielle` (trois niveaux ordonnés ; `non`, `ne_sait_pas` et `sans_reponse` exclus) et `aiOpennessCore`. Réserve : l'hypothèse porte sur l'item brut et sur un sous-échantillon ; mettre en relation `communityContext` et `aiOpenness` ferait entrer l'item testé dans la dimension.
 
-**H7. Formation théologique et préoccupation éthique.** Les répondants ayant une formation théologique formelle (`diplome_theologie`, `formation_pastorale`) présentent une dispersion de la préoccupation éthique plus faible que les autres (`aucune`, `cours_ponctuels`). Variables : `profil_formation_theologique` recodé et `ethicalConcern`. Réserves : l'hypothèse porte sur la dispersion, non sur la position centrale ; l'item est nouveau en v2 ; l'hypothèse est sous-puissante à l'effectif prévu (préenregistrement, section 4.4).
+**H7. Formation théologique et préoccupation éthique.** Les répondants ayant une formation théologique formelle (`diplome_theologie`, `formation_pastorale`) présentent une dispersion de la préoccupation éthique plus faible que les autres (`aucune`, `cours_ponctuels`). Variables : `profil_formation_theologique` recodé et `ethicalConcern`. Réserves : l'hypothèse porte sur la dispersion, non sur la position centrale ; l'item est nouveau en v2 ; la puissance à 200 réponses dépend de la proportion de répondants formés (préenregistrement, section 4.4).
 
 **H8. Fréquence d'usage et préoccupation éthique.** Une fréquence d'usage plus élevée de l'IA est associée à une préoccupation éthique plus faible. Variables : `ctrl_ia_frequence` (cinq niveaux) et `ethicalConcern`. Items partagés : aucun, `ctrl_ia_frequence` alimentant `aiOpenness`. Hypothèse primaire.
 
@@ -606,7 +606,7 @@ Le questionnaire annonce son sujet dès la page d'accueil. Les personnes indiff�
 
 ### 11.2 Boule de neige par partage
 
-Les intervalles de confiance sont trop étroits, d'une ampleur inconnue. Le partage du profil recrute dans le réseau du répondant, c'est-à-dire souvent dans sa communauté, sa confession et sa classe d'âge, alors que les tests supposent des observations indépendantes. Les chaînes de diffusion ne sont pas tracées ; la dépendance ne peut être ni mesurée ni modélisée. `entryVariant` est le seul proxy de grappe et sert de strate.
+Les intervalles de confiance sont trop étroits, d'une ampleur inconnue. Le partage du profil recrute dans le réseau du répondant, c'est-à-dire souvent dans sa communauté, sa confession et sa classe d'âge, alors que les tests supposent des observations indépendantes. Les chaînes de diffusion ne sont pas tracées ; la dépendance ne peut être ni mesurée ni modélisée. `entryVariant` est le seul indicateur de grappe disponible ; les huit effets sont réestimés séparément dans chaque canal d'entrée comptant au moins 20 réponses exploitables.
 
 ### 11.3 Non-invariance de mesure entre clergé et laïcs
 
@@ -694,7 +694,7 @@ Wang, Y. Y., et Wang, Y. S. (2022). Development and validation of an artificial 
 - Bethlehem, J. (2010). Selection bias in web surveys. *International Statistical Review*, 78(2), 161-188. [à vérifier : volume et pagination]
 - Brown, M. B., et Forsythe, A. B. (1974). Robust tests for the equality of variances. *Journal of the American Statistical Association*, 69(346), 364-367. [à vérifier : pagination]
 - Cliff, N. (1993). Dominance statistics: Ordinal analyses to answer ordinal questions. *Psychological Bulletin*, 114(3), 494-509. [à vérifier : pagination]
-- Jonckheere, A. R. (1954). A distribution-free k-sample test against ordered alternatives. *Biometrika*, 41, 133-145. [à vérifier : numéro et pagination]
+- Jonckheere, A. R. (1954). A distribution-free k-sample test against ordered alternatives. *Biometrika*, 41(1-2), 133-145.
 - Podsakoff, P. M., MacKenzie, S. B., Lee, J. Y., et Podsakoff, N. P. (2003). Common method biases in behavioral research. *Journal of Applied Psychology*, 88(5), 879-903. [à vérifier : pagination]
 
 ---

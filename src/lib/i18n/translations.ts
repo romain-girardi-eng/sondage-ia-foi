@@ -13,7 +13,7 @@ export const translations = {
       privacyTitle: "Protocole de Confidentialité",
       privacyDescription:
         "Votre participation est essentielle pour la recherche. Nous garantissons la protection de vos droits :",
-      anonymity: "Anonymat total :",
+      anonymity: "Pseudonymisation :",
       anonymityDesc:
         "Ni nom, ni email, ni adresse IP en clair : seules des empreintes cryptographiques anti-doublons sont conservées.",
       academic: "Usage des données :",
@@ -29,9 +29,9 @@ export const translations = {
       skipVideo: "Passer",
       videoNotSupported: "Votre navigateur ne prend pas en charge la vidéo.",
       featureScientific: "Méthodologie",
-      featureAnonymous: "100 % anonyme",
+      featureAnonymous: "Réponses pseudonymisées",
       featureDuration: "8 à 12 minutes",
-      anonymousHighlight: "100% anonyme",
+      anonymousHighlight: "Réponses pseudonymisées",
       anonymousHighlightDesc: "Ni nom, ni email, ni adresse IP en clair : seules des empreintes cryptographiques anti-doublons sont conservées.",
     },
 
@@ -793,7 +793,7 @@ export const translations = {
       privacyTitle: "Privacy Protocol",
       privacyDescription:
         "Your participation is essential for research. We guarantee the protection of your rights:",
-      anonymity: "Complete anonymity:",
+      anonymity: "Pseudonymisation:",
       anonymityDesc:
         "No name, email or IP address is stored in the clear: only keyed cryptographic hashes used to prevent duplicate submissions.",
       academic: "Data usage:",
@@ -809,9 +809,9 @@ export const translations = {
       skipVideo: "Skip",
       videoNotSupported: "Your browser does not support video.",
       featureScientific: "Methodology",
-      featureAnonymous: "100% anonymous",
+      featureAnonymous: "Pseudonymised answers",
       featureDuration: "8 to 12 minutes",
-      anonymousHighlight: "100% anonymous",
+      anonymousHighlight: "Pseudonymised answers",
       anonymousHighlightDesc: "No name, email, or IP address is stored in the clear: only cryptographic anti-duplicate fingerprints are kept.",
     },
 

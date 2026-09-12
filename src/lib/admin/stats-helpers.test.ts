@@ -305,6 +305,25 @@ describe('suppressBivariateFindings', () => {
     expect(kept).toHaveLength(1);
     expect(kept[0].type).toBe('segment');
   });
+
+  it('withholds the clergy/laity gap on AI openness, the descriptive form of H5', () => {
+    const kept = suppressBivariateFindings([
+      {
+        type: 'segment',
+        title: 'Écart clergé/laïcs sur l’ouverture à l’IA',
+        description: 'Ouverture à l’IA : clergé 2.9 (n = 40), laïcs 3.6 (n = 120).',
+        significance: 'medium',
+      },
+      {
+        type: 'segment',
+        title: 'Écart clergé/laïcs sur la religiosité',
+        description: 'Religiosité moyenne : clergé 4.2 (n = 40), laïcs 3.5 (n = 120).',
+        significance: 'medium',
+      },
+    ]);
+
+    expect(kept.map((finding) => finding.title)).toEqual(['Écart clergé/laïcs sur la religiosité']);
+  });
 });
 
 describe('locked mock fixture', () => {

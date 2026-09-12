@@ -271,7 +271,7 @@ def run_hypotheses(frame: pd.DataFrame, permutations: int) -> list[st.TestResult
             frame, "H2",
             "Ouverture à l’IA (noyau) : charismatiques vs non-charismatiques",
             "charismaticGroup", CHARISMATIC, NON_CHARISMATIC, "aiOpennessCore",
-            SECONDARY, alternative="greater",
+            SECONDARY, alternative="two-sided",
         )
     )
 
@@ -335,10 +335,17 @@ def _h3_regression(frame: pd.DataFrame) -> st.TestResult:
         return resample.coefficient("age")[0]
 
     ci = st.bootstrap_ci(estimator, n)
+    # The standardised coefficient is beta scaled by the SD ratio; it is only
+    # there to read the effect against the thresholds of the plan (section 4.4),
+    # the confirmatory statistic and its interval stay unstandardised.
+    sd_age = float(np.std(age, ddof=1))
+    sd_y = float(np.std(y, ddof=1))
+    beta_standardised = beta * sd_age / sd_y if sd_y > 0 else float("nan")
     return st.TestResult(
         "H3", label, "Régression MCO (test du coefficient)", SECONDARY, "bilatéral",
         n, beta, p_value, "beta (âge)", beta, ci,
         extra={
+            "betaAgeStandardised": beta_standardised,
             "betaReligiosity": fit.coefficients[fit.names.index("religiosity")],
             "pReligiosity": fit.p_values[fit.names.index("religiosity")],
             "rSquared": fit.r_squared,
@@ -383,12 +390,24 @@ def _h7_dispersion(frame: pd.DataFrame) -> st.TestResult:
 
 
 def apply_holm(results: list[st.TestResult]) -> None:
-    """Holm inside each family; nothing is corrected across families."""
+    """Holm inside each family; nothing is corrected across families.
+
+    A hypothesis declared non-testable (sample below the coded threshold) has
+    no p-value: it is reported without one and leaves its family before Holm,
+    which shrinks m. The report records this on the hypothesis itself.
+    """
     for family in (PRIMARY, SECONDARY):
-        members = [r for r in results if r.family == family and r.p_value is not None]
+        family_members = [r for r in results if r.family == family]
+        members = [r for r in family_members if r.p_value is not None]
         adjusted = st.holm([r.p_value for r in members])  # type: ignore[misc]
         for result, value in zip(members, adjusted):
             result.p_holm = value
+        for result in family_members:
+            if result.p_value is None:
+                result.notes.append(
+                    "non testable : rapportée sans valeur p et retirée de la famille "
+                    f"{family} avant Holm (m = {len(members)})"
+                )
 
 
 # ---------------------------------------------------------------------------
@@ -465,17 +484,18 @@ def describe(frame: pd.DataFrame) -> dict[str, object]:
 
 NBSP = " "
 NNBSP = " "
+NOT_AVAILABLE = f"n.{NBSP}d."
 
 
 def _fmt(value: float | None, decimals: int = 3) -> str:
     if value is None or (isinstance(value, float) and not np.isfinite(value)):
-        return "—"
+        return NOT_AVAILABLE
     return f"{value:.{decimals}f}".replace(".", ",")
 
 
 def _fmt_p(value: float | None) -> str:
     if value is None or (isinstance(value, float) and not np.isfinite(value)):
-        return "—"
+        return NOT_AVAILABLE
     if value < 0.001:
         return "< 0,001"
     return f"{value:.4f}".replace(".", ",")
@@ -494,7 +514,7 @@ def _fmt_extra(key: str, value: object) -> str:
 def _fmt_ci(ci: tuple[float | None, float | None]) -> str:
     low, high = ci
     if low is None or high is None:
-        return "—"
+        return NOT_AVAILABLE
     return f"[{_fmt(low)}{NNBSP};{NBSP}{_fmt(high)}]"
 
 
@@ -520,22 +540,23 @@ def build_report(payload: dict[str, object]) -> str:
     assert isinstance(description, dict)
 
     parts: list[str] = []
-    parts.append("# Analyse confirmatoire — IA et foi")
+    parts.append("# Analyse confirmatoire, IA et foi")
     parts.append("")
     parts.append(f"- Exécutée le{NBSP}: {payload['generatedAt']}")
     parts.append(f"- Fichier analysé{NBSP}: `{payload['inputFile']}`")
     parts.append(f"- SHA-256 de l’extrait{NBSP}: `{payload['inputSha256']}`")
     parts.append(f"- Graine{NBSP}: {payload['seed']}")
-    parts.append(
-        f"- Permutations (Jonckheere-Terpstra){NBSP}: {payload['permutations']}"
-        f" — tirages bootstrap{NBSP}: {payload['bootstrapDraws']}"
-    )
+    parts.append(f"- Permutations (Jonckheere-Terpstra){NBSP}: {payload['permutations']}")
+    parts.append(f"- Tirages bootstrap{NBSP}: {payload['bootstrapDraws']}")
     parts.append(f"- Réponses exploitables analysées{NBSP}: {description['n']}")
     parts.append("")
     parts.append(
         "Les huit tests sont corrigés par Holm à l’intérieur de deux familles, "
         "sans correction entre elles : famille primaire {H1, H8}, famille "
-        "secondaire {H2, H3, H4, H5, H6, H7}."
+        "secondaire {H2, H3, H4, H5, H6, H7}. Toutes les statistiques sont "
+        "bilatérales et la direction est lue sur le signe, sauf H7, unilatérale. "
+        "Une hypothèse non testable (effectif sous le seuil codé) est rapportée "
+        "sans valeur p et retirée de sa famille avant Holm ; sa réserve le dit."
     )
     parts.append("")
     parts.append("## 1. Résultats des tests préenregistrés")
@@ -543,7 +564,7 @@ def build_report(payload: dict[str, object]) -> str:
     parts.append(results_table(results))
     parts.append("")
     for r in results:
-        parts.append(f"**{r.hypothesis}** — {r.label}")
+        parts.append(f"**{r.hypothesis}**{NBSP}: {r.label}")
         if r.notes:
             parts.append(f"  - Réserves{NBSP}: {' ; '.join(r.notes)}")
         if r.extra:
@@ -564,7 +585,7 @@ def build_report(payload: dict[str, object]) -> str:
         )
     parts.append("")
     parts.append(
-        f"Répondants drapeautés par l’échelle de désirabilité sociale{NBSP}: "
+        f"Répondants dont le drapeau de désirabilité sociale est levé{NBSP}: "
         f"{description['socialDesirabilityFlagged']}. "
         f"Répartition par porte d’entrée{NBSP}: {description['byEntryVariant']}."
     )
@@ -591,7 +612,7 @@ def build_report(payload: dict[str, object]) -> str:
     reliabilities = main["reliability"]
     assert isinstance(reliabilities, dict)
     for name, values in reliabilities.items():
-        dropped = ", ".join(values["itemsDroppedForCoverage"]) or "—"
+        dropped = ", ".join(values["itemsDroppedForCoverage"]) or "aucun"
         parts.append(
             f"| {name} | {len(values['items'])} | {dropped} | {values['nComplete']} | "
             f"{_fmt(values['alpha'])} | {_fmt(values['omegaOrdinalApprox'])} |"
@@ -658,14 +679,16 @@ def run(input_path: Path, out_dir: Path, permutations: int) -> dict[str, object]
     unflagged = frame.loc[~frame["mcFlag"].astype(bool)]
     block = analyse(unflagged, permutations)
     block["n"] = int(unflagged.shape[0])
-    sensitivity["Hors répondants drapeautés (désirabilité sociale)"] = block
+    sensitivity["Hors répondants dont le drapeau de désirabilité sociale est levé"] = block
 
+    # The eight tests are re-run separately inside each entry channel holding
+    # at least 20 exploitable responses; no stratified statistic is computed.
     for variant, subset in frame.groupby("entryVariant"):
         if subset.shape[0] < 20:
             continue
         block = analyse(subset, permutations)
         block["n"] = int(subset.shape[0])
-        sensitivity[f"Strate d’entrée : {variant}"] = block
+        sensitivity[f"Canal d’entrée : {variant}"] = block
 
     payload: dict[str, object] = {
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),

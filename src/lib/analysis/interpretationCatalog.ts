@@ -16,9 +16,20 @@ export type HypothesisId = 'H1' | 'H2' | 'H3' | 'H4' | 'H5' | 'H6' | 'H7' | 'H8'
 
 export interface Hypothesis {
   id: HypothesisId;
-  /** Variables brutes ou dimensions comparées. */
+  /**
+   * Variables brutes ou dimensions comparées. Les identifiants de dimension
+   * sont les scores complets (`sacredBoundary`, `aiOpenness`) sur lesquels
+   * travaille le module exploratoire ; les tests confirmatoires du
+   * préenregistrement portent sur les sous-scores de noyau
+   * (`sacredBoundaryCore`, `aiOpennessCore`), calculés par
+   * `analysis/confirmatory.py`.
+   */
   variables: [string, string];
-  /** Énoncé directionnel, tel qu’il figure dans METHODOLOGY.md §6. */
+  /**
+   * Énoncé aligné sur le tableau de la section 2 de docs/PREREGISTRATION.md,
+   * qui est la seule formulation faisant foi. Cette constante alimente le
+   * module d’interprétation exploratoire, jamais la décision sur H1 à H8.
+   */
   statement: string;
 }
 
@@ -71,49 +82,49 @@ export const HYPOTHESES: Record<HypothesisId, Hypothesis> = {
     id: 'H1',
     variables: ['religiosity', 'sacredBoundary'],
     statement:
-      'Une centralité religieuse plus élevée irait de pair avec une frontière sacrée plus stricte.',
+      'Une centralité religieuse plus élevée serait associée à une frontière sacrée plus stricte.',
   },
   H2: {
     id: 'H2',
     variables: ['profil_confession_evangelique', 'aiOpenness'],
     statement:
-      'Les répondants charismatiques et évangéliques présenteraient une ouverture à l’IA distincte de celle de leurs coreligionnaires non charismatiques.',
+      'Les évangéliques charismatiques présenteraient une ouverture à l’IA plus élevée que les évangéliques non charismatiques.',
   },
   H3: {
     id: 'H3',
     variables: ['profil_age', 'aiOpenness'],
     statement:
-      'Les répondants plus jeunes présenteraient une ouverture à l’IA plus grande, indépendamment de leur niveau de religiosité.',
+      'Les répondants plus jeunes présenteraient une ouverture à l’IA plus élevée, à religiosité égale (covariable `religiosity`).',
   },
   H4: {
     id: 'H4',
     variables: ['theo_orientation', 'sacredBoundary'],
     statement:
-      'Une orientation théologique conservatrice irait de pair avec une frontière sacrée plus stricte.',
+      'Une orientation théologique plus conservatrice serait associée à une frontière sacrée plus stricte.',
   },
   H5: {
     id: 'H5',
     variables: ['profil_statut', 'sacredBoundaryCore'],
     statement:
-      'Le clergé présenterait une frontière sacrée de noyau commun plus stricte que les laïcs.',
+      'Le clergé présenterait une frontière sacrée de noyau plus stricte que les laïcs.',
   },
   H6: {
     id: 'H6',
     variables: ['communaute_position_officielle', 'aiOpenness'],
     statement:
-      'La position officielle perçue de la communauté irait de pair avec l’ouverture individuelle à l’IA.',
+      'Chez les répondants qui déclarent une position officielle de leur Église, une position perçue plus favorable serait associée à une ouverture à l’IA plus élevée.',
   },
   H7: {
     id: 'H7',
     variables: ['profil_formation_theologique', 'ethicalConcern'],
     statement:
-      'Une formation théologique formelle irait de pair avec une préoccupation éthique plus articulée, et moins extrême.',
+      'Les répondants ayant une formation théologique formelle présenteraient une dispersion de la préoccupation éthique plus faible que les autres.',
   },
   H8: {
     id: 'H8',
     variables: ['ctrl_ia_frequence', 'ethicalConcern'],
     statement:
-      'Un usage quotidien de l’IA irait de pair avec une préoccupation éthique plus faible.',
+      'Une fréquence d’usage plus élevée de l’IA serait associée à une préoccupation éthique plus faible.',
   },
 };
 

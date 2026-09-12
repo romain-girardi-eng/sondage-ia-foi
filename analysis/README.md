@@ -1,4 +1,4 @@
-# Analyse confirmatoire — IA et foi
+# Analyse confirmatoire, IA et foi
 
 Script d'analyse des huit hypothèses préenregistrées (H1 à H8). Il lit un export
 CSV, recalcule les scores avec les règles de l'instrument, exécute les tests,
@@ -29,8 +29,8 @@ analysis/.venv/bin/python -m pytest analysis -q
 
 Sorties, dans `--out` (`analysis/out` par défaut) :
 
-- `confirmatory_report.md` — rapport lisible ;
-- `confirmatory_results.json` — tous les nombres, y compris le SHA-256 de
+- `confirmatory_report.md` : rapport lisible ;
+- `confirmatory_results.json` : tous les nombres, y compris le SHA-256 de
   l'extrait analysé.
 
 ## Format de l'export attendu
@@ -85,11 +85,11 @@ avec son SHA-256.
    | Hypothèse | Test confirmatoire | Taille d'effet |
    | --- | --- | --- |
    | H1 | Spearman bilatéral, ex æquo corrigés, `religiosity × sacredBoundaryCore` | rho |
-   | H2 | Mann-Whitney unilatéral, charismatiques > non-charismatiques sur `aiOpennessCore` | delta de Cliff |
-   | H3 | MCO `aiOpennessCore ~ âge + religiosity`, test du coefficient d'âge | beta (âge) |
-   | H4 | Jonckheere-Terpstra bilatéral sur `theo_orientation` ordonnée × `sacredBoundaryCore` | tau-b de Kendall |
+   | H2 | Mann-Whitney bilatéral, charismatiques vs non-charismatiques sur `aiOpennessCore` | delta de Cliff |
+   | H3 | MCO `aiOpennessCore ~ âge + religiosity`, test t bilatéral du coefficient d'âge | beta (âge), non standardisé |
+   | H4 | Jonckheere-Terpstra bilatéral (permutation) sur `theo_orientation` ordonnée × `sacredBoundaryCore` | tau-b de Kendall |
    | H5 | Mann-Whitney bilatéral, clergé vs laïcs sur `sacredBoundaryCore` | delta de Cliff |
-   | H6 | Jonckheere-Terpstra bilatéral sur `communaute_position_officielle` (`oui_*`) × `aiOpennessCore` | tau-b de Kendall |
+   | H6 | Jonckheere-Terpstra bilatéral (permutation) sur `communaute_position_officielle` (`oui_*`) × `aiOpennessCore` | tau-b de Kendall |
    | H7 | Brown-Forsythe unilatéral, dispersion de `ethicalConcern` plus faible chez les formés | rapport des écarts absolus moyens |
    | H8 | Spearman bilatéral `ctrl_ia_frequence × ethicalConcern` | rho |
 
@@ -101,8 +101,22 @@ avec son SHA-256.
    `oui_favorable` = 3) : `non`, `ne_sait_pas` et `sans_reponse` sont exclus,
    et l'effectif utile est rapporté.
 
-   H5 est bilatéral : le plan ne fixe pas de sens pour la comparaison clergé /
-   laïcs. H2 et H7 sont unilatéraux dans le sens annoncé.
+   Toutes les statistiques sont bilatérales et la direction annoncée est lue
+   sur le signe de l'effet (H2 : delta de Cliff positif attendu ; H5 : clergé
+   plus strict attendu). Seule H7 est unilatérale : un test de dispersion
+   omnibus n'a pas de signe, la version directionnelle est donc codée.
+
+   Pour H3, le coefficient standardisé (`betaAgeStandardised`, beta multiplié
+   par le rapport des écarts types de l'âge et de la variable dépendante) est
+   écrit dans le détail du rapport ; il ne sert qu'à lire l'effet contre les
+   seuils du préenregistrement (section 4.4). La statistique confirmatoire et
+   son intervalle bootstrap restent non standardisés.
+
+   Seuils de non-testabilité, codés : Spearman n < 3 ; Mann-Whitney, un groupe
+   sous 3 ; Jonckheere-Terpstra n < 6 ou moins de deux niveaux ; H3 n < 10 ;
+   H7, un groupe sous 3. Une hypothèse non testable est rapportée sans valeur p
+   et retirée de sa famille avant Holm (m diminue d'autant) ; la réserve
+   correspondante l'écrit dans le rapport.
 
 3. **Multiplicité.** Holm à l'intérieur de deux familles, sans correction entre
    elles : famille primaire {H1, H8}, famille secondaire {H2, H3, H4, H5, H6,
@@ -112,12 +126,14 @@ avec son SHA-256.
    pour chaque taille d'effet. Le rééchantillonnage porte sur les **répondants**
    (les lignes), pas sur les colonnes prises séparément.
 
-5. **Fidélité.** Alpha de Cronbach et omega ordinal par dimension et par
-   sous-score de noyau.
+5. **Fidélité.** Alpha de Cronbach et omega ordinal approximé par dimension et
+   par sous-score de noyau, après retrait des items posés à moins de la moitié
+   des répondants (voir plus bas).
 
-6. **Sensibilité.** Tout est réexécuté (a) en excluant les répondants
-   drapeautés par l'échelle de désirabilité sociale, (b) séparément par strate
-   `entryVariant`.
+6. **Sensibilité.** Tout est réexécuté (a) en excluant les répondants dont le
+   drapeau de désirabilité sociale est levé, (b) séparément dans chaque canal
+   d'entrée (`entryVariant`) comptant au moins 20 réponses exploitables. Aucune
+   statistique stratifiée n'est calculée.
 
 ## Choix de méthode à connaître
 
@@ -154,6 +170,14 @@ listés dans le rapport.
 c'est le coefficient corrigé des ex æquo. Sa valeur p repose sur
 l'approximation en t.
 
+**Mann-Whitney.** `scipy.stats.mannwhitneyu`, méthode asymptotique :
+approximation normale avec correction des ex æquo et correction de continuité.
+
+**Puissance de H7.** `power_h7.py` recalcule la puissance du test de dispersion
+à l'effet attendu (rapport d'écarts types latents de 0,70, trois items
+discrétisés, bruit d'item 0,3, seuils ±0,5 et ±1,5, 2 000 réplications, graine
+20260907) pour les effectifs cités par le préenregistrement, section 4.4.
+
 ## Reproductibilité
 
 Graine unique : **20260907**, pour les permutations comme pour le bootstrap.
@@ -170,4 +194,5 @@ avec eux.
 | `scoring.py` | calcul des sept dimensions et des deux sous-scores de noyau |
 | `stats.py` | Spearman, Mann-Whitney, Jonckheere-Terpstra, Brown-Forsythe, MCO, Holm, bootstrap, alpha, omega |
 | `synthetic.py` | générateur de jeu synthétique pour `--dry-run` |
+| `power_h7.py` | simulation de puissance de H7, paramètres écrits dans le fichier |
 | `test_analysis.py` | tests : dérive vis-à-vis du TypeScript, fixtures calculées à la main, procédures statistiques |

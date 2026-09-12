@@ -84,13 +84,26 @@ export function buildCorrelationsLock(exploitable: number): CorrelationsLock {
 }
 
 /**
+ * Segment findings that read as the descriptive form of a pre-registered
+ * hypothesis (here H5 on `aiOpenness`: clergy versus laity) and are therefore
+ * withheld while the gate is closed, even though they carry no test.
+ */
+export const LOCKED_SEGMENT_FINDING_TITLES: readonly string[] = [
+  'Écart clergé/laïcs sur l’ouverture à l’IA',
+];
+
+/**
  * Drops the narrative sentences that would leak a bivariate result while the
  * gate is closed. Correlation findings carry r and an adjusted p verbatim, so
- * they go entirely; the descriptive ones (means, counts) stay.
+ * they go entirely; the clergy/laity gap on AI openness goes too; the other
+ * descriptive ones (means, counts) stay.
  */
 export function suppressBivariateFindings(findings: KeyFinding[]): KeyFinding[] {
   return findings.filter(
-    (finding) => finding.type !== 'correlation' && !/p ajusté|corrélation/i.test(finding.description)
+    (finding) =>
+      finding.type !== 'correlation' &&
+      !LOCKED_SEGMENT_FINDING_TITLES.includes(finding.title) &&
+      !/p ajusté|corrélation/i.test(finding.description)
   );
 }
 

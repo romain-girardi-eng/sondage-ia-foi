@@ -448,7 +448,7 @@ export const LandingVideo: React.FC = () => {
             />
             <FeatureBadge
               icon="🔒"
-              text="100% anonyme"
+              text="Réponses pseudonymisées"
               startFrame={40}
               x={960}
               y={630}
