@@ -6,7 +6,9 @@
  * - a segment below MIN_SEGMENT_N publishes null means and null SDs, never a
  *   number computed on a handful of identifiable people;
  * - a correlation is computed only from MIN_CORRELATION_N pairwise-complete
- *   observations, and always travels with its 95 % CI and its BH-adjusted p.
+ *   observations, and always travels with its 95 % CI and its BH-adjusted p;
+ * - no bivariate statistic at all is produced before CONFIRMATORY_N exploitable
+ *   v2 responses (PREREGISTRATION §4.3).
  */
 
 import { calculateMedian, calculateDistribution } from "@/lib/utils/statistics";
@@ -31,6 +33,66 @@ export const MIN_SEGMENT_N = 5;
 
 /** Below this, a correlation coefficient is too unstable to be reported at all. */
 export const MIN_CORRELATION_N = 20;
+
+/**
+ * Pre-registered analytic threshold (PREREGISTRATION §4.3). Below it the admin
+ * dashboard must not surface a single bivariate statistic: seeing one before
+ * the sample is closed is what makes optional stopping possible, so the guard
+ * is in the code and not only in the plan.
+ */
+export const CONFIRMATORY_N = 200;
+
+/** Confessions that end the run on the screen-out, outside the study population. */
+const SCREENED_OUT_CONFESSION = 'sans_religion';
+
+/** Only the second instrument is analysed confirmatorily (PREREGISTRATION §6.4). */
+const CONFIRMATORY_INSTRUMENT_PREFIX = '2.';
+
+/** Minimal shape needed to decide whether a stored response is exploitable. */
+export interface ExploitableCandidate {
+  consent_given?: boolean | null;
+  metadata?: { screenedOut?: unknown; instrumentVersion?: unknown } | null;
+  answers?: { profil_confession?: unknown } | null;
+}
+
+/**
+ * The four conditions that define an « exploitable response » in the
+ * pre-registration: consent given, not screened out, inside the study
+ * population, and answered on instrument v2.
+ */
+export function isExploitableV2Response(row: ExploitableCandidate): boolean {
+  if (row.consent_given !== true) return false;
+
+  const screenedOut = row.metadata?.screenedOut;
+  if (screenedOut === true || screenedOut === 'true') return false;
+
+  if (row.answers?.profil_confession === SCREENED_OUT_CONFESSION) return false;
+
+  const version = row.metadata?.instrumentVersion;
+  return typeof version === 'string' && version.startsWith(CONFIRMATORY_INSTRUMENT_PREFIX);
+}
+
+/** State of the pre-registration gate, published so the lock stays auditable. */
+export interface CorrelationsLock {
+  locked: boolean;
+  exploitable: number;
+  required: number;
+}
+
+export function buildCorrelationsLock(exploitable: number): CorrelationsLock {
+  return { locked: exploitable < CONFIRMATORY_N, exploitable, required: CONFIRMATORY_N };
+}
+
+/**
+ * Drops the narrative sentences that would leak a bivariate result while the
+ * gate is closed. Correlation findings carry r and an adjusted p verbatim, so
+ * they go entirely; the descriptive ones (means, counts) stay.
+ */
+export function suppressBivariateFindings(findings: KeyFinding[]): KeyFinding[] {
+  return findings.filter(
+    (finding) => finding.type !== 'correlation' && !/p ajusté|corrélation/i.test(finding.description)
+  );
+}
 
 // Types
 export interface SegmentStats {

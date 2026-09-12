@@ -7,7 +7,7 @@ Academic survey application studying AI usage in Christian religious practices.
 ## Features
 
 - **Immersive Landing Page** - Custom CPPN shader with Three.js for a spiritual, meditative visual experience
-- **58 Survey Questions** - Instrument v2.0.0 with conditional routing (47 to 52 shown per respondent; 1 for screened-out respondents)
+- **58 Survey Questions** - Instrument v2.0.0 with conditional routing (46 to 53 shown per respondent; 1 for screened-out respondents)
 - **Conditional Logic** - Questions adapt based on previous answers
 - **i18n Support** - Full French and English translations with language switcher
 - **Heuristic Profiling** - 7 dimensions and 8 profiles; profile attribution is heuristic and labelled as such, never a diagnosis

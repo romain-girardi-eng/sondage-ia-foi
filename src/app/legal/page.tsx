@@ -38,12 +38,13 @@ export default function LegalPage() {
               Éditeur du site
             </h2>
             <p className="text-muted-foreground">
-              Ce site est édité dans le cadre d&apos;un projet de recherche académique.
+              Ce site est édité dans le cadre d&apos;un projet de recherche indépendant.
             </p>
             <ul className="mt-4 space-y-2 text-muted-foreground">
-              <li><strong className="text-foreground">Projet :</strong> Étude sur l&apos;IA dans les pratiques religieuses chrétiennes</li>
-              <li><strong className="text-foreground">Nature :</strong> Recherche académique non commerciale</li>
-              <li><strong className="text-foreground">Cadre :</strong> Université / Institution de recherche</li>
+              <li><strong className="text-foreground">Projet :</strong> Étude sur l&apos;IA dans les pratiques religieuses chrétiennes</li>
+              <li><strong className="text-foreground">Nature :</strong> Recherche indépendante non commerciale</li>
+              <li><strong className="text-foreground">Responsable du traitement :</strong> Romain Girardi, agissant en son nom propre, sans rattachement institutionnel</li>
+              <li><strong className="text-foreground">Contact :</strong> contact@ia-foi.fr</li>
             </ul>
           </section>
 
@@ -53,9 +54,9 @@ export default function LegalPage() {
               Hébergement
             </h2>
             <ul className="space-y-2 text-muted-foreground">
-              <li><strong className="text-foreground">Hébergeur :</strong> Vercel Inc.</li>
-              <li><strong className="text-foreground">Adresse :</strong> 340 S Lemon Ave #4133, Walnut, CA 91789, USA</li>
-              <li><strong className="text-foreground">Site web :</strong> https://vercel.com</li>
+              <li><strong className="text-foreground">Hébergeur :</strong> Vercel Inc.</li>
+              <li><strong className="text-foreground">Adresse :</strong> 340 S Lemon Ave #4133, Walnut, CA 91789, USA</li>
+              <li><strong className="text-foreground">Site web :</strong> https://vercel.com</li>
             </ul>
           </section>
 

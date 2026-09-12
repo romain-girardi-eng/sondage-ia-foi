@@ -100,8 +100,9 @@ function columns(values: readonly number[]): MatrixColumn[] {
 }
 
 // --- CONTENU DU SONDAGE COMPLET ---
-// Structure: 58 questions totales, ~44-50 affichées selon le parcours
-// (clergé vs laïc, usage de l'IA ou non).
+// Structure: 58 questions totales, 46 à 53 affichées selon le parcours
+// (sous-questions de confession, clergé vs laïc, usage de l'IA en général et
+// en prédication). La borne est vérifiée par surveySchema.test.ts.
 // Hypothèses de corrélation testables: H1-H8 (voir méthodologie)
 
 export const SURVEY_QUESTIONS: Question[] = [

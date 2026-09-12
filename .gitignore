@@ -44,3 +44,9 @@ next-env.d.ts
 
 # local data backups (contain personal data, never commit)
 backups/
+
+# python analysis venv and generated outputs
+analysis/.venv/
+analysis/out/
+analysis/__pycache__/
+analysis/.pytest_cache/

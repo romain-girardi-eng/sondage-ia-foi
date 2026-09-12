@@ -21,7 +21,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
     lastUpdate: "Last updated: July 8, 2026",
     controller: {
       title: "Data Controller",
-      text: "This study is conducted in an academic context. The data controller is the principal researcher of the study.",
+      text: "This study is independent and attached to no institution. The data controller is Romain Girardi, principal investigator, acting in his own name.",
       contact: "Contact: contact@ia-foi.fr"
     },
     collected: {
@@ -41,7 +41,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
         items: [
           {
             name: "Your survey answers on religious beliefs and convictions",
-            detail: "Special category data under GDPR Article 9. Processed only with your explicit, separate consent (Art. 9(2)(a)) for academic research purposes, with the safeguards required by Art. 89: pseudonymization via your anonymous ID, data minimization, and a time-limited retention period."
+            detail: "Special category data under GDPR Article 9. Processed only with your explicit, separate consent (Art. 9(2)(a)) for independent research purposes, with the safeguards required by Art. 89: pseudonymization via your anonymous ID, data minimization, and a time-limited retention period."
           },
           {
             name: "Keyed cryptographic hash of your email (HMAC-SHA256)",
@@ -188,7 +188,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
     lastUpdate: "Dernière mise à jour : 8 juillet 2026",
     controller: {
       title: "Responsable du traitement",
-      text: "Cette étude est menée dans un cadre académique. Le responsable du traitement des données est le chercheur principal de l'étude.",
+      text: "Cette étude est indépendante et n'est rattachée à aucune institution. Le responsable du traitement des données est Romain Girardi, chercheur principal, agissant en son nom propre.",
       contact: "Contact : contact@ia-foi.fr"
     },
     collected: {
@@ -208,7 +208,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
         items: [
           {
             name: "Vos réponses relatives à vos convictions et croyances religieuses",
-            detail: "Donnée sensible au sens de l'article 9 du RGPD. Traitée uniquement sur la base de votre consentement explicite et distinct (art. 9§2.a) à des fins de recherche académique, avec les garanties exigées par l'article 89 : pseudonymisation via votre identifiant anonyme, minimisation des données et durée de conservation limitée."
+            detail: "Donnée sensible au sens de l'article 9 du RGPD. Traitée uniquement sur la base de votre consentement explicite et distinct (art. 9§2.a) à des fins de recherche indépendante, avec les garanties exigées par l'article 89 : pseudonymisation via votre identifiant anonyme, minimisation des données et durée de conservation limitée."
           },
           {
             name: "Empreinte cryptographique à clé de votre email (HMAC-SHA256)",

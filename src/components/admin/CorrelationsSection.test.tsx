@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { generateMockStats } from '@/lib/admin/mock-stats';
+import { generateLockedMockStats, generateMockStats } from '@/lib/admin/mock-stats';
 import { CorrelationsSection } from './CorrelationsSection';
 
 const facts = generateMockStats().correlations;
@@ -41,6 +41,17 @@ describe('CorrelationsSection', () => {
     expect(scope.getAllByText('Interprétative').length).toBeGreaterThan(0);
     expect(scope.getAllByText('Globale').length).toBeGreaterThan(0);
     expect(scope.getAllByText(/Grade [ABCD]/).length).toBeGreaterThan(0);
+  });
+
+  it('shows the pre-registration gate instead of any bivariate statistic', () => {
+    const locked = generateLockedMockStats(42);
+    render(<CorrelationsSection facts={locked.correlations} lock={locked.correlationsLocked} />);
+
+    expect(screen.getByText(/Statistiques bivariées verrouillées/)).toBeInTheDocument();
+    expect(screen.getByText(/200 réponses exploitables v2/)).toBeInTheDocument();
+    expect(screen.getByText(/42/)).toBeInTheDocument();
+    expect(screen.queryByText(/p ajusté/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^H1$/)).not.toBeInTheDocument();
   });
 
   it('says so when nothing could be correlated', () => {

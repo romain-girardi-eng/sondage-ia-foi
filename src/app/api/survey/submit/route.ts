@@ -246,6 +246,10 @@ export async function POST(request: NextRequest) {
         completed_at: new Date().toISOString(),
         is_complete: true,
         partial_answers: answers,
+        // Attrition strata (migration 012). Written here too so a completed
+        // session carries the same columns as an abandoned one.
+        instrument_version: metadata?.instrumentVersion ?? null,
+        entry_variant: metadata?.entryVariant ?? null,
       }, { onConflict: 'id' });
 
     if (sessionError) {

@@ -16,6 +16,9 @@ import {
   calculateDimensionStats,
   computeCorrelations,
   buildCorrelationMatrix,
+  buildCorrelationsLock,
+  isExploitableV2Response,
+  suppressBivariateFindings,
   generateKeyFindings,
   getCompletionMinutes,
   calculateScoreDistributions,
@@ -270,6 +273,7 @@ export async function GET(request: NextRequest) {
     // Process all responses for statistics
     interface AllResponseItem {
       id: string;
+      consent_given: boolean | null;
       answers: Record<string, unknown> | null;
       metadata: {
         language?: string;
@@ -278,6 +282,7 @@ export async function GET(request: NextRequest) {
         startedAt?: string;
         completedAt?: string;
         screenedOut?: boolean;
+        instrumentVersion?: string;
       } | null;
       created_at: string;
       updated_at: string;
@@ -468,9 +473,26 @@ export async function GET(request: NextRequest) {
     // Calculate dimension statistics
     const dimensionStats = calculateDimensionStats(dimensionData);
 
+    // Pre-registration gate (§4.3): not a single bivariate statistic before
+    // CONFIRMATORY_N exploitable v2 responses. The count is the analytic
+    // sample, not the raw total, so the lock cannot be lifted by screen-outs or
+    // by v1 rows.
+    const exploitableV2Count = ((allResponsesData as AllResponseItem[] | null) ?? []).filter((r) =>
+      isExploitableV2Response({
+        consent_given: r.consent_given,
+        metadata: r.metadata,
+        answers: r.answers,
+      })
+    ).length;
+    const correlationsLocked = buildCorrelationsLock(exploitableV2Count);
+
     // Correlations: pairwise-complete, n >= 20, Fisher CI, BH over this family
-    const correlations = computeCorrelations(dimensionRecords, dimensionKeys, DIMENSION_ITEMS);
-    const correlationMatrix = buildCorrelationMatrix(correlations, dimensionKeys);
+    const correlations = correlationsLocked.locked
+      ? []
+      : computeCorrelations(dimensionRecords, dimensionKeys, DIMENSION_ITEMS);
+    const correlationMatrix = correlationsLocked.locked
+      ? null
+      : buildCorrelationMatrix(correlations, dimensionKeys);
 
     // Build segmented analysis
     const segmentedAnalysis = {
@@ -498,13 +520,17 @@ export async function GET(request: NextRequest) {
       avgAiOpenness: data.count >= MIN_SEGMENT_N ? calculateAverage(present(data.aiOpenness)) : null,
     }));
 
-    // Generate key findings
-    const keyFindings = generateKeyFindings(
+    // Generate key findings. While the gate is closed the narrative is stripped
+    // of anything bivariate, including a sentence that would only quote a p.
+    const allKeyFindings = generateKeyFindings(
       segmentedAnalysis,
       correlations,
       dimensionStats,
       completedResponses || 0
     );
+    const keyFindings = correlationsLocked.locked
+      ? suppressBivariateFindings(allKeyFindings)
+      : allKeyFindings;
 
     // Population averages for the response modal comparison
     const populationAverages: Record<string, number | null> = {};
@@ -554,6 +580,7 @@ export async function GET(request: NextRequest) {
       dimensionStats,
       correlations,
       correlationMatrix,
+      correlationsLocked,
       profileClusters,
       keyFindings,
       feedbacks,

@@ -2,7 +2,7 @@
  * Admin Library Exports
  */
 
-export { generateMockStats, type MockStats } from './mock-stats';
+export { generateMockStats, generateLockedMockStats, type MockStats } from './mock-stats';
 export {
   // Types
   type SegmentStats,
@@ -12,9 +12,12 @@ export {
   type SegmentDataItem,
   type DimensionRecord,
   type CorrelationFact,
+  type CorrelationsLock,
+  type ExploitableCandidate,
   // Thresholds
   MIN_SEGMENT_N,
   MIN_CORRELATION_N,
+  CONFIRMATORY_N,
   // Functions
   getRoleCategory,
   emptySegmentDataItem,
@@ -22,6 +25,9 @@ export {
   calculateDimensionStats,
   computeCorrelations,
   buildCorrelationMatrix,
+  buildCorrelationsLock,
+  isExploitableV2Response,
+  suppressBivariateFindings,
   generateKeyFindings,
   getCompletionMinutes,
   calculateScoreDistributions,

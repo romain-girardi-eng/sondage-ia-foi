@@ -8,7 +8,7 @@
  * of the fixture is that the dashboard meets those absences in development.
  */
 
-import type { CorrelationFact } from './stats-helpers';
+import { CONFIRMATORY_N, type CorrelationFact, type CorrelationsLock } from './stats-helpers';
 
 interface MockProfileCluster {
   profile: string;
@@ -105,6 +105,8 @@ export interface MockStats {
   dimensionStats: Record<string, MockDimensionStat>;
   correlations: CorrelationFact[];
   correlationMatrix: Record<string, Record<string, number>> | null;
+  /** Pre-registration gate (§4.3); open in the demo so the section stays visible. */
+  correlationsLocked: CorrelationsLock;
   profileClusters: MockProfileCluster[];
   keyFindings: MockKeyFinding[];
   feedbacks: Array<{
@@ -423,6 +425,7 @@ export function generateMockStats(): MockStats {
     ],
     // Toutes les paires n'atteignent pas n >= 20 (futureOrientation) : pas de matrice.
     correlationMatrix: null,
+    correlationsLocked: { locked: false, exploitable: 1287, required: CONFIRMATORY_N },
     profileClusters: [
       { profile: 'gardien_tradition', count: 234, avgReligiosity: 4.5, avgAiOpenness: 1.8 },
       { profile: 'prudent_eclaire', count: 312, avgReligiosity: 4.0, avgAiOpenness: 2.4 },
@@ -487,5 +490,21 @@ export function generateMockStats(): MockStats {
     insufficientSampleSize: false,
     sampleSizeWarning: null,
     demo: true,
+  };
+}
+
+/**
+ * Same fixture, seen through the pre-registration gate: the analytic sample is
+ * still short of CONFIRMATORY_N, so no bivariate statistic and no narrative
+ * sentence quoting one may leave the route.
+ */
+export function generateLockedMockStats(exploitable = 42): MockStats {
+  const base = generateMockStats();
+  return {
+    ...base,
+    correlations: [],
+    correlationMatrix: null,
+    correlationsLocked: { locked: true, exploitable, required: CONFIRMATORY_N },
+    keyFindings: base.keyFindings.filter((finding) => finding.type !== 'correlation'),
   };
 }

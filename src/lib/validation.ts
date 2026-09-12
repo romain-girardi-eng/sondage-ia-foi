@@ -94,6 +94,10 @@ export const partialSaveSchema = z.object({
   answers: answersSchema,
   lastQuestionIndex: z.number().int().min(0),
   language: z.enum(['fr', 'en']),
+  // Attrition strata (migration 012): an abandoned session never produces a
+  // response, so these must be stored on the session itself to survive.
+  instrumentVersion: z.string().max(20).optional(),
+  entryVariant: z.string().max(32).optional(),
 });
 
 // Export request schema

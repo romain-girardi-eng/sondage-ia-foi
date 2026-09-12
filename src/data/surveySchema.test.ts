@@ -669,3 +669,98 @@ describe('French typography', () => {
     expect(offenders, `plain space before punctuation in: ${offenders.join(', ')}`).toEqual([]);
   });
 });
+
+// ==========================================
+// ROUTING LENGTH
+// ==========================================
+
+describe('Displayed question count across routing branches', () => {
+  /**
+   * The public documents quote a range of displayed questions. It is derived
+   * here from the schema itself, over the exact routing factors: the number of
+   * confession sub-questions (0, 1 or 2), the status block (ministry or lay),
+   * general AI use, and preaching AI use.
+   */
+  const CONFESSION_BRANCHES: Array<{ label: string; answers: Answers }> = [
+    { label: 'sans sous-question', answers: { profil_confession: 'anglican' } },
+    { label: 'catholique', answers: { profil_confession: 'catholique' } },
+    { label: 'orthodoxe', answers: { profil_confession: 'orthodoxe' } },
+    { label: 'autre chrétien', answers: { profil_confession: 'autre_chretien' } },
+    {
+      label: 'protestant non évangélique',
+      answers: { profil_confession: 'protestant', profil_confession_protestante: 'protestant_historique' },
+    },
+    {
+      label: 'protestant évangélique',
+      answers: {
+        profil_confession: 'protestant',
+        profil_confession_protestante: 'evangelique',
+        profil_confession_evangelique: 'pentecotiste',
+      },
+    },
+  ];
+
+  const STATUS_BRANCHES = ['clerge', 'responsable_non_ordonne', 'laic_pratiquant'];
+  const GENERAL_AI_BRANCHES = ['jamais', 'regulier'];
+  const PREACHING_AI_BRANCHES = ['jamais', 'rare'];
+
+  const counts = CONFESSION_BRANCHES.flatMap(({ label, answers }) =>
+    STATUS_BRANCHES.flatMap((statut) =>
+      GENERAL_AI_BRANCHES.flatMap((frequence) =>
+        PREACHING_AI_BRANCHES.map((predication) => ({
+          label: `${label} / ${statut} / IA ${frequence} / prédication ${predication}`,
+          n: getVisibleQuestions({
+            ...answers,
+            profil_statut: statut,
+            ctrl_ia_frequence: frequence,
+            min_pred_usage: predication,
+          }).length,
+        }))
+      )
+    )
+  );
+
+  it('uses routing option values that actually exist in the schema', () => {
+    expect(optionValues('profil_confession')).toEqual(
+      expect.arrayContaining(['catholique', 'protestant', 'orthodoxe', 'anglican', 'autre_chretien'])
+    );
+    expect(optionValues('profil_confession_protestante')).toEqual(
+      expect.arrayContaining(['evangelique', 'protestant_historique'])
+    );
+    expect(optionValues('profil_statut')).toEqual(expect.arrayContaining(STATUS_BRANCHES));
+    expect(optionValues('ctrl_ia_frequence')).toEqual(expect.arrayContaining(GENERAL_AI_BRANCHES));
+    expect(optionValues('min_pred_usage')).toEqual(expect.arrayContaining(PREACHING_AI_BRANCHES));
+  });
+
+  it('shows between 46 and 53 questions, the range quoted publicly', () => {
+    const values = counts.map((c) => c.n);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const shortest = counts.find((c) => c.n === min)!;
+    const longest = counts.find((c) => c.n === max)!;
+
+    // The branch labels ride in the failure message so a range change can be
+    // read off the test output and carried into the public documents.
+    expect(
+      { min, max },
+      `plus court : ${shortest.label} ; plus long : ${longest.label}`
+    ).toEqual({ min: 46, max: 53 });
+  });
+
+  it('never shows the ministry block to a layperson, nor the lay block to clergy', () => {
+    const clergy = getVisibleQuestions({
+      profil_confession: 'catholique',
+      profil_statut: 'clerge',
+      min_pred_usage: 'rare',
+    }).map((q) => q.id);
+    const laity = getVisibleQuestions({
+      profil_confession: 'catholique',
+      profil_statut: 'laic_pratiquant',
+    }).map((q) => q.id);
+
+    expect(clergy).toContain('min_pred_usage');
+    expect(clergy).not.toContain('laic_substitution_priere');
+    expect(laity).toContain('laic_substitution_priere');
+    expect(laity).not.toContain('min_pred_usage');
+  });
+});

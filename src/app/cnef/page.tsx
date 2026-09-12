@@ -6,7 +6,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ia-foi.fr";
 export const metadata: Metadata = {
   title: "IA & Foi x CNEF | Enquête auprès des chrétiens évangéliques",
   description:
-    "Enquête académique anonyme sur l'usage de l'intelligence artificielle dans la vie d'Église évangélique, réalisée en partenariat avec le CNEF. Résultats personnalisés inclus.",
+    "Enquête indépendante sur l'usage de l'intelligence artificielle dans la vie d'Église évangélique, réalisée en partenariat avec le CNEF. Réponses pseudonymisées, résultats personnalisés inclus.",
   robots: { index: true, follow: true },
   alternates: {
     canonical: `${BASE_URL}/cnef`,
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "IA & Foi x CNEF — Enquête évangélique sur l'IA",
     description:
-      "Participez à l'enquête académique sur l'IA dans les Églises évangéliques, en partenariat avec le CNEF. Anonyme et confidentiel.",
+      "Participez à l'enquête indépendante sur l'IA dans les Églises évangéliques, en partenariat avec le CNEF. Réponses pseudonymisées.",
     url: `${BASE_URL}/cnef`,
     type: "website",
     images: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "IA & Foi x CNEF — Enquête évangélique sur l'IA",
     description:
-      "Participez à l'enquête académique sur l'IA dans les Églises évangéliques, en partenariat avec le CNEF.",
+      "Participez à l'enquête indépendante sur l'IA dans les Églises évangéliques, en partenariat avec le CNEF.",
     images: [{ url: `${BASE_URL}/cnef-og.png`, alt: "IA & Foi x CNEF" }],
   },
 };

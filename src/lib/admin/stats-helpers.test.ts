@@ -10,9 +10,14 @@ import {
   buildSegmentStats,
   calculateDimensionStats,
   MIN_CORRELATION_N,
+  CONFIRMATORY_N,
+  buildCorrelationsLock,
+  isExploitableV2Response,
+  suppressBivariateFindings,
   type DimensionRecord,
   type SegmentDataItem,
 } from './stats-helpers';
+import { generateLockedMockStats, generateMockStats } from './mock-stats';
 
 describe('fisherCi95', () => {
   it('matches the textbook interval for r = 0.5, n = 50', () => {
@@ -223,5 +228,100 @@ describe('calculateDimensionStats', () => {
     expect(stats.religiosity.n).toBe(5);
     expect(stats.religiosity.mean).toBe(3);
     expect(stats.religiosity.stdDev).toBeCloseTo(1.58, 2);
+  });
+});
+
+describe('isExploitableV2Response', () => {
+  const base = {
+    consent_given: true,
+    metadata: { instrumentVersion: '2.0.0' },
+    answers: { profil_confession: 'catholique' },
+  };
+
+  it('accepts a consented, non-screened, v2 response inside the population', () => {
+    expect(isExploitableV2Response(base)).toBe(true);
+    expect(isExploitableV2Response({ ...base, metadata: { instrumentVersion: '2.1.3' } })).toBe(true);
+  });
+
+  it('rejects a response without consent', () => {
+    expect(isExploitableV2Response({ ...base, consent_given: false })).toBe(false);
+    expect(isExploitableV2Response({ ...base, consent_given: null })).toBe(false);
+  });
+
+  it('rejects a screened-out response, boolean or string flag', () => {
+    expect(
+      isExploitableV2Response({ ...base, metadata: { instrumentVersion: '2.0.0', screenedOut: true } })
+    ).toBe(false);
+    expect(
+      isExploitableV2Response({ ...base, metadata: { instrumentVersion: '2.0.0', screenedOut: 'true' } })
+    ).toBe(false);
+  });
+
+  it('rejects a respondent outside the study population', () => {
+    expect(isExploitableV2Response({ ...base, answers: { profil_confession: 'sans_religion' } })).toBe(false);
+  });
+
+  it('rejects anything that is not instrument v2', () => {
+    expect(isExploitableV2Response({ ...base, metadata: { instrumentVersion: '1.4.0' } })).toBe(false);
+    expect(isExploitableV2Response({ ...base, metadata: null })).toBe(false);
+    expect(isExploitableV2Response({ ...base, metadata: { instrumentVersion: 2 } })).toBe(false);
+  });
+});
+
+describe('buildCorrelationsLock', () => {
+  it('stays locked below the pre-registered threshold', () => {
+    expect(buildCorrelationsLock(0)).toEqual({ locked: true, exploitable: 0, required: 200 });
+    expect(buildCorrelationsLock(CONFIRMATORY_N - 1).locked).toBe(true);
+  });
+
+  it('opens exactly at the threshold', () => {
+    expect(buildCorrelationsLock(CONFIRMATORY_N).locked).toBe(false);
+  });
+});
+
+describe('suppressBivariateFindings', () => {
+  it('drops correlation findings and any sentence quoting an adjusted p', () => {
+    const kept = suppressBivariateFindings([
+      {
+        type: 'correlation',
+        title: 'Corrélation positive',
+        description: '« religiosity » et « sacredBoundary » : r = 0.612 (p ajusté = 0.00006).',
+        significance: 'high',
+      },
+      {
+        type: 'pattern',
+        title: 'Note interne',
+        description: 'Une corrélation apparaît entre les deux échelles.',
+        significance: 'low',
+      },
+      {
+        type: 'segment',
+        title: 'Écart clergé/laïcs sur la religiosité',
+        description: 'Religiosité moyenne : clergé 4.2 (n = 312), laïcs 3.5 (n = 1089).',
+        significance: 'medium',
+      },
+    ]);
+
+    expect(kept).toHaveLength(1);
+    expect(kept[0].type).toBe('segment');
+  });
+});
+
+describe('locked mock fixture', () => {
+  it('publishes no correlation, no matrix and no bivariate narrative', () => {
+    const locked = generateLockedMockStats(42);
+    expect(locked.correlations).toEqual([]);
+    expect(locked.correlationMatrix).toBeNull();
+    expect(locked.correlationsLocked).toEqual({ locked: true, exploitable: 42, required: CONFIRMATORY_N });
+    expect(locked.keyFindings.some((f) => f.type === 'correlation')).toBe(false);
+    // Descriptive statistics survive the gate.
+    expect(locked.dimensionStats.religiosity.mean).toBe(3.7);
+    expect(locked.segmentedAnalysis.byRole.clergy).toBeDefined();
+  });
+
+  it('leaves the demo fixture unlocked so the section stays visible in development', () => {
+    const demo = generateMockStats();
+    expect(demo.correlationsLocked.locked).toBe(false);
+    expect(demo.correlations.length).toBeGreaterThan(0);
   });
 });

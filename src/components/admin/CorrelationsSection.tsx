@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, GitCompare } from 'lucide-react';
+import { ChevronDown, ChevronRight, GitCompare, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SURVEY_QUESTIONS } from '@/data/surveySchema';
 import { DIMENSION_ITEMS } from '@/lib/scoring';
@@ -16,6 +16,7 @@ import {
   interpretMatrix,
 } from '@/lib/analysis';
 import type { CorrelationFact, InterpretedCorrelation } from '@/lib/analysis';
+import type { CorrelationsLock } from '@/lib/admin';
 import {
   MECHANISM_LABELS,
   bestGrade,
@@ -207,7 +208,13 @@ function HypothesesList({ interpreted }: { interpreted: readonly InterpretedCorr
   );
 }
 
-export function CorrelationsSection({ facts }: { facts: readonly CorrelationFact[] }) {
+export function CorrelationsSection({
+  facts,
+  lock,
+}: {
+  facts: readonly CorrelationFact[];
+  lock?: CorrelationsLock;
+}) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const interpreted = useMemo(
@@ -220,6 +227,23 @@ export function CorrelationsSection({ facts }: { facts: readonly CorrelationFact
   );
 
   const sorted = useMemo(() => sortByAbsoluteR(interpreted), [interpreted]);
+
+  if (lock?.locked) {
+    return (
+      <div className="bg-card border border-border rounded-2xl p-6 space-y-3">
+        <h3 className="font-semibold text-foreground flex items-center gap-2">
+          <Lock className="w-4 h-4 text-muted-foreground" />
+          Corrélations et interprétations
+        </h3>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          {`Statistiques bivariées verrouillées jusqu’à ${lock.required} réponses exploitables v2 (préenregistrement, section 4.3). Actuellement${NBSP}: ${lock.exploitable}.`}
+        </p>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          {`Les statistiques descriptives (moyennes, distributions) restent disponibles dans les autres onglets, sous les mêmes règles de k-anonymat.`}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-card border border-border rounded-2xl p-6 space-y-6">

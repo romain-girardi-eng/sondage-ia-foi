@@ -28,7 +28,7 @@ export const translations = {
       faqLink: "Consulter la FAQ",
       skipVideo: "Passer",
       videoNotSupported: "Votre navigateur ne prend pas en charge la vidéo.",
-      featureScientific: "Méthodologie scientifique",
+      featureScientific: "Méthodologie",
       featureAnonymous: "100 % anonyme",
       featureDuration: "8 à 12 minutes",
       anonymousHighlight: "100% anonyme",
@@ -43,7 +43,7 @@ export const translations = {
       title: "IA et foi : la parole aux évangéliques",
       subtitle: "Quel est votre usage réel de l'intelligence artificielle dans la vie d'Église ?",
       description:
-        "Le CNEF prépare une déclaration sur l'intelligence artificielle. Pour l'appuyer sur des chiffres réels, cette enquête recueille la pratique des évangéliques de France. Vos réponses, 100% anonymes, nourriront directement cette réflexion.",
+        "Le CNEF prépare une déclaration sur l'intelligence artificielle. Cette enquête recueille les pratiques déclarées d'évangéliques francophones, sans prétention de représentativité. Vos réponses, pseudonymisées, nourriront directement cette réflexion.",
       startButton: "Commencer l'enquête",
     },
 
@@ -381,8 +381,8 @@ export const translations = {
 
     // Consent
     consent: {
-      checkbox: "J'ai 18 ans ou plus, j'accepte les conditions de participation et la politique de confidentialité, et je consens explicitement au traitement de mes réponses relatives à mes convictions religieuses dans le cadre de cette recherche académique (art. 9§2.a du RGPD).",
-      checkboxCnef: "J'ai 18 ans ou plus, j'accepte les conditions de participation et la politique de confidentialité, et je consens explicitement au traitement de mes réponses relatives à mes convictions religieuses dans le cadre de cette recherche académique (art. 9§2.a du RGPD), ainsi qu'à leur exploitation sous forme agrégée et anonyme par le CNEF, partenaire de cette enquête.",
+      checkbox: "J'ai 18 ans ou plus, j'accepte les conditions de participation et la politique de confidentialité, et je consens explicitement au traitement de mes réponses relatives à mes convictions religieuses dans le cadre de cette recherche indépendante (art. 9§2.a du RGPD).",
+      checkboxCnef: "J'ai 18 ans ou plus, j'accepte les conditions de participation et la politique de confidentialité, et je consens explicitement au traitement de mes réponses relatives à mes convictions religieuses dans le cadre de cette recherche indépendante (art. 9§2.a du RGPD), ainsi qu'à leur exploitation sous forme agrégée et anonyme par le CNEF, partenaire de cette enquête.",
       details: "Les réponses anonymisées seront publiées sous forme de jeu de données ouvert à des fins de recherche et de réplication. Vous pouvez retirer votre participation et faire supprimer vos données à tout moment depuis la page « Mes données ».",
       minimumAge: "La participation est réservée aux personnes majeures (18 ans ou plus).",
       required: "Votre consentement est requis pour participer",
@@ -808,7 +808,7 @@ export const translations = {
       faqLink: "View FAQ",
       skipVideo: "Skip",
       videoNotSupported: "Your browser does not support video.",
-      featureScientific: "Scientific methodology",
+      featureScientific: "Methodology",
       featureAnonymous: "100% anonymous",
       featureDuration: "8 to 12 minutes",
       anonymousHighlight: "100% anonymous",
@@ -823,7 +823,7 @@ export const translations = {
       title: "AI and faith: the evangelical voice",
       subtitle: "What is your actual use of artificial intelligence in church life?",
       description:
-        "The CNEF is preparing a statement on artificial intelligence. To ground it in real figures, this survey gathers the practices of French evangelicals. Your answers, 100% anonymous, will directly inform this reflection.",
+        "The CNEF is preparing a statement on artificial intelligence. This survey gathers the self-reported practices of French-speaking evangelicals, with no claim to representativeness. Your answers, pseudonymised, will directly inform this reflection.",
       startButton: "Start the survey",
     },
 
@@ -1161,8 +1161,8 @@ export const translations = {
 
     // Consent
     consent: {
-      checkbox: "I am 18 or older, I accept the participation conditions and privacy policy, and I explicitly consent to the processing of my answers revealing my religious beliefs for the purposes of this academic research (GDPR Art. 9(2)(a)).",
-      checkboxCnef: "I am 18 or older, I accept the participation conditions and privacy policy, and I explicitly consent to the processing of my answers revealing my religious beliefs for the purposes of this academic research (GDPR Art. 9(2)(a)), as well as to their use in aggregated, anonymous form by the CNEF, partner of this survey.",
+      checkbox: "I am 18 or older, I accept the participation conditions and privacy policy, and I explicitly consent to the processing of my answers revealing my religious beliefs for the purposes of this independent research (GDPR Art. 9(2)(a)).",
+      checkboxCnef: "I am 18 or older, I accept the participation conditions and privacy policy, and I explicitly consent to the processing of my answers revealing my religious beliefs for the purposes of this independent research (GDPR Art. 9(2)(a)), as well as to their use in aggregated, anonymous form by the CNEF, partner of this survey.",
       details: "Anonymised answers will be published as an open dataset for research and replication purposes. You can withdraw your participation and have your data deleted at any time from the \"My data\" page.",
       minimumAge: "Participation is restricted to adults (18 or older).",
       required: "Your consent is required to participate",

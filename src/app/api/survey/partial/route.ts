@@ -32,7 +32,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { sessionId, answers, lastQuestionIndex, language } = validationResult.data;
+    const { sessionId, answers, lastQuestionIndex, language, instrumentVersion, entryVariant } =
+      validationResult.data;
 
     // Check if Supabase is configured
     if (!isSupabaseConfigured) {
@@ -61,6 +62,8 @@ export async function POST(request: NextRequest) {
         language,
         partial_answers: answers,
         last_question_index: lastQuestionIndex,
+        instrument_version: instrumentVersion ?? null,
+        entry_variant: entryVariant ?? null,
       }, {
         onConflict: 'id',
       });

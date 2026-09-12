@@ -55,6 +55,9 @@ export interface Database {
           partial_answers: Json;
           last_question_index: number;
           is_complete: boolean;
+          /** Attrition strata, carried by the session itself (migration 012). */
+          instrument_version: string | null;
+          entry_variant: string | null;
         };
         Insert: {
           id?: string;
@@ -65,6 +68,8 @@ export interface Database {
           partial_answers?: Json;
           last_question_index?: number;
           is_complete?: boolean;
+          instrument_version?: string | null;
+          entry_variant?: string | null;
         };
         Update: {
           id?: string;
@@ -75,6 +80,36 @@ export interface Database {
           partial_answers?: Json;
           last_question_index?: number;
           is_complete?: boolean;
+          instrument_version?: string | null;
+          entry_variant?: string | null;
+        };
+        Relationships: [];
+      };
+      attrition_snapshots: {
+        Row: {
+          id: string;
+          snapshot_at: string;
+          instrument_version: string | null;
+          entry_variant: string | null;
+          /** Number of answered items at abandonment, as text (migration 012). */
+          last_question_id: string | null;
+          sessions: number;
+        };
+        Insert: {
+          id?: string;
+          snapshot_at?: string;
+          instrument_version?: string | null;
+          entry_variant?: string | null;
+          last_question_id?: string | null;
+          sessions: number;
+        };
+        Update: {
+          id?: string;
+          snapshot_at?: string;
+          instrument_version?: string | null;
+          entry_variant?: string | null;
+          last_question_id?: string | null;
+          sessions?: number;
         };
         Relationships: [];
       };
@@ -341,6 +376,13 @@ export interface Database {
           purged_sessions: number;
           purged_submission_tracking: number;
           purged_audit_log: number;
+        }[];
+      };
+      snapshot_attrition: {
+        Args: Record<string, never>;
+        Returns: {
+          snapshot_rows: number;
+          archived_sessions: number;
         }[];
       };
     };

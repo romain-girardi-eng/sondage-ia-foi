@@ -8,6 +8,11 @@ interface PurgeResult {
   purged_audit_log: number;
 }
 
+interface AttritionSnapshotResult {
+  snapshot_rows: number;
+  archived_sessions: number;
+}
+
 // Constant-time comparison against CRON_SECRET. Fails closed: if the secret
 // is not configured, no request is ever authorized (this is a data-purge
 // endpoint, not something that should have a permissive fallback).
@@ -57,6 +62,21 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Archive the anonymised drop-off table BEFORE anything is deleted
+  // (migration 012): once the sessions are purged, the attrition analysis
+  // promised by the pre-registration has no input left. A failure here must
+  // not skip the purge, which enforces the retention promise.
+  const { data: snapshotData, error: snapshotError } = await supabase.rpc('snapshot_attrition');
+
+  if (snapshotError) {
+    console.error('Attrition snapshot error:', snapshotError);
+  }
+
+  const snapshot: AttritionSnapshotResult = snapshotData?.[0] || {
+    snapshot_rows: 0,
+    archived_sessions: 0,
+  };
+
   const { data, error } = await supabase.rpc('purge_expired_data');
 
   if (error) {
@@ -72,6 +92,11 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     success: true,
+    attritionSnapshot: {
+      rows: snapshot.snapshot_rows,
+      archivedSessions: snapshot.archived_sessions,
+      failed: Boolean(snapshotError),
+    },
     purged: {
       sessions: result.purged_sessions,
       submissionTracking: result.purged_submission_tracking,

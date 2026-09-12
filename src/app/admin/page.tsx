@@ -58,6 +58,7 @@ import {
 } from "recharts";
 import { SURVEY_QUESTIONS } from "@/data/surveySchema";
 import type { CorrelationFact } from "@/lib/analysis";
+import type { CorrelationsLock } from "@/lib/admin";
 import { NBSP, NNBSP } from "@/lib/analysis";
 import { CorrelationsSection } from "@/components/admin/CorrelationsSection";
 import {
@@ -212,6 +213,8 @@ interface AdminStats {
   correlations?: CorrelationFact[];
   /** Null unless every pair reached n >= 20: a matrix with holes reads as zeros. */
   correlationMatrix?: Record<string, Record<string, number>> | null;
+  /** Pre-registration gate (§4.3): no bivariate statistic below 200 exploitable v2 responses. */
+  correlationsLocked?: CorrelationsLock;
   profileClusters?: ProfileCluster[];
   keyFindings?: KeyFinding[];
   feedbacks?: Array<{
@@ -2329,7 +2332,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-6"
               >
-                <CorrelationsSection facts={stats.correlations ?? []} />
+                <CorrelationsSection facts={stats.correlations ?? []} lock={stats.correlationsLocked} />
               </motion.div>
             )}
 

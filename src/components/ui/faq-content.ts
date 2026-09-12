@@ -15,7 +15,7 @@ export const FAQ_CONTENT: Record<'fr' | 'en', FAQItem[]> = {
     },
     {
       q: "Combien de temps dure le sondage ?",
-      a: "De 8 à 12 minutes selon votre parcours. Cette estimation sera remplacée par la durée médiane réellement observée. Le questionnaire compte 58 questions au total, mais chacun n'en voit que 47 à 52 selon son statut et son usage déclaré de l'IA : les membres du clergé répondent à des questions supplémentaires sur leur ministère.",
+      a: "De 8 à 12 minutes selon votre parcours. Cette estimation sera remplacée par la durée médiane réellement observée. Le questionnaire compte 58 questions au total, mais chacun n'en voit que 46 à 53 selon son statut et son usage déclaré de l'IA : les membres du clergé répondent à des questions supplémentaires sur leur ministère.",
     },
     {
       q: "Qui peut participer ?",
@@ -49,7 +49,7 @@ export const FAQ_CONTENT: Record<'fr' | 'en', FAQItem[]> = {
     },
     {
       q: "How long does the survey take?",
-      a: "8 to 12 minutes depending on your path. This estimate will be replaced by the median duration actually observed. The instrument has 58 questions in total, but each respondent sees only 47 to 52 of them depending on status and self-reported AI use: clergy members answer additional questions about their ministry.",
+      a: "8 to 12 minutes depending on your path. This estimate will be replaced by the median duration actually observed. The instrument has 58 questions in total, but each respondent sees only 46 to 53 of them depending on status and self-reported AI use: clergy members answer additional questions about their ministry.",
     },
     {
       q: "Who can participate?",
