@@ -11,7 +11,7 @@ export const FAQ_CONTENT: Record<'fr' | 'en', FAQItem[]> = {
     },
     {
       q: "Mes réponses sont-elles anonymes ?",
-      a: "Oui. Nous utilisons une empreinte cryptographique (hash) de votre email pour garantir qu'une personne ne réponde qu'une seule fois, mais votre email réel n'est jamais stocké. Si vous choisissez de recevoir vos résultats par email, celui-ci est utilisé uniquement pour l'envoi puis immédiatement effacé. Vos réponses sont agrégées à des fins statistiques, dans le respect du RGPD.",
+      a: "Elles sont pseudonymisées. Aucun nom, aucun email ni aucune adresse IP n'est conservé en clair : seules des empreintes cryptographiques servent à empêcher les doublons. Si vous demandez vos résultats par email, l'adresse sert à l'envoi puis est effacée. Vos réponses sont agrégées à des fins statistiques, dans le respect du RGPD, et vous pouvez les consulter ou les supprimer à tout moment depuis la page Mes données.",
     },
     {
       q: "Combien de temps dure le sondage ?",
@@ -45,7 +45,7 @@ export const FAQ_CONTENT: Record<'fr' | 'en', FAQItem[]> = {
     },
     {
       q: "Are my responses anonymous?",
-      a: "Yes. We use a cryptographic hash of your email to ensure each person only responds once, but your actual email is never stored. If you choose to receive your results by email, it is used only for sending then immediately deleted. Responses are aggregated for statistical purposes, in compliance with GDPR.",
+      a: "They are pseudonymised. No name, email or IP address is kept in the clear: only cryptographic fingerprints are used to prevent duplicates. If you ask for your results by email, the address is used for sending and then deleted. Responses are aggregated for statistical purposes, in compliance with GDPR, and you can view or delete them at any time from the My Data page.",
     },
     {
       q: "How long does the survey take?",
