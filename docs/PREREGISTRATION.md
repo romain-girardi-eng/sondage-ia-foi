@@ -8,9 +8,9 @@
 | **Auteur** | Romain Girardi |
 | **Affiliation** | Aucune. Étude indépendante, non adossée à une institution universitaire ou à un laboratoire |
 | **Contact** | via le dépôt du projet |
-| **Date de dépôt** | à compléter au dépôt |
-| **Date de début de la collecte v2.0.0** | à compléter au dépôt |
-| **Statut au moment du dépôt** | à compléter au dépôt (déclarer explicitement si des données v2 ont déjà été collectées) |
+| **Date de dépôt** | 12 septembre 2026 |
+| **Date de début de la collecte v2.0.0** | 7 septembre 2026 (mise en production de l'instrument v2.0.0) |
+| **Statut au moment du dépôt** | Aucune réponse v2.0.0 collectée au 12 septembre 2026. La base contient 23 réponses recueillies avec l'instrument v1.x (dernière le 23 août 2026), rescorées sous la même table de recodage ; aucune analyse confirmatoire n'a été conduite sur elles. |
 | **Version de l'instrument** | 2.0.0 |
 | **Version du consentement** | 2.0 |
 | **Licence** | MIT pour le code, CC-BY-4.0 pour les données et la documentation |
