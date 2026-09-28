@@ -18,7 +18,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
   // Content based on language
   const content = lang === "en" ? {
     title: "Privacy Policy",
-    lastUpdate: "Last updated: July 8, 2026",
+    lastUpdate: "Last updated: September 28, 2026",
     controller: {
       title: "Data Controller",
       text: "This study is independent and attached to no institution. The data controller is Romain Girardi, principal investigator, acting in his own name.",
@@ -91,8 +91,6 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
         { name: "Supabase", role: "Database hosting - AWS eu-west-2 (London, United Kingdom), covered by the European Commission's UK adequacy decision" },
         { name: "Vercel", role: "Application hosting" },
         { name: "Resend", role: "Transactional email delivery (for the optional PDF results)" },
-        { name: "Sentry", role: "Error monitoring, with session replay on a sample of sessions - fully masked (no text, no form contents, no media), so no survey content is ever visible to this processor" },
-        { name: "Plausible", role: "Cookieless, privacy-friendly analytics, hosted in the EU" },
       ]
     },
     legal: {
@@ -157,7 +155,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
     },
     transfers: {
       title: "International Transfers",
-      text: "Your survey data is hosted in the United Kingdom (Supabase, AWS eu-west-2, London), covered by the European Commission's UK adequacy decision. Some of our other providers (Vercel, Resend, Sentry) may process data outside the EU/UK under appropriate safeguards (standard contractual clauses, or the EU-US Data Privacy Framework where applicable). Plausible processes analytics data within the EU. No data is sold or shared for commercial purposes."
+      text: "Your survey data is hosted in the United Kingdom (Supabase, AWS eu-west-2, London), covered by the European Commission's UK adequacy decision. Our other providers (Vercel, Resend) may process data outside the EU/UK under appropriate safeguards (standard contractual clauses, or the EU-US Data Privacy Framework where applicable). No data is sold or shared for commercial purposes."
     },
     rights: {
       title: "Your Rights (GDPR Articles 15-22)",
@@ -185,11 +183,11 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
     back: "Back to survey"
   } : {
     title: "Politique de Confidentialité",
-    lastUpdate: "Dernière mise à jour : 8 juillet 2026",
+    lastUpdate: "Dernière mise à jour : 28 septembre 2026",
     controller: {
       title: "Responsable du traitement",
       text: "Cette étude est indépendante et n'est rattachée à aucune institution. Le responsable du traitement des données est Romain Girardi, chercheur principal, agissant en son nom propre.",
-      contact: "Contact : contact@ia-foi.fr"
+      contact: "Contact : contact@ia-foi.fr"
     },
     collected: {
       title: "Données collectées",
@@ -204,11 +202,11 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
       },
       pseudonymous: {
         title: "Données pseudonymisées (données personnelles au sens du RGPD)",
-        description: "Les données suivantes sont considérées comme des données personnelles au sens du RGPD car elles pourraient théoriquement être liées à vous, même si aucune d'entre elles ne permet à elle seule de vous contacter ou de vous identifier directement :",
+        description: "Les données suivantes sont considérées comme des données personnelles au sens du RGPD car elles pourraient théoriquement être liées à vous, même si aucune d'entre elles ne permet à elle seule de vous contacter ou de vous identifier directement :",
         items: [
           {
             name: "Vos réponses relatives à vos convictions et croyances religieuses",
-            detail: "Donnée sensible au sens de l'article 9 du RGPD. Traitée uniquement sur la base de votre consentement explicite et distinct (art. 9§2.a) à des fins de recherche indépendante, avec les garanties exigées par l'article 89 : pseudonymisation via votre identifiant anonyme, minimisation des données et durée de conservation limitée."
+            detail: "Donnée sensible au sens de l'article 9 du RGPD. Traitée uniquement sur la base de votre consentement explicite et distinct (art. 9§2.a) à des fins de recherche indépendante, avec les garanties exigées par l'article 89 : pseudonymisation via votre identifiant anonyme, minimisation des données et durée de conservation limitée."
           },
           {
             name: "Empreinte cryptographique à clé de votre email (HMAC-SHA256)",
@@ -228,10 +226,10 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
           }
         ]
       },
-      notStoredInPlaintext: "Nous ne stockons jamais en clair :",
+      notStoredInPlaintext: "Nous ne stockons jamais en clair :",
       notItems: [
         "Votre adresse IP - uniquement son empreinte à clé, décrite ci-dessus",
-        "Votre adresse email - uniquement son empreinte à clé ; utilisée en clair uniquement de façon transitoire pour l'envoi de votre PDF (voir ci-dessous). Un petit nombre d'enregistrements hérités d'une version antérieure du sondage contiennent encore un email chiffré ; ils sont en cours de suppression et restent couverts par votre droit à l'effacement",
+        "Votre adresse email - uniquement son empreinte à clé ; utilisée en clair uniquement de façon transitoire pour l'envoi de votre PDF (voir ci-dessous). Un petit nombre d'enregistrements hérités d'une version antérieure du sondage contiennent encore un email chiffré ; ils sont en cours de suppression et restent couverts par votre droit à l'effacement",
         "Votre nom ou tout identifiant direct",
         "Données de géolocalisation précises",
       ],
@@ -239,12 +237,12 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
     },
     storage: {
       title: "Cookies et stockage local",
-      intro: "Nous utilisons un nombre minimal de cookies et d'entrées de stockage navigateur, aucun à des fins publicitaires ou de suivi tiers :",
+      intro: "Nous utilisons un nombre minimal de cookies et d'entrées de stockage navigateur, aucun à des fins publicitaires ou de suivi tiers :",
       cookieTitle: "Cookie",
       cookieItems: [
-        { name: "survey_submitted", detail: "Cookie fonctionnel confirmant que vous avez complété le sondage, utilisé pour empêcher les soumissions répétées. Durée : 1 an." }
+        { name: "survey_submitted", detail: "Cookie fonctionnel confirmant que vous avez complété le sondage, utilisé pour empêcher les soumissions répétées. Durée : 1 an." }
       ],
-      localStorageTitle: "Stockage local (reste sur votre appareil ; transmis uniquement lors de votre soumission)",
+      localStorageTitle: "Stockage local (reste sur votre appareil ; transmis uniquement lors de votre soumission)",
       localStorageItems: [
         { name: "survey-session", detail: "Votre identifiant de session, créé dès que vous donnez votre consentement et démarrez le sondage." },
         { name: "survey-anonymous-id", detail: "Votre identifiant anonyme (voir ci-dessus), créé au même moment." },
@@ -253,19 +251,17 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
     },
     processors: {
       title: "Sous-traitants",
-      intro: "Les prestataires suivants traitent des données pour notre compte, strictement pour faire fonctionner le sondage :",
+      intro: "Les prestataires suivants traitent des données pour notre compte, strictement pour faire fonctionner le sondage :",
       items: [
         { name: "Supabase", role: "Hébergement de la base de données - AWS eu-west-2 (Londres, Royaume-Uni), couvert par la décision d'adéquation de la Commission européenne pour le Royaume-Uni" },
         { name: "Vercel", role: "Hébergement de l'application" },
         { name: "Resend", role: "Envoi d'emails transactionnels (pour les résultats PDF optionnels)" },
-        { name: "Sentry", role: "Surveillance des erreurs, avec relecture de session (session replay) sur un échantillon de sessions - entièrement masquée (aucun texte, aucun contenu de formulaire, aucun média), de sorte qu'aucun contenu du sondage n'est jamais visible par ce prestataire" },
-        { name: "Plausible", role: "Analytique respectueuse de la vie privée, sans cookies, hébergée dans l'UE" },
       ]
     },
     legal: {
       title: "Base légale (Articles 6 et 9 du RGPD)",
-      intro: "Nous traitons vos données sur les fondements juridiques suivants :",
-      scopeLabel: "Champ d'application :",
+      intro: "Nous traitons vos données sur les fondements juridiques suivants :",
+      scopeLabel: "Champ d'application :",
       items: [
         {
           basis: "Consentement explicite pour les données sensibles (art. 9§2.a, avec les garanties de recherche de l'art. 89)",
@@ -280,7 +276,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
         {
           basis: "Intérêt légitime (Art. 6.1.f)",
           scope: "Mesures anti-fraude et anti-abus (empreinte email, empreinte navigateur, empreinte IP)",
-          detail: "Nous avons un intérêt légitime à garantir l'intégrité scientifique de notre étude en empêchant les participations multiples. Cet intérêt est équilibré avec vos droits par la minimisation des données : seules des empreintes à clé sont stockées, jamais votre email ou votre adresse IP en clair."
+          detail: "Nous avons un intérêt légitime à garantir l'intégrité scientifique de notre étude en empêchant les participations multiples. Cet intérêt est équilibré avec vos droits par la minimisation des données : seules des empreintes à clé sont stockées, jamais votre email ou votre adresse IP en clair."
         }
       ]
     },
@@ -303,14 +299,14 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
     },
     retention: {
       title: "Durée de conservation",
-      text: "Les durées de conservation sont limitées au strict nécessaire pour chaque finalité :",
+      text: "Les durées de conservation sont limitées au strict nécessaire pour chaque finalité :",
       details: [
-        "Réponses au sondage : conservées pendant la durée de la recherche (environ 3 ans), puis anonymisées de façon irréversible",
-        "Sessions abandonnées (sondage démarré mais non soumis) : 90 jours",
-        "Suivi anti-abus (IP hachée, limites de soumission) : 90 jours",
-        "Journal d'audit de sécurité : 365 jours, après quoi les entrées sont anonymisées - le lien identifiant avec votre identifiant anonyme est retiré plutôt que l'entrée supprimée, afin de préserver l'intégrité de la piste d'audit de sécurité",
-        "Empreinte email (détection de doublons) : liée à la durée de conservation de la réponse qu'elle protège, ou supprimée plus tôt sur demande",
-        "Email utilisé pour l'envoi du PDF : jamais stocké - conservé en mémoire uniquement le temps de la requête",
+        "Réponses au sondage : conservées pendant la durée de la recherche (environ 3 ans), puis anonymisées de façon irréversible",
+        "Sessions abandonnées (sondage démarré mais non soumis) : 90 jours",
+        "Suivi anti-abus (IP hachée, limites de soumission) : 90 jours",
+        "Journal d'audit de sécurité : 365 jours, après quoi les entrées sont anonymisées - le lien identifiant avec votre identifiant anonyme est retiré plutôt que l'entrée supprimée, afin de préserver l'intégrité de la piste d'audit de sécurité",
+        "Empreinte email (détection de doublons) : liée à la durée de conservation de la réponse qu'elle protège, ou supprimée plus tôt sur demande",
+        "Email utilisé pour l'envoi du PDF : jamais stocké - conservé en mémoire uniquement le temps de la requête",
       ]
     },
     security: {
@@ -324,11 +320,11 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
     },
     transfers: {
       title: "Transferts internationaux",
-      text: "Vos données de sondage sont hébergées au Royaume-Uni (Supabase, AWS eu-west-2, Londres), couvert par la décision d'adéquation de la Commission européenne pour le Royaume-Uni. Certains de nos autres prestataires (Vercel, Resend, Sentry) peuvent traiter des données en dehors de l'UE/Royaume-Uni dans le cadre de garanties appropriées (clauses contractuelles types, ou EU-US Data Privacy Framework le cas échéant). Plausible traite les données analytiques au sein de l'UE. Aucune donnée n'est vendue ou partagée à des fins commerciales."
+      text: "Vos données de sondage sont hébergées au Royaume-Uni (Supabase, AWS eu-west-2, Londres), couvert par la décision d'adéquation de la Commission européenne pour le Royaume-Uni. Nos autres prestataires (Vercel, Resend) peuvent traiter des données en dehors de l'UE/Royaume-Uni dans le cadre de garanties appropriées (clauses contractuelles types, ou EU-US Data Privacy Framework le cas échéant). Aucune donnée n'est vendue ou partagée à des fins commerciales."
     },
     rights: {
       title: "Vos droits (Articles 15-22 du RGPD)",
-      intro: "Vous disposez des droits suivants concernant vos données personnelles :",
+      intro: "Vous disposez des droits suivants concernant vos données personnelles :",
       items: [
         { name: "Droit d'accès (Art. 15)", desc: "Obtenir un export complet de tous les enregistrements liés à votre identifiant anonyme, dans l'ensemble de nos tables, via la page Mes données" },
         { name: "Droit de rectification (Art. 16)", desc: "Corriger des données inexactes" },
@@ -337,17 +333,17 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
         { name: "Droit à la portabilité (Art. 20)", desc: "Exporter vos données dans un format lisible par machine" },
         { name: "Droit de retrait du consentement", desc: "À tout moment, sans affecter le traitement antérieur au retrait" }
       ],
-      limitation: "Note : en raison de la nature pseudonymisée des données, nous ne pouvons traiter votre demande que si vous fournissez votre identifiant anonyme (affiché à la fin du sondage). Sans cet identifiant, nous ne pouvons pas localiser vos données. Conservez-le en lieu sûr et ne le partagez pas : il permet à lui seul d'accéder à vos données.",
+      limitation: "Note : en raison de la nature pseudonymisée des données, nous ne pouvons traiter votre demande que si vous fournissez votre identifiant anonyme (affiché à la fin du sondage). Sans cet identifiant, nous ne pouvons pas localiser vos données. Conservez-le en lieu sûr et ne le partagez pas : il permet à lui seul d'accéder à vos données.",
       button: "Gérer mes données"
     },
     contact: {
       title: "Contact & Réclamations",
-      text: "Pour exercer vos droits ou pour toute question concernant le traitement des données :",
-      email: "Email : contact@ia-foi.fr",
+      text: "Pour exercer vos droits ou pour toute question concernant le traitement des données :",
+      email: "Email : contact@ia-foi.fr",
       page: "Ou utilisez la page",
       link: "Mes données",
       pageEnd: ".",
-      authority: "Si vous estimez que vos droits ne sont pas respectés, vous pouvez déposer une réclamation auprès de la CNIL (Commission Nationale de l'Informatique et des Libertés) : www.cnil.fr"
+      authority: "Si vous estimez que vos droits ne sont pas respectés, vous pouvez déposer une réclamation auprès de la CNIL (Commission Nationale de l'Informatique et des Libertés) : www.cnil.fr"
     },
     back: "Retour au sondage"
   };
