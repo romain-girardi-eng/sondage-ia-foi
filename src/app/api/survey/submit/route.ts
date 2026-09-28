@@ -242,6 +242,7 @@ export async function POST(request: NextRequest) {
       .from('sessions')
       .upsert({
         id: sessionId,
+        anonymous_id: anonymousId,
         language: metadata?.language || 'fr',
         completed_at: new Date().toISOString(),
         is_complete: true,

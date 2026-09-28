@@ -84,6 +84,7 @@ describe('partialSaveSchema', () => {
   it('validates valid partial save', () => {
     const validData = {
       sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      anonymousId: '6f9619ff-8b86-4d11-b42d-00c04fc964ff',
       answers: { q1: 'answer1' },
       lastQuestionIndex: 5,
       language: 'fr',
@@ -96,6 +97,7 @@ describe('partialSaveSchema', () => {
   it('rejects invalid language', () => {
     const invalidData = {
       sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      anonymousId: '6f9619ff-8b86-4d11-b42d-00c04fc964ff',
       answers: { q1: 'answer1' },
       lastQuestionIndex: 5,
       language: 'de',
@@ -108,12 +110,23 @@ describe('partialSaveSchema', () => {
   it('rejects negative lastQuestionIndex', () => {
     const invalidData = {
       sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      anonymousId: '6f9619ff-8b86-4d11-b42d-00c04fc964ff',
       answers: { q1: 'answer1' },
       lastQuestionIndex: -1,
       language: 'fr',
     };
 
     const result = partialSaveSchema.safeParse(invalidData);
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a partial save without anonymousId', () => {
+    const result = partialSaveSchema.safeParse({
+      sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      answers: { q1: 'answer1' },
+      lastQuestionIndex: 5,
+      language: 'fr',
+    });
     expect(result.success).toBe(false);
   });
 });
@@ -270,6 +283,7 @@ describe('"aucun" exclusivity', () => {
   it('rejects "aucun_domaines" combined with others on a partial save', () => {
     const result = partialSaveSchema.safeParse({
       sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      anonymousId: '6f9619ff-8b86-4d11-b42d-00c04fc964ff',
       answers: { futur_domaines_interet: ['etude_bible', 'aucun_domaines'] },
       lastQuestionIndex: 12,
       language: 'fr',
@@ -305,6 +319,7 @@ describe('"aucun" exclusivity', () => {
   it('reports the offending question id on a partial save too', () => {
     const result = partialSaveSchema.safeParse({
       sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      anonymousId: '6f9619ff-8b86-4d11-b42d-00c04fc964ff',
       answers: { futur_domaines_interet: ['etude_bible', 'aucun_domaines'] },
       lastQuestionIndex: 12,
       language: 'fr',

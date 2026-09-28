@@ -91,6 +91,9 @@ export const surveySubmissionSchema = z.object({
 // Partial save schema
 export const partialSaveSchema = z.object({
   sessionId: z.string().uuid(),
+  // Stored on the session so GDPR export/erasure reach a session that never
+  // produced a response (migration 013).
+  anonymousId: z.string().uuid(),
   answers: answersSchema,
   lastQuestionIndex: z.number().int().min(0),
   language: z.enum(['fr', 'en']),

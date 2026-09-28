@@ -58,6 +58,8 @@ export interface Database {
           /** Attrition strata, carried by the session itself (migration 012). */
           instrument_version: string | null;
           entry_variant: string | null;
+          /** Respondent anonymous id, for GDPR export/erasure (migration 013). */
+          anonymous_id: string | null;
         };
         Insert: {
           id?: string;
@@ -70,6 +72,7 @@ export interface Database {
           is_complete?: boolean;
           instrument_version?: string | null;
           entry_variant?: string | null;
+          anonymous_id?: string | null;
         };
         Update: {
           id?: string;
@@ -82,6 +85,7 @@ export interface Database {
           is_complete?: boolean;
           instrument_version?: string | null;
           entry_variant?: string | null;
+          anonymous_id?: string | null;
         };
         Relationships: [];
       };

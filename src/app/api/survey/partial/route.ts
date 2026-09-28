@@ -1,14 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createServerSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
+import {
+  createServerSupabaseClient,
+  createServiceRoleClient,
+  isServiceRoleConfigured,
+  isSupabaseConfigured,
+} from '@/lib/supabase';
 import { partialSaveSchema } from '@/lib/validation';
 import { rateLimitPartial, getRateLimitHeaders } from '@/lib/rateLimit';
 import { getClientIp } from '@/lib/security/clientIp';
+import { validateCSRF, csrfErrorResponse } from '@/lib/csrf';
 
 const sessionIdSchema = z.string().uuid();
 
 export async function POST(request: NextRequest) {
   try {
+    const csrfResult = await validateCSRF(request);
+    if (!csrfResult.valid) {
+      return csrfErrorResponse(csrfResult.error || 'Invalid CSRF token');
+    }
+
     // Rate limiting (more lenient for partial saves). Raw IP only keys the
     // ephemeral in-memory limiter here; nothing is persisted.
     const ip = getClientIp(request);
@@ -32,11 +43,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { sessionId, answers, lastQuestionIndex, language, instrumentVersion, entryVariant } =
+    const { sessionId, anonymousId, answers, lastQuestionIndex, language, instrumentVersion, entryVariant } =
       validationResult.data;
 
-    // Check if Supabase is configured
-    if (!isSupabaseConfigured) {
+    // Service role, as in /api/survey/submit: anon has no SELECT on
+    // `sessions` (migration 005), so it can neither check for a completed
+    // session nor take the UPDATE path of the upsert on an existing one.
+    if (!isServiceRoleConfigured) {
       // In demo mode, just acknowledge
       return NextResponse.json(
         { success: true, demo: true },
@@ -44,10 +57,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceRoleClient();
     if (!supabase) {
       return NextResponse.json(
         { success: true, demo: true },
+        { status: 200, headers: getRateLimitHeaders(rateLimitResult) }
+      );
+    }
+
+    // A save that lands after the final submit (debounce, keepalive flush on
+    // page hide) must not overwrite the completed session's answers.
+    const { data: existing, error: lookupError } = await supabase
+      .from('sessions')
+      .select('is_complete')
+      .eq('id', sessionId)
+      .maybeSingle();
+
+    if (lookupError) {
+      console.error('Partial save lookup error:', lookupError);
+      return NextResponse.json(
+        { error: 'Failed to save progress' },
+        { status: 500 }
+      );
+    }
+
+    if (existing?.is_complete) {
+      return NextResponse.json(
+        { success: true, ignored: 'session_complete' },
         { status: 200, headers: getRateLimitHeaders(rateLimitResult) }
       );
     }
@@ -59,6 +95,7 @@ export async function POST(request: NextRequest) {
       .from('sessions')
       .upsert({
         id: sessionId,
+        anonymous_id: anonymousId,
         language,
         partial_answers: answers,
         last_question_index: lastQuestionIndex,

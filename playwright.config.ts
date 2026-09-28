@@ -1,5 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 
+// E2E_BASE_URL points the suite at a deployed site (e.g. https://ia-foi.fr);
+// the local dev server is then not started.
+const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
+const isRemote = !!process.env.E2E_BASE_URL;
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -9,7 +14,7 @@ export default defineConfig({
   reporter: "html",
 
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
@@ -37,10 +42,12 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
+  webServer: isRemote
+    ? undefined
+    : {
+        command: "npm run dev",
+        url: "http://localhost:3000",
+        reuseExistingServer: !process.env.CI,
+        timeout: 120 * 1000,
+      },
 });

@@ -703,6 +703,12 @@ Wang, Y. Y., et Wang, Y. S. (2022). Development and validation of an artificial 
 
 Les dates ci-dessous ont été rétablies dans un ordre chronologique cohérent. Les versions antérieures de ce document mêlaient des dates de 2025 et de 2026 de façon contradictoire, dont une révision « v1.2.0 (2026-01-25) » antérieure à une révision « v1.1.0 (2025-01-25) ». La chronologie retenue est celle de l'historique du dépôt.
 
+### 28 septembre 2026, sauvegarde de la progression côté serveur
+
+**Attrition.** Le questionnaire n'appelait jamais `POST /api/survey/partial` : une session n'était créée qu'à la soumission finale, si bien qu'aucun abandon n'était enregistré et que l'analyse d'attrition prévue au préenregistrement (§ 6.4) n'avait aucune donnée. La progression est désormais envoyée au serveur deux secondes après chaque réponse, puis immédiatement quand le répondant quitte les questions ou masque la page. La route exige un jeton CSRF et ne modifie jamais une session déjà complète. Aucune réponse v2 n'avait été reçue avant ce correctif.
+
+**Droits des personnes.** Migration 013 : colonne `anonymous_id` sur les sessions. `export_user_data` et `delete_user_data` retrouvent aussi les sessions par cette colonne, ce qui rend une session abandonnée accessible depuis `/mes-donnees` avant la purge à 90 jours.
+
 ### 12 septembre 2026, révision documentaire et verrou d'administration
 
 **Préenregistrement.** Réécriture de `docs/PREREGISTRATION.md` dans l'ordre du formulaire OSF : définition de la réponse exploitable, règle d'arrêt à effectif fixe (cohorte des 200 premières réponses exploitables, collecte sans date de fin), hiérarchie primaire (H1, H8) et secondaire, une statistique confirmatoire par hypothèse, familles de Holm alignées sur cette hiérarchie, hypothèses H1 à H6 portées sur les sous-scores de noyau, H2 directionnelle, H7 reformulée en test de dispersion, conditions d'effectif par hypothèse, plan de fidélité, méthodes d'intervalle de confiance, filtres de recrutement, règle d'anonymisation du jeu de données, statut des réponses v1, cadre éthique.

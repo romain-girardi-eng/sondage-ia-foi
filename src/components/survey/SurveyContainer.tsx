@@ -42,6 +42,9 @@ const SESSION_KEY = "survey-session";
 const ANONYMOUS_ID_KEY = "survey-anonymous-id";
 const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
 const SAVE_DEBOUNCE_MS = 1000; // 1 second debounce for localStorage writes
+// Server-side progress save (sessions.partial_answers): the only record of an
+// abandoned questionnaire, which the pre-registered attrition analysis needs.
+const SERVER_SAVE_DEBOUNCE_MS = 2000;
 const ALLOW_VIEW_OVERRIDE = process.env.NEXT_PUBLIC_ENABLE_SURVEY_VIEW_OVERRIDE === "true" || process.env.NODE_ENV !== "production";
 
 // Check URL for direct navigation (dev mode) - only call after mount
@@ -296,6 +299,68 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
       }
     };
   }, [answers, currentIndex, step]);
+
+  // Server-side progress save. The latest payload waits in a ref and is sent
+  // after a short debounce, or at once when the respondent leaves the question
+  // flow or hides the page (keepalive lets the request outlive the tab).
+  const pendingServerSaveRef = useRef<string | null>(null);
+  const serverSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flushServerSave = useCallback(() => {
+    if (serverSaveTimerRef.current) {
+      clearTimeout(serverSaveTimerRef.current);
+      serverSaveTimerRef.current = null;
+    }
+    const body = pendingServerSaveRef.current;
+    if (!body) return;
+    pendingServerSaveRef.current = null;
+    fetchWithCSRF("/api/survey/partial", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+      keepalive: true,
+    }).catch((error: unknown) => {
+      console.warn("Failed to save progress to the server:", error);
+    });
+  }, [fetchWithCSRF]);
+
+  useEffect(() => {
+    if (step !== "questions") {
+      // Leaving the question flow (email step, screen-out confirmation): the
+      // last answers must reach the server before any further step.
+      flushServerSave();
+      return;
+    }
+    if (!sessionId.current || !anonymousIdState || !csrfToken) return;
+
+    const visibleIds = new Set(visibleQuestions.map((q) => q.id));
+    pendingServerSaveRef.current = JSON.stringify({
+      sessionId: sessionId.current,
+      anonymousId: anonymousIdState,
+      answers: Object.fromEntries(
+        Object.entries(answers).filter(([key]) => visibleIds.has(key))
+      ),
+      lastQuestionIndex: currentIndex,
+      language,
+      instrumentVersion: INSTRUMENT_VERSION,
+      entryVariant: variant,
+    });
+
+    if (serverSaveTimerRef.current) clearTimeout(serverSaveTimerRef.current);
+    serverSaveTimerRef.current = setTimeout(flushServerSave, SERVER_SAVE_DEBOUNCE_MS);
+  }, [answers, anonymousIdState, csrfToken, currentIndex, flushServerSave, language, step, variant, visibleQuestions]);
+
+  useEffect(() => {
+    const handleHide = () => {
+      if (document.visibilityState === "hidden") flushServerSave();
+    };
+    window.addEventListener("pagehide", flushServerSave);
+    document.addEventListener("visibilitychange", handleHide);
+    return () => {
+      window.removeEventListener("pagehide", flushServerSave);
+      document.removeEventListener("visibilitychange", handleHide);
+    };
+  }, [flushServerSave]);
 
   // Beforeunload warning
   useEffect(() => {

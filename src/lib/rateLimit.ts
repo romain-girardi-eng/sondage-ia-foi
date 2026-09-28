@@ -13,7 +13,7 @@ const DEFAULT_LIMITS = {
     windowMs: parseInt(process.env.RATE_LIMIT_SUBMIT_WINDOW || '3600000'), // 1 hour
   },
   partial: {
-    maxRequests: parseInt(process.env.RATE_LIMIT_PARTIAL_MAX || '60'),
+    maxRequests: parseInt(process.env.RATE_LIMIT_PARTIAL_MAX || '120'),
     windowMs: parseInt(process.env.RATE_LIMIT_PARTIAL_WINDOW || '60000'), // 1 minute
   },
   admin: {
