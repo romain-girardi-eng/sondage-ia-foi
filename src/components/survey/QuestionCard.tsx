@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { type Question } from "@/data";
 import { useLanguage } from "@/lib";
 import { getOptionLabel as getLocalizedOptionLabel, getPlaceholder } from "@/lib/i18n/questions";
+import { cnefOptionLabels, cnefQuestionText } from "@/lib/i18n/cnefWording";
 import { type AnswerValue } from "./question-types/types";
 import {
   ChoiceQuestion,
@@ -19,6 +20,8 @@ interface QuestionCardProps {
   value: AnswerValue | undefined;
   onChange: (val: AnswerValue) => void;
   onNext: (committedValue?: AnswerValue) => void;
+  // Entry point: "cnef" applies the CNEF wording (French only).
+  variant?: "general" | "cnef";
 }
 
 export function QuestionCard({
@@ -26,8 +29,10 @@ export function QuestionCard({
   value,
   onChange,
   onNext,
+  variant = "general",
 }: QuestionCardProps) {
   const { tQuestion, tScale, tMatrixColumn, tMatrixRow, language } = useLanguage();
+  const cnefWording = variant === "cnef" && language === "fr";
 
   const multipleSelected = useMemo(
     () => (Array.isArray(value) ? value : []),
@@ -41,14 +46,15 @@ export function QuestionCard({
   );
 
   // Get translated question text (fall back to original if not found)
-  const questionText = tQuestion(question.id) !== question.id
-    ? tQuestion(question.id)
-    : question.text;
+  const questionText = (cnefWording ? cnefQuestionText[question.id] : undefined)
+    ?? (tQuestion(question.id) !== question.id ? tQuestion(question.id) : question.text);
 
   // Option labels come from the canonical i18n source, keyed by question id
   // (the same value carries a different wording in different questions).
   const getOptionLabel = (opt: { value: string; label: string }) =>
-    getLocalizedOptionLabel(language, question.id, opt.value) ?? opt.label;
+    (cnefWording ? cnefOptionLabels[question.id]?.[opt.value] : undefined)
+    ?? getLocalizedOptionLabel(language, question.id, opt.value)
+    ?? opt.label;
 
   // Get translated scale labels
   const getScaleLabel = (key: string | undefined, fallback: string | undefined) => {

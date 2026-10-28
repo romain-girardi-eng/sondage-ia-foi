@@ -8,6 +8,7 @@ import {
   isScreenedOut,
 } from "@/data/surveySchema";
 import { useLanguage } from "@/lib";
+import { CNEF_WORDING_VERSION } from "@/lib/i18n/cnefWording";
 import { useFingerprint } from "@/lib/hooks/useFingerprint";
 import {
   parseSavedProgress,
@@ -463,6 +464,8 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
               language,
               instrumentVersion: INSTRUMENT_VERSION,
               entryVariant: variant,
+              // Exact wording read on the CNEF entry (French labels only).
+              ...(variant === "cnef" && language === "fr" ? { wordingVariant: CNEF_WORDING_VERSION } : {}),
               ...(options.screenedOut ? { screenedOut: true } : {}),
             },
             consentGiven: true,
@@ -984,6 +987,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
               value={answers[currentQuestion.id]}
               onChange={handleAnswer}
               onNext={handleNext}
+              variant={variant}
             />
           </motion.div>
         </AnimatePresence>

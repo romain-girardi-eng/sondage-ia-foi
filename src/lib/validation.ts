@@ -74,6 +74,9 @@ export const surveySubmissionSchema = z.object({
     // Landing page the respondent came through (general site or CNEF
     // co-branded entry point). Recruitment channel, not a confession.
     entryVariant: z.enum(['general', 'cnef']).optional(),
+    // Wording variant read by the respondent (CNEF entry, French labels).
+    // Absent on the general wording.
+    wordingVariant: z.enum(['cnef-2026-10']).optional(),
     // True when the respondent was screened out of the studied population
     // (no religion / other) right after the first question: stored, but
     // never scored.
