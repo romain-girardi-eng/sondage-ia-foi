@@ -117,6 +117,11 @@
   --gradient-text-end: #8b5cf6;
 }
 
+/* CNEF entry: pure white page background in light mode */
+.light.cnef {
+  --background: #ffffff;
+}
+
 /* Base styles */
 *,
 *::before,

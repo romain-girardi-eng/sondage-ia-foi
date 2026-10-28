@@ -102,11 +102,13 @@ export default async function RootLayout({ children, params }: Readonly<RootLayo
       : "fr";
   const initialSource: "route" | "default" = isSupportedLanguage(routeLang) ? "route" : "default";
   const nonce = headersList.get("x-nonce") || undefined;
+  const isCnefEntry = headersList.get("x-entry-variant") === "cnef";
+  const defaultTheme = isCnefEntry ? "light" : "dark";
 
   return (
     <html
       lang={resolvedLang}
-      className="scroll-smooth dark"
+      className={isCnefEntry ? "scroll-smooth light cnef" : "scroll-smooth dark"}
       suppressHydrationWarning
       style={{ margin: 0, padding: 0, width: "100%", overflowX: "hidden" }}
     >
@@ -114,7 +116,7 @@ export default async function RootLayout({ children, params }: Readonly<RootLayo
         className="antialiased selection:bg-blue-500/30"
         style={{ margin: 0, padding: 0, width: '100%', minHeight: '100vh', overflowX: 'hidden' }}
       >
-        <ThemeProvider>
+        <ThemeProvider defaultTheme={defaultTheme} storageKey={isCnefEntry ? "ia-foi-theme-cnef" : undefined}>
           <LanguageProvider initialLanguage={resolvedLang} initialSource={initialSource}>
             <ToastProvider>{children}</ToastProvider>
           </LanguageProvider>
