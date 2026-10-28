@@ -1,10 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { SurveyContainer } from "@/components/survey";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ia-foi.fr";
 
+// The CNEF entry renders on a white background (light theme) by default.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#ffffff",
+};
+
 export const metadata: Metadata = {
-  title: "IA & Foi x CNEF | Enquête auprès des chrétiens évangéliques",
+  title: "Usage de l'IA par les protestants évangéliques | IA & Foi x CNEF",
   description:
     "Enquête indépendante sur l'usage de l'intelligence artificielle dans la vie d'Église évangélique, réalisée en partenariat avec le CNEF. Réponses pseudonymisées, résultats personnalisés inclus.",
   robots: { index: true, follow: true },

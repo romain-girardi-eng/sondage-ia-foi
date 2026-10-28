@@ -6,6 +6,9 @@ test.describe("CNEF co-branded landing", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(page.getByText(/partenariat avec le CNEF/i)).toBeVisible();
+    await expect(page.getByText(/Usage de l'IA par les protestants évangéliques/i)).toBeVisible();
+    // White background by default on the CNEF entry.
+    await expect(page.locator("html")).toHaveClass(/\blight\b/);
     await expect(page.getByAltText(/Logo du CNEF|CNEF logo/i)).toBeVisible();
     // Anonymity reassurance reinforced just before the CTA.
     await expect(page.getByText(/Ni nom, ni email, ni adresse IP/i)).toBeVisible();

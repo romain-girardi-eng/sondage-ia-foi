@@ -40,10 +40,10 @@ export const translations = {
       partnership: "Enquête proposée par Romain Girardi en partenariat avec le CNEF",
       badge: "Partenariat CNEF",
       logoAlt: "Logo du CNEF",
-      title: "IA et foi : la parole aux évangéliques",
-      subtitle: "Quel est votre usage réel de l'intelligence artificielle dans la vie d'Église ?",
+      title: "Usage de l'IA par les protestants évangéliques",
+      subtitle: "Quel est votre usage de l'intelligence artificielle en tant que chrétien ?",
       description:
-        "Le CNEF prépare une déclaration sur l'intelligence artificielle. Cette enquête recueille les pratiques déclarées d'évangéliques francophones, sans prétention de représentativité. Vos réponses, pseudonymisées, nourriront directement cette réflexion.",
+        "Dans le cadre de la rédaction d'une déclaration du CNEF sur l'intelligence artificielle, cette enquête recueille les pratiques déclarées de protestants évangéliques francophones. Vos réponses, pseudonymisées, nourriront la réflexion du mouvement Tech & Foi, qui publiera ses conclusions début 2027.",
       startButton: "Commencer l'enquête",
     },
 
@@ -820,10 +820,10 @@ export const translations = {
       partnership: "Survey offered by Romain Girardi in partnership with the CNEF",
       badge: "CNEF partnership",
       logoAlt: "CNEF logo",
-      title: "AI and faith: the evangelical voice",
-      subtitle: "What is your actual use of artificial intelligence in church life?",
+      title: "AI use among evangelical Protestants",
+      subtitle: "How do you use artificial intelligence as a Christian?",
       description:
-        "The CNEF is preparing a statement on artificial intelligence. This survey gathers the self-reported practices of French-speaking evangelicals, with no claim to representativeness. Your answers, pseudonymised, will directly inform this reflection.",
+        "As the CNEF drafts a statement on artificial intelligence, this survey gathers the self-reported practices of French-speaking evangelical Protestants. Your answers, pseudonymised, will inform the work of the Tech & Foi movement, which will publish its conclusions in early 2027.",
       startButton: "Start the survey",
     },
 
