@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     canonical: `${BASE_URL}/cnef`,
   },
   openGraph: {
-    title: "IA & Foi x CNEF — Enquête évangélique sur l'IA",
+    title: "Usage de l'IA par les protestants évangéliques | IA & Foi x CNEF",
     description:
       "Participez à l'enquête indépendante sur l'IA dans les Églises évangéliques, en partenariat avec le CNEF. Réponses pseudonymisées.",
     url: `${BASE_URL}/cnef`,
@@ -31,13 +31,13 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         type: "image/png",
-        alt: "IA & Foi x CNEF — Enquête sur l'intelligence artificielle et les Églises évangéliques",
+        alt: "Usage de l'IA par les protestants évangéliques : enquête IA & Foi en partenariat avec le CNEF",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "IA & Foi x CNEF — Enquête évangélique sur l'IA",
+    title: "Usage de l'IA par les protestants évangéliques | IA & Foi x CNEF",
     description:
       "Participez à l'enquête indépendante sur l'IA dans les Églises évangéliques, en partenariat avec le CNEF.",
     images: [{ url: `${BASE_URL}/cnef-og.png`, alt: "IA & Foi x CNEF" }],
