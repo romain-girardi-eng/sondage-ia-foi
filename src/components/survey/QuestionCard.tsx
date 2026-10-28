@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { type Question } from "@/data";
 import { useLanguage } from "@/lib";
 import { getOptionLabel as getLocalizedOptionLabel, getPlaceholder } from "@/lib/i18n/questions";
-import { cnefOptionLabels, cnefQuestionText } from "@/lib/i18n/cnefWording";
+import { cnefHiddenOptions, cnefOptionLabels, cnefQuestionText } from "@/lib/i18n/cnefWording";
 import { type AnswerValue } from "./question-types/types";
 import {
   ChoiceQuestion,
@@ -25,7 +25,7 @@ interface QuestionCardProps {
 }
 
 export function QuestionCard({
-  question,
+  question: schemaQuestion,
   value,
   onChange,
   onNext,
@@ -33,6 +33,16 @@ export function QuestionCard({
 }: QuestionCardProps) {
   const { tQuestion, tScale, tMatrixColumn, tMatrixRow, language } = useLanguage();
   const cnefWording = variant === "cnef" && language === "fr";
+
+  // CNEF entry: some options are not offered (values are never recoded).
+  const question = useMemo(() => {
+    const hidden = cnefWording ? cnefHiddenOptions[schemaQuestion.id] : undefined;
+    if (!hidden || !schemaQuestion.options) return schemaQuestion;
+    return {
+      ...schemaQuestion,
+      options: schemaQuestion.options.filter((opt) => !hidden.includes(opt.value)),
+    };
+  }, [cnefWording, schemaQuestion]);
 
   const multipleSelected = useMemo(
     () => (Array.isArray(value) ? value : []),

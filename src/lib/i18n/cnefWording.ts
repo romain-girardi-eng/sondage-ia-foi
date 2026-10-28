@@ -20,12 +20,22 @@ export const cnefQuestionText: Record<string, string> = {
   profil_genre: "Quel est votre genre ?",
   profil_education: "Quel est votre niveau d'études ?",
   profil_taille_communaute: "Quelle est la taille approximative de votre Église ?",
+  profil_statut: "Quelle est votre place au sein de votre Église ?",
 };
 
 export const cnefOptionLabels: Record<string, Record<string, string>> = {
   profil_confession_evangelique: {
     non_charismatique: "Non-charismatique (Églises baptistes, libristes, mennonites, réseau FEF, ou apparentées)",
     charismatique: "Charismatique ou pentecôtiste (Églises des Assemblées de Dieu, FEPEF, baptistes charismatiques, ou apparentées)",
+  },
+  // Single choice on the six existing values: the clergy / lay split that
+  // drives the routing and H5 is unchanged.
+  profil_statut: {
+    clerge: "Pasteur (à temps plein ou bénévole)",
+    responsable_non_ordonne: "Ancien, prédicateur ou autre responsabilité à temps plein",
+    'laic_engagé': "Responsable d'un service (bénévole)",
+    laic_pratiquant: "Membre de l'Église ou fréquentant régulièrement le culte",
+    curieux: "Fréquentant occasionnellement le culte",
   },
   min_pred_usage: {
     rare: "Rarement (pour débloquer une idée ou en relecture)",
@@ -37,4 +47,10 @@ export const cnefOptionLabels: Record<string, Record<string, string>> = {
   theo_activites_sacrees: {
     discernement: "Le discernement des vocations",
   },
+};
+
+/** Options not offered on the CNEF entry (the stored value set shrinks, nothing is recoded). */
+export const cnefHiddenOptions: Record<string, readonly string[]> = {
+  // No consecrated religious life in evangelical churches.
+  profil_statut: ["religieux"],
 };
