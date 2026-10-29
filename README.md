@@ -131,11 +131,20 @@ The results dashboard features:
 
 ## Deployment
 
-The application is deployed on Vercel. To deploy your own instance:
+ia-foi.fr runs in Docker on a server in Helsinki (Hetzner Online), behind a
+Caddy reverse proxy that terminates TLS and sets `X-Real-IP`. Image, compose
+file and the daily purge (03:00 UTC) are in `deploy/pragma/`:
 
-1. Fork this repository
-2. Connect to Vercel
-3. Deploy with default settings
+```bash
+APP_ENV_FILE=/path/to/production.app.envfile \
+BUILD_ENV_FILE=/path/to/build.public.envfile \
+SOURCE_REVISION=$(git rev-parse --short HEAD) \
+docker compose -f deploy/pragma/docker-compose.yml -f /path/to/compose.secrets.yml up -d --build
+```
+
+`BUILD_ENV_FILE` holds only the `NEXT_PUBLIC_*` values (inlined at build time);
+`compose.secrets.yml` sets `EMAIL_HASH_SECRET` and `EMAIL_ENCRYPTION_KEY` with
+their exact bytes. Any other Docker host works the same way.
 
 ## Contributing
 
