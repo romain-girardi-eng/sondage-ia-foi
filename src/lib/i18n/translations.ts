@@ -37,13 +37,13 @@ export const translations = {
 
     // CNEF co-branded landing
     cnef: {
-      partnership: "Enquête proposée par Romain Girardi en partenariat avec le CNEF",
+      partnership: "Enquête proposée en partenariat avec le CNEF",
       badge: "Partenariat CNEF",
       logoAlt: "Logo du CNEF",
       title: "Usage de l'IA par les protestants évangéliques",
       subtitle: "Quel est votre usage de l'intelligence artificielle en tant que chrétien ?",
       description:
-        "Dans le cadre de la rédaction d'une déclaration du CNEF sur l'intelligence artificielle, cette enquête recueille les pratiques déclarées de protestants évangéliques francophones. Vos réponses, pseudonymisées, nourriront la réflexion du mouvement Tech & Foi, qui publiera ses conclusions début 2027.",
+        "Dans le cadre de la rédaction d'une déclaration du CNEF sur l'intelligence artificielle, cette enquête recueille les pratiques déclarées de protestants évangéliques francophones. Vos réponses, pseudonymisées, nourriront la réflexion du mouvement Tech & Foi, qui publiera les conclusions de cette enquête début 2027.",
       startButton: "Commencer l'enquête",
     },
 
@@ -817,13 +817,13 @@ export const translations = {
 
     // CNEF co-branded landing
     cnef: {
-      partnership: "Survey offered by Romain Girardi in partnership with the CNEF",
+      partnership: "Survey offered in partnership with the CNEF",
       badge: "CNEF partnership",
       logoAlt: "CNEF logo",
       title: "AI use among evangelical Protestants",
       subtitle: "How do you use artificial intelligence as a Christian?",
       description:
-        "As the CNEF drafts a statement on artificial intelligence, this survey gathers the self-reported practices of French-speaking evangelical Protestants. Your answers, pseudonymised, will inform the work of the Tech & Foi movement, which will publish its conclusions in early 2027.",
+        "As the CNEF drafts a statement on artificial intelligence, this survey gathers the self-reported practices of French-speaking evangelical Protestants. Your answers, pseudonymised, will inform the work of the Tech & Foi movement, which will publish the conclusions of this survey in early 2027.",
       startButton: "Start the survey",
     },
 

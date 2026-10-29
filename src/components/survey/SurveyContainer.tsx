@@ -8,7 +8,12 @@ import {
   isScreenedOut,
 } from "@/data/surveySchema";
 import { useLanguage } from "@/lib";
-import { CNEF_WORDING_VERSION } from "@/lib/i18n/cnefWording";
+import {
+  CNEF_WORDING_VERSION,
+  applyCnefAnswer,
+  cnefDetailKey,
+  cnefDetailedQuestions,
+} from "@/lib/i18n/cnefWording";
 import { useFingerprint } from "@/lib/hooks/useFingerprint";
 import {
   parseSavedProgress,
@@ -180,7 +185,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   // Filter questions based on conditions. A respondent outside the studied
   // population (profil_confession = sans_religion) is screened out: the
   // schema helper then exposes the confession question only.
-  const visibleQuestions = useMemo(() => getVisibleQuestions(answers), [answers]);
+  const visibleQuestions = useMemo(() => getVisibleQuestions(answers, variant), [answers, variant]);
 
   const totalQuestions = visibleQuestions.length;
   // A shrinking visible list (a changed ancestor answer, or a resumed session)
@@ -422,12 +427,16 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
   const handleAnswer = useCallback(
     (value: SurveyAnswerValue) => {
       if (!currentQuestion) return;
-      setAnswers((prev) => ({ ...prev, [currentQuestion.id]: value }));
+      setAnswers((prev) =>
+        variant === "cnef"
+          ? applyCnefAnswer(prev, currentQuestion.id, value)
+          : { ...prev, [currentQuestion.id]: value }
+      );
       if (conflictQuestionId === currentQuestion.id) {
         setConflictQuestionId(null);
       }
     },
-    [conflictQuestionId, currentQuestion]
+    [conflictQuestionId, currentQuestion, variant]
   );
 
   // Single submission path, shared by the normal end of the questionnaire and
@@ -441,7 +450,11 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
       // stale sub-answers that would otherwise pollute the public aggregates.
       const visibleIds = new Set(visibleQuestions.map((q) => q.id));
       const cleanAnswers = Object.fromEntries(
-        Object.entries(answers).filter(([key]) => visibleIds.has(key))
+        Object.entries(answers).filter(
+          ([key]) =>
+            visibleIds.has(key) ||
+            (key.startsWith("_cnef_") && visibleIds.has(key.slice("_cnef_".length)))
+        )
       );
 
       const timeSpent = surveyStartTime.current > 0
@@ -555,7 +568,9 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     (committedValue?: SurveyAnswerValue) => {
       const nextAnswers: SurveyAnswers =
         committedValue !== undefined && currentQuestion
-          ? { ...answers, [currentQuestion.id]: committedValue }
+          ? variant === "cnef"
+            ? applyCnefAnswer(answers, currentQuestion.id, committedValue)
+            : { ...answers, [currentQuestion.id]: committedValue }
           : answers;
 
       // Leaving the studied population never submits on a single click: it
@@ -569,7 +584,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
 
       // The answer just committed can add or remove conditional questions, so
       // the next position is resolved against the list it produces.
-      const nextVisible = getVisibleQuestions(nextAnswers);
+      const nextVisible = getVisibleQuestions(nextAnswers, variant);
       const positionInNextList = currentQuestion
         ? nextVisible.findIndex((q) => q.id === currentQuestion.id)
         : -1;
@@ -584,7 +599,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
         setCurrentIndex(nextIndex);
       }
     },
-    [answers, currentIndex, currentQuestion]
+    [answers, currentIndex, currentQuestion, variant]
   );
 
   // "Revenir" from the confirmation: back to the confession question, with the
@@ -617,7 +632,11 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     if (email && csrfToken) {
       const visibleIds = new Set(visibleQuestions.map((q) => q.id));
       const cleanAnswers = Object.fromEntries(
-        Object.entries(answers).filter(([key]) => visibleIds.has(key))
+        Object.entries(answers).filter(
+          ([key]) =>
+            visibleIds.has(key) ||
+            (key.startsWith("_cnef_") && visibleIds.has(key.slice("_cnef_".length)))
+        )
       );
       try {
         await fetchWithCSRF("/api/email/send-pdf", {
@@ -984,7 +1003,11 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
             )}
             <QuestionCard
               question={currentQuestion}
-              value={answers[currentQuestion.id]}
+              value={
+                variant === "cnef" && cnefDetailedQuestions[currentQuestion.id]
+                  ? answers[cnefDetailKey(currentQuestion.id)]
+                  : answers[currentQuestion.id]
+              }
               onChange={handleAnswer}
               onNext={handleNext}
               variant={variant}

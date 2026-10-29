@@ -5,7 +5,13 @@ import { motion } from "framer-motion";
 import { type Question } from "@/data";
 import { useLanguage } from "@/lib";
 import { getOptionLabel as getLocalizedOptionLabel, getPlaceholder } from "@/lib/i18n/questions";
-import { cnefHiddenOptions, cnefOptionLabels, cnefQuestionText } from "@/lib/i18n/cnefWording";
+import {
+  cnefDetailedQuestions,
+  cnefExtraMatrixRows,
+  cnefHiddenOptions,
+  cnefOptionLabels,
+  cnefQuestionText,
+} from "@/lib/i18n/cnefWording";
 import { type AnswerValue } from "./question-types/types";
 import {
   ChoiceQuestion,
@@ -34,15 +40,30 @@ export function QuestionCard({
   const { tQuestion, tScale, tMatrixColumn, tMatrixRow, language } = useLanguage();
   const cnefWording = variant === "cnef" && language === "fr";
 
-  // CNEF entry: some options are not offered (values are never recoded).
+  // CNEF entry: CNEF option sets, hidden options and added matrix rows apply
+  // in every language; reworded labels are French only.
   const question = useMemo(() => {
-    const hidden = cnefWording ? cnefHiddenOptions[schemaQuestion.id] : undefined;
-    if (!hidden || !schemaQuestion.options) return schemaQuestion;
+    if (variant !== "cnef") return schemaQuestion;
+    const localized = (o: { value: string; label: string; labelEn: string }) => ({
+      value: o.value,
+      label: language === "fr" ? o.label : o.labelEn,
+    });
+    const detailed = cnefDetailedQuestions[schemaQuestion.id];
+    if (detailed) {
+      return { ...schemaQuestion, type: detailed.type, options: detailed.options.map(localized) };
+    }
+    const hidden = cnefHiddenOptions[schemaQuestion.id];
+    const extraRows = cnefExtraMatrixRows[schemaQuestion.id];
     return {
       ...schemaQuestion,
-      options: schemaQuestion.options.filter((opt) => !hidden.includes(opt.value)),
+      options: hidden && schemaQuestion.options
+        ? schemaQuestion.options.filter((opt) => !hidden.includes(opt.value))
+        : schemaQuestion.options,
+      rows: extraRows && schemaQuestion.rows
+        ? [...schemaQuestion.rows, ...extraRows.map(localized)]
+        : schemaQuestion.rows,
     };
-  }, [cnefWording, schemaQuestion]);
+  }, [language, schemaQuestion, variant]);
 
   const multipleSelected = useMemo(
     () => (Array.isArray(value) ? value : []),
