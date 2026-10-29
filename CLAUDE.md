@@ -61,6 +61,7 @@ e2e/                       # Playwright tests
 - **Testing:** Vitest + Playwright
 - **Monitoring:** Sentry
 - **Email:** Resend
+- **Hosting:** Hetzner Online (Helsinki), server operated by PRAGMA. Any deployment of this site that PRAGMA operates, on the Hetzner server or elsewhere after Vercel, names PRAGMA as operator and Hetzner Online as host in the legal notice (`src/app/legal/page.tsx`), and lists PRAGMA as processor in the privacy policy (`src/app/[lang]/privacy/page.tsx`, both languages); `src/app/legal/hosting.test.ts` checks it.
 
 ## Coding Conventions
 

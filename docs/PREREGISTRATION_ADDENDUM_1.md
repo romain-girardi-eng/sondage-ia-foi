@@ -29,3 +29,7 @@ Pour H1, H3, H4, H5 et H7, l'effectif est donc celui des réponses de la porte g
 ## Résultats remis au CNEF
 
 Le CNEF reçoit les résultats agrégés de sa seule porte, sous les mêmes règles d'anonymat que le tableau de bord public (k ≥ 5 par cellule, seuil de 30 participants). Ces résultats sont descriptifs et ne comportent aucune comparaison avec les autres répondants.
+
+## Autres versions partenaires
+
+Toute autre version du questionnaire adaptée pour un partenaire de diffusion suit la règle de la version CNEF : ses réponses entrent dans la cohorte confirmatoire pour les seuls tests dont toutes les variables sont restées identiques, ou s'y ramènent sans perte ; le partenaire reçoit les résultats agrégés de sa seule porte, sous les mêmes règles d'anonymat, sans comparaison avec les autres répondants. Un addendum au préenregistrement, qui donne pour cette version la liste des tests où ses réponses entrent, est déposé avant chaque extraction.
