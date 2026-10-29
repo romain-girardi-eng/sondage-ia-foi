@@ -35,7 +35,7 @@ function isAuthorized(authHeader: string | null): boolean {
   }
 }
 
-// Daily retention purge (see vercel.json cron schedule). Enforces the
+// Daily retention purge (03:00 UTC, purge service in deploy/pragma/docker-compose.yml). Enforces the
 // retention limits promised by the privacy policy: abandoned sessions,
 // stale submission_tracking rows, and old security_audit_log entries.
 // Never touches responses or email_submissions (research data, retained

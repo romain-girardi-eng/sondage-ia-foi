@@ -54,9 +54,10 @@ export default function LegalPage() {
               Hébergement
             </h2>
             <ul className="space-y-2 text-muted-foreground">
-              <li><strong className="text-foreground">Hébergeur :</strong> Vercel Inc.</li>
-              <li><strong className="text-foreground">Adresse :</strong> 340 S Lemon Ave #4133, Walnut, CA 91789, USA</li>
-              <li><strong className="text-foreground">Site web :</strong> https://vercel.com</li>
+              <li><strong className="text-foreground">Hébergeur :</strong> Hetzner Online GmbH (serveur situé à Helsinki, Finlande)</li>
+              <li><strong className="text-foreground">Adresse :</strong> Industriestr. 25, 91710 Gunzenhausen, Allemagne</li>
+              <li><strong className="text-foreground">Téléphone :</strong> +49 9831 505-0</li>
+              <li><strong className="text-foreground">Site web :</strong> https://www.hetzner.com</li>
             </ul>
           </section>
 

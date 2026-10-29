@@ -89,7 +89,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
       intro: "The following providers process data on our behalf, strictly to operate the survey:",
       items: [
         { name: "Supabase", role: "Database hosting - AWS eu-west-2 (London, United Kingdom), covered by the European Commission's UK adequacy decision" },
-        { name: "Vercel", role: "Application hosting" },
+        { name: "Hetzner Online", role: "Application hosting - server in Helsinki (Finland, European Union)" },
         { name: "Resend", role: "Transactional email delivery (for the optional PDF results)" },
       ]
     },
@@ -155,7 +155,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
     },
     transfers: {
       title: "International Transfers",
-      text: "Your survey data is hosted in the United Kingdom (Supabase, AWS eu-west-2, London), covered by the European Commission's UK adequacy decision. Our other providers (Vercel, Resend) may process data outside the EU/UK under appropriate safeguards (standard contractual clauses, or the EU-US Data Privacy Framework where applicable). No data is sold or shared for commercial purposes."
+      text: "Your survey data is hosted in the United Kingdom (Supabase, AWS eu-west-2, London), covered by the European Commission's UK adequacy decision. The application runs on a server in the European Union (Hetzner Online, Helsinki, Finland). Our email provider (Resend) may process data outside the EU/UK under appropriate safeguards (standard contractual clauses, or the EU-US Data Privacy Framework where applicable). No data is sold or shared for commercial purposes."
     },
     rights: {
       title: "Your Rights (GDPR Articles 15-22)",
@@ -254,7 +254,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
       intro: "Les prestataires suivants traitent des données pour notre compte, strictement pour faire fonctionner le sondage :",
       items: [
         { name: "Supabase", role: "Hébergement de la base de données - AWS eu-west-2 (Londres, Royaume-Uni), couvert par la décision d'adéquation de la Commission européenne pour le Royaume-Uni" },
-        { name: "Vercel", role: "Hébergement de l'application" },
+        { name: "Hetzner Online", role: "Hébergement de l'application - serveur à Helsinki (Finlande, Union européenne)" },
         { name: "Resend", role: "Envoi d'emails transactionnels (pour les résultats PDF optionnels)" },
       ]
     },
@@ -320,7 +320,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
     },
     transfers: {
       title: "Transferts internationaux",
-      text: "Vos données de sondage sont hébergées au Royaume-Uni (Supabase, AWS eu-west-2, Londres), couvert par la décision d'adéquation de la Commission européenne pour le Royaume-Uni. Nos autres prestataires (Vercel, Resend) peuvent traiter des données en dehors de l'UE/Royaume-Uni dans le cadre de garanties appropriées (clauses contractuelles types, ou EU-US Data Privacy Framework le cas échéant). Aucune donnée n'est vendue ou partagée à des fins commerciales."
+      text: "Vos données de sondage sont hébergées au Royaume-Uni (Supabase, AWS eu-west-2, Londres), couvert par la décision d'adéquation de la Commission européenne pour le Royaume-Uni. L'application tourne sur un serveur situé dans l'Union européenne (Hetzner Online, Helsinki, Finlande). Notre prestataire d'envoi de courriels (Resend) peut traiter des données en dehors de l'UE/Royaume-Uni dans le cadre de garanties appropriées (clauses contractuelles types, ou EU-US Data Privacy Framework le cas échéant). Aucune donnée n'est vendue ou partagée à des fins commerciales."
     },
     rights: {
       title: "Vos droits (Articles 15-22 du RGPD)",

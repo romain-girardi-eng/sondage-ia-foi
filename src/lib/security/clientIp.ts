@@ -2,8 +2,9 @@
  * Client IP extraction and pseudonymization.
  *
  * Extraction: the leftmost x-forwarded-for entry is attacker-controlled
- * (clients can send their own XFF header). On Vercel, x-real-ip is set by
- * the platform and cannot be spoofed; the rightmost XFF entry is the one
+ * (clients can send their own XFF header). x-real-ip is set by the trusted
+ * edge proxy (Caddy, `header_up X-Real-IP {remote_host}`), which overrides any
+ * client value; the rightmost XFF entry is the one
  * appended by the trusted proxy. We therefore prefer x-real-ip, then the
  * rightmost XFF entry.
  *
