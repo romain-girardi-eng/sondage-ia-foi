@@ -477,8 +477,9 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
               language,
               instrumentVersion: INSTRUMENT_VERSION,
               entryVariant: variant,
-              // Exact wording read on the CNEF entry (French labels only).
-              ...(variant === "cnef" && language === "fr" ? { wordingVariant: CNEF_WORDING_VERSION } : {}),
+              // CNEF version of the questionnaire (structure in every language,
+              // reworded labels in French).
+              ...(variant === "cnef" ? { wordingVariant: CNEF_WORDING_VERSION } : {}),
               ...(options.screenedOut ? { screenedOut: true } : {}),
             },
             consentGiven: true,
