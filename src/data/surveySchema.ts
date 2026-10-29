@@ -13,6 +13,7 @@ import {
   getFrenchMatrixRowLabel,
   getFrenchMatrixColumnLabel,
 } from '@/lib/i18n/questions';
+import { CNEF_HIDDEN_QUESTIONS } from '@/lib/i18n/cnefWording';
 
 // --- DEFINITIONS ---
 
@@ -620,11 +621,15 @@ export function isScreenedOut(answers: Answers): boolean {
  * Questions to display for a given set of answers. Single source of truth for
  * the survey flow (SurveyContainer) and for the schema tests.
  */
-export function getVisibleQuestions(answers: Answers): Question[] {
+export function getVisibleQuestions(answers: Answers, variant: 'general' | 'cnef' = 'general'): Question[] {
   if (isScreenedOut(answers)) {
     return SURVEY_QUESTIONS.filter((q) => q.id === 'profil_confession');
   }
-  return SURVEY_QUESTIONS.filter((q) => !q.condition || q.condition(answers));
+  return SURVEY_QUESTIONS.filter(
+    (q) =>
+      (!q.condition || q.condition(answers)) &&
+      !(variant === 'cnef' && CNEF_HIDDEN_QUESTIONS.includes(q.id))
+  );
 }
 
 // --- ANSWER VALIDATION HELPERS ---

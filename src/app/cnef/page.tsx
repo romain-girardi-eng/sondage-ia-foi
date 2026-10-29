@@ -1,10 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { SurveyContainer } from "@/components/survey";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ia-foi.fr";
 
+// The CNEF entry renders on a white background (light theme) by default.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#ffffff",
+};
+
 export const metadata: Metadata = {
-  title: "IA & Foi x CNEF | Enquête auprès des chrétiens évangéliques",
+  title: "Usage de l'IA par les protestants évangéliques | IA & Foi x CNEF",
   description:
     "Enquête indépendante sur l'usage de l'intelligence artificielle dans la vie d'Église évangélique, réalisée en partenariat avec le CNEF. Réponses pseudonymisées, résultats personnalisés inclus.",
   robots: { index: true, follow: true },
@@ -12,7 +20,7 @@ export const metadata: Metadata = {
     canonical: `${BASE_URL}/cnef`,
   },
   openGraph: {
-    title: "IA & Foi x CNEF — Enquête évangélique sur l'IA",
+    title: "Usage de l'IA par les protestants évangéliques | IA & Foi x CNEF",
     description:
       "Participez à l'enquête indépendante sur l'IA dans les Églises évangéliques, en partenariat avec le CNEF. Réponses pseudonymisées.",
     url: `${BASE_URL}/cnef`,
@@ -23,13 +31,13 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         type: "image/png",
-        alt: "IA & Foi x CNEF — Enquête sur l'intelligence artificielle et les Églises évangéliques",
+        alt: "Usage de l'IA par les protestants évangéliques : enquête IA & Foi en partenariat avec le CNEF",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "IA & Foi x CNEF — Enquête évangélique sur l'IA",
+    title: "Usage de l'IA par les protestants évangéliques | IA & Foi x CNEF",
     description:
       "Participez à l'enquête indépendante sur l'IA dans les Églises évangéliques, en partenariat avec le CNEF.",
     images: [{ url: `${BASE_URL}/cnef-og.png`, alt: "IA & Foi x CNEF" }],

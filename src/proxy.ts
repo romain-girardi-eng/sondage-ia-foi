@@ -119,6 +119,12 @@ export function proxy(request: NextRequest) {
   // Per the Next.js CSP guide: the request-header copy lets the framework
   // thread the nonce through dynamic rendering.
   requestHeaders.set("Content-Security-Policy", csp);
+  // Entry variant read by the root layout (the CNEF entry renders on a white
+  // background by default). Never trust a client-supplied value.
+  requestHeaders.delete("x-entry-variant");
+  if (pathname === "/cnef" || pathname.startsWith("/cnef/")) {
+    requestHeaders.set("x-entry-variant", "cnef");
+  }
 
   const response = NextResponse.next({
     request: { headers: requestHeaders },

@@ -703,6 +703,23 @@ Wang, Y. Y., et Wang, Y. S. (2022). Development and validation of an artificial 
 
 Les dates ci-dessous ont été rétablies dans un ordre chronologique cohérent. Les versions antérieures de ce document mêlaient des dates de 2025 et de 2026 de façon contradictoire, dont une révision « v1.2.0 (2026-01-25) » antérieure à une révision « v1.1.0 (2025-01-25) ». La chronologie retenue est celle de l'historique du dépôt.
 
+### 29 octobre 2026, version CNEF du questionnaire
+
+**Textes publics.** À la demande du CNEF (relecture du 28 octobre 2026), la porte `/cnef` s'ouvre sur fond blanc, avec un nouveau titre, « Usage de l'IA par les protestants évangéliques », et un nouveau texte d'accueil. La ligne de partenariat devient « Enquête proposée en partenariat avec le CNEF » ; le nom du chercheur reste en bas de l'accueil, dans la politique de confidentialité et dans les mentions légales. Le texte annonce que le mouvement Tech & Foi publiera les conclusions de l'enquête début 2027 et ne dit plus « sans prétention de représentativité ». Les réponses y restent « pseudonymisées ». L'image de partage, qui affichait encore « 100% anonyme » et « 5 min », est remplacée. Le consentement et la porte générale ne changent pas.
+
+**Questionnaire de la porte CNEF.** La porte générale garde l'instrument du tag `v2.0.1`. Sur `/cnef` (`src/lib/i18n/cnefWording.ts`) :
+
+- `theo_orientation` et les cinq items de Marlowe-Crowne ne sont pas posés ;
+- `profil_statut` devient une question à choix multiple sur les huit modalités du CNEF. La réponse est gardée dans `_cnef_profil_statut`, et `profil_statut` reçoit la modalité canonique de la réponse la plus engagée : pasteur, `clerge` ; ancien ou autre responsabilité à temps plein, `responsable_non_ordonne` ; responsable d'un service, `laic_engagé` ; membre de l'association ou fréquentation régulière du culte, `laic_pratiquant` ; fréquentation occasionnelle, `curieux` ;
+- `ctrl_ia_frequence` propose « Plusieurs fois par jour », gardé dans `_cnef_ctrl_ia_frequence` et codé `quotidien` dans `ctrl_ia_frequence` ;
+- `min_pred_nature` a une ligne `relecture`, enregistrée mais absente de `MATRIX_TASK_WEIGHTS`, donc non scorée ;
+- `profil_genre` ne propose pas « Autre » ;
+- treize textes de question et neuf modalités prennent le vocabulaire du CNEF, dont les cinq items du CRS-5, `profil_formation_theologique`, `profil_anciennete_foi`, `psych_anxiete_remplacement` et une modalité de `theo_inspiration`.
+
+Les clés `_cnef_` sont exclues des agrégats publics, comme toute clé préfixée par `_`. Chaque réponse donnée par cette porte porte `metadata.wordingVariant = "cnef-2026-10"`.
+
+**Écart au préenregistrement.** C'est un écart au gel de l'instrument au tag `v2.0.1` (section 6.1) et à la description de la porte CNEF (section 4.1). Il touche H4 (pas de `theo_orientation` sur cette porte), H5 (statut dérivé), H7 (formulation de `profil_formation_theologique`), H8 (niveau ajouté puis recodé), le sous-score `sacredBoundaryCore` (`theo_inspiration`), le score de religiosité (CRS-5 reformulé) et la première analyse de sensibilité (pas de drapeau de désirabilité sociale). Les réponses marquées `wordingVariant = "cnef-2026-10"` sont donc analysées à part, à titre exploratoire, et n'entrent pas dans la cohorte confirmatoire.
+
 ### 28 septembre 2026, sauvegarde de la progression côté serveur
 
 **Attrition.** Le questionnaire n'appelait jamais `POST /api/survey/partial` : une session n'était créée qu'à la soumission finale, si bien qu'aucun abandon n'était enregistré et que l'analyse d'attrition prévue au préenregistrement (§ 6.4) n'avait aucune donnée. La progression est désormais envoyée au serveur deux secondes après chaque réponse, puis immédiatement quand le répondant quitte les questions ou masque la page. La route exige un jeton CSRF et ne modifie jamais une session déjà complète. Aucune réponse v2 n'avait été reçue avant ce correctif.
