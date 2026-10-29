@@ -306,6 +306,29 @@ def test_pipeline_runs_on_a_synthetic_sample():
             assert 0.0 <= result.p_value <= 1.0
 
 
+def test_cnef_version_enters_only_the_unchanged_tests():
+    # Addendum 1: a response marked cnef-2026-10 counts in H2, H6 and H8 only.
+    rows = [
+        {key: parse_cell(value) for key, value in row.items()}
+        for row in generate(n=80, seed=1).to_dict(orient="records")
+    ]
+    for row in rows[:40]:
+        row["wordingVariant"] = "cnef-2026-10"
+    frame = build_dataset(rows)
+    cnef = frame["wordingVariant"] == "cnef-2026-10"
+    for column in ("religiosity", "sacredBoundaryCore", "trainingGroup", "theoCode"):
+        assert frame.loc[cnef, column].isna().all()
+    assert frame.loc[cnef, "aiOpennessCore"].notna().any()
+    assert frame.loc[cnef, "ethicalConcern"].notna().any()
+    assert not frame.loc[cnef, "mcAssessed"].any()
+
+    n = {r.hypothesis: r.n for r in run_hypotheses(frame, permutations=50)}
+    n_general = {r.hypothesis: r.n for r in run_hypotheses(frame.loc[~cnef], permutations=50)}
+    for hypothesis in ("H1", "H3", "H4", "H5", "H7"):
+        assert n[hypothesis] == n_general[hypothesis]
+    assert n["H8"] > n_general["H8"]
+
+
 def test_sidedness_matches_the_pre_registration():
     # Every confirmatory statistic is two-sided except H7, whose omnibus
     # dispersion test has no sign and is coded one-sided (PREREGISTRATION 6.1).

@@ -78,6 +78,7 @@ Colonnes :
 | `submittedAt` | `created_at` de la réponse, ISO 8601 (`2026-09-07T10:15:00Z`) ; obligatoire, sert à la cohorte |
 | `instrumentVersion` | `metadata.instrumentVersion`, par exemple `2.0.0` |
 | `entryVariant` | `metadata.entryVariant` : `general`, `cnef`, … |
+| `wordingVariant` | `metadata.wordingVariant` : vide, ou `cnef-2026-10` pour la version CNEF du questionnaire (addendum 1 : ces réponses n'entrent que dans H2, H6 et H8) |
 | un identifiant de question par colonne | la réponse brute, telle que stockée dans `answers` |
 
 Typage des cellules, puisqu'un CSV n'en a pas :
@@ -97,8 +98,8 @@ corriger un score.
 L'export CSV actuel de l'administration (`/api/results/export?format=csv`) ne
 produit pas ce format : ses colonnes sont déduites de la première ligne, donc
 les items conditionnels manquent, les valeurs multi-choix contiennent des
-virgules non échappées, et `submittedAt`, `instrumentVersion` et `entryVariant`
-n'y figurent pas. L'export soumis au script doit être produit par un export
+virgules non échappées, et `submittedAt`, `instrumentVersion`, `entryVariant` et
+`wordingVariant` n'y figurent pas. L'export soumis au script doit être produit par un export
 dédié, puis archivé avec son SHA-256 ; la cohorte extraite l'est à son tour.
 
 ## Ce que fait le script

@@ -58,6 +58,7 @@ export default function LegalPage() {
               <li><strong className="text-foreground">Adresse :</strong> Industriestr. 25, 91710 Gunzenhausen, Allemagne</li>
               <li><strong className="text-foreground">Téléphone :</strong> +49 9831 505-0</li>
               <li><strong className="text-foreground">Site web :</strong> https://www.hetzner.com</li>
+              <li><strong className="text-foreground">Exploitation du serveur :</strong> PRAGMA, Monaco (RCI 26P10994), contact@pragma.mc</li>
             </ul>
           </section>
 

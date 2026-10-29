@@ -71,6 +71,26 @@ SUBMITTED_AT = "submittedAt"
 STATUS_CONFIRMATORY = "confirmatoire"
 STATUS_EXPLORATORY = "exploratoire"
 
+# CNEF version of the questionnaire (addendum 1, docs/PREREGISTRATION_ADDENDUM_1.md).
+# Its responses enter the common tests only through the variables left
+# unchanged on /cnef (H2, H6, H8). The variables below were reworded, recoded or
+# not asked there: they are blanked, so every test that uses them drops these
+# rows, and the social desirability flag is not assessed.
+CNEF_WORDING_VERSION = "cnef-2026-10"
+CNEF_NOT_COMPARABLE = (
+    "religiosity",
+    "sacredBoundary",
+    "sacredBoundaryCore",
+    "trainingGroup",
+    "theoCode",
+    "item__crs_intellect",
+    "item__crs_ideology",
+    "item__crs_public_practice",
+    "item__crs_private_practice",
+    "item__crs_experience",
+    "item__theo_inspiration",
+)
+
 
 # ---------------------------------------------------------------------------
 # Loading
@@ -260,6 +280,13 @@ def build_dataset(answer_rows: list[dict[str, object]]) -> pd.DataFrame:
         for dimension, specs in DIMENSION_ITEM_SPECS.items():
             for spec in specs:
                 record[f"item__{spec.item_id}"] = score_item(spec.item_id, answers)
+
+        wording = str(answers.get("wordingVariant", "") or "")
+        record["wordingVariant"] = wording
+        record["mcAssessed"] = wording != CNEF_WORDING_VERSION
+        if wording == CNEF_WORDING_VERSION:
+            for key in CNEF_NOT_COMPARABLE:
+                record[key] = None
 
         records.append(record)
 
@@ -824,7 +851,7 @@ def run(
     main = analyse(frame, permutations)
 
     sensitivity: dict[str, object] = {}
-    unflagged = frame.loc[~frame["mcFlag"].astype(bool)]
+    unflagged = frame.loc[~frame["mcFlag"].astype(bool) & frame["mcAssessed"].astype(bool)]
     block = analyse(unflagged, permutations)
     block["n"] = int(unflagged.shape[0])
     sensitivity["Hors répondants dont le drapeau de désirabilité sociale est levé"] = block
