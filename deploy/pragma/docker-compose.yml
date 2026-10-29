@@ -1,0 +1,53 @@
+# ia-foi.fr on the Pragma host. The public Caddy (container
+# choeur-du-sud-site-gospel-domain, network pragma-cloud) terminates TLS for
+# ia-foi.fr and proxies to the web service by name.
+#
+#   APP_ENV_FILE=/home/ben/sondage-ia-foi-migration/secrets/production.app.envfile \
+#   BUILD_ENV_FILE=/home/ben/sondage-ia-foi-migration/secrets/build.public.envfile \
+#   SOURCE_REVISION=$(git rev-parse --short HEAD) \
+#   docker compose -f deploy/pragma/docker-compose.yml up -d --build
+name: sondage-ia-foi
+services:
+  web:
+    image: sondage-ia-foi:${SOURCE_REVISION:-latest}
+    container_name: sondage-ia-foi-web
+    build:
+      context: ../..
+      dockerfile: deploy/pragma/Dockerfile
+      secrets:
+        - appenv
+    restart: unless-stopped
+    env_file: ${APP_ENV_FILE:?set APP_ENV_FILE}
+    ports:
+      - "127.0.0.1:3988:3000"
+    networks:
+      - default
+      - pragma-cloud
+
+  # Daily retention purge at 03:00 UTC (the former Vercel cron "0 3 * * *").
+  purge:
+    image: curlimages/curl:8.10.1
+    container_name: sondage-ia-foi-purge
+    restart: unless-stopped
+    env_file: ${APP_ENV_FILE:?set APP_ENV_FILE}
+    depends_on:
+      - web
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          if [ "$$(date -u +%H%M)" = "0300" ]; then
+            curl -fsS -m 120 -H "Authorization: Bearer $$CRON_SECRET" http://web:3000/api/cron/purge || echo "purge failed"
+            sleep 70
+          fi
+          sleep 30
+        done
+
+secrets:
+  appenv:
+    # NEXT_PUBLIC_* only, single-quoted: the build never sees server secrets.
+    file: ${BUILD_ENV_FILE:?set BUILD_ENV_FILE}
+
+networks:
+  pragma-cloud:
+    external: true
