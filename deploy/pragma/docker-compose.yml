@@ -1,11 +1,16 @@
 # ia-foi.fr on the Pragma host. The public Caddy (container
 # choeur-du-sud-site-gospel-domain, network pragma-cloud) terminates TLS for
-# ia-foi.fr and proxies to the web service by name.
+# ia-foi.fr and proxies to the container sondage-ia-foi-web.
 #
 #   APP_ENV_FILE=/home/ben/sondage-ia-foi-migration/secrets/production.app.envfile \
 #   BUILD_ENV_FILE=/home/ben/sondage-ia-foi-migration/secrets/build.public.envfile \
 #   SOURCE_REVISION=$(git rev-parse --short HEAD) \
-#   docker compose -f deploy/pragma/docker-compose.yml up -d --build
+#   docker compose -f deploy/pragma/docker-compose.yml \
+#     -f /home/ben/sondage-ia-foi-migration/secrets/compose.secrets.yml up -d --build
+#
+# compose.secrets.yml (outside the repo) sets EMAIL_HASH_SECRET and
+# EMAIL_ENCRYPTION_KEY with their exact bytes, trailing newline included: an
+# env_file cannot carry it, and the stored email hashes were computed with it.
 name: sondage-ia-foi
 services:
   web:
@@ -20,9 +25,6 @@ services:
     env_file: ${APP_ENV_FILE:?set APP_ENV_FILE}
     ports:
       - "127.0.0.1:3988:3000"
-    networks:
-      - default
-      - pragma-cloud
 
   # Daily retention purge at 03:00 UTC (the former Vercel cron "0 3 * * *").
   purge:
@@ -37,7 +39,7 @@ services:
       - |
         while true; do
           if [ "$$(date -u +%H%M)" = "0300" ]; then
-            curl -fsS -m 120 -H "Authorization: Bearer $$CRON_SECRET" http://web:3000/api/cron/purge || echo "purge failed"
+            curl -fsS -m 120 -H "Authorization: Bearer $$CRON_SECRET" http://sondage-ia-foi-web:3000/api/cron/purge || echo "purge failed"
             sleep 70
           fi
           sleep 30
@@ -48,6 +50,10 @@ secrets:
     # NEXT_PUBLIC_* only, single-quoted: the build never sees server secrets.
     file: ${BUILD_ENV_FILE:?set BUILD_ENV_FILE}
 
+# The host has no free address pool for a new network: both services join the
+# shared pragma-cloud network, where the public Caddy reaches
+# sondage-ia-foi-web by container name.
 networks:
-  pragma-cloud:
+  default:
+    name: pragma-cloud
     external: true
