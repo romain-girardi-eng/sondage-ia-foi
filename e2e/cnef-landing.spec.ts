@@ -7,6 +7,7 @@ test.describe("CNEF co-branded landing", () => {
 
     await expect(page.getByText(/partenariat avec le CNEF/i)).toBeVisible();
     await expect(page.getByText(/Usage de l'IA par les protestants évangéliques/i)).toBeVisible();
+    await expect(page.getByRole("link", { name: "Tech & Foi" })).toHaveAttribute("href", "https://www.lecnef.org/page/4147098-tech-foi");
     // White background by default on the CNEF entry.
     await expect(page.locator("html")).toHaveClass(/\blight\b/);
     await expect(page.getByAltText(/Logo du CNEF|CNEF logo/i)).toBeVisible();

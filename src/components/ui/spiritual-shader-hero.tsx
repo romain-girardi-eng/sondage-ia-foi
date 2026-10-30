@@ -394,7 +394,7 @@ interface FeatureItem {
 interface SpiritualHeroProps {
   title: string;
   subtitle?: string;
-  description: string;
+  description: ReactNode;
   badgeText?: string;
   badgeLabel?: string;
   primaryButtonText: string;

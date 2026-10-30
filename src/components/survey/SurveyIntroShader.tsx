@@ -6,6 +6,8 @@ import SpiritualShaderHero from "@/components/ui/spiritual-shader-hero";
 import FAQSection from "@/components/ui/faq-section";
 import { Clock, FlaskConical } from "lucide-react";
 
+const TECH_FOI_URL = "https://www.lecnef.org/page/4147098-tech-foi";
+
 interface SurveyIntroShaderProps {
   onStart: () => void;
   onConsentChange?: (consent: boolean) => void;
@@ -45,6 +47,18 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
     </div>
   ) : undefined;
 
+  // CNEF request of 28/10/2026: « Tech & Foi » links to the movement's page.
+  const [beforeTechFoi, afterTechFoi] = t("cnef.description").split("Tech & Foi");
+  const cnefDescription = afterTechFoi === undefined ? beforeTechFoi : (
+    <>
+      {beforeTechFoi}
+      <a href={TECH_FOI_URL} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground">
+        Tech &amp; Foi
+      </a>
+      {afterTechFoi}
+    </>
+  );
+
   return (
     <div className="relative w-full">
       <LanguageSwitcher />
@@ -52,7 +66,7 @@ export function SurveyIntroShader({ onStart, onConsentChange, consentGiven = fal
       <SpiritualShaderHero
         title={isCnef ? t("cnef.title") : t("intro.title")}
         subtitle={isCnef ? t("cnef.subtitle") : t("intro.subtitle")}
-        description={isCnef ? t("cnef.description") : t("intro.description")}
+        description={isCnef ? cnefDescription : t("intro.description")}
         primaryButtonText={isCnef ? t("cnef.startButton") : t("intro.startButton")}
         secondaryButtonText={t("intro.learnMore")}
         onPrimaryClick={onStart}
