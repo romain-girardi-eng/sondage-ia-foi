@@ -88,6 +88,15 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get("page") || "1", 10);
   const limit = parseInt(searchParams.get("limit") || "20", 10);
   const search = sanitizeSearch(searchParams.get("search") || "");
+  // Entry point: "cnef", "general", or both when absent. Nested in the same
+  // filter, so the unfiltered query is exactly what it was.
+  const entry = searchParams.get("entry");
+  const inScope =
+    entry === "cnef"
+      ? `and(or(${NOT_SCREENED_OUT}),metadata->>entryVariant.eq.cnef)`
+      : entry === "general"
+        ? `and(or(${NOT_SCREENED_OUT}),or(metadata->>entryVariant.is.null,metadata->>entryVariant.neq.cnef))`
+        : NOT_SCREENED_OUT;
   const offset = (page - 1) * limit;
 
   try {
@@ -105,14 +114,14 @@ export async function GET(request: NextRequest) {
     const { count: totalResponses } = await supabase
       .from("responses")
       .select("*", { count: "exact", head: true })
-      .or(NOT_SCREENED_OUT);
+      .or(inScope);
 
     // Get completed responses (consent_given = true means completed)
     const { count: completedResponses } = await supabase
       .from("responses")
       .select("*", { count: "exact", head: true })
       .eq("consent_given", true)
-      .or(NOT_SCREENED_OUT);
+      .or(inScope);
 
     // Submissions set aside by the screen-out, reported on their own so the
     // exclusion stays auditable instead of silently shrinking every figure.
@@ -128,7 +137,7 @@ export async function GET(request: NextRequest) {
       .from("responses")
       .select("*", { count: "exact", head: true })
       .gte("created_at", today.toISOString())
-      .or(NOT_SCREENED_OUT);
+      .or(inScope);
 
     // Get this week's responses
     const weekAgo = new Date();
@@ -137,13 +146,13 @@ export async function GET(request: NextRequest) {
       .from("responses")
       .select("*", { count: "exact", head: true })
       .gte("created_at", weekAgo.toISOString())
-      .or(NOT_SCREENED_OUT);
+      .or(inScope);
 
     // Get responses by language (language is in metadata JSON)
     const { data: languageData } = await supabase
       .from("responses")
       .select("metadata")
-      .or(NOT_SCREENED_OUT);
+      .or(inScope);
 
     const byLanguage: Record<string, number> = {};
     (languageData as Array<{ metadata: { language?: string; screenedOut?: unknown } | null }> | null)
@@ -161,7 +170,7 @@ export async function GET(request: NextRequest) {
       .from("responses")
       .select("created_at")
       .gte("created_at", thirtyDaysAgo.toISOString())
-      .or(NOT_SCREENED_OUT)
+      .or(inScope)
       .order("created_at", { ascending: true });
 
     const timeline: { date: string; count: number }[] = [];
@@ -187,7 +196,7 @@ export async function GET(request: NextRequest) {
     let responsesQuery = supabase
       .from("responses")
       .select("id, created_at, metadata, consent_given, answers", { count: "exact" })
-      .or(NOT_SCREENED_OUT)
+      .or(inScope)
       .order("created_at", { ascending: false });
 
     if (search) {
@@ -210,7 +219,7 @@ export async function GET(request: NextRequest) {
       .from("responses")
       .select("*")
       .eq("consent_given", true)
-      .or(NOT_SCREENED_OUT);
+      .or(inScope);
 
     // Initialize counters for demographics and profiles
     const demographics = {

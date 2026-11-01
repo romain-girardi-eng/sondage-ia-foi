@@ -361,6 +361,24 @@ const AGE_LABELS: Record<string, string> = {
 // Color palette
 const CHART_COLORS = ["#3b82f6", "#8b5cf6", "#10b981", "#f59e0b", "#ef4444", "#06b6d4", "#ec4899", "#84cc16"];
 
+const TAB_TITLES: Record<string, string> = {
+  overview: "Vue d'ensemble",
+  responses: "Réponses",
+  analytics: "Analyses",
+  correlations: "Corrélations",
+  executive: "Synthèse",
+  feedback: "Retours",
+  export: "Exporter",
+};
+
+/** Entry point shown: every figure of the page, and the export, follow it. */
+const ENTRY_OPTIONS = [
+  { value: "", label: "Toutes les portes" },
+  { value: "general", label: "Porte générale" },
+  { value: "cnef", label: "Porte CNEF" },
+] as const;
+type EntryFilter = (typeof ENTRY_OPTIONS)[number]["value"];
+
 const PROFILE_COLORS: Record<string, string> = {
   gardien_tradition: "#ef4444",
   prudent_eclaire: "#f59e0b",
@@ -425,6 +443,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
     return unattributed > 0 ? [...entries, [UNATTRIBUTED_PROFILE_KEY, unattributed]] : entries;
   }, [stats]);
 
+  const [entry, setEntry] = useState<EntryFilter>("");
+
   const fetchStats = useCallback(async (page = 1, search = "") => {
     try {
       setIsLoading(true);
@@ -439,6 +459,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
         page: page.toString(),
         limit: responsesPerPage.toString(),
         ...(search && { search }),
+        ...(entry && { entry }),
       });
       const response = await fetch(`/api/admin/stats?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -457,7 +478,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
     } finally {
       setIsLoading(false);
     }
-  }, [responsesPerPage]);
+  }, [responsesPerPage, entry]);
 
   const fetchResponseDetail = useCallback(async (responseId: string) => {
     try {
@@ -653,6 +674,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
       if (filters.dateTo) {
         params.append("dateTo", new Date(filters.dateTo).toISOString());
       }
+      if (entry) {
+        params.append("entry", entry);
+      }
       if (filters.language) {
         params.append("language", filters.language);
       }
@@ -707,7 +731,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
+                <h1 className="text-xl font-bold text-foreground">Administration</h1>
                 <p className="text-xs text-muted-foreground">Sondage IA & Foi</p>
               </div>
             </div>
@@ -715,7 +739,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-muted-foreground mb-2">
-                  Admin Password
+                  Mot de passe
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -725,7 +749,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-11 pr-4 py-3.5 bg-muted border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
-                    placeholder="Enter password"
+                    placeholder="Entrez le mot de passe"
                     required
                   />
                 </div>
@@ -764,7 +788,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
             </form>
 
             <p className="text-xs text-muted-foreground/50 text-center mt-6">
-              Protected area. Authorized access only.
+              Espace protégé, accès réservé.
             </p>
           </div>
         </motion.div>
@@ -782,20 +806,20 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
             <BarChart3 className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="font-bold text-foreground">Dashboard</h1>
+            <h1 className="font-bold text-foreground">Tableau de bord</h1>
             <p className="text-xs text-muted-foreground">Sondage IA & Foi</p>
           </div>
         </div>
 
         <nav className="space-y-1">
           {[
-            { id: "overview", icon: Activity, label: "Overview" },
-            { id: "responses", icon: Users, label: "Responses" },
-            { id: "analytics", icon: PieChart, label: "Analytics" },
+            { id: "overview", icon: Activity, label: "Vue d'ensemble" },
+            { id: "responses", icon: Users, label: "Réponses" },
+            { id: "analytics", icon: PieChart, label: "Analyses" },
             { id: "correlations", icon: GitCompare, label: "Corrélations" },
-            { id: "executive", icon: Sparkles, label: "Executive" },
-            { id: "feedback", icon: MessageSquare, label: "Feedback" },
-            { id: "export", icon: Download, label: "Export" },
+            { id: "executive", icon: Sparkles, label: "Synthèse" },
+            { id: "feedback", icon: MessageSquare, label: "Retours" },
+            { id: "export", icon: Download, label: "Exporter" },
           ].map((item) => (
             <button
               key={item.id}
@@ -819,7 +843,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all"
           >
             <LogOut className="w-4 h-4" />
-            Sign Out
+            Se déconnecter
           </button>
         </div>
       </aside>
@@ -837,23 +861,41 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-semibold text-foreground capitalize">{activeTab}</h2>
+                  <h2 className="text-lg font-semibold text-foreground">{TAB_TITLES[activeTab]}</h2>
                   {stats?.demo && (
                     <span className="px-2 py-0.5 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-medium rounded-full">
-                      Demo
+                      Démo
                     </span>
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {lastRefresh
-                    ? `Last updated: ${lastRefresh.toLocaleTimeString()}`
-                    : "Loading..."}
-                  {stats && !stats.demo && ` • ${stats.overview.completedResponses} responses`}
+                    ? `Mis à jour à ${lastRefresh.toLocaleTimeString('fr-FR')}`
+                    : "Chargement…"}
+                  {stats && !stats.demo && ` • ${stats.overview.completedResponses} réponses`}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
+              <div role="group" aria-label="Porte d'entrée" className="hidden sm:flex items-center gap-1 rounded-xl bg-muted p-1">
+                {ENTRY_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={entry === option.value}
+                    onClick={() => setEntry(option.value)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors",
+                      entry === option.value
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
               <ThemeToggle />
 
               <button
@@ -862,7 +904,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-accent border border-border rounded-xl text-foreground text-sm transition-all"
               >
                 <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
-                <span className="hidden sm:inline">Refresh</span>
+                <span className="hidden sm:inline">Actualiser</span>
               </button>
 
               <div className="relative" data-notifications>
@@ -886,13 +928,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-2xl z-50 overflow-hidden"
                     >
                       <div className="p-3 border-b border-border flex items-center justify-between">
-                        <h4 className="text-sm font-medium text-foreground">Recent Responses</h4>
+                        <h4 className="text-sm font-medium text-foreground">Réponses récentes</h4>
                         <span className="text-xs text-muted-foreground">{stats.recentResponses.length} latest</span>
                       </div>
                       <div className="max-h-80 overflow-y-auto">
                         {stats.recentResponses.length === 0 ? (
                           <div className="p-6 text-center text-muted-foreground text-sm">
-                            No responses yet
+                            Aucune réponse pour l&apos;instant
                           </div>
                         ) : (
                           stats.recentResponses.slice(0, 5).map((response) => (
@@ -909,7 +951,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                   #{response.id.slice(0, 8)}
                                 </span>
                                 <span className="text-xs text-muted-foreground">
-                                  {new Date(response.createdAt).toLocaleDateString()}
+                                  {new Date(response.createdAt).toLocaleDateString('fr-FR')}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
@@ -954,13 +996,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
           {/* Mobile Tabs */}
           <div className="flex gap-2 mt-4 lg:hidden overflow-x-auto pb-2">
             {[
-              { id: "overview", icon: Activity, label: "Overview" },
-              { id: "responses", icon: Users, label: "Responses" },
-              { id: "analytics", icon: PieChart, label: "Analytics" },
+              { id: "overview", icon: Activity, label: "Vue d'ensemble" },
+              { id: "responses", icon: Users, label: "Réponses" },
+              { id: "analytics", icon: PieChart, label: "Analyses" },
               { id: "correlations", icon: GitCompare, label: "Corrélations" },
-              { id: "executive", icon: Sparkles, label: "Executive" },
-              { id: "feedback", icon: MessageSquare, label: "Feedback" },
-              { id: "export", icon: Download, label: "Export" },
+              { id: "executive", icon: Sparkles, label: "Synthèse" },
+              { id: "feedback", icon: MessageSquare, label: "Retours" },
+              { id: "export", icon: Download, label: "Exporter" },
             ].map((item) => (
               <button
                 key={item.id}
@@ -991,14 +1033,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h3 className="font-medium text-red-400">Error Loading Data</h3>
+                  <h3 className="font-medium text-red-400">Erreur de chargement</h3>
                   <p className="text-sm text-red-300/70 mt-1">{statsError}</p>
                 </div>
                 <button
                   onClick={() => fetchStats(currentPage, searchQuery)}
                   className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-sm font-medium rounded-lg transition-colors"
                 >
-                  Retry
+                  Réessayer
                 </button>
               </div>
             </motion.div>
@@ -1055,36 +1097,36 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <StatCard
                     icon={<Users className="w-5 h-5" />}
-                    label="Total Responses"
-                    value={stats.overview.totalResponses.toLocaleString()}
-                    trend={{ value: stats.overview.todayResponses, label: "today" }}
+                    label="Réponses reçues"
+                    value={stats.overview.totalResponses.toLocaleString('fr-FR')}
+                    trend={{ value: stats.overview.todayResponses, label: "aujourd'hui" }}
                     color="blue"
                   />
                   <StatCard
                     icon={<UserCheck className="w-5 h-5" />}
-                    label="Completed"
-                    value={stats.overview.completedResponses.toLocaleString()}
-                    trend={{ value: stats.overview.completionRate, label: "rate", suffix: "%" }}
+                    label="Complètes"
+                    value={stats.overview.completedResponses.toLocaleString('fr-FR')}
+                    trend={{ value: stats.overview.completionRate, label: "du total", suffix: "%" }}
                     color="green"
                   />
                   <StatCard
                     icon={<Timer className="w-5 h-5" />}
-                    label="Avg. Time"
+                    label="Durée moyenne"
                     value={
                       stats.overview.avgCompletionTime !== null
                         ? `${stats.overview.avgCompletionTime}m`
                         : "—"
                     }
                     subtext={
-                      stats.overview.avgCompletionTime !== null ? "to complete" : "No data yet"
+                      stats.overview.avgCompletionTime !== null ? "de passation" : "No data yet"
                     }
                     color="purple"
                   />
                   <StatCard
                     icon={<Zap className="w-5 h-5" />}
-                    label="This Week"
-                    value={stats.overview.weekResponses.toLocaleString()}
-                    trend={{ value: Math.round(stats.overview.weekResponses / 7), label: "/day" }}
+                    label="Cette semaine"
+                    value={stats.overview.weekResponses.toLocaleString('fr-FR')}
+                    trend={{ value: Math.round(stats.overview.weekResponses / 7), label: "/ jour" }}
                     color="amber"
                   />
                 </div>
@@ -1094,8 +1136,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   {/* Timeline Chart */}
                   <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-6">
                     <div className="flex items-center justify-between mb-6">
-                      <h3 className="font-semibold text-foreground">Response Timeline</h3>
-                      <span className="text-xs text-muted-foreground">Last 30 days</span>
+                      <h3 className="font-semibold text-foreground">Réponses par jour</h3>
+                      <span className="text-xs text-muted-foreground">30 derniers jours</span>
                     </div>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
@@ -1122,7 +1164,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               color: "#f3f4f6",
                               borderRadius: "8px",
                             }}
-                            labelFormatter={(v) => new Date(v).toLocaleDateString()}
+                            labelFormatter={(v) => new Date(v).toLocaleDateString('fr-FR')}
                           />
                           <Area
                             type="monotone"
@@ -1139,13 +1181,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                   {/* Language Distribution */}
                   <div className="bg-card border border-border rounded-2xl p-6">
-                    <h3 className="font-semibold text-foreground mb-6">By Language</h3>
+                    <h3 className="font-semibold text-foreground mb-6">Par langue</h3>
                     <div className="h-48">
                       <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <RechartsPieChart>
                           <Pie
                             data={Object.entries(stats.demographics.byLanguage).map(([name, value]) => ({
-                              name: name === "fr" ? "French" : name === "en" ? "English" : name,
+                              name: name === "fr" ? "Français" : name === "en" ? "Anglais" : name,
                               value,
                             }))}
                             cx="50%"
@@ -1177,10 +1219,10 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }}
                             />
                             <span className="text-sm text-muted-foreground">
-                              {lang === "fr" ? "French" : lang === "en" ? "English" : lang}
+                              {lang === "fr" ? "Français" : lang === "en" ? "Anglais" : lang}
                             </span>
                           </div>
-                          <span className="text-sm font-medium text-foreground">{count.toLocaleString()}</span>
+                          <span className="text-sm font-medium text-foreground">{count.toLocaleString('fr-FR')}</span>
                         </div>
                       ))}
                     </div>
@@ -1190,7 +1232,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 {/* Profile Distribution */}
                 {Object.keys(stats.profiles).length > 0 && (
                   <div className="bg-card border border-border rounded-2xl p-6">
-                    <h3 className="font-semibold text-foreground mb-6">Spiritual-AI Profiles</h3>
+                    <h3 className="font-semibold text-foreground mb-6">Profils</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <BarChart
@@ -1219,7 +1261,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               borderRadius: "8px",
                             }}
                           />
-                          <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                          <Bar dataKey="value" radius={[0, 4, 4, 0]} isAnimationActive={false}>
                             {Object.entries(stats.profiles).map(([id]) => (
                               <Cell key={id} fill={PROFILE_COLORS[id] || "#3b82f6"} />
                             ))}
@@ -1233,7 +1275,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 {/* Recent Responses */}
                 <div className="bg-card border border-border rounded-2xl overflow-hidden">
                   <div className="p-6 border-b border-border">
-                    <h3 className="font-semibold text-foreground">Recent Responses</h3>
+                    <h3 className="font-semibold text-foreground">Réponses récentes</h3>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full">
@@ -1246,13 +1288,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             Date
                           </th>
                           <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
-                            Language
+                            Langue
                           </th>
                           <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
-                            Status
+                            Statut
                           </th>
                           <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
-                            Profile
+                            Profil
                           </th>
                         </tr>
                       </thead>
@@ -1271,9 +1313,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             </td>
                             <td className="py-4 px-6">
                               <span className="text-sm text-foreground/70">
-                                {new Date(response.createdAt).toLocaleDateString()}{" "}
+                                {new Date(response.createdAt).toLocaleDateString('fr-FR')}{" "}
                                 <span className="text-muted-foreground">
-                                  {new Date(response.createdAt).toLocaleTimeString()}
+                                  {new Date(response.createdAt).toLocaleTimeString('fr-FR')}
                                 </span>
                               </span>
                             </td>
@@ -1302,12 +1344,12 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 {response.completed ? (
                                   <>
                                     <CheckCircle className="w-3 h-3" />
-                                    Complete
+                                    Complète
                                   </>
                                 ) : (
                                   <>
                                     <Clock className="w-3 h-3" />
-                                    Partial
+                                    Partielle
                                   </>
                                 )}
                               </span>
@@ -1341,7 +1383,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <input
                         type="text"
-                        placeholder="Search by ID..."
+                        placeholder="Rechercher par identifiant…"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={handleSearchKeyDown}
@@ -1352,7 +1394,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       onClick={handleSearch}
                       className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-all"
                     >
-                      Search
+                      Rechercher
                     </button>
                   </div>
                   <button
@@ -1365,20 +1407,20 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     )}
                   >
                     <Filter className="w-4 h-4" />
-                    Filters
+                    Filtres
                   </button>
                 </div>
 
                 {/* Conversion Funnel */}
                 <div className="bg-card border border-border rounded-2xl p-6">
-                  <h3 className="font-semibold text-foreground mb-6">Conversion Funnel</h3>
+                  <h3 className="font-semibold text-foreground mb-6">Entonnoir de complétion</h3>
                   <div className="grid grid-cols-5 gap-4">
                     {[
-                      { label: "Started", value: stats.conversionFunnel.started, color: "#3b82f6" },
+                      { label: "Commencées", value: stats.conversionFunnel.started, color: "#3b82f6" },
                       { label: "Section 1", value: stats.conversionFunnel.section1Complete, color: "#8b5cf6" },
                       { label: "Section 2", value: stats.conversionFunnel.section2Complete, color: "#06b6d4" },
                       { label: "Section 3", value: stats.conversionFunnel.section3Complete, color: "#10b981" },
-                      { label: "Completed", value: stats.conversionFunnel.completed, color: "#22c55e" },
+                      { label: "Complètes", value: stats.conversionFunnel.completed, color: "#22c55e" },
                     ].map((step, i) => (
                       <div key={step.label} className="text-center">
                         <div
@@ -1395,7 +1437,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             }}
                           />
                         </div>
-                        <p className="text-lg font-bold text-foreground">{step.value.toLocaleString()}</p>
+                        <p className="text-lg font-bold text-foreground">{step.value.toLocaleString('fr-FR')}</p>
                         <p className="text-xs text-muted-foreground">{step.label}</p>
                         {i > 0 && (
                           <p className="text-xs text-muted-foreground/50 mt-1">
@@ -1420,16 +1462,16 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 {/* All Responses Table */}
                 <div className="bg-card border border-border rounded-2xl overflow-hidden">
                   <div className="p-6 border-b border-border flex items-center justify-between">
-                    <h3 className="font-semibold text-foreground">All Responses</h3>
+                    <h3 className="font-semibold text-foreground">Toutes les réponses</h3>
                     <span className="text-sm text-muted-foreground">
                       {stats.pagination ? (
                         <>
                           Showing {((stats.pagination.page - 1) * stats.pagination.limit) + 1}-
                           {Math.min(stats.pagination.page * stats.pagination.limit, stats.pagination.total)} of{" "}
-                          {stats.pagination.total.toLocaleString()}
+                          {stats.pagination.total.toLocaleString('fr-FR')}
                         </>
                       ) : (
-                        <>{stats.overview.totalResponses.toLocaleString()} total</>
+                        <>{stats.overview.totalResponses.toLocaleString('fr-FR')} total</>
                       )}
                     </span>
                   </div>
@@ -1444,7 +1486,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           onClick={handleClearSelection}
                           className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                         >
-                          Clear
+                          Effacer
                         </button>
                       </div>
                       <button
@@ -1468,7 +1510,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       <thead>
                         <tr className="border-b border-border">
                           <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-3 w-12">
-                            <span className="sr-only">Select</span>
+                            <span className="sr-only">Choisir</span>
                           </th>
                           <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
                             ID
@@ -1477,16 +1519,16 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                             Date
                           </th>
                           <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
-                            Language
+                            Langue
                           </th>
                           <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
-                            Status
+                            Statut
                           </th>
                           <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
-                            Religiosity
+                            Religiosité
                           </th>
                           <th className="text-left text-muted-foreground font-medium text-xs uppercase tracking-wider py-3 px-6">
-                            AI Score
+                            Score IA
                           </th>
                         </tr>
                       </thead>
@@ -1527,7 +1569,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               </div>
                             </td>
                             <td className="py-4 px-6 text-sm text-foreground/70">
-                              {new Date(response.createdAt).toLocaleDateString()}
+                              {new Date(response.createdAt).toLocaleDateString('fr-FR')}
                             </td>
                             <td className="py-4 px-6">
                               <span
@@ -1573,14 +1615,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           disabled={stats.pagination.page === 1}
                           className="px-3 py-1.5 text-sm bg-muted hover:bg-accent text-foreground/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
-                          First
+                          Première
                         </button>
                         <button
                           onClick={() => handlePageChange(stats.pagination.page - 1)}
                           disabled={stats.pagination.page === 1}
                           className="px-3 py-1.5 text-sm bg-muted hover:bg-accent text-foreground/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
-                          Previous
+                          Précédente
                         </button>
 
                         {/* Page numbers */}
@@ -1622,14 +1664,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           disabled={stats.pagination.page === stats.pagination.totalPages}
                           className="px-3 py-1.5 text-sm bg-muted hover:bg-accent text-foreground/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
-                          Next
+                          Suivante
                         </button>
                         <button
                           onClick={() => handlePageChange(stats.pagination.totalPages)}
                           disabled={stats.pagination.page === stats.pagination.totalPages}
                           className="px-3 py-1.5 text-sm bg-muted hover:bg-accent text-foreground/70 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
-                          Last
+                          Dernière
                         </button>
                       </div>
                     </div>
@@ -1649,13 +1691,13 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 {/* Score Overview */}
                 <div className="grid lg:grid-cols-3 gap-4">
                   <ScoreCard
-                    label="Average Religiosity"
+                    label="Religiosité moyenne"
                     score={stats.scores.avgReligiosity}
                     maxScore={5}
                     color="blue"
                   />
                   <ScoreCard
-                    label="Average AI Adoption"
+                    label="Adoption moyenne de l'IA"
                     score={stats.scores.avgAIAdoption}
                     maxScore={5}
                     color="green"
@@ -1668,7 +1710,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <div className="grid lg:grid-cols-2 gap-6">
                     {/* Profile Pie Chart */}
                     <div className="bg-card border border-border rounded-2xl p-6">
-                      <h3 className="font-semibold text-foreground mb-6">Profile Distribution</h3>
+                      <h3 className="font-semibold text-foreground mb-6">Répartition des profils</h3>
                       <div className="h-72">
                         <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                           <RechartsPieChart>
@@ -1710,7 +1752,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                     {/* Profile Bar Chart */}
                     <div className="bg-card border border-border rounded-2xl p-6">
-                      <h3 className="font-semibold text-foreground mb-6">Profiles by Count</h3>
+                      <h3 className="font-semibold text-foreground mb-6">Profils par effectif</h3>
                       <div className="space-y-3">
                         {[...profileDistribution]
                           .sort(([, a], [, b]) => b - a)
@@ -1740,7 +1782,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 <div className="grid lg:grid-cols-2 gap-6">
                   {/* Religiosity Distribution */}
                   <div className="bg-card border border-border rounded-2xl p-6">
-                    <h3 className="font-semibold text-foreground mb-6">Religiosity Distribution</h3>
+                    <h3 className="font-semibold text-foreground mb-6">Répartition de la religiosité</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <BarChart
@@ -1760,7 +1802,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               borderRadius: "8px",
                             }}
                           />
-                          <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} isAnimationActive={false} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -1768,7 +1810,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                   {/* AI Adoption Distribution */}
                   <div className="bg-card border border-border rounded-2xl p-6">
-                    <h3 className="font-semibold text-foreground mb-6">AI Adoption Distribution</h3>
+                    <h3 className="font-semibold text-foreground mb-6">Répartition de l&apos;adoption de l&apos;IA</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <BarChart
@@ -1788,7 +1830,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               borderRadius: "8px",
                             }}
                           />
-                          <Bar dataKey="count" fill="#10b981" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="count" fill="#10b981" radius={[4, 4, 0, 0]} isAnimationActive={false} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -1800,7 +1842,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   {/* By Denomination */}
                   {Object.keys(stats.demographics.byDenomination).length > 0 && (
                     <div className="bg-card border border-border rounded-2xl p-6">
-                      <h3 className="font-semibold text-foreground mb-6">By Denomination</h3>
+                      <h3 className="font-semibold text-foreground mb-6">Par dénomination</h3>
                       <div className="space-y-3">
                         {Object.entries(stats.demographics.byDenomination)
                           .sort(([, a], [, b]) => b - a)
@@ -1810,7 +1852,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               <span className="text-foreground/70">
                                 {DENOMINATION_LABELS[denomination] || denomination}
                               </span>
-                              <span className="text-foreground font-medium">{count.toLocaleString()}</span>
+                              <span className="text-foreground font-medium">{count.toLocaleString('fr-FR')}</span>
                             </div>
                             <div className="h-2 bg-muted rounded-full overflow-hidden">
                               <div
@@ -1830,7 +1872,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   {/* By Role */}
                   {Object.keys(stats.demographics.byRole).length > 0 && (
                     <div className="bg-card border border-border rounded-2xl p-6">
-                      <h3 className="font-semibold text-foreground mb-6">By Role</h3>
+                      <h3 className="font-semibold text-foreground mb-6">Par rôle</h3>
                       <div className="space-y-3">
                         {Object.entries(stats.demographics.byRole)
                           .sort(([, a], [, b]) => b - a)
@@ -1840,7 +1882,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                               <span className="text-foreground/70">
                                 {ROLE_LABELS[role] || role.replace(/_/g, " ")}
                               </span>
-                              <span className="text-foreground font-medium">{count.toLocaleString()}</span>
+                              <span className="text-foreground font-medium">{count.toLocaleString('fr-FR')}</span>
                             </div>
                             <div className="h-2 bg-muted rounded-full overflow-hidden">
                               <div
@@ -1863,7 +1905,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   {/* By Age */}
                   {Object.keys(stats.demographics.byAge).length > 0 && (
                     <div className="bg-card border border-border rounded-2xl p-6">
-                      <h3 className="font-semibold text-foreground mb-6">By Age Group</h3>
+                      <h3 className="font-semibold text-foreground mb-6">Par tranche d&apos;âge</h3>
                       <div className="space-y-3">
                         {Object.entries(stats.demographics.byAge)
                           .sort(([a], [b]) => {
@@ -1874,7 +1916,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           <div key={age}>
                             <div className="flex items-center justify-between text-sm mb-1">
                               <span className="text-foreground/70">{AGE_LABELS[age] || age}</span>
-                              <span className="text-foreground font-medium">{count.toLocaleString()}</span>
+                              <span className="text-foreground font-medium">{count.toLocaleString('fr-FR')}</span>
                             </div>
                             <div className="h-2 bg-muted rounded-full overflow-hidden">
                               <div
@@ -1894,7 +1936,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   {/* By Country */}
                   {stats.demographics.byCountry && Object.keys(stats.demographics.byCountry).length > 0 && (
                     <div className="bg-card border border-border rounded-2xl p-6">
-                      <h3 className="font-semibold text-foreground mb-6">By Country</h3>
+                      <h3 className="font-semibold text-foreground mb-6">Par pays</h3>
                       <div className="space-y-3">
                         {Object.entries(stats.demographics.byCountry)
                           .sort(([, a], [, b]) => b - a)
@@ -1903,7 +1945,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           <div key={country}>
                             <div className="flex items-center justify-between text-sm mb-1">
                               <span className="text-foreground/70 capitalize">{country.replace(/_/g, " ")}</span>
-                              <span className="text-foreground font-medium">{count.toLocaleString()}</span>
+                              <span className="text-foreground font-medium">{count.toLocaleString('fr-FR')}</span>
                             </div>
                             <div className="h-2 bg-muted rounded-full overflow-hidden">
                               <div
@@ -1926,18 +1968,18 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <div className="bg-card border border-border rounded-2xl p-6">
                     <h3 className="font-semibold text-foreground mb-6 flex items-center gap-2">
                       <Users className="w-4 h-4 text-blue-400" />
-                      Cross-Segment Analysis
+                      Analyse croisée
                     </h3>
 
                     {/* Clergy vs Laity Comparison */}
                     {stats.segmentedAnalysis.byRole?.clergy && stats.segmentedAnalysis.byRole?.laity && (
                       <div className="mb-6">
-                        <h4 className="text-sm font-medium text-foreground/70 mb-4">Clergy vs Laity Comparison</h4>
+                        <h4 className="text-sm font-medium text-foreground/70 mb-4">Comparaison clergé et laïcs</h4>
                         <div className="grid md:grid-cols-2 gap-4">
                           {/* Clergy */}
                           <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
                             <div className="flex items-center justify-between mb-3">
-                              <span className="text-sm font-medium text-blue-400">Clergy</span>
+                              <span className="text-sm font-medium text-blue-400">Clergé</span>
                               <span className="text-xs text-muted-foreground">n={stats.segmentedAnalysis.byRole.clergy.count}</span>
                             </div>
                             <div className="grid grid-cols-3 gap-2 text-center">
@@ -1958,7 +2000,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           {/* Laity */}
                           <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
                             <div className="flex items-center justify-between mb-3">
-                              <span className="text-sm font-medium text-green-400">Laity</span>
+                              <span className="text-sm font-medium text-green-400">Laïcs</span>
                               <span className="text-xs text-muted-foreground">n={stats.segmentedAnalysis.byRole.laity.count}</span>
                             </div>
                             <div className="grid grid-cols-3 gap-2 text-center">
@@ -2016,7 +2058,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     {/* By Age Group */}
                     {Object.keys(stats.segmentedAnalysis.byAge || {}).length > 0 && (
                       <div className="mb-6">
-                        <h4 className="text-sm font-medium text-foreground/70 mb-4">Dimension Averages by Age Group</h4>
+                        <h4 className="text-sm font-medium text-foreground/70 mb-4">Moyennes par dimension et tranche d&apos;âge</h4>
                         <div className="overflow-x-auto">
                           <table className="w-full text-sm">
                             <thead>
@@ -2024,9 +2066,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                 <th className="text-left py-2 px-3 text-muted-foreground font-medium">Age</th>
                                 <th className="text-center py-2 px-3 text-muted-foreground font-medium">n</th>
                                 <th className="text-center py-2 px-3 text-muted-foreground font-medium">Rel.</th>
-                                <th className="text-center py-2 px-3 text-muted-foreground font-medium">AI Open.</th>
-                                <th className="text-center py-2 px-3 text-muted-foreground font-medium">Sacred</th>
-                                <th className="text-center py-2 px-3 text-muted-foreground font-medium">Future</th>
+                                <th className="text-center py-2 px-3 text-muted-foreground font-medium">Ouv. IA</th>
+                                <th className="text-center py-2 px-3 text-muted-foreground font-medium">Sacré</th>
+                                <th className="text-center py-2 px-3 text-muted-foreground font-medium">Futur</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -2062,11 +2104,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     {/* Profile Distribution by Segment */}
                     {stats.segmentedAnalysis.byRole?.clergy && stats.segmentedAnalysis.byRole?.laity && (
                       <div>
-                        <h4 className="text-sm font-medium text-foreground/70 mb-4">Profile Distribution by Role</h4>
+                        <h4 className="text-sm font-medium text-foreground/70 mb-4">Profils par rôle</h4>
                         <div className="grid md:grid-cols-2 gap-4">
                           {/* Clergy profiles */}
                           <div className="bg-card border border-border rounded-xl p-4">
-                            <p className="text-xs text-muted-foreground mb-3">Clergy Top Profiles</p>
+                            <p className="text-xs text-muted-foreground mb-3">Profils les plus fréquents : clergé</p>
                             <div className="space-y-2">
                               {Object.entries(stats.segmentedAnalysis.byRole.clergy.profileDistribution)
                                 .sort(([, a], [, b]) => b - a)
@@ -2085,7 +2127,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                           </div>
                           {/* Laity profiles */}
                           <div className="bg-card border border-border rounded-xl p-4">
-                            <p className="text-xs text-muted-foreground mb-3">Laity Top Profiles</p>
+                            <p className="text-xs text-muted-foreground mb-3">Profils les plus fréquents : laïcs</p>
                             <div className="space-y-2">
                               {Object.entries(stats.segmentedAnalysis.byRole.laity.profileDistribution)
                                 .sort(([, a], [, b]) => b - a)
@@ -2179,15 +2221,15 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(239, 68, 68, 0.6)' }} />
-                        <span>Negative correlation</span>
+                        <span>Corrélation négative</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 rounded bg-muted" />
-                        <span>No correlation</span>
+                        <span>Pas de corrélation</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(59, 130, 246, 0.6)' }} />
-                        <span>Positive correlation</span>
+                        <span>Corrélation positive</span>
                       </div>
                     </div>
                   </div>
@@ -2209,9 +2251,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                       <Download className="w-8 h-8 text-white" />
                     </div>
-                    <h2 className="text-2xl font-bold text-foreground mb-2">Export Data</h2>
+                    <h2 className="text-2xl font-bold text-foreground mb-2">Exporter les données</h2>
                     <p className="text-muted-foreground">
-                      Download survey responses in JSON or CSV format. Only consented responses are included.
+                      Téléchargez les réponses en JSON ou CSV. Seules les réponses avec consentement sont incluses.
                     </p>
                   </div>
 
@@ -2219,11 +2261,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <div className="bg-muted rounded-xl p-6 mb-6">
                     <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
                       <Filter className="w-4 h-4" />
-                      Filter Options
+                      Filtres
                     </h3>
                     <div className="grid sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-xs text-muted-foreground mb-1.5">Start Date</label>
+                        <label className="block text-xs text-muted-foreground mb-1.5">Date de début</label>
                         <input
                           type="date"
                           value={filters.dateFrom}
@@ -2232,7 +2274,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-muted-foreground mb-1.5">End Date</label>
+                        <label className="block text-xs text-muted-foreground mb-1.5">Date de fin</label>
                         <input
                           type="date"
                           value={filters.dateTo}
@@ -2241,15 +2283,15 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-muted-foreground mb-1.5">Language</label>
+                        <label className="block text-xs text-muted-foreground mb-1.5">Langue</label>
                         <select
                           value={filters.language}
                           onChange={(e) => setFilters({ ...filters, language: e.target.value as "" | "fr" | "en" })}
                           className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                         >
-                          <option value="">All Languages</option>
-                          <option value="fr">French</option>
-                          <option value="en">English</option>
+                          <option value="">Toutes les langues</option>
+                          <option value="fr">Français</option>
+                          <option value="en">Anglais</option>
                         </select>
                       </div>
                     </div>
@@ -2312,7 +2354,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <div className="flex gap-3">
                     <FileText className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="text-sm font-medium text-blue-400 mb-1">Data Privacy Notice</h4>
+                      <h4 className="text-sm font-medium text-blue-400 mb-1">Protection des données</h4>
                       <p className="text-sm text-blue-300/70">
                         Exported data includes only responses from participants who provided consent. Personal
                         identifiers are anonymized according to GDPR guidelines.
@@ -2350,15 +2392,15 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     <div>
                       <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                         <Sparkles className="w-5 h-5 text-purple-400" />
-                        Executive Summary
+                        Synthèse
                       </h2>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Research-ready insights and statistical analysis
+                        Résultats à lire avec leurs effectifs
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-3xl font-bold text-foreground">{stats.overview.completedResponses.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">Valid Responses</p>
+                      <p className="text-3xl font-bold text-foreground">{stats.overview.completedResponses.toLocaleString('fr-FR')}</p>
+                      <p className="text-xs text-muted-foreground">Réponses valides</p>
                     </div>
                   </div>
 
@@ -2366,25 +2408,25 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <div className="grid grid-cols-4 gap-4 mt-6">
                     <div className="bg-muted rounded-xl p-4 text-center">
                       <p className="text-2xl font-bold text-green-400">{`${stats.overview.completionRate}${NNBSP}%`}</p>
-                      <p className="text-xs text-muted-foreground mt-1">Completion Rate</p>
+                      <p className="text-xs text-muted-foreground mt-1">Taux de complétion</p>
                     </div>
                     <div className="bg-muted rounded-xl p-4 text-center">
                       <p className="text-2xl font-bold text-blue-400">
                         {stats.overview.avgCompletionTime === null ? NOT_AVAILABLE : `${stats.overview.avgCompletionTime} min`}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">Avg. Time</p>
+                      <p className="text-xs text-muted-foreground mt-1">Durée moyenne</p>
                     </div>
                     <div className="bg-muted rounded-xl p-4 text-center">
                       <p className="text-2xl font-bold text-purple-400">
                         {Object.keys(stats.demographics.byDenomination || {}).length}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">Denominations</p>
+                      <p className="text-xs text-muted-foreground mt-1">Dénominations</p>
                     </div>
                     <div className="bg-muted rounded-xl p-4 text-center">
                       <p className="text-2xl font-bold text-amber-400">
                         {Object.keys(stats.demographics.byAge || {}).length}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">Age Groups</p>
+                      <p className="text-xs text-muted-foreground mt-1">Tranches d&apos;âge</p>
                     </div>
                   </div>
                 </div>
@@ -2394,7 +2436,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <div className="bg-card border border-border rounded-2xl p-6">
                     <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                       <Target className="w-4 h-4 text-amber-400" />
-                      Key Research Findings
+                      Principaux constats
                     </h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       {stats.keyFindings.map((finding, i) => (
@@ -2441,7 +2483,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   <div className="bg-card border border-border rounded-2xl p-6">
                     <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                       <TrendingUp className="w-4 h-4 text-blue-400" />
-                      Profile Clusters (Religiosity × AI Openness)
+                      Profils : religiosité et ouverture à l&apos;IA
                     </h3>
                     <div className="h-80 relative">
                       {/* Axis labels */}
@@ -2526,11 +2568,11 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   </div>
                 )}
 
-                {/* Dimension Statistics Table */}
+                {/* Statistiques par dimension Table */}
                 {stats.dimensionStats && (
                   <div className="bg-card border border-border rounded-2xl p-6">
                     <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                      📊 Dimension Statistics
+                      📊 Statistiques par dimension
                     </h3>
                     <div className="overflow-x-auto">
                       <table className="w-full">
@@ -2613,6 +2655,8 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                     </p>
                     <div className="grid md:grid-cols-3 gap-3">
                       {[...stats.correlations]
+                        // A dimension against its own core subscore shares its items: not a finding.
+                        .filter((c) => c.y !== `${c.x}Core` && c.x !== `${c.y}Core`)
                         .sort((a, b) => Math.abs(b.r) - Math.abs(a.r))
                         .slice(0, 6)
                         .map((fact) => (
@@ -2749,7 +2793,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                   </h2>
                   {responseDetail && (
                     <p className="text-sm text-muted-foreground mt-1">
-                      {new Date(responseDetail.createdAt).toLocaleDateString()} •{" "}
+                      {new Date(responseDetail.createdAt).toLocaleDateString('fr-FR')} •{" "}
                       {responseDetail.language.toUpperCase()}
                     </p>
                   )}
@@ -2790,7 +2834,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 {detailLoading ? (
                   <div className="flex flex-col items-center justify-center py-20 gap-3">
                     <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
-                    <p className="text-sm text-muted-foreground">Loading response details...</p>
+                    <p className="text-sm text-muted-foreground">Chargement du détail…</p>
                   </div>
                 ) : detailError ? (
                   <div className="flex flex-col items-center justify-center py-20 gap-4">
@@ -2798,14 +2842,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       <AlertCircle className="w-8 h-8 text-red-400" />
                     </div>
                     <div className="text-center">
-                      <h3 className="font-medium text-foreground mb-1">Failed to Load</h3>
+                      <h3 className="font-medium text-foreground mb-1">Échec du chargement</h3>
                       <p className="text-sm text-muted-foreground">{detailError}</p>
                     </div>
                     <button
                       onClick={() => selectedResponseId && fetchResponseDetail(selectedResponseId)}
                       className="px-4 py-2 bg-muted hover:bg-accent rounded-lg text-sm font-medium text-foreground transition-colors"
                     >
-                      Try Again
+                      Réessayer
                     </button>
                   </div>
                 ) : responseDetail ? (
@@ -3047,7 +3091,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                   strokeDasharray="5 5"
                                 />
                                 <Radar
-                                  name="This Response"
+                                  name="Cette réponse"
                                   dataKey="value"
                                   stroke="#3b82f6"
                                   fill="#3b82f6"
@@ -3653,7 +3697,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 <div>
                   <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                     <GitCompare className="w-5 h-5 text-blue-400" />
-                    Response Comparison
+                    Comparaison de la réponse
                   </h2>
                   <p className="text-sm text-muted-foreground mt-1">
                     Comparing {comparisonData.length} responses
@@ -3672,7 +3716,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                 {comparisonData.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 gap-3">
                     <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
-                    <p className="text-sm text-muted-foreground">Loading comparison data...</p>
+                    <p className="text-sm text-muted-foreground">Chargement de la comparaison…</p>
                   </div>
                 ) : (
                   <div className="space-y-6">
@@ -3771,7 +3815,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                     {/* Dimension Comparison Table */}
                     <div className="bg-card border border-border rounded-xl p-6">
-                      <h3 className="font-semibold text-foreground mb-4">Dimension Comparison</h3>
+                      <h3 className="font-semibold text-foreground mb-4">Comparaison des dimensions</h3>
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
@@ -3817,7 +3861,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
 
                     {/* Answer Diff View - Show only differing answers */}
                     <div className="bg-card border border-border rounded-xl p-6">
-                      <h3 className="font-semibold text-foreground mb-4">Key Answer Differences</h3>
+                      <h3 className="font-semibold text-foreground mb-4">Principales différences de réponses</h3>
                       <div className="space-y-3 max-h-80 overflow-y-auto">
                         {(() => {
                           // Find questions where answers differ

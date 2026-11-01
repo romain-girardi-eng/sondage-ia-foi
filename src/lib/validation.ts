@@ -112,6 +112,7 @@ export const exportRequestSchema = z.object({
   dateFrom: z.string().datetime().optional(),
   dateTo: z.string().datetime().optional(),
   language: z.enum(['fr', 'en']).optional(),
+  entry: z.enum(['general', 'cnef']).optional(),
 });
 
 // User data deletion/export schema

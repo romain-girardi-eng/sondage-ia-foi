@@ -19,12 +19,14 @@ export async function GET(request: NextRequest) {
     const rawDateFrom = request.nextUrl.searchParams.get('dateFrom');
     const rawDateTo = request.nextUrl.searchParams.get('dateTo');
     const rawLanguage = request.nextUrl.searchParams.get('language');
+    const rawEntry = request.nextUrl.searchParams.get('entry');
 
     const validationResult = exportRequestSchema.safeParse({
       format: rawFormat,
       dateFrom: rawDateFrom || undefined,
       dateTo: rawDateTo || undefined,
       language: rawLanguage || undefined,
+      entry: rawEntry || undefined,
     });
 
     if (!validationResult.success) {
@@ -34,7 +36,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { format, dateFrom, dateTo, language } = validationResult.data;
+    const { format, dateFrom, dateTo, language, entry } = validationResult.data;
 
     // Check if Supabase is configured
     if (!isServiceRoleConfigured) {
@@ -68,6 +70,12 @@ export async function GET(request: NextRequest) {
 
     if (language) {
       query = query.filter('metadata->>language', 'eq', language);
+    }
+
+    if (entry === 'cnef') {
+      query = query.filter('metadata->>entryVariant', 'eq', 'cnef');
+    } else if (entry === 'general') {
+      query = query.or('metadata->>entryVariant.is.null,metadata->>entryVariant.neq.cnef');
     }
 
     const { data, error } = await query;

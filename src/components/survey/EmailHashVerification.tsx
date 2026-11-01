@@ -55,6 +55,12 @@ export function EmailHashVerification({
         return;
       }
 
+      if (response.status === 429) {
+        setError(t("emailHash.tooManyAttempts"));
+        setIsChecking(false);
+        return;
+      }
+
       if (!response.ok) {
         setError(data.error || t("emailHash.verificationFailed"));
         setIsChecking(false); // Allow retry on error

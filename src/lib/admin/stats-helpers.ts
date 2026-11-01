@@ -444,6 +444,19 @@ export function buildCorrelationMatrix(
  * Generate key findings from analyzed data. Every sentence is backed by a
  * number that was actually computed; nothing is inferred when it is null.
  */
+const FINDING_LABELS: Record<string, string> = {
+  religiosity: 'Religiosité',
+  aiOpenness: "Ouverture à l'IA",
+  sacredBoundary: 'Frontière sacrée',
+  ethicalConcern: 'Préoccupation éthique',
+  psychologicalPerception: "Perception de l'IA",
+  communityContext: 'Contexte communautaire',
+  futureOrientation: 'Orientation future',
+  aiOpennessCore: "Ouverture à l'IA (noyau)",
+  sacredBoundaryCore: 'Frontière sacrée (noyau)',
+};
+const findingLabel = (key: string) => FINDING_LABELS[key] ?? key;
+
 export function generateKeyFindings(
   segmentedAnalysis: Record<string, Record<string, SegmentStats>>,
   correlations: CorrelationFact[],
@@ -460,7 +473,7 @@ export function generateKeyFindings(
     findings.push({
       type: 'correlation',
       title: fact.r > 0 ? 'Corrélation positive' : 'Corrélation négative',
-      description: `« ${fact.x} » et « ${fact.y} » : r = ${fact.r} (IC 95 % [${fact.ci95[0]} ; ${fact.ci95[1]}], n = ${fact.n}, p ajusté = ${fact.pAdjusted}).`,
+      description: `« ${findingLabel(fact.x)} » et « ${findingLabel(fact.y)} » : r = ${fact.r} (IC 95 % [${fact.ci95[0]} ; ${fact.ci95[1]}], n = ${fact.n}, p ajusté = ${fact.pAdjusted}).`,
       significance: Math.abs(fact.r) > 0.5 ? 'high' : 'medium',
     });
   }
