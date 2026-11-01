@@ -21,6 +21,7 @@ interface SendPDFEmailOptions {
   to: string;
   pdfBuffer: Buffer;
   language: 'fr' | 'en';
+  variant?: 'general' | 'cnef';
   filename?: string;
 }
 
@@ -35,7 +36,7 @@ const EMAIL_CONTENT = {
     body: 'Merci pour votre participation à notre étude sur l\'Intelligence Artificielle et la vie spirituelle. Vous trouverez ci-joint le rapport établi à partir de vos réponses.',
     note: 'Ce rapport est confidentiel. L\'attribution d\'un profil y est heuristique et non validée : c\'est une lecture indicative de vos réponses, pas un diagnostic. Les dimensions pour lesquelles trop peu d\'items ont été renseignés sont indiquées comme non mesurées, et la comparaison avec les autres participants n\'est pas incluse dans le rapport.',
     closing: 'Cordialement,',
-    team: 'L\'équipe de recherche IA & Foi',
+    team: 'Romain Girardi',
     footer: 'Cette grande enquête respecte la protection de vos données conformément au RGPD.',
   },
   en: {
@@ -43,7 +44,7 @@ const EMAIL_CONTENT = {
     body: 'Thank you for participating in our study on Artificial Intelligence and spiritual life. Please find attached the report built from your answers.',
     note: 'This report is confidential. The profile attribution it contains is heuristic and not validated: it is an indicative reading of your answers, not a diagnosis. Dimensions with too few answered items are reported as not measured, and the comparison with other participants is not included in the report.',
     closing: 'Best regards,',
-    team: 'The AI & Faith Research Team',
+    team: 'Romain Girardi',
     footer: 'This major survey respects data protection in accordance with GDPR.',
   },
 };
@@ -55,6 +56,7 @@ export async function sendPDFEmail({
   to,
   pdfBuffer,
   language,
+  variant,
   filename = 'rapport-sondage-ia-foi.pdf',
 }: SendPDFEmailOptions): Promise<{ success: boolean; error?: string; id?: string }> {
   const resend = getResend();
@@ -65,7 +67,21 @@ export async function sendPDFEmail({
   }
 
   const content = EMAIL_CONTENT[language];
-  const subject = EMAIL_SUBJECTS[language];
+  const isCnef = variant === 'cnef';
+  const subject = isCnef
+    ? (language === 'fr' ? 'Votre rapport personnel - Usage de l\'IA par les protestants évangéliques' : 'Your personal report - AI use among evangelical Protestants')
+    : EMAIL_SUBJECTS[language];
+  // CNEF entry: white header with the CNEF logo, like the page and the report.
+  const header = isCnef
+    ? `<div style="background: #ffffff; padding: 24px 30px; border: 1px solid #e2e8f0; border-bottom: 3px solid #C92128; border-radius: 12px 12px 0 0;">
+            <img src="https://ia-foi.fr/cnef-logo.png" alt="CNEF" width="56" height="60" style="display: block; margin-bottom: 12px;">
+            <h1 style="color: #1C1A1B; margin: 0; font-size: 20px;">${language === 'fr' ? 'Usage de l\'IA par les protestants évangéliques' : 'AI use among evangelical Protestants'}</h1>
+            <p style="color: #6F696C; margin: 5px 0 0 0; font-size: 13px;">${language === 'fr' ? 'Enquête proposée en partenariat avec le CNEF' : 'Survey offered in partnership with the CNEF'}</p>
+          </div>`
+    : `<div style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 30px; border-radius: 12px 12px 0 0;">
+            <h1 style="color: white; margin: 0; font-size: 24px;">IA & ${language === 'fr' ? 'Foi' : 'Faith'}</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0; font-size: 14px;">${language === 'fr' ? 'Grande enquête 2026' : 'Major survey 2026'}</p>
+          </div>`;
 
   try {
     const { data, error } = await resend.emails.send({
@@ -80,10 +96,7 @@ export async function sendPDFEmail({
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 30px; border-radius: 12px 12px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">IA & ${language === 'fr' ? 'Foi' : 'Faith'}</h1>
-            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0; font-size: 14px;">${language === 'fr' ? 'Grande enquête 2026' : 'Major Survey 2026'}</p>
-          </div>
+          ${header}
 
           <div style="background: #ffffff; padding: 30px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
             <p style="margin-top: 0;">${content.greeting}</p>

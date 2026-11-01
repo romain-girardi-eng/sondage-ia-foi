@@ -649,6 +649,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
             language,
             anonymousId: anonymousIdState,
             answers: cleanAnswers,
+            variant,
           }),
         });
         // Don't wait for response or handle errors - best effort delivery
@@ -664,7 +665,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
     setStep("feedback");
     setIsTransitioning(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [answers, anonymousIdState, consentGiven, csrfToken, fetchWithCSRF, language, submitAnswers, visibleQuestions]);
+  }, [answers, anonymousIdState, consentGiven, csrfToken, fetchWithCSRF, language, submitAnswers, variant, visibleQuestions]);
 
   // Retry the submission after a network failure, reusing the email hash
   // already obtained (no need to re-verify the email against the API).

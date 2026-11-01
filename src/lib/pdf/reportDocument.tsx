@@ -1,901 +1,621 @@
 import React from 'react';
 import {
+  Circle,
   Document,
+  Font,
+  Image,
+  Line,
+  Link,
   Page,
+  Polygon,
+  Rect,
+  StyleSheet,
+  Svg,
   Text,
   View,
-  StyleSheet,
-  Font,
 } from '@react-pdf/renderer';
 import {
+  DIMENSION_LABELS,
   PROFILE_DEFINITIONS,
   SUB_PROFILE_DEFINITIONS,
-  DIMENSION_LABELS,
 } from '@/lib/scoring/constants';
 import type { DimensionKey, ProfileSpectrum, UsageGap } from '@/lib/scoring/types';
 import { translations as uiStrings } from '@/lib/i18n/translations';
 
-// Register Open Sans fonts (TTF format required by react-pdf)
-// Using Open Sans as it has good Unicode/international support
+// Fonts and logos ship with the app (next.config.ts traces them into the route).
+const ROOT = process.cwd();
+const FONTS = `${ROOT}/src/lib/pdf/assets/fonts`;
+
 Font.register({
-  family: 'OpenSans',
+  family: 'Inter',
   fonts: [
-    { src: 'https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-regular.ttf', fontWeight: 400 },
-    { src: 'https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-600.ttf', fontWeight: 600 },
-    { src: 'https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-700.ttf', fontWeight: 700 },
+    { src: `${FONTS}/Inter-400.ttf`, fontWeight: 400 },
+    { src: `${FONTS}/Inter-500.ttf`, fontWeight: 500 },
+    { src: `${FONTS}/Inter-600.ttf`, fontWeight: 600 },
+    { src: `${FONTS}/Inter-700.ttf`, fontWeight: 700 },
   ],
 });
+Font.register({
+  family: 'SourceSerif',
+  fonts: [
+    { src: `${FONTS}/SourceSerif4-600.ttf`, fontWeight: 600 },
+    { src: `${FONTS}/SourceSerif4-400i.ttf`, fontWeight: 400, fontStyle: 'italic' },
+  ],
+});
+// The default hyphenation is English: it cuts French words in the wrong places.
+Font.registerHyphenationCallback((word) => [word]);
+
+export type ReportVariant = 'general' | 'cnef';
 
 export interface ReportData {
   language: 'fr' | 'en';
+  /** Entry point of the respondent: "cnef" carries the CNEF branding. */
+  variant?: ReportVariant;
   anonymousId: string;
   completedAt: string;
-  answers: Record<string, string | string[] | number | Record<string, number>>;
-  profile: {
-    /** null when the dimension could not be measured */
-    religiosityScore: number | null;
-    iaComfortScore: number | null;
-    theologicalOrientation: string;
-  };
+  answers: Record<string, unknown>;
 }
 
-const translations = {
+const AUTHOR = 'Romain Girardi';
+const SITE = 'https://ia-foi.fr';
+const TECH_FOI_URL = 'https://www.lecnef.org/page/4147098-tech-foi';
+
+const INK = '#1C1A1B';
+const BODY = '#3A3638';
+const MUTED = '#6F696C';
+const LINE = '#E6E2E0';
+
+const THEMES = {
+  cnef: {
+    accent: '#C92128',
+    bright: '#F14623',
+    second: '#B01573',
+    deep: '#9E1E5A',
+    tint: '#FEF3EF',
+    band: '#FBD9CC',
+    logo: `${ROOT}/public/cnef-logo.png`,
+    logoWidth: 62,
+    logoHeight: 66,
+    path: '/cnef',
+  },
+  general: {
+    accent: '#2563EB',
+    bright: '#60A5FA',
+    second: '#7C3AED',
+    deep: '#1E3A8A',
+    tint: '#F1F5FF',
+    band: '#D3E2FF',
+    logo: `${ROOT}/public/logo.png`,
+    logoWidth: 54,
+    logoHeight: 54,
+    path: '',
+  },
+} as const;
+
+const COPY = {
   fr: {
-    title: 'Votre Profil Spirituel & IA',
-    subtitle: 'Rapport Personnalisé - Grande Enquête 2026',
-    generatedAt: 'Généré le',
-    anonymousId: 'Identifiant anonyme',
-    yourProfile: 'Votre Profil',
+    documentTitle: 'Votre rapport personnel',
+    overline: 'Rapport personnel',
+    generalBrand: 'IA & Foi',
+    yourProfile: 'Votre profil',
+    closeProfiles: 'Deux profils proches',
+    closeProfilesNote: 'Vos réponses se situent à distance comparable de ces deux profils. Aucun des deux ne l\'emporte.',
+    inBrief: 'Ce profil, en bref :',
+    match: (score: number) => `correspondance ${score} / 100`,
+    matchNote: 'La correspondance mesure la proximité de vos scores avec les plages du profil. Ce n\'est pas un degré de certitude.',
+    heuristic: 'Attribution heuristique, non validée : ce profil est une lecture indicative de vos réponses, pas un diagnostic.',
+    noProfileTitle: 'Profil non attribuable',
+    noProfileNote: (n: number) => `Il faut au moins quatre dimensions mesurées pour rapprocher vos réponses d'un profil. ${n} sur 7 l'ont été. Vos scores sont détaillés plus loin.`,
+    usageGap: 'Écart d\'usage',
+    outOf: '/ 5',
+    notMeasured: 'Non mesuré',
+    generatedOn: 'Rapport établi le',
+    identifier: 'Identifiant anonyme',
+    pageOf: (page: number, total: number) => `Page ${page} sur ${total}`,
+    signature: `Enquête conçue et analysée par ${AUTHOR}`,
+    runningTitle: 'Rapport personnel',
+    readingTitle: 'Ce que vos réponses dessinent',
     subProfile: 'Sous-profil',
-    matchScore: 'Correspondance',
-    secondaryTendency: 'Tendance secondaire',
-    sevenDimensions: 'Vos 7 Dimensions',
-    dimensionsIntro: 'Votre positionnement sur les axes clés de l\'étude',
-    interpretation: 'Interprétation',
-    uniqueAspects: 'Ce qui vous caractérise',
-    blindSpots: 'Points d\'attention',
-    strengths: 'Vos forces',
+    standsOut: 'Ce qui ressort',
+    distinguishes: 'Ce qui distingue vos réponses',
+    dimensionsTitle: 'Vos sept dimensions',
+    dimensionsIntro: (name: string | null) => name
+      ? `Chaque point situe votre score sur une échelle de 1 à 5. La bande colorée montre la plage retenue pour le profil « ${name} » : elle a été fixée par jugement, pas calculée sur des données.`
+      : 'Chaque point situe votre score sur une échelle de 1 à 5.',
+    legendScore: 'Votre score',
+    legendBand: 'Plage du profil',
+    comparison: 'Ce rapport ne vous compare pas aux autres participants : ce rang se calcule en ligne, à partir de 30 participants, sur les réponses collectées à ce moment-là.',
+    usageGapNote: 'Comparaison entre l\'usage de l\'IA que vous déclarez en général et celui que vous déclarez dans le domaine spirituel ou ministériel.',
+    usageGapLabels: {
+      no_use: 'Aucun usage de l\'IA déclaré',
+      uses_general_not_spiritual: 'Usage général déclaré, aucun usage spirituel déclaré',
+      uses_both: 'Usage déclaré dans les deux domaines',
+      none: 'Écart non calculable : la question sur l\'usage général est restée sans réponse',
+    } satisfies Record<UsageGap, string>,
     insights: 'Lectures de vos scores',
     tensions: 'Tensions observées',
-    tensionIntro: 'Deux dimensions lues ensemble, sans jugement de valeur',
-    growthAreas: 'Pistes de réflexion, si vous le souhaitez',
-    growthIntro: 'Écarts observés entre deux dimensions, décrits sans recommandation',
-    heuristicAttribution:
-      'Attribution heuristique, non validée : le profil ci-dessous est une lecture indicative de vos réponses, pas un diagnostic.',
-    noProfileTitle: 'Profil non attribuable : trop peu de dimensions mesurées',
-    noProfileDescription:
-      'Au moins quatre dimensions doivent être mesurées pour rapprocher vos réponses d\'un profil. Vos scores bruts par dimension sont indiqués page suivante.',
-    measuredDimensions: 'Dimensions mesurées :',
-    closeProfiles: 'Deux profils proches',
-    closeProfilesDescription:
-      'Vos réponses se situent à distance comparable de ces deux profils. Aucun des deux ne l\'emporte.',
-    notMeasured: 'Non mesuré (trop peu de réponses)',
-    comparisonNotIncluded:
-      'Comparaison avec les autres participants non incluse dans ce rapport : elle est calculée en ligne, sur les réponses collectées à la date de consultation.',
-    usageGap: 'Écart d\'usage',
-    usageGapNote:
-      'Comparaison entre l\'usage de l\'IA que vous déclarez en général et celui que vous déclarez dans le domaine spirituel ou ministériel.',
-    usageGapNoUse: 'Aucun usage de l\'IA déclaré',
-    usageGapGeneralOnly: 'Usage général déclaré, aucun usage spirituel déclaré',
-    usageGapBoth: 'Usage déclaré dans les deux domaines',
-    usageGapUnknown: 'Écart non calculable : la question sur l\'usage général est sans réponse',
-    socialDesirability: 'Réserve de lecture',
-    socialDesirabilityNote:
-      'Vos réponses aux cinq énoncés vrai/faux suggèrent une tendance à répondre de façon socialement attendue ; votre profil est calculé sans correction, à lire avec cette réserve.',
-    thankYou: 'Merci pour votre participation à cette grande enquête sur l\'IA et la foi.',
-    dataProtection: 'Vos données sont protégées conformément au RGPD. Ce rapport est personnel et confidentiel.',
-    footer: 'Sondage IA & Foi - Grande Enquête 2026',
-    page: 'Page',
-    of: 'sur',
-    colon: ' :',
+    tensionsIntro: 'Deux dimensions lues ensemble, sans jugement de valeur.',
+    growth: 'Pistes de réflexion, si vous le souhaitez',
+    growthIntro: 'Écarts observés entre deux dimensions, décrits sans recommandation.',
+    attention: 'Points d\'attention',
+    desirability: 'Réserve de lecture',
+    desirabilityNote: 'Vos réponses aux cinq énoncés vrai/faux suggèrent une tendance à répondre de façon socialement attendue. Votre profil est calculé sans correction : lisez-le avec cette réserve en tête.',
+    howToReadTitle: 'Comment lire ce rapport',
+    yourData: 'Vos données',
+    dataNote: 'Vos réponses sont pseudonymisées et ce rapport est personnel. Votre identifiant vous permet de consulter, d\'exporter ou de supprimer vos réponses à tout moment :',
+    cnefNote: 'Le CNEF reçoit uniquement des résultats agrégés et anonymes.',
+    techFoiBefore: 'Le mouvement ',
+    techFoiAfter: ' publiera les conclusions de cette enquête début 2027.',
+    methodology: 'Méthode complète :',
+    thanks: 'Merci pour votre participation.',
   },
   en: {
-    title: 'Your Spiritual & AI Profile',
-    subtitle: 'Personalized Report - Major Survey 2026',
-    generatedAt: 'Generated on',
-    anonymousId: 'Anonymous ID',
-    yourProfile: 'Your Profile',
+    documentTitle: 'Your personal report',
+    overline: 'Personal report',
+    generalBrand: 'AI & Faith',
+    yourProfile: 'Your profile',
+    closeProfiles: 'Two close profiles',
+    closeProfilesNote: 'Your answers sit at a comparable distance from these two profiles. Neither one wins.',
+    inBrief: 'This profile, in brief:',
+    match: (score: number) => `match ${score} / 100`,
+    matchNote: 'The match measures how close your scores are to the profile\'s ranges. It is not a degree of certainty.',
+    heuristic: 'Heuristic attribution, not validated: this profile is an indicative reading of your answers, not a diagnosis.',
+    noProfileTitle: 'No profile can be attributed',
+    noProfileNote: (n: number) => `At least four measured dimensions are needed to match your answers to a profile. ${n} of 7 were measured. Your scores are detailed further on.`,
+    usageGap: 'Usage gap',
+    outOf: '/ 5',
+    notMeasured: 'Not measured',
+    generatedOn: 'Report issued on',
+    identifier: 'Anonymous ID',
+    pageOf: (page: number, total: number) => `Page ${page} of ${total}`,
+    signature: `Survey designed and analysed by ${AUTHOR}`,
+    runningTitle: 'Personal report',
+    readingTitle: 'What your answers outline',
     subProfile: 'Sub-profile',
-    matchScore: 'Match',
-    secondaryTendency: 'Secondary tendency',
-    sevenDimensions: 'Your 7 Dimensions',
-    dimensionsIntro: 'Your positioning on the key study axes',
-    interpretation: 'Interpretation',
-    uniqueAspects: 'What characterizes you',
-    blindSpots: 'Points of attention',
-    strengths: 'Your strengths',
+    standsOut: 'What stands out',
+    distinguishes: 'What sets your answers apart',
+    dimensionsTitle: 'Your seven dimensions',
+    dimensionsIntro: (name: string | null) => name
+      ? `Each dot places your score on a scale from 1 to 5. The coloured band shows the range set for the "${name}" profile: it was set by judgement, not computed from data.`
+      : 'Each dot places your score on a scale from 1 to 5.',
+    legendScore: 'Your score',
+    legendBand: 'Profile range',
+    comparison: 'This report does not compare you with other participants: that rank is computed online, from 30 participants onwards, on the answers collected at that moment.',
+    usageGapNote: 'Comparison between the AI use you report in general and the use you report in the spiritual or ministry domain.',
+    usageGapLabels: {
+      no_use: 'No AI use reported',
+      uses_general_not_spiritual: 'General use reported, no spiritual use reported',
+      uses_both: 'Use reported in both domains',
+      none: 'Gap cannot be computed: the general-use question was left unanswered',
+    } satisfies Record<UsageGap, string>,
     insights: 'Readings of your scores',
     tensions: 'Observed tensions',
-    tensionIntro: 'Two dimensions read together, with no value judgement',
-    growthAreas: 'Points to reflect on, if you wish',
-    growthIntro: 'Gaps observed between two dimensions, described without recommendation',
-    heuristicAttribution:
-      'Heuristic attribution, not validated: the profile below is an indicative reading of your answers, not a diagnosis.',
-    noProfileTitle: 'No profile can be attributed: too few dimensions measured',
-    noProfileDescription:
-      'At least four dimensions must be measured before your answers can be matched to a profile. Your raw dimension scores are listed on the next page.',
-    measuredDimensions: 'Dimensions measured:',
-    closeProfiles: 'Two close profiles',
-    closeProfilesDescription:
-      'Your answers sit at a comparable distance from these two profiles. Neither one wins.',
-    notMeasured: 'Not measured (too few answers)',
-    comparisonNotIncluded:
-      'Comparison with other participants is not included in this report: it is computed online, on the answers collected at the time of viewing.',
-    usageGap: 'Usage gap',
-    usageGapNote:
-      'Comparison between the AI use you report in general and the use you report in the spiritual or ministry domain.',
-    usageGapNoUse: 'No AI use reported',
-    usageGapGeneralOnly: 'General use reported, no spiritual use reported',
-    usageGapBoth: 'Use reported in both domains',
-    usageGapUnknown: 'Gap cannot be computed: the general-use question was left unanswered',
-    socialDesirability: 'Reading reservation',
-    socialDesirabilityNote:
-      'Your answers to the five true/false statements suggest a tendency to answer in a socially expected way; your profile is computed without correction and should be read with that reservation in mind.',
-    thankYou: 'Thank you for participating in this major survey on AI and faith.',
-    dataProtection: 'Your data is protected in accordance with GDPR. This report is personal and confidential.',
-    footer: 'AI & Faith Survey - Major Survey 2026',
-    page: 'Page',
-    of: 'of',
-    colon: ':',
+    tensionsIntro: 'Two dimensions read together, with no value judgement.',
+    growth: 'Points to reflect on, if you wish',
+    growthIntro: 'Gaps observed between two dimensions, described without recommendation.',
+    attention: 'Points of attention',
+    desirability: 'Reading reservation',
+    desirabilityNote: 'Your answers to the five true/false statements suggest a tendency to answer in a socially expected way. Your profile is computed without correction: read it with that reservation in mind.',
+    howToReadTitle: 'How to read this report',
+    yourData: 'Your data',
+    dataNote: 'Your answers are pseudonymised and this report is personal. Your ID lets you view, export or delete your answers at any time:',
+    cnefNote: 'The CNEF only receives aggregated, anonymous results.',
+    techFoiBefore: 'The ',
+    techFoiAfter: ' movement will publish the conclusions of this survey in early 2027.',
+    methodology: 'Full method:',
+    thanks: 'Thank you for taking part.',
   },
 };
 
-// Color palette
-const colors = {
-  primary: '#3b82f6',
-  primaryDark: '#2563eb',
-  secondary: '#8b5cf6',
-  accent: '#22c55e',
-  warning: '#f59e0b',
-  text: '#1e293b',
-  textMuted: '#64748b',
-  textLight: '#94a3b8',
-  background: '#f8fafc',
-  white: '#ffffff',
-  border: '#e2e8f0',
-};
+/** Fallbacks of the scoring module: true, but nothing a reader can use. */
+const NOT_INFORMATIVE = new Set([
+  'Aucune combinaison de dimensions ne se détache nettement',
+  'Aucun écart notable entre les dimensions',
+]);
+const informative = (items: string[]) => items.filter((item) => !NOT_INFORMATIVE.has(item));
 
-const dimensionColors: Record<DimensionKey, string> = {
-  religiosity: '#6366f1',
-  aiOpenness: '#10b981',
-  sacredBoundary: '#f59e0b',
-  ethicalConcern: '#ef4444',
-  psychologicalPerception: '#8b5cf6',
-  communityContext: '#3b82f6',
-  futureOrientation: '#ec4899',
-};
+const DIMENSION_KEYS: DimensionKey[] = [
+  'religiosity', 'aiOpenness', 'sacredBoundary', 'ethicalConcern',
+  'psychologicalPerception', 'communityContext', 'futureOrientation',
+];
 
-// Styles
+/** French spacing rules, applied to every string, including those of the scoring module. */
+function frenchSpacing(text: string): string {
+  return text
+    .replace(/ ([;?!])/g, ' $1')
+    .replace(/ :/g, ' :')
+    .replace(/« /g, '« ')
+    .replace(/ »/g, ' »');
+}
+
 const styles = StyleSheet.create({
-  page: {
-    fontFamily: 'OpenSans',
-    fontSize: 10,
-    paddingTop: 0,
-    paddingBottom: 50,
-    paddingHorizontal: 0,
-    backgroundColor: colors.white,
-  },
-  header: {
-    backgroundColor: colors.primary,
-    paddingVertical: 25,
-    paddingHorizontal: 30,
-    marginBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 700,
-    color: colors.white,
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.9)',
-    marginBottom: 12,
-  },
-  headerMeta: {
-    fontSize: 9,
-    color: 'rgba(255,255,255,0.75)',
-  },
-  content: {
-    paddingHorizontal: 30,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: 700,
-    color: colors.primary,
-    marginBottom: 12,
-    marginTop: 8,
-  },
-  sectionTitleWithBg: {
-    backgroundColor: colors.background,
-    padding: 10,
-    borderRadius: 6,
-    marginBottom: 12,
-    marginTop: 8,
-  },
-  sectionTitleText: {
-    fontSize: 12,
-    fontWeight: 600,
-    color: colors.primary,
-  },
-  profileCard: {
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  profileHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 10,
-  },
-  profileTitle: {
-    fontSize: 18,
-    fontWeight: 700,
-    color: colors.primary,
-    flex: 1,
-  },
-  matchBadge: {
-    backgroundColor: colors.accent,
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-  },
-  matchBadgeText: {
-    color: colors.white,
-    fontSize: 11,
-    fontWeight: 600,
-  },
-  profileDescription: {
-    fontSize: 10,
-    color: colors.text,
-    lineHeight: 1.5,
-    marginBottom: 8,
-  },
-  profileMotivation: {
-    fontSize: 9,
-    color: colors.textMuted,
-        marginTop: 4,
-  },
-  subProfileBox: {
-    backgroundColor: colors.background,
-    borderRadius: 6,
-    padding: 12,
-    marginBottom: 12,
-  },
-  subProfileTitle: {
-    fontSize: 11,
-    fontWeight: 600,
-    color: colors.secondary,
-    marginBottom: 4,
-  },
-  subProfileDescription: {
-    fontSize: 9,
-    color: colors.text,
-    lineHeight: 1.4,
-  },
-  secondaryText: {
-    fontSize: 9,
-    color: colors.textMuted,
-    marginBottom: 16,
-  },
-  interpretationBox: {
-    backgroundColor: '#f0f9ff',
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
-    padding: 12,
-    marginBottom: 16,
-  },
-  interpretationText: {
-    fontSize: 10,
-    color: colors.text,
-    lineHeight: 1.5,
-  },
-  strengthsSection: {
-    marginBottom: 16,
-  },
-  strengthsTitle: {
-    fontSize: 11,
-    fontWeight: 600,
-    color: colors.accent,
-    marginBottom: 6,
-  },
-  bulletPoint: {
-    flexDirection: 'row',
-    marginBottom: 4,
-    paddingLeft: 8,
-  },
-  bullet: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.textMuted,
-    marginRight: 8,
-    marginTop: 4,
-  },
-  bulletText: {
-    fontSize: 9,
-    color: colors.text,
-    flex: 1,
-  },
-  uniqueTitle: {
-    fontSize: 11,
-    fontWeight: 600,
-    color: colors.secondary,
-    marginBottom: 6,
-  },
-  // Dimensions page
-  dimensionRow: {
-    marginBottom: 18,
-  },
-  dimensionLabel: {
-    fontSize: 10,
-    fontWeight: 600,
-    color: colors.text,
-    marginBottom: 4,
-  },
-  dimensionBarContainer: {
-    height: 10,
-    backgroundColor: colors.background,
-    borderRadius: 5,
-    overflow: 'hidden',
-    marginBottom: 3,
-  },
-  dimensionBar: {
-    height: '100%',
-    borderRadius: 5,
-  },
-  dimensionScaleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  dimensionScaleText: {
-    fontSize: 7,
-    color: colors.textLight,
-    maxWidth: '45%',
-  },
-  dimensionValue: {
-    position: 'absolute',
-    right: 4,
-    top: 1,
-    fontSize: 7,
-    fontWeight: 600,
-    color: colors.white,
-  },
-  // Insights
-  insightCard: {
-    backgroundColor: colors.background,
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 10,
-  },
-  insightTitle: {
-    fontSize: 10,
-    fontWeight: 600,
-    color: colors.primary,
-    marginBottom: 4,
-  },
-  insightMessage: {
-    fontSize: 9,
-    color: colors.text,
-    lineHeight: 1.4,
-  },
-  // Tensions & Growth
-  tensionCard: {
-    backgroundColor: '#fffbeb',
-    borderWidth: 1,
-    borderColor: colors.warning,
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 10,
-  },
-  tensionHeader: {
-    fontSize: 10,
-    fontWeight: 600,
-    color: colors.warning,
-    marginBottom: 4,
-  },
-  tensionDescription: {
-    fontSize: 9,
-    color: colors.text,
-    marginBottom: 4,
-  },
-  tensionSuggestion: {
-    fontSize: 8,
-    color: colors.textMuted,
-      },
-  growthCard: {
-    backgroundColor: '#f0fdf4',
-    borderWidth: 1,
-    borderColor: colors.accent,
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 10,
-  },
-  growthTitle: {
-    fontSize: 10,
-    fontWeight: 600,
-    color: colors.accent,
-    marginBottom: 4,
-  },
-  growthDetail: {
-    fontSize: 9,
-    color: colors.text,
-    marginBottom: 2,
-  },
-  growthAction: {
-    fontSize: 9,
-    fontWeight: 500,
-    color: colors.primary,
-    marginTop: 4,
-  },
-  blindSpotCard: {
-    backgroundColor: colors.background,
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 8,
-  },
-  // Footer
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: colors.primary,
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  footerText: {
-    fontSize: 8,
-    color: colors.white,
-  },
-  // Thank you
-  thankYouSection: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: 16,
-    marginTop: 20,
-  },
-  thankYouText: {
-    fontSize: 10,
-    color: colors.text,
-    marginBottom: 6,
-  },
-  dataProtectionText: {
-    fontSize: 8,
-    color: colors.textMuted,
-  },
-  // Page header (for pages 2+)
-  miniHeader: {
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    marginBottom: 20,
-  },
-  miniHeaderTitle: {
-    fontSize: 14,
-    fontWeight: 700,
-    color: colors.white,
-  },
-  disclaimerBox: {
-    backgroundColor: '#fffbeb',
-    borderLeftWidth: 3,
-    borderLeftColor: colors.warning,
-    padding: 10,
-    marginBottom: 12,
-  },
-  disclaimerText: {
-    fontSize: 9,
-    color: colors.text,
-    lineHeight: 1.4,
-  },
-  notMeasuredText: {
-    fontSize: 9,
-    color: colors.textMuted,
-    marginBottom: 4,
-  },
-  noteText: {
-    fontSize: 8,
-    color: colors.textMuted,
-    marginBottom: 12,
-    lineHeight: 1.4,
-  },
-  usageGapBox: {
-    backgroundColor: colors.background,
-    borderRadius: 6,
-    padding: 12,
-    marginBottom: 12,
-  },
-  usageGapValue: {
-    fontSize: 11,
-    fontWeight: 600,
-    color: colors.text,
-    marginBottom: 4,
-  },
+  page: { fontFamily: 'Inter', fontSize: 9.5, color: BODY, paddingTop: 76, paddingBottom: 66, paddingHorizontal: 50 },
+  coverPage: { fontFamily: 'Inter', fontSize: 9.5, color: BODY, paddingTop: 50, paddingBottom: 40, paddingHorizontal: 50 },
+  overline: { fontSize: 8, fontWeight: 600, letterSpacing: 1.4, textTransform: 'uppercase' },
+  surveyTitle: { fontFamily: 'SourceSerif', fontWeight: 600, fontSize: 17, lineHeight: 1.25, color: INK, marginTop: 6 },
+  profileName: { fontFamily: 'SourceSerif', fontWeight: 600, color: INK, lineHeight: 1.1 },
+  motivation: { fontFamily: 'SourceSerif', fontStyle: 'italic', fontWeight: 400, fontSize: 13, lineHeight: 1.4, color: BODY },
+  sectionTitle: { fontFamily: 'SourceSerif', fontWeight: 600, fontSize: 21, lineHeight: 1.2, color: INK, marginBottom: 14 },
+  subTitle: { fontWeight: 600, fontSize: 10.5, color: INK, marginBottom: 5 },
+  lead: { fontSize: 10.5, lineHeight: 1.65, color: BODY },
+  small: { fontSize: 8, lineHeight: 1.45, color: MUTED },
+  statValue: { fontFamily: 'SourceSerif', fontWeight: 600, fontSize: 30, lineHeight: 1, color: INK },
+  statUnit: { fontSize: 9, color: MUTED },
+  statLabel: { fontSize: 8.5, fontWeight: 500, color: BODY },
+  card: { paddingVertical: 9, paddingLeft: 11, paddingRight: 8, borderLeftWidth: 2, marginBottom: 8 },
+  cardTitle: { fontWeight: 600, fontSize: 9.5, color: INK, marginBottom: 2 },
+  bullet: { flexDirection: 'row', marginBottom: 4 },
+  bulletDot: { width: 3.5, height: 3.5, borderRadius: 2, marginTop: 5, marginRight: 7 },
+  bulletText: { flex: 1 },
+  // On a wrapper, not on the Page: an inherited lineHeight makes react-pdf drop the dynamic page number.
+  flow: { fontSize: 9.5, lineHeight: 1.5 },
+  footerRule: { position: 'absolute', left: 50, right: 50, bottom: 40, height: 0.5, backgroundColor: LINE },
+  footerText: { position: 'absolute', bottom: 26, fontFamily: 'Inter', fontWeight: 400, fontSize: 7, color: MUTED },
+  header: { position: 'absolute', top: 26, left: 50, right: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 7, borderBottomWidth: 0.5, borderBottomColor: LINE },
+  headerBrand: { flexDirection: 'row', alignItems: 'center' },
+  headerLogo: { height: 18, marginRight: 7, objectFit: 'contain' },
+  headerText: { fontSize: 7.5, color: MUTED },
+  dimensionRow: { flexDirection: 'row', alignItems: 'flex-start', paddingVertical: 9, borderBottomWidth: 0.5, borderBottomColor: LINE },
+  dimensionText: { width: 182, paddingRight: 12 },
+  dimensionName: { fontWeight: 600, fontSize: 9.5, color: INK },
+  dimensionValue: { width: 38, textAlign: 'right', fontWeight: 700, fontSize: 12, color: INK, lineHeight: 1.3 },
+  axisEnds: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 2, paddingHorizontal: 2 },
+  axisEnd: { fontSize: 6.8, lineHeight: 1.25, color: MUTED, maxWidth: 110 },
+  link: { color: INK, textDecoration: 'underline' },
 });
 
-// Components
-interface FooterProps {
-  pageNum: number;
-  totalPages: number;
-  t: typeof translations.fr;
-}
+const AXIS_WIDTH = 245;
+const AXIS_PAD = 8;
+const axisX = (value: number) => AXIS_PAD + ((value - 1) / 4) * (AXIS_WIDTH - 2 * AXIS_PAD);
 
-const Footer: React.FC<FooterProps> = ({ pageNum, totalPages, t }) => (
-  <View style={styles.footer} fixed>
-    <Text style={styles.footerText}>{t.footer}</Text>
-    <Text style={styles.footerText}>
-      {t.page} {pageNum} {t.of} {totalPages}
-    </Text>
-  </View>
-);
-
-interface DimensionBarProps {
-  label: string;
-  /** null when fewer items than the dimension minimum were answered */
+function DimensionAxis({ value, range, accent, band }: {
   value: number | null;
-  color: string;
-  lowDesc: string;
-  highDesc: string;
-  notMeasuredLabel: string;
+  range: readonly [number, number] | null;
+  accent: string;
+  band: string;
+}) {
+  return (
+    <Svg width={AXIS_WIDTH} height={22}>
+      {range && (
+        <Rect x={axisX(range[0])} y={5} width={axisX(range[1]) - axisX(range[0])} height={12} rx={3} ry={3} fill={band} />
+      )}
+      <Line x1={axisX(1)} y1={11} x2={axisX(5)} y2={11} stroke="#BDB7B4" strokeWidth={0.75} />
+      {[1, 2, 3, 4, 5].map((tick) => (
+        <Line key={tick} x1={axisX(tick)} y1={8.5} x2={axisX(tick)} y2={13.5} stroke="#BDB7B4" strokeWidth={0.75} />
+      ))}
+      {value !== null && <Circle cx={axisX(value)} cy={11} r={5.5} fill={accent} stroke="#FFFFFF" strokeWidth={1.8} />}
+    </Svg>
+  );
 }
 
-const DimensionBar: React.FC<DimensionBarProps> = ({
-  label,
-  value,
-  color,
-  lowDesc,
-  highDesc,
-  notMeasuredLabel,
-}) => (
-  <View style={styles.dimensionRow}>
-    <Text style={styles.dimensionLabel}>{label}</Text>
-    {value === null ? (
-      <Text style={styles.notMeasuredText}>{notMeasuredLabel}</Text>
-    ) : (
-      <>
-        <View style={styles.dimensionBarContainer}>
-          <View style={[styles.dimensionBar, { width: `${(value / 5) * 100}%`, backgroundColor: color }]}>
-            <Text style={styles.dimensionValue}>{value.toFixed(1)}</Text>
-          </View>
-        </View>
-        <View style={styles.dimensionScaleRow}>
-          <Text style={styles.dimensionScaleText}>{lowDesc}</Text>
-          <Text style={styles.dimensionScaleText}>{highDesc}</Text>
-        </View>
-      </>
-    )}
-  </View>
-);
+export function ReportDocument({ data, spectrum }: { data: ReportData; spectrum: ProfileSpectrum }) {
+  const lang = data.language;
+  const isCnef = data.variant === 'cnef';
+  const theme = THEMES[isCnef ? 'cnef' : 'general'];
+  const c = COPY[lang];
+  const ui = uiStrings[lang];
+  const tx = (text: string) => (lang === 'fr' ? frenchSpacing(text) : text);
 
-interface ReportDocumentProps {
-  data: ReportData;
-  spectrum: ProfileSpectrum;
-}
-
-const USAGE_GAP_LABEL_KEYS: Record<UsageGap, 'usageGapNoUse' | 'usageGapGeneralOnly' | 'usageGapBoth' | 'usageGapUnknown'> = {
-  no_use: 'usageGapNoUse',
-  uses_general_not_spiritual: 'usageGapGeneralOnly',
-  uses_both: 'usageGapBoth',
-  none: 'usageGapUnknown',
-};
-
-/** Raw match score, rounded only for display (docs/SCORING_V2_SPEC.md §1.5). */
-function formatMatch(language: ReportData['language'], score: number): string {
-  const rounded = Math.round(score);
-  return language === 'fr' ? `correspondance ${rounded} / 100` : `match ${rounded} / 100`;
-}
-
-/** Resolve a scoring i18n key (growth areas, tensions) to its displayed text. */
-function uiString(
-  language: ReportData['language'],
-  group: 'growthAreas' | 'tensions',
-  key: string,
-): string {
-  const entries = uiStrings[language][group] as Record<string, string>;
-  return entries[key] ?? key;
-}
-
-export const ReportDocument: React.FC<ReportDocumentProps> = ({ data, spectrum }) => {
-  const t = translations[data.language];
+  const surveyTitle = isCnef ? ui.cnef.title : ui.intro.title;
   const primary = spectrum.primary;
   const primaryDef = primary ? PROFILE_DEFINITIONS[primary.profile] : null;
-  const subDef = spectrum.subProfile
-    ? SUB_PROFILE_DEFINITIONS[spectrum.subProfile.subProfile]
-    : null;
-  const interpretation = spectrum.interpretation;
   const runnerUp = spectrum.allMatches[1] ?? null;
-  const isCloseCall = primary !== null && spectrum.profileConfidence === 'low';
+  const isCloseCall = primary !== null && runnerUp !== null && spectrum.profileConfidence === 'low';
+  const subDef = spectrum.subProfile ? SUB_PROFILE_DEFINITIONS[spectrum.subProfile.subProfile] : null;
+  const interpretation = spectrum.interpretation;
+  const narrative = interpretation ? interpretation.narrative.replace(subDef?.description ?? '', '').trim() : '';
+  const uniqueAspects = informative(interpretation?.uniqueAspects ?? []);
+  const blindSpots = informative(interpretation?.blindSpots ?? []);
+  const measured = DIMENSION_KEYS.filter((key) => spectrum.dimensions[key].value !== null).length;
 
-  const dateStr = new Date(data.completedAt).toLocaleDateString(
-    data.language === 'fr' ? 'fr-FR' : 'en-US',
-    { year: 'numeric', month: 'long', day: 'numeric' }
+  const number = (value: number) => (lang === 'fr' ? value.toFixed(1).replace('.', ',') : value.toFixed(1));
+  const date = new Date(data.completedAt).toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', {
+    year: 'numeric', month: 'long', day: 'numeric',
+  });
+  const dateText = lang === 'fr' ? date.replace(/^1 /, '1er ') : date;
+  const dimensionName = (key: DimensionKey) => (lang === 'fr' ? DIMENSION_LABELS[key].label : DIMENSION_LABELS[key].labelEn);
+
+  const inBrief = (description: string) => tx(`${c.inBrief} ${description.charAt(0).toLowerCase()}${description.slice(1)}`);
+
+  const statTile = (key: DimensionKey) => {
+    const value = spectrum.dimensions[key].value;
+    return (
+      <View style={{ flex: 1, paddingRight: 14 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginBottom: 5 }}>
+          {value === null ? (
+            <Text style={[styles.statLabel, { color: MUTED }]}>{c.notMeasured}</Text>
+          ) : (
+            <>
+              <Text style={styles.statValue}>{number(value)}</Text>
+              <Text style={[styles.statUnit, { marginLeft: 3, marginBottom: 2 }]}>{c.outOf}</Text>
+            </>
+          )}
+        </View>
+        <Text style={styles.statLabel}>{dimensionName(key)}</Text>
+      </View>
+    );
+  };
+
+  const bullets = (items: string[]) => items.map((item, i) => (
+    <View key={i} style={styles.bullet}>
+      <View style={[styles.bulletDot, { backgroundColor: theme.accent }]} />
+      <Text style={styles.bulletText}>{tx(item)}</Text>
+    </View>
+  ));
+
+  const footer = (
+    <>
+      <View style={styles.footerRule} fixed />
+      <Text style={[styles.footerText, { left: 50 }]} fixed>{c.signature}</Text>
+      <Text style={[styles.footerText, { left: 300, right: 50, textAlign: 'right' }]} fixed render={({ pageNumber, totalPages }) => c.pageOf(pageNumber, totalPages)} />
+    </>
   );
 
-  const dimensionKeys: DimensionKey[] = [
-    'religiosity', 'aiOpenness', 'sacredBoundary', 'ethicalConcern',
-    'psychologicalPerception', 'communityContext', 'futureOrientation'
-  ];
-
-  const measuredDimensions = dimensionKeys.filter(
-    (key) => spectrum.dimensions[key].value !== null
-  ).length;
+  const sharedChrome = (
+    <>
+      <View style={styles.header} fixed>
+        <View style={styles.headerBrand}>
+          {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt */}
+          <Image src={theme.logo} style={[styles.headerLogo, { width: (18 * theme.logoWidth) / theme.logoHeight }]} />
+          <Text style={styles.headerText}>{tx(surveyTitle)}</Text>
+        </View>
+        <Text style={styles.headerText}>{c.runningTitle}</Text>
+      </View>
+      {footer}
+    </>
+  );
 
   return (
-    <Document>
-      {/* PAGE 1: Profile Overview */}
-      <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t.title}</Text>
-          <Text style={styles.headerSubtitle}>{t.subtitle}</Text>
-          <Text style={styles.headerMeta}>
-            {t.generatedAt}{t.colon} {dateStr} | {t.anonymousId}{t.colon} {data.anonymousId.slice(0, 8)}...
-          </Text>
+    <Document title={`${c.documentTitle} · ${surveyTitle}`} author={AUTHOR} subject={surveyTitle} creator={AUTHOR} producer={AUTHOR} language={lang}>
+      {/* Cover */}
+      <Page size="A4" style={styles.coverPage}>
+        <Svg width={300} height={300} style={{ position: 'absolute', top: 0, right: 0 }}>
+          <Polygon points="118,0 300,0 300,138 132,156" fill={theme.bright} fillOpacity={0.92} />
+          <Polygon points="196,0 300,0 300,62 206,54" fill={theme.second} fillOpacity={0.9} />
+          <Polygon points="166,58 262,48 276,214 182,226" fill={theme.accent} fillOpacity={0.82} />
+          <Polygon points="238,112 300,104 300,180 246,188" fill={theme.deep} fillOpacity={0.82} />
+        </Svg>
+
+        <View style={styles.flow}>
+        {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt */}
+        <Image src={theme.logo} style={{ width: theme.logoWidth, height: theme.logoHeight, marginBottom: 8 }} />
+        <Text style={{ fontSize: 8.5, fontWeight: 500, color: INK }}>
+          {isCnef ? tx(ui.cnef.partnership) : c.generalBrand}
+        </Text>
+
+        <View style={{ marginTop: 112, width: 400 }}>
+          <Text style={[styles.overline, { color: theme.accent }]}>{c.overline}</Text>
+          <Text style={styles.surveyTitle}>{tx(surveyTitle)}</Text>
         </View>
 
-        <View style={styles.content}>
-          {/* Section: Your Profile */}
-          <View style={styles.sectionTitleWithBg}>
-            <Text style={styles.sectionTitleText}>{t.yourProfile}</Text>
-          </View>
-
-          {/* Attribution caveat, above the profile name */}
-          <View style={styles.disclaimerBox}>
-            <Text style={styles.disclaimerText}>{t.heuristicAttribution}</Text>
-          </View>
-
+        <View style={{ marginTop: 60 }}>
+          <Text style={[styles.overline, { color: MUTED, marginBottom: 10 }]}>
+            {isCloseCall ? c.closeProfiles : c.yourProfile}
+          </Text>
           {primary && primaryDef ? (
-            <>
-              <View style={styles.profileCard}>
-                <View style={styles.profileHeader}>
-                  <Text style={styles.profileTitle}>{primaryDef.title}</Text>
-                  <View style={styles.matchBadge}>
-                    <Text style={styles.matchBadgeText}>
-                      {formatMatch(data.language, primary.matchScore)}
-                    </Text>
-                  </View>
-                </View>
-                <Text style={styles.profileDescription}>{primaryDef.shortDescription}</Text>
-                <Text style={styles.profileMotivation}>« {primaryDef.coreMotivation} »</Text>
-              </View>
-
-              {/* Low confidence: the runner-up is shown beside the primary, not below it */}
-              {isCloseCall && runnerUp && (
-                <View style={styles.profileCard}>
-                  <View style={styles.profileHeader}>
-                    <Text style={styles.profileTitle}>
-                      {PROFILE_DEFINITIONS[runnerUp.profile].title}
-                    </Text>
-                    <View style={styles.matchBadge}>
-                      <Text style={styles.matchBadgeText}>
-                        {formatMatch(data.language, runnerUp.matchScore)}
-                      </Text>
+            isCloseCall && runnerUp ? (
+              <>
+                <View style={{ flexDirection: 'row', marginBottom: 12 }}>
+                  {[primary, runnerUp].map((match) => (
+                    <View key={match.profile} style={{ flex: 1, paddingRight: 18 }}>
+                      <Text style={[styles.profileName, { fontSize: 29, marginBottom: 8 }]}>{tx(PROFILE_DEFINITIONS[match.profile].title)}</Text>
+                      <Text style={{ fontSize: 9.5, color: BODY, marginBottom: 4 }}>{inBrief(PROFILE_DEFINITIONS[match.profile].shortDescription)}</Text>
+                      <Text style={styles.small}>{c.match(Math.round(match.matchScore))}</Text>
                     </View>
-                  </View>
-                  <Text style={styles.profileDescription}>{t.closeProfilesDescription}</Text>
+                  ))}
+                </View>
+                <Text style={{ fontSize: 9.5 }}>{tx(c.closeProfilesNote)}</Text>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.profileName, { fontSize: 44, marginBottom: 12 }]}>{tx(primaryDef.title)}</Text>
+                <Text style={[styles.motivation, { marginBottom: 8 }]}>{tx(primaryDef.coreMotivation)}</Text>
+                <Text style={{ fontSize: 9.5, marginBottom: 4 }}>{inBrief(primaryDef.shortDescription)}</Text>
+                <Text style={styles.small}>{c.match(Math.round(primary.matchScore))}</Text>
+              </>
+            )
+          ) : (
+            <>
+              <Text style={[styles.profileName, { fontSize: 36, marginBottom: 12 }]}>{c.noProfileTitle}</Text>
+              <Text style={{ fontSize: 10 }}>{tx(c.noProfileNote(measured))}</Text>
+            </>
+          )}
+        </View>
+
+        <View style={{ flexDirection: 'row', marginTop: 44, paddingTop: 18, borderTopWidth: 0.75, borderTopColor: INK }}>
+          {statTile('religiosity')}
+          {statTile('aiOpenness')}
+          <View style={{ flex: 1.3 }}>
+            <Text style={{ fontFamily: 'SourceSerif', fontWeight: 600, fontSize: 12.5, lineHeight: 1.25, color: INK, marginBottom: 5, minHeight: 30 }}>
+              {tx(c.usageGapLabels[spectrum.usageGap])}
+            </Text>
+            <Text style={styles.statLabel}>{tx(c.usageGap)}</Text>
+          </View>
+        </View>
+
+        </View>
+
+        <View style={[styles.flow, { position: 'absolute', left: 50, right: 50, bottom: 62 }]}>
+          <View style={{ backgroundColor: theme.tint, paddingVertical: 8, paddingHorizontal: 11, borderRadius: 3, marginBottom: 12 }}>
+            <Text style={{ fontSize: 8.5, color: INK }}>{tx(c.heuristic)}</Text>
+          </View>
+          <Text style={styles.small}>{tx(`${c.generatedOn} ${dateText}`)}</Text>
+          <Text style={styles.small}>{tx(`${c.identifier} : ${data.anonymousId}`)}</Text>
+        </View>
+        {footer}
+      </Page>
+
+      <Page size="A4" style={styles.page}>
+        {sharedChrome}
+
+        <View style={styles.flow}>
+        {/* Reading of the answers */}
+        {interpretation && (
+          <View style={{ marginBottom: 20 }}>
+            <Text style={styles.sectionTitle}>{tx(c.readingTitle)}</Text>
+            <Text style={[styles.lead, { marginBottom: 14 }]}>{tx(narrative)}</Text>
+            {subDef && (
+              <View style={{ backgroundColor: theme.tint, padding: 12, borderRadius: 3, marginBottom: 14 }} wrap={false}>
+                <Text style={[styles.overline, { color: theme.accent, marginBottom: 4 }]}>{c.subProfile}</Text>
+                <Text style={{ fontFamily: 'SourceSerif', fontWeight: 600, fontSize: 14, lineHeight: 1.3, color: INK, marginBottom: 4 }}>{tx(subDef.title)}</Text>
+                <Text>{tx(subDef.description)}</Text>
+              </View>
+            )}
+            <View style={{ flexDirection: 'row' }}>
+              <View style={{ flex: 1, paddingRight: 14 }} wrap={false}>
+                <Text style={styles.subTitle}>{c.standsOut}</Text>
+                {bullets(interpretation.strengths.slice(0, 3))}
+              </View>
+              {uniqueAspects.length > 0 && (
+                <View style={{ flex: 1, paddingLeft: 14 }} wrap={false}>
+                  <Text style={styles.subTitle}>{c.distinguishes}</Text>
+                  {bullets(uniqueAspects.slice(0, 3))}
                 </View>
               )}
+            </View>
+          </View>
+        )}
 
-              {/* Sub-profile */}
-              {subDef && (
-                <View style={styles.subProfileBox}>
-                  <Text style={styles.subProfileTitle}>{t.subProfile}{t.colon} {subDef.title}</Text>
-                  <Text style={styles.subProfileDescription}>{subDef.description}</Text>
+        <View style={{ marginTop: 6 }}>
+          <View style={{ marginBottom: 14 }} wrap={false}>
+            <Text style={styles.subTitle}>{tx(c.usageGap)}</Text>
+            <Text style={{ fontWeight: 500, color: INK, marginBottom: 2 }}>{tx(c.usageGapLabels[spectrum.usageGap])}</Text>
+            <Text style={styles.small}>{tx(c.usageGapNote)}</Text>
+          </View>
+
+          {spectrum.socialDesirability.flag && (
+            <View style={{ marginBottom: 14 }} wrap={false}>
+              <Text style={styles.subTitle}>{c.desirability}</Text>
+              <Text>{tx(c.desirabilityNote)}</Text>
+            </View>
+          )}
+
+          {spectrum.insights.length > 0 && (
+            <View style={{ marginBottom: 6 }}>
+              <Text style={styles.subTitle} minPresenceAhead={40}>{c.insights}</Text>
+              {spectrum.insights.slice(0, 4).map((insight, i) => (
+                <View key={i} style={[styles.card, { borderLeftColor: theme.accent }]} wrap={false}>
+                  <Text style={styles.cardTitle}>{tx(insight.title)}</Text>
+                  <Text>{tx(insight.message)}</Text>
                 </View>
-              )}
+              ))}
+            </View>
+          )}
 
-              {/* Secondary tendency */}
-              {!isCloseCall && spectrum.secondary && spectrum.secondary.matchScore >= 15 && (
-                <Text style={styles.secondaryText}>
-                  {t.secondaryTendency}{t.colon} {PROFILE_DEFINITIONS[spectrum.secondary.profile].title} ({formatMatch(data.language, spectrum.secondary.matchScore)})
-                </Text>
-              )}
+        </View>
 
-              {interpretation && (
-                <>
-                  {/* Interpretation */}
-                  <View style={styles.sectionTitleWithBg}>
-                    <Text style={styles.sectionTitleText}>{t.interpretation}</Text>
-                  </View>
-                  <View style={styles.interpretationBox}>
-                    <Text style={styles.interpretationText}>{interpretation.narrative}</Text>
-                  </View>
-
-                  {/* Strengths */}
-                  <View style={styles.strengthsSection}>
-                    <Text style={styles.strengthsTitle}>{t.strengths}</Text>
-                    {interpretation.strengths.slice(0, 3).map((strength, i) => (
-                      <View key={i} style={styles.bulletPoint}>
-                        <View style={styles.bullet} />
-                        <Text style={styles.bulletText}>{strength}</Text>
-                      </View>
-                    ))}
-                  </View>
-
-                  {/* Unique aspects */}
-                  {interpretation.uniqueAspects.length > 0 && (
-                    <View style={styles.strengthsSection}>
-                      <Text style={styles.uniqueTitle}>{t.uniqueAspects}</Text>
-                      {interpretation.uniqueAspects.slice(0, 2).map((aspect, i) => (
-                        <View key={i} style={styles.bulletPoint}>
-                          <View style={styles.bullet} />
-                          <Text style={styles.bulletText}>{aspect}</Text>
-                        </View>
-                      ))}
+        {/* Seven dimensions: position on the scale against the profile's range */}
+        <View break>
+          <Text style={styles.sectionTitle}>{c.dimensionsTitle}</Text>
+          <Text style={{ marginBottom: 8 }}>{tx(c.dimensionsIntro(primaryDef ? primaryDef.title : null))}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2, height: 12 }}>
+            <View style={{ position: 'absolute', left: 182, width: AXIS_WIDTH, height: 12 }}>
+              {[1, 2, 3, 4, 5].map((tick) => (
+                <Text key={tick} style={[styles.small, { position: 'absolute', left: axisX(tick) - 3, width: 6, textAlign: 'center' }]}>{tick}</Text>
+              ))}
+            </View>
+            <Svg width={12} height={10}><Circle cx={6} cy={5} r={4} fill={theme.accent} /></Svg>
+            <Text style={[styles.small, { marginLeft: 3, marginRight: 12 }]}>{c.legendScore}</Text>
+            {primaryDef && (
+              <>
+                <Svg width={18} height={10}><Rect x={1} y={1} width={16} height={8} rx={2} ry={2} fill={theme.band} /></Svg>
+                <Text style={[styles.small, { marginLeft: 3 }]}>{c.legendBand}</Text>
+              </>
+            )}
+          </View>
+          {DIMENSION_KEYS.map((key) => {
+            const label = DIMENSION_LABELS[key];
+            const value = spectrum.dimensions[key].value;
+            return (
+              <View key={key} style={styles.dimensionRow} wrap={false}>
+                <View style={styles.dimensionText}>
+                  <Text style={styles.dimensionName}>{dimensionName(key)}</Text>
+                  {lang === 'fr' && <Text style={styles.small}>{tx(label.description)}</Text>}
+                </View>
+                <View style={{ width: AXIS_WIDTH }}>
+                  <DimensionAxis value={value} range={primaryDef ? primaryDef.idealDimensions[key] : null} accent={theme.accent} band={theme.band} />
+                  {lang === 'fr' && (
+                    <View style={styles.axisEnds}>
+                      <Text style={styles.axisEnd}>{tx(label.lowDescription)}</Text>
+                      <Text style={[styles.axisEnd, { textAlign: 'right' }]}>{tx(label.highDescription)}</Text>
                     </View>
                   )}
-                </>
-              )}
-            </>
-          ) : (
-            <View style={styles.profileCard}>
-              <Text style={styles.profileTitle}>{t.noProfileTitle}</Text>
-              <Text style={styles.profileDescription}>{t.noProfileDescription}</Text>
-              <Text style={styles.profileDescription}>
-                {t.measuredDimensions} {measuredDimensions} / 7
-              </Text>
+                </View>
+                <Text style={[styles.dimensionValue, value === null ? { fontSize: 7.5, fontWeight: 500, color: MUTED } : {}]}>
+                  {value === null ? c.notMeasured : number(value)}
+                </Text>
+              </View>
+            );
+          })}
+          <Text style={[styles.small, { marginTop: 8 }]}>{tx(c.comparison)}</Text>
+        </View>
+
+        {/* Going further */}
+        <View style={{ marginTop: 18 }}>
+          {spectrum.tensions.length > 0 && (
+            <View style={{ marginBottom: 6 }}>
+              <Text style={styles.subTitle} minPresenceAhead={40}>{c.tensions}</Text>
+              <Text style={[styles.small, { marginBottom: 6 }]}>{tx(c.tensionsIntro)}</Text>
+              {spectrum.tensions.map((tension, i) => (
+                <View key={i} style={[styles.card, { borderLeftColor: theme.second }]} wrap={false}>
+                  <Text style={styles.cardTitle}>{tx(`${dimensionName(tension.dimension1)} / ${dimensionName(tension.dimension2)}`)}</Text>
+                  <Text>{tx((ui.tensions as Record<string, string>)[tension.description] ?? tension.description)}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {spectrum.growthAreas.length > 0 && (
+            <View style={{ marginBottom: 6 }}>
+              <Text style={styles.subTitle} minPresenceAhead={40}>{c.growth}</Text>
+              <Text style={[styles.small, { marginBottom: 6 }]}>{tx(c.growthIntro)}</Text>
+              {spectrum.growthAreas.map((area, i) => (
+                <View key={i} style={[styles.card, { borderLeftColor: theme.deep }]} wrap={false}>
+                  <Text style={styles.cardTitle}>{tx((ui.growthAreas as Record<string, string>)[area.area] ?? area.area)}</Text>
+                  <Text>{tx((ui.growthAreas as Record<string, string>)[area.actionableStep] ?? area.actionableStep)}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {blindSpots.length > 0 && (
+            <View style={{ marginBottom: 14 }} wrap={false}>
+              <Text style={styles.subTitle}>{c.attention}</Text>
+              {bullets(blindSpots)}
             </View>
           )}
         </View>
 
-        <Footer pageNum={1} totalPages={3} t={t} />
-      </Page>
-
-      {/* PAGE 2: Seven Dimensions */}
-      <Page size="A4" style={styles.page}>
-        <View style={styles.miniHeader}>
-          <Text style={styles.miniHeaderTitle}>{t.sevenDimensions}</Text>
-        </View>
-
-        <View style={styles.content}>
-          <Text style={{ fontSize: 9, color: colors.textMuted, marginBottom: 8 }}>
-            {t.dimensionsIntro}
-          </Text>
-          {/* The empirical rank lives online only: no norms are fetched here. */}
-          <Text style={styles.noteText}>{t.comparisonNotIncluded}</Text>
-
-          {dimensionKeys.map((dimKey) => {
-            const dim = spectrum.dimensions[dimKey];
-            const label = DIMENSION_LABELS[dimKey];
-            const color = dimensionColors[dimKey];
-            return (
-              <DimensionBar
-                key={dimKey}
-                label={data.language === 'fr' ? label.label : label.labelEn}
-                value={dim.value}
-                color={color}
-                lowDesc={label.lowDescription}
-                highDesc={label.highDescription}
-                notMeasuredLabel={t.notMeasured}
-              />
-            );
-          })}
-
-          {/* Usage gap (replaces the former spiritual resistance index) */}
-          <View style={[styles.sectionTitleWithBg, { marginTop: 16 }]}>
-            <Text style={styles.sectionTitleText}>{t.usageGap}</Text>
-          </View>
-          <View style={styles.usageGapBox}>
-            <Text style={styles.usageGapValue}>{t[USAGE_GAP_LABEL_KEYS[spectrum.usageGap]]}</Text>
-            <Text style={styles.noteText}>{t.usageGapNote}</Text>
-          </View>
-
-          {/* Social desirability: a reservation, never a score */}
-          {spectrum.socialDesirability.flag && (
-            <>
-              <View style={styles.sectionTitleWithBg}>
-                <Text style={styles.sectionTitleText}>{t.socialDesirability}</Text>
-              </View>
-              <Text style={styles.noteText}>{t.socialDesirabilityNote}</Text>
-            </>
-          )}
-
-          {/* Insights */}
-          {spectrum.insights.length > 0 && (
-            <>
-              <View style={[styles.sectionTitleWithBg, { marginTop: 16 }]}>
-                <Text style={styles.sectionTitleText}>{t.insights}</Text>
-              </View>
-              {spectrum.insights.slice(0, 3).map((insight, i) => (
-                <View key={i} style={styles.insightCard}>
-                  <Text style={styles.insightTitle}>{insight.title}</Text>
-                  <Text style={styles.insightMessage}>{insight.message}</Text>
-                </View>
-              ))}
-            </>
-          )}
-        </View>
-
-        <Footer pageNum={2} totalPages={3} t={t} />
-      </Page>
-
-      {/* PAGE 3: Tensions & Growth */}
-      <Page size="A4" style={styles.page}>
-        <View style={styles.miniHeader}>
-          <Text style={styles.miniHeaderTitle}>{t.tensions} & {t.growthAreas}</Text>
-        </View>
-
-        <View style={styles.content}>
-          {/* Tensions */}
-          {spectrum.tensions.length > 0 && (
-            <>
-              <View style={styles.sectionTitleWithBg}>
-                <Text style={styles.sectionTitleText}>{t.tensions}</Text>
-              </View>
-              <Text style={{ fontSize: 8, color: colors.textMuted, marginBottom: 10 }}>
-                {t.tensionIntro}
+        {/* How to read this report */}
+        <View wrap={false} style={{ marginTop: 16 }}>
+          <Text style={[styles.sectionTitle, { fontSize: 17 }]}>{c.howToReadTitle}</Text>
+          {bullets([
+            ui.scientificDisclaimer.exploratoryNote,
+            ui.scientificDisclaimer.scaleNote,
+            ui.scientificDisclaimer.profileNote,
+            c.matchNote,
+            ui.scientificDisclaimer.footerNote,
+          ])}
+          <View style={{ backgroundColor: theme.tint, padding: 12, borderRadius: 3, marginTop: 10 }}>
+            <Text style={styles.subTitle}>{c.yourData}</Text>
+            <Text style={{ marginBottom: 3 }}>{tx(c.dataNote)}</Text>
+            <Link src={`${SITE}/mes-donnees`} style={[styles.link, { marginBottom: 3 }]}>ia-foi.fr/mes-donnees</Link>
+            <Text style={{ fontWeight: 600, color: INK, marginBottom: 6 }}>{data.anonymousId}</Text>
+            {isCnef && (
+              <Text style={{ marginBottom: 3 }}>
+                {tx(c.cnefNote)} {c.techFoiBefore}
+                <Link src={TECH_FOI_URL} style={styles.link}>Tech & Foi</Link>
+                {c.techFoiAfter}
               </Text>
-              {spectrum.tensions.map((tension, i) => {
-                const dim1Label = DIMENSION_LABELS[tension.dimension1];
-                const dim2Label = DIMENSION_LABELS[tension.dimension2];
-                return (
-                  <View key={i} style={styles.tensionCard}>
-                    <Text style={styles.tensionHeader}>
-                      {data.language === 'fr' ? dim1Label.label : dim1Label.labelEn} /{' '}
-                      {data.language === 'fr' ? dim2Label.label : dim2Label.labelEn}
-                    </Text>
-                    <Text style={styles.tensionDescription}>
-                      {uiString(data.language, 'tensions', tension.description)}
-                    </Text>
-                  </View>
-                );
-              })}
-            </>
-          )}
-
-          {/* Growth Areas */}
-          {spectrum.growthAreas.length > 0 && (
-            <>
-              <View style={[styles.sectionTitleWithBg, { marginTop: 12 }]}>
-                <Text style={styles.sectionTitleText}>{t.growthAreas}</Text>
-              </View>
-              <Text style={{ fontSize: 8, color: colors.textMuted, marginBottom: 10 }}>
-                {t.growthIntro}
-              </Text>
-              {spectrum.growthAreas.map((area, i) => (
-                <View key={i} style={styles.growthCard}>
-                  <Text style={styles.growthTitle}>
-                    {uiString(data.language, 'growthAreas', area.area)}
-                  </Text>
-                  <Text style={styles.growthDetail}>
-                    {uiString(data.language, 'growthAreas', area.actionableStep)}
-                  </Text>
-                </View>
-              ))}
-            </>
-          )}
-
-          {/* Blind spots */}
-          {interpretation && interpretation.blindSpots.length > 0 && (
-            <>
-              <View style={[styles.sectionTitleWithBg, { marginTop: 12 }]}>
-                <Text style={styles.sectionTitleText}>{t.blindSpots}</Text>
-              </View>
-              {interpretation.blindSpots.map((spot, i) => (
-                <View key={i} style={styles.blindSpotCard}>
-                  <View style={styles.bulletPoint}>
-                    <View style={styles.bullet} />
-                    <Text style={styles.bulletText}>{spot}</Text>
-                  </View>
-                </View>
-              ))}
-            </>
-          )}
-
-          {/* Thank you */}
-          <View style={styles.thankYouSection}>
-            <Text style={styles.thankYouText}>{t.thankYou}</Text>
-            <Text style={styles.dataProtectionText}>{t.dataProtection}</Text>
+            )}
+            <Text>
+              {tx(c.methodology)} <Link src={`${SITE}/methodology`} style={styles.link}>ia-foi.fr/methodology</Link>
+            </Text>
           </View>
+          <Text style={{ fontFamily: 'SourceSerif', fontStyle: 'italic', fontWeight: 400, fontSize: 12, color: INK, marginTop: 14 }}>{c.thanks}</Text>
         </View>
-
-        <Footer pageNum={3} totalPages={3} t={t} />
+        </View>
       </Page>
     </Document>
   );
-};
+}

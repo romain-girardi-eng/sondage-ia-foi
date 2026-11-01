@@ -17,6 +17,7 @@ const sendPdfSchema = z.object({
     z.array(z.string()),
     z.record(z.string(), z.number().min(0).max(3)),
   ])),
+  variant: z.enum(['general', 'cnef']).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { submissionId, email, language, anonymousId, answers } = parseResult.data;
+    const { submissionId, email, language, anonymousId, answers, variant } = parseResult.data;
 
     const result = await sendPdfReport({
       submissionId,
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest) {
       language,
       anonymousId,
       answers: answers as Answers,
+      variant,
     });
 
     if (!result.ok) {

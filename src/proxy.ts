@@ -41,13 +41,10 @@ function buildCsp(nonce: string): string {
     // Connect: API endpoints + external services
     // - Supabase: src/lib/supabase/client.ts, server.ts (NEXT_PUBLIC_SUPABASE_URL)
     // - Resend: server-side only (RESEND_API_KEY), kept for defense-in-depth
-    // - cdn.jsdelivr.net: @react-pdf/renderer fetches font files client-side
-    //   (src/lib/pdf/reportDocument.tsx) from PDFDownloadButton, a "use client"
-    //   component (src/components/sharing/PDFDownloadButton.tsx)
     // - Sentry ingest: sentry.client.config.ts reads NEXT_PUBLIC_SENTRY_DSN; exact
     //   ingest host depends on the DSN's org/region, so both known SaaS patterns
     //   are allowed
-    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.resend.com https://cdn.jsdelivr.net https://*.ingest.sentry.io https://*.ingest.us.sentry.io ${PLAUSIBLE_ORIGIN}`,
+    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.resend.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io ${PLAUSIBLE_ORIGIN}`,
     // Frame ancestors: prevent clickjacking
     "frame-ancestors 'none'",
     // Form actions: only self

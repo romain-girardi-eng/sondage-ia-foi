@@ -1,14 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { generatePDFReportBuffer } from '@/lib/pdf/generateReport';
+import { generatePDFReportBuffer, type ReportVariant } from '@/lib/pdf/generateReport';
 import { sendPDFEmail } from '@/lib/email/resend';
 import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase';
 import { hashEmail } from '@/lib/crypto';
-import {
-  calculateCRS5Score,
-  calculateAIAdoptionScore,
-  getSpiritualAIProfile,
-  PROFILE_DATA,
-} from '@/lib/scoring/index';
 import type { Answers } from '@/data';
 import type { Database } from '@/lib/supabase/types';
 
@@ -18,6 +12,7 @@ export interface SendPdfReportParams {
   language: 'fr' | 'en';
   anonymousId: string;
   answers: Answers;
+  variant?: ReportVariant;
 }
 
 export type SendPdfReportResult =
@@ -77,7 +72,7 @@ async function submissionExists(
  * trigger), so the anti-abuse check and delivery logic live in one place.
  */
 export async function sendPdfReport(params: SendPdfReportParams): Promise<SendPdfReportResult> {
-  const { submissionId, email, language, anonymousId, answers } = params;
+  const { submissionId, email, language, anonymousId, answers, variant } = params;
 
   const isDemoSubmission = submissionId.startsWith('demo-');
   const supabase = isServiceRoleConfigured ? createServiceRoleClient() : null;
@@ -103,27 +98,12 @@ export async function sendPdfReport(params: SendPdfReportParams): Promise<SendPd
     }
   }
 
-  const religiosityScore = calculateCRS5Score(answers);
-  const iaComfortScore = calculateAIAdoptionScore(answers);
-  // Scoring v2: no profile is attributed when fewer than four dimensions
-  // could be measured (docs/SCORING_V2_SPEC.md §1.5).
-  const profile = getSpiritualAIProfile(answers);
-  const profileTitle = profile
-    ? PROFILE_DATA[profile].title
-    : language === 'fr'
-      ? 'Profil non attribuable'
-      : 'No profile attributed';
-
   const pdfBuffer = await generatePDFReportBuffer({
     language,
+    variant,
     anonymousId,
     completedAt: new Date().toISOString(),
     answers,
-    profile: {
-      religiosityScore,
-      iaComfortScore,
-      theologicalOrientation: profileTitle,
-    },
   });
 
   const filename = language === 'fr'
@@ -134,6 +114,7 @@ export async function sendPdfReport(params: SendPdfReportParams): Promise<SendPd
     to: email,
     pdfBuffer,
     language,
+    variant,
     filename,
   });
 

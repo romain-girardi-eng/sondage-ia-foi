@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  // Read from disk when the PDF report is rendered (src/lib/pdf/reportDocument.tsx).
+  outputFileTracingIncludes: {
+    '/api/email/send-pdf': ['./src/lib/pdf/assets/**', './public/cnef-logo.png', './public/logo.png'],
+  },
   async rewrites() {
     return [
       {
