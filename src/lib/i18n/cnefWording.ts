@@ -45,6 +45,11 @@ export const cnefQuestionText: Record<string, string> = {
   psych_anxiete_remplacement: "Pensez-vous que l'IA pourrait un jour remplacer complètement certaines fonctions spirituelles humaines (prédication, accompagnement) ?",
 };
 
+/** English text where the CNEF version changes the form of the question, not only its wording. */
+export const cnefQuestionTextEn: Record<string, string> = {
+  profil_statut: "What is your place in your church? (several answers possible)",
+};
+
 export const cnefOptionLabels: Record<string, Record<string, string>> = {
   profil_confession_evangelique: {
     non_charismatique: "Non-charismatique (Églises baptistes, libristes, mennonites, réseau FEF, ou apparentées)",

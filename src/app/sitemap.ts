@@ -15,6 +15,7 @@ const BILINGUAL_ROUTES = [
 const FR_ONLY_ROUTES = [
   { path: "/faq", priority: 0.7, changeFrequency: "monthly" as const },
   { path: "/cnef", priority: 0.8, changeFrequency: "monthly" as const },
+  { path: "/eng/cnef", priority: 0.6, changeFrequency: "monthly" as const },
   { path: "/legal", priority: 0.3, changeFrequency: "yearly" as const },
 ];
 

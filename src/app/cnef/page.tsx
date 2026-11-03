@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { SurveyContainer } from "@/components/survey";
+import { CnefLanding } from "./landing";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ia-foi.fr";
 
@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   alternates: {
     canonical: `${BASE_URL}/cnef`,
+    languages: { "fr-FR": `${BASE_URL}/cnef`, "en-US": `${BASE_URL}/eng/cnef` },
   },
   openGraph: {
     title: "Usage de l'IA par les protestants évangéliques | IA & Foi x CNEF",
@@ -44,32 +45,6 @@ export const metadata: Metadata = {
   },
 };
 
-// CNEF co-branded landing. Enters the SAME survey engine as the general
-// survey, but pre-seeds profil_confession=protestant so evangelical
-// respondents skip straight to the evangelical sub-question. Responses land
-// in the same storage as the general survey to keep the data comparable.
 export default function CnefHome() {
-  return (
-    <>
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-slate-900 focus:rounded-lg focus:font-medium"
-      >
-        Aller au contenu principal
-      </a>
-
-      <main
-        id="main-content"
-        className="min-h-[100dvh] w-full relative bg-background text-foreground"
-      >
-
-        <div className="relative z-10">
-          <SurveyContainer
-            variant="cnef"
-            initialAnswers={{ profil_confession: "protestant", profil_confession_protestante: "evangelique" }}
-          />
-        </div>
-      </main>
-    </>
-  );
+  return <CnefLanding />;
 }

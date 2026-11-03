@@ -11,6 +11,7 @@ import {
   cnefHiddenOptions,
   cnefOptionLabels,
   cnefQuestionText,
+  cnefQuestionTextEn,
 } from "@/lib/i18n/cnefWording";
 import { type AnswerValue } from "./question-types/types";
 import {
@@ -78,6 +79,7 @@ export function QuestionCard({
 
   // Get translated question text (fall back to original if not found)
   const questionText = (cnefWording ? cnefQuestionText[question.id] : undefined)
+    ?? (variant === "cnef" && language === "en" ? cnefQuestionTextEn[question.id] : undefined)
     ?? (tQuestion(question.id) !== question.id ? tQuestion(question.id) : question.text);
 
   // Option labels come from the canonical i18n source, keyed by question id

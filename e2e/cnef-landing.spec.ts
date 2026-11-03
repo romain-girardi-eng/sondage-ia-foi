@@ -15,6 +15,23 @@ test.describe("CNEF co-branded landing", () => {
     await expect(page.getByText(/Ni nom, ni email, ni adresse IP/i)).toBeVisible();
   });
 
+  test("switches to the English CNEF page and back", async ({ page }) => {
+    await page.goto("/cnef");
+    await page.waitForLoadState("networkidle");
+    await page.getByRole("button", { name: "Switch to English" }).click();
+    await expect(page).toHaveURL(/\/eng\/cnef$/);
+    await expect(page.getByText("AI use among evangelical Protestants", { exact: true })).toBeVisible();
+    await expect(page.getByText(/in partnership with the CNEF/i)).toBeVisible();
+    await expect(page.locator("html")).toHaveClass(/\blight\b/);
+
+    const direct = await page.request.get("/eng/cnef");
+    expect(direct.status()).toBe(200);
+
+    await page.getByRole("button", { name: "Passer en français" }).click();
+    await expect(page).toHaveURL(/\/cnef$/);
+    await expect(page.getByText("Usage de l'IA par les protestants évangéliques", { exact: true })).toBeVisible();
+  });
+
   test("deep-links into the same survey pre-filled as Protestant", async ({ page }) => {
     await page.goto("/cnef");
     await page.waitForLoadState("networkidle");

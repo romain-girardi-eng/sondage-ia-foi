@@ -119,7 +119,7 @@ export function proxy(request: NextRequest) {
   // Entry variant read by the root layout (the CNEF entry renders on a white
   // background by default). Never trust a client-supplied value.
   requestHeaders.delete("x-entry-variant");
-  if (pathname === "/cnef" || pathname.startsWith("/cnef/")) {
+  if (/^\/(?:(?:fr|en|eng)\/)?cnef(?:\/|$)/.test(pathname)) {
     requestHeaders.set("x-entry-variant", "cnef");
   }
 
