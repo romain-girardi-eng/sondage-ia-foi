@@ -42,7 +42,7 @@ Sorties, dans `--out` (`analysis/out` par défaut) :
 
 ## Règles de cohorte
 
-La collecte n'a pas de date de fin. Deux cohortes sont formées (préenregistrement, §4.3, et addendum 1) :
+La collecte n'a pas de date de fin, mais les tests en ont une : ils sont conduits au plus tard le 31 mars 2027 (addendum 1). Deux cohortes sont formées (préenregistrement, §4.3, et addendum 1) :
 
 - la cohorte de l'instrument gelé, pour H1, H3, H4, H5 et H7 : les 200 premières réponses exploitables sans le marqueur `cnef-2026-10` ;
 - la cohorte commune, pour H2, H6 et H8 : les 200 premières réponses exploitables, toutes portes confondues.
@@ -53,7 +53,10 @@ Sans réponse marquée, ce sont les mêmes lignes. Le script :
 2. écarte lui-même les réponses non exploitables (`consentGiven` différent de `true`, `screenedOut`, `profil_confession = sans_religion`, `instrumentVersion` hors `2.`) et rapporte leur nombre par motif ;
 3. trie sur `submittedAt` en ordre croissant, les ex æquo restant dans l'ordre du fichier, et retient les `--cohort-size` premières lignes de chaque cohorte (200 par défaut) ;
 4. écrit les deux cohortes dans `cohort_extract.csv`, avec les colonnes `inFrozenCohort` et `inCommonCohort`, calcule son SHA-256 et le reporte, avec les dates de première et de dernière ligne, dans le rapport et le JSON ;
-5. s'arrête en erreur avant tout calcul si une cohorte est incomplète. Avec `--allow-partial`, il s'exécute quand même et le rapport porte le statut « exploratoire » dans son titre et son en-tête : ce rapport n'est pas le test préenregistré.
+5. n'admet dans une cohorte aucune réponse enregistrée après le 1er avril 2027 à 0 h, heure de Paris ;
+6. s'arrête en erreur avant tout calcul si une cohorte est incomplète avant la date butoir. Après elle, il s'exécute sur les réponses enregistrées, avec le statut « confirmatoire, date butoir ». Avec `--allow-partial` avant la date, il s'exécute quand même et le rapport porte le statut « exploratoire » dans son titre et son en-tête : ce rapport n'est pas le test préenregistré.
+
+Chaque test est rapporté avec sa puissance à l'effectif atteint pour l'effet attendu (préenregistrement, §4.4) ; sous 0,80, l'hypothèse est rapportée comme sous-puissante.
 
 Les tests, les analyses de sensibilité et la fidélité portent sur les cohortes seules. Les réponses postérieures sont exploratoires et ne passent pas par ce script sans addendum préenregistré.
 

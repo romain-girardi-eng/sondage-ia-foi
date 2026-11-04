@@ -40,6 +40,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import stats as st  # noqa: E402
+from power_h7 import power as h7_power  # noqa: E402
 from scoring import (  # noqa: E402
     calculate_all_dimensions,
     compute_core_subscores,
@@ -72,6 +73,12 @@ COHORT_SIZE = 200
 SUBMITTED_AT = "submittedAt"
 STATUS_CONFIRMATORY = "confirmatoire"
 STATUS_EXPLORATORY = "exploratoire"
+STATUS_DEADLINE = "confirmatoire, date butoir"
+
+# Deadline of the tests (addendum 1, set on 5 November 2026): they run at the
+# latest on 31 March 2027, on the exploitable responses recorded before
+# 1 April 2027 at 00:00 in Paris (summer time, UTC+2).
+DEADLINE = datetime(2027, 3, 31, 22, 0, tzinfo=timezone.utc)
 
 # CNEF version of the questionnaire (addendum 1, docs/PREREGISTRATION_ADDENDUM_1.md).
 # Its responses enter the common tests only through the variables left
@@ -193,6 +200,7 @@ class Cohort:
     partial: bool
     first_submitted_at: str
     last_submitted_at: str
+    at_deadline: bool = False
 
     @property
     def size(self) -> int:
@@ -200,30 +208,37 @@ class Cohort:
 
     @property
     def status(self) -> str:
-        return STATUS_EXPLORATORY if self.partial else STATUS_CONFIRMATORY
+        if not self.partial:
+            return STATUS_CONFIRMATORY
+        return STATUS_DEADLINE if self.at_deadline else STATUS_EXPLORATORY
 
     def as_dict(self) -> dict[str, object]:
         return {
             "rule": (
                 f"{self.requested} premières réponses exploitables par ordre de "
-                f"soumission (`{SUBMITTED_AT}` croissant)"
+                f"soumission (`{SUBMITTED_AT}` croissant), enregistrées avant la date "
+                "butoir du 31 mars 2027"
             ),
             "requested": self.requested,
             "size": self.size,
             "available": self.available,
             "partial": self.partial,
+            "atDeadline": self.at_deadline,
             "status": self.status,
             "firstSubmittedAt": self.first_submitted_at,
             "lastSubmittedAt": self.last_submitted_at,
         }
 
 
-def select_cohort(frame: pd.DataFrame, cohort_size: int, allow_partial: bool = False) -> Cohort:
+def select_cohort(
+    frame: pd.DataFrame, cohort_size: int, allow_partial: bool = False, at_deadline: bool = False
+) -> Cohort:
     """The first ``cohort_size`` rows by ``submittedAt``, ties kept in file order.
 
-    Fewer rows than the cohort size is an error unless ``allow_partial`` is set,
-    in which case the run is labelled exploratory: it is not the pre-registered
-    test.
+    Fewer rows than the cohort size is an error, except after the deadline,
+    where the run stays confirmatory and every test reports its power, or with
+    ``allow_partial``, where the run is labelled exploratory: it is not the
+    pre-registered test.
     """
     if cohort_size < 1:
         raise CohortError("la taille de cohorte doit être au moins 1")
@@ -236,7 +251,7 @@ def select_cohort(frame: pd.DataFrame, cohort_size: int, allow_partial: bool = F
     order = sorted(range(len(stamps)), key=lambda index: (stamps[index], index))
     available = len(order)
     partial = available < cohort_size
-    if partial and not allow_partial:
+    if partial and not (allow_partial or at_deadline):
         raise CohortError(
             f"{available} ligne(s) dans l'export, {cohort_size} requises pour la "
             "cohorte confirmatoire ; passer --allow-partial pour une analyse exploratoire"
@@ -245,7 +260,7 @@ def select_cohort(frame: pd.DataFrame, cohort_size: int, allow_partial: bool = F
     rows = frame.iloc[kept].reset_index(drop=True)
     first = stamps[kept[0]].isoformat() if kept else ""
     last = stamps[kept[-1]].isoformat() if kept else ""
-    return Cohort(rows, cohort_size, available, partial, first, last)
+    return Cohort(rows, cohort_size, available, partial, first, last, partial and at_deadline)
 
 
 def cohort_report_lines(
@@ -261,7 +276,13 @@ def cohort_report_lines(
         f"- Première réponse de la cohorte ({SUBMITTED_AT}){NBSP}: {cohort['firstSubmittedAt']}",
         f"- Dernière réponse de la cohorte ({SUBMITTED_AT}){NBSP}: {cohort['lastSubmittedAt']}",
     ]
-    if cohort["partial"]:
+    if cohort["status"] == STATUS_DEADLINE:
+        lines.append(
+            f"- **Statut{NBSP}: {STATUS_DEADLINE}.** Cohorte incomplète "
+            f"({cohort['size']} < {cohort['requested']}) à la date butoir du 31 mars 2027{NNBSP}; "
+            "chaque test est rapporté avec sa puissance à l'effectif atteint."
+        )
+    elif cohort["partial"]:
         lines.append(
             f"- **Statut{NBSP}: {STATUS_EXPLORATORY}.** Cohorte incomplète "
             f"({cohort['size']} < {cohort['requested']}){NNBSP}; ce rapport n'est pas le "
@@ -632,6 +653,41 @@ NOT_SIGNIFICANT = "non significatif"
 NOT_TESTABLE = "non testable"
 
 
+TARGET_POWER = 0.80
+
+
+def attained_power(result: st.TestResult) -> float | None:
+    """Power at the attained n for the expected effect of section 4.4, never the observed one."""
+    extra = result.extra
+    hypothesis = result.hypothesis
+    if hypothesis in ("H1", "H6"):
+        return st.power_correlation(0.30, result.n)
+    if hypothesis == "H8":
+        return st.power_correlation(0.25, result.n)
+    if hypothesis in ("H2", "H5"):
+        return st.power_two_groups(0.50, float(extra.get("nHigh", 0)), float(extra.get("nLow", 0)))
+    if hypothesis == "H3":
+        return st.power_regression_coefficient(0.15, result.n)
+    if hypothesis == "H4":
+        sizes = [float(v) for k, v in extra.items() if k.startswith("n_niveau_")]
+        return st.power_anova(0.25, sizes)
+    if hypothesis == "H7":
+        trained, untrained = int(extra.get("nFormel", 0)), int(extra.get("nSansFormation", 0))
+        return h7_power(trained, untrained) if min(trained, untrained) >= 3 else None
+    return None
+
+
+def apply_power(results: list[st.TestResult]) -> None:
+    """Report every test with its power; below 0.80 it is reported as under-powered (section 4.4)."""
+    for result in results:
+        result.power = attained_power(result)
+        if result.power is not None and result.power < TARGET_POWER:
+            result.notes.append(
+                f"sous-puissante : puissance de {_fmt(result.power, 2)} à l'effectif atteint, "
+                "pour l'effet attendu (section 4.4)"
+            )
+
+
 def decision(result: st.TestResult) -> str:
     """The decision rule of PREREGISTRATION 6.1, on the adjusted p-value."""
     if result.p_value is None or result.p_holm is None:
@@ -844,16 +900,18 @@ def _fmt_ci(ci: tuple[float | None, float | None]) -> str:
     return f"[{_fmt(low)}{NNBSP};{NBSP}{_fmt(high)}]"
 
 
-def results_table(results: list[st.TestResult]) -> str:
+def results_table(results: list[st.TestResult], with_power: bool = False) -> str:
+    power_head = " Puissance (effet attendu) |" if with_power else ""
     lines = [
-        f"| Hypothèse | Test | Famille | n | Statistique | p | p Holm | Taille d’effet | IC 95{NNBSP}% | Décision |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        f"| Hypothèse | Test | Famille | n | Statistique | p | p Holm | Taille d’effet | IC 95{NNBSP}% | Décision |{power_head}",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |" + (" --- |" if with_power else ""),
     ]
     for r in results:
+        power_cell = f" {_fmt(r.power, 2)} |" if with_power else ""
         lines.append(
             f"| {r.hypothesis} | {r.test} ({r.alternative}) | {r.family} | {r.n} | "
             f"{_fmt(r.statistic)} | {_fmt_p(r.p_value)} | {_fmt_p(r.p_holm)} | "
-            f"{r.effect_name}{NBSP}= {_fmt(r.effect)} | {_fmt_ci(r.effect_ci)} | {decision(r)} |"
+            f"{r.effect_name}{NBSP}= {_fmt(r.effect)} | {_fmt_ci(r.effect_ci)} | {decision(r)} |{power_cell}"
         )
     return "\n".join(lines)
 
@@ -869,8 +927,10 @@ def build_report(payload: dict[str, object]) -> str:
     cohort = payload["cohort"]
     assert isinstance(cohort, dict)
     title = "# Analyse confirmatoire, IA et foi"
-    if cohort["partial"]:
+    if payload["status"] == STATUS_EXPLORATORY:
         title = "# Analyse exploratoire (cohorte incomplète), IA et foi"
+    elif payload["status"] == STATUS_DEADLINE:
+        title = "# Analyse confirmatoire à la date butoir (cohorte incomplète), IA et foi"
     parts.append(title)
     parts.append("")
     parts.append(f"- Exécutée le{NBSP}: {payload['generatedAt']}")
@@ -892,7 +952,8 @@ def build_report(payload: dict[str, object]) -> str:
     assert isinstance(excluded, dict)
     parts.append(
         f"- Lignes écartées avant la cohorte{NBSP}: sans consentement {excluded['sansConsentement']}, "
-        f"répondants écartés {excluded['ecartees']}, hors v2 {excluded['horsV2']}"
+        f"répondants écartés {excluded['ecartees']}, hors v2 {excluded['horsV2']}, "
+        f"après la date butoir {excluded['apresDateButoir']}"
     )
     parts.append(f"- Graine{NBSP}: {payload['seed']}")
     parts.append(f"- Permutations (Jonckheere-Terpstra){NBSP}: {payload['permutations']}")
@@ -916,7 +977,14 @@ def build_report(payload: dict[str, object]) -> str:
     parts.append("")
     parts.append("## 1. Résultats des tests préenregistrés")
     parts.append("")
-    parts.append(results_table(results))
+    parts.append(
+        "La puissance est calculée à l’effectif atteint pour l’effet attendu de la "
+        "section 4.4 (jamais pour l’effet observé), avec les formules de cette "
+        "section et, pour H7, la simulation de `analysis/power_h7.py`. Sous 0,80, "
+        "l’hypothèse est rapportée comme sous-puissante."
+    )
+    parts.append("")
+    parts.append(results_table(results, with_power=True))
     parts.append("")
     for r in results:
         parts.append(f"**{r.hypothesis}**{NBSP}: {r.label}")
@@ -1061,7 +1129,10 @@ def build_report(payload: dict[str, object]) -> str:
 
 
 def analyse(
-    frozen: pd.DataFrame, permutations: int, common: pd.DataFrame | None = None
+    frozen: pd.DataFrame,
+    permutations: int,
+    common: pd.DataFrame | None = None,
+    with_power: bool = False,
 ) -> dict[str, object]:
     """The eight tests: each one reads its cohort, then Holm over the eight."""
     common = frozen if common is None else common
@@ -1072,6 +1143,8 @@ def analyse(
         for index, r in enumerate(from_frozen)
     ]
     apply_holm(results)
+    if with_power:
+        apply_power(results)
     reliabilities = {"frozen": reliability(frozen), "common": reliability(common)}
     fidelity = apply_fidelity_rule(
         results, {"frozen": frozen, "common": common}, reliabilities
@@ -1092,15 +1165,25 @@ def run(
     permutations: int,
     cohort_size: int = COHORT_SIZE,
     allow_partial: bool = False,
+    now: datetime | None = None,
 ) -> dict[str, object]:
     export = read_export(input_path)
     check_export(export)
     usable, excluded = exploitable_rows(export)
     usable = usable.assign(_row=range(usable.shape[0]))
+    # A response recorded after the deadline never enters a confirmatory cohort.
+    on_time = pd.Series(
+        [_parse_submitted_at(str(v), i) < DEADLINE for i, v in enumerate(usable[SUBMITTED_AT], start=2)],
+        index=usable.index,
+        dtype=bool,
+    )
+    excluded["apresDateButoir"] = int((~on_time).sum())
+    usable = usable.loc[on_time]
+    at_deadline = (now or datetime.now(timezone.utc)) >= DEADLINE
     is_cnef = usable["wordingVariant"] == CNEF_WORDING_VERSION
     # A CNEF surge must not use up the places of the tests it cannot enter.
-    cohort = select_cohort(usable.loc[~is_cnef], cohort_size, allow_partial)
-    common = select_cohort(usable, cohort_size, allow_partial)
+    cohort = select_cohort(usable.loc[~is_cnef], cohort_size, allow_partial, at_deadline)
+    common = select_cohort(usable, cohort_size, allow_partial, at_deadline)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     cohort_path = out_dir / "cohort_extract.csv"
@@ -1114,7 +1197,7 @@ def run(
     answer_rows = parse_rows(extract)
     frozen_frame = build_dataset(parse_rows(cohort.rows.drop(columns="_row")))
     common_frame = build_dataset(parse_rows(common.rows.drop(columns="_row")))
-    main = analyse(frozen_frame, permutations, common_frame)
+    main = analyse(frozen_frame, permutations, common_frame, with_power=True)
 
     def assessed(frame: pd.DataFrame) -> pd.DataFrame:
         return frame.loc[~frame["mcFlag"].astype(bool) & frame["mcAssessed"].astype(bool)]
@@ -1155,7 +1238,11 @@ def run(
         "cohortSha256": sha256_of(cohort_path),
         "cohort": cohort.as_dict(),
         "cohortCommon": common.as_dict(),
-        "status": STATUS_EXPLORATORY if cohort.partial or common.partial else STATUS_CONFIRMATORY,
+        "status": (
+            STATUS_EXPLORATORY if STATUS_EXPLORATORY in (cohort.status, common.status)
+            else STATUS_DEADLINE if STATUS_DEADLINE in (cohort.status, common.status)
+            else STATUS_CONFIRMATORY
+        ),
         "excluded": excluded,
         "seed": st.SEED,
         "permutations": permutations,

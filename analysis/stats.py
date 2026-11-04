@@ -8,10 +8,12 @@ permutation p-values and the bootstrap intervals are reproducible byte for byte.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from typing import Callable, Sequence
 
 import numpy as np
+
 from scipy import stats
 
 SEED = 20260907
@@ -35,6 +37,8 @@ class TestResult:
     effect: float | None
     effect_ci: tuple[float | None, float | None] = (None, None)
     p_holm: float | None = None
+    # Power at the attained n, for the expected effect (PREREGISTRATION 4.4).
+    power: float | None = None
     notes: list[str] = field(default_factory=list)
     extra: dict[str, float | int | str | None] = field(default_factory=dict)
 
@@ -49,12 +53,65 @@ class TestResult:
             "statistic": self.statistic,
             "pValue": self.p_value,
             "pHolm": self.p_holm,
+            "power": self.power,
             "effectName": self.effect_name,
             "effect": self.effect,
             "effectCi95": list(self.effect_ci),
             "notes": self.notes,
             "extra": self.extra,
         }
+
+
+# --- Power at the attained n (PREREGISTRATION 4.4) ---------------------------
+#
+# The formulas of section 4.4, run backwards: alpha = 0.05 two-sided, and for a
+# rank statistic the parametric n is the attained n divided by 1.10, the
+# majoration the plan applies the other way.
+
+RANK_INFLATION = 1.10
+_Z = float(stats.norm.ppf(0.975))
+
+
+def power_correlation(r: float, n: float, rank: bool = True) -> float | None:
+    """Fisher approximation for a correlation of size r."""
+    n_eff = n / RANK_INFLATION if rank else n
+    if n_eff <= 3:
+        return None
+    shift = math.atanh(abs(r)) * math.sqrt(n_eff - 3)
+    return float(stats.norm.cdf(shift - _Z) + stats.norm.cdf(-shift - _Z))
+
+
+def power_two_groups(d: float, n1: float, n2: float, rank: bool = True) -> float | None:
+    """Two independent groups, standardised difference d, non-central t."""
+    k = RANK_INFLATION if rank else 1.0
+    a, b = n1 / k, n2 / k
+    if a < 2 or b < 2:
+        return None
+    df = a + b - 2
+    ncp = d * math.sqrt(a * b / (a + b))
+    critical = stats.t.ppf(0.975, df)
+    return float(1 - stats.nct.cdf(critical, df, ncp) + stats.nct.cdf(-critical, df, ncp))
+
+
+def power_regression_coefficient(f2: float, n: float, predictors: int = 2) -> float | None:
+    """F test on one coefficient (u = 1) in a model with ``predictors`` predictors, lambda = f2 * n."""
+    df2 = n - predictors - 1
+    if df2 < 1:
+        return None
+    critical = stats.f.ppf(0.95, 1, df2)
+    return float(1 - stats.ncf.cdf(critical, 1, df2, f2 * n))
+
+
+def power_anova(f: float, sizes: Sequence[float], rank: bool = True) -> float | None:
+    """One-way analysis of variance on the non-empty groups, lambda = f^2 * N."""
+    groups = [s for s in sizes if s > 0]
+    k = len(groups)
+    n_eff = sum(groups) / (RANK_INFLATION if rank else 1.0)
+    if k < 2 or n_eff - k < 1:
+        return None
+    df1, df2 = k - 1, n_eff - k
+    critical = stats.f.ppf(0.95, df1, df2)
+    return float(1 - stats.ncf.cdf(critical, df1, df2, f * f * n_eff))
 
 
 # --- Multiplicity ------------------------------------------------------------

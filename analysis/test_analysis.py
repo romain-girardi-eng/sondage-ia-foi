@@ -21,8 +21,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import stats as st
 from confirmatory import (
     STATUS_CONFIRMATORY,
+    STATUS_DEADLINE,
     STATUS_EXPLORATORY,
     CohortError,
+    DEADLINE,
     apply_fidelity_rule,
     apply_holm,
     build_dataset,
@@ -475,7 +477,7 @@ def test_only_exploitable_rows_reach_the_cohort(tmp_path):
 
     payload = run(input_path, tmp_path / "out", permutations=10, cohort_size=30)
 
-    assert payload["excluded"] == {"sansConsentement": 1, "ecartees": 2, "horsV2": 5}
+    assert payload["excluded"] == {"sansConsentement": 1, "ecartees": 2, "horsV2": 5, "apresDateButoir": 0}
     assert payload["cohort"]["firstSubmittedAt"].startswith(export.loc[8, "submittedAt"][:19])
     report = (tmp_path / "out" / "confirmatory_report.md").read_text(encoding="utf-8")
     assert "hors v2 5" in report
@@ -586,3 +588,46 @@ def test_comparability_note_reads_the_changes_table_and_hides_small_cells():
     assert data == {"crs_public_practice": {"v1": {"hebdo": 5, "jamais": 1}, "v2": {"hebdo": 6}}}
     text = report(data)
     assert "< 5" in text and "5 (83" in text
+
+
+def test_power_formulas_give_back_the_sizes_of_the_plan():
+    # Section 4.4: r = 0.30 -> 94 and r = 0.25 -> 137 (rank), d = 0.50 -> 141 (71 per group),
+    # f2 = 0.15 -> 55 for one coefficient, f = 0.25 on 3 groups -> 174 (58 per group).
+    assert st.power_correlation(0.30, 94) == pytest.approx(0.80, abs=0.015)
+    assert st.power_correlation(0.25, 137) == pytest.approx(0.80, abs=0.015)
+    assert st.power_two_groups(0.50, 71, 71) == pytest.approx(0.80, abs=0.015)
+    assert st.power_regression_coefficient(0.15, 55) == pytest.approx(0.80, abs=0.015)
+    assert st.power_anova(0.25, [58, 58, 58]) == pytest.approx(0.80, abs=0.015)
+    assert st.power_correlation(0.30, 40) < 0.5
+    assert st.power_correlation(0.30, 3) is None
+
+
+def test_every_test_reports_its_power_and_the_weak_ones_are_flagged(tmp_path):
+    input_path = tmp_path / "export.csv"
+    generate(n=60, seed=5).to_csv(input_path, index=False)
+    payload = run(input_path, tmp_path / "out", permutations=10, cohort_size=40)
+    tests = {t["hypothesis"]: t for t in payload["main"]["tests"]}
+    assert all(0 < tests[h]["power"] <= 1 for h in ("H1", "H3", "H8"))
+    assert any("sous-puissante" in note for note in tests["H1"]["notes"])
+    report = (tmp_path / "out" / "confirmatory_report.md").read_text(encoding="utf-8")
+    assert "Puissance (effet attendu)" in report
+
+
+def test_at_the_deadline_an_incomplete_cohort_is_tested_on_what_was_recorded(tmp_path):
+    from datetime import timedelta
+
+    export = generate(n=50, seed=5).sort_values("submittedAt").reset_index(drop=True)
+    late = (DEADLINE + timedelta(hours=1)).isoformat().replace("+00:00", "Z")
+    export.loc[45:, "submittedAt"] = late
+    input_path = tmp_path / "export.csv"
+    export.to_csv(input_path, index=False)
+
+    with pytest.raises(CohortError):
+        run(input_path, tmp_path / "before", permutations=10, cohort_size=200, now=DEADLINE - timedelta(days=1))
+
+    payload = run(input_path, tmp_path / "after", permutations=10, cohort_size=200, now=DEADLINE)
+    assert payload["status"] == STATUS_DEADLINE
+    assert payload["excluded"]["apresDateButoir"] == 5
+    assert payload["cohort"]["size"] == 45
+    report = (tmp_path / "after" / "confirmatory_report.md").read_text(encoding="utf-8")
+    assert "date butoir" in report and "exploratoire" not in report.split("\n")[0]

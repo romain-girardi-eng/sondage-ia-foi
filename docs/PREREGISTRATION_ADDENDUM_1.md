@@ -1,6 +1,6 @@
 # Addendum 1 au préenregistrement : version CNEF du questionnaire
 
-*À déposer sur OSF avec le préenregistrement, avant toute extraction de cohorte. Version du 4 novembre 2026. Cet addendum prime sur les sections 4.1, 4.3, 4.4, 6.1, 6.6 et 7 du préenregistrement pour ce qu'il modifie. À cette date, aucun test d'hypothèse n'a été conduit, aucune cohorte n'a été extraite et le tableau de bord public n'a publié aucun résultat (moins de 30 participants).*
+*À déposer sur OSF avec le préenregistrement, avant toute extraction de cohorte. Version du 5 novembre 2026. Cet addendum prime sur les sections 4.1, 4.3, 4.4, 6.1, 6.6 et 7 du préenregistrement pour ce qu'il modifie. À cette date, aucun test d'hypothèse n'a été conduit, aucune cohorte n'a été extraite et le tableau de bord public n'a publié aucun résultat (moins de 30 participants).*
 
 ## Ce qui change
 
@@ -29,7 +29,9 @@ Deux cohortes remplacent la cohorte unique de la section 4.3 :
 - la **cohorte de l'instrument gelé** : les 200 premières réponses exploitables données sans le marqueur `cnef-2026-10` ;
 - la **cohorte commune** : les 200 premières réponses exploitables, toutes portes confondues.
 
-Sans réponse marquée, ces deux cohortes sont les mêmes lignes et l'on retrouve la règle préenregistrée. La raison du changement tient au calendrier de diffusion du CNEF et non à un résultat : une cohorte unique laisserait les réponses CNEF occuper des places dans des tests où elles ne peuvent pas entrer, jusqu'à priver H1, test primaire, de la puissance prévue. Les huit tests sont conduits une seule fois, ensemble, dès que la cohorte de l'instrument gelé compte 200 réponses ; la cohorte commune est alors déjà fixée. La collecte reste sans date de fin, et les tests peuvent donc attendre si la porte générale progresse lentement.
+Sans réponse marquée, ces deux cohortes sont les mêmes lignes et l'on retrouve la règle préenregistrée. La raison du changement tient au calendrier de diffusion du CNEF et non à un résultat : une cohorte unique laisserait les réponses CNEF occuper des places dans des tests où elles ne peuvent pas entrer, jusqu'à priver H1, test primaire, de la puissance prévue. Les huit tests sont conduits une seule fois, ensemble, dès que la cohorte de l'instrument gelé compte 200 réponses ; la cohorte commune est alors déjà fixée.
+
+**Date butoir.** Les tests sont conduits au plus tard le 31 mars 2027. Si la cohorte de l'instrument gelé n'est pas complète à cette date, chaque cohorte réunit les réponses exploitables enregistrées avant le 1er avril 2027 à 0 h, heure de Paris (200 au plus pour la cohorte commune). Le statut reste confirmatoire, et chaque test est rapporté avec sa puissance à l'effectif atteint, calculée pour l'effet attendu selon la section 4.4, jamais pour l'effet observé. Cette date a été fixée le 5 novembre 2026, alors que l'enquête comptait 24 participants et qu'aucun test n'avait été conduit : sans elle, les tests sur l'instrument gelé pouvaient ne jamais avoir lieu. La collecte peut continuer après cette date ; les réponses enregistrées ensuite sont exploratoires.
 
 | Test | Cohorte | Réponses `cnef-2026-10` | Raison |
 |---|---|---|---|
@@ -59,7 +61,9 @@ Sans réponse marquée, ces deux cohortes sont les mêmes lignes et l'on retrouv
 - il retient lui-même les réponses exploitables (section 4.3) et rapporte les lignes écartées, dont les réponses v1 ;
 - il marque « fidélité insuffisante » tout test reposant sur un omega inférieur à 0,60 et ajoute la corrélation de chaque item (section 6.1) ;
 - il rapporte la décision de chaque hypothèse et, côte à côte, l'effet avec et sans les répondants signalés, avec la règle de l'écart substantiel (section 6.6) ;
-- une valeur p indéfinie (variable constante) rend le test non testable et le retire de sa famille avant Holm.
+- une valeur p indéfinie (variable constante) rend le test non testable et le retire de sa famille avant Holm ;
+- il calcule pour chaque test la puissance à l'effectif atteint, pour l'effet attendu, avec les formules de la section 4.4 (et `analysis/power_h7.py` pour H7), et rapporte comme sous-puissante une hypothèse dont la puissance est inférieure à 0,80 : la condition d'effectif de la section 4.4 se lit sur cette puissance ;
+- il applique la date butoir : aucune réponse enregistrée après elle n'entre dans une cohorte, et une cohorte incomplète n'est acceptée comme confirmatoire qu'une fois la date passée.
 
 `analysis/comparability_v1_v2.py` produit la note de comparabilité prévue à la section 6.6. Le tableau par item de H8 est publié dans tous les cas, à titre descriptif : le composite `ethicalConcern` contient un item d'utilité perçue, et l'association avec la fréquence d'usage peut en dépendre.
 
@@ -78,7 +82,8 @@ Le CNEF reçoit les résultats agrégés de sa seule porte, sous les mêmes règ
 - Le préenregistrement n'est pas encore déposé. Il indiquait une date de dépôt au 12 septembre 2026, qui était la date de révision du texte ; ce champ est corrigé. L'historique public du dépôt GitHub horodate les versions successives.
 - Au tag `v2.0.1`, le texte prévoyait une clôture de la collecte au 31 décembre 2026. La règle d'arrêt à effectif fixe l'a remplacée le 13 septembre 2026 (commit `f9fc1f3`).
 - La collecte v2 a commencé le 7 septembre 2026, avant le dépôt, et les règles de cet addendum sont fixées pendant la collecte, sans qu'aucun résultat bivarié ait été calculé.
-- `analysis/confirmatory.py` a été modifié le 29 octobre 2026 (commit `6ffb4ac`) et le 4 novembre 2026, pour les raisons décrites ci-dessus, avant tout dépôt et toute extraction.
+- `analysis/confirmatory.py` a été modifié le 29 octobre 2026 (commit `6ffb4ac`), puis les 4 et 5 novembre 2026, pour les raisons décrites ci-dessus, avant tout dépôt et toute extraction.
+- La date butoir du 31 mars 2027 a été ajoutée le 5 novembre 2026.
 
 ## Autres versions partenaires
 

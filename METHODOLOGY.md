@@ -532,7 +532,7 @@ Les variables comparées sont brutes ou sont des dimensions ne contenant pas la 
 
 ### 9.3 Effectif et règle d'arrêt
 
-L'effectif prévu est de 200 réponses exploitables. La définition d'une réponse exploitable, la règle d'arrêt (effectif fixe : les huit tests sont conduits une seule fois, sur les 200 premières réponses exploitables par ordre de soumission ; la collecte n'a pas de date de fin) et la règle applicable aux hypothèses sous-puissantes sont celles du préenregistrement, sections 4.3 et 4.4.
+L'effectif prévu est de 200 réponses exploitables. La définition d'une réponse exploitable, la règle d'arrêt (effectif fixe : les huit tests sont conduits une seule fois, sur les 200 premières réponses exploitables par ordre de soumission ; la collecte n'a pas de date de fin, et les tests sont conduits au plus tard le 31 mars 2027) et la règle applicable aux hypothèses sous-puissantes sont celles du préenregistrement, sections 4.3 et 4.4.
 
 ---
 
@@ -705,6 +705,10 @@ Wang, Y. Y., et Wang, Y. S. (2022). Development and validation of an artificial 
 ## 14. Changelog
 
 Les dates ci-dessous ont été rétablies dans un ordre chronologique cohérent. Les versions antérieures de ce document mêlaient des dates de 2025 et de 2026 de façon contradictoire, dont une révision « v1.2.0 (2026-01-25) » antérieure à une révision « v1.1.0 (2025-01-25) ». La chronologie retenue est celle de l'historique du dépôt.
+
+### 5 novembre 2026, date butoir des tests
+
+Les huit tests sont conduits au plus tard le 31 mars 2027, sur les réponses enregistrées avant cette date si la cohorte de l'instrument gelé n'est pas complète, avec la puissance de chaque test à l'effectif atteint (`docs/PREREGISTRATION_ADDENDUM_1.md`). Le script calcule désormais cette puissance, que la section 4.4 du préenregistrement prévoyait déjà pour toute hypothèse sous-puissante.
 
 ### 4 novembre 2026, corrections de l'audit méthodologique
 
