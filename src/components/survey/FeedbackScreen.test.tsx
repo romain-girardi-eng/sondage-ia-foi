@@ -66,12 +66,12 @@ describe("FeedbackScreen", () => {
     vi.unstubAllGlobals();
   });
 
-  it("shows one profile, the heuristic caveat and a raw match score", async () => {
+  it("shows one profile, the heuristic caveat and a closeness level, not a number", async () => {
     await renderFeedback(gardienTraditionAnswers);
 
     expect(screen.getByText(/Attribution heuristique, non validée/)).toBeInTheDocument();
     expect(screen.getAllByText("Gardien de la Tradition").length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/correspondance \d+ \/ 100/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/proximité avec ce profil/).length).toBeGreaterThan(0);
     expect(screen.queryByText("Deux profils proches")).toBeNull();
   });
 
@@ -106,7 +106,7 @@ describe("FeedbackScreen", () => {
     expect(screen.getAllByText("Gardien de la Tradition").length).toBeGreaterThan(0);
     expect(screen.getAllByText(runnerUpName).length).toBeGreaterThan(0);
     // Both are shown with their raw score, neither is announced as the winner.
-    expect(screen.getAllByText(/correspondance \d+ \/ 100/).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(/proximité avec ce profil/).length).toBeGreaterThanOrEqual(2);
   });
 
   it("falls back to a calm no-profile state with the raw dimension list", async () => {

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import {
   CONSENT_VERSION,
+  CONSENT_VERSION_CNEF,
   INSTRUMENT_VERSION,
   getVisibleQuestions,
   isScreenedOut,
@@ -483,7 +484,7 @@ export function SurveyContainer({ initialLanguage, variant = "general", initialA
               ...(options.screenedOut ? { screenedOut: true } : {}),
             },
             consentGiven: true,
-            consentVersion: CONSENT_VERSION,
+            consentVersion: variant === "cnef" ? CONSENT_VERSION_CNEF : CONSENT_VERSION,
             anonymousId: anonymousIdState,
             fingerprint: fingerprint || undefined,
             emailHash: options.emailHash,

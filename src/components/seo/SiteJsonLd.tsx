@@ -13,7 +13,7 @@ const organizationSchema = {
     url: `${BASE_URL}/logo.png`,
   },
   description:
-    "Étude académique sur l'utilisation de l'intelligence artificielle dans les pratiques religieuses chrétiennes. Réalisée en partenariat avec le CNEF.",
+    "Étude indépendante sur l'utilisation de l'intelligence artificielle dans les pratiques religieuses chrétiennes. Réalisée en partenariat avec le CNEF.",
   knowsAbout: [
     "Intelligence Artificielle",
     "Pratiques religieuses chrétiennes",
@@ -37,7 +37,7 @@ const websiteSchema = {
   url: BASE_URL,
   name: "IA & Foi",
   description:
-    "Grande enquête académique 2026 sur l'intelligence artificielle et la vie spirituelle chrétienne.",
+    "Grande enquête indépendante 2026 sur l'intelligence artificielle et la vie spirituelle chrétienne.",
   publisher: { "@id": `${BASE_URL}/#organization` },
   inLanguage: ["fr-FR", "en-US"],
 };

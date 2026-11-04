@@ -19,6 +19,7 @@ import {
   DIMENSION_COLORS,
 } from "@/lib/scoring";
 import { PROFILE_ICONS, SUB_PROFILE_ICONS } from "@/lib/scoring/icons";
+import { matchLevel } from "@/lib/scoring/profiles";
 import type {
   DimensionKey,
   PrimaryProfile,
@@ -151,7 +152,7 @@ export function FeedbackScreen({ answers, onContinue, entryVariant = "general" }
   const growthAreas = spectrum.growthAreas;
 
   const formatMatch = (match: ProfileMatch): string =>
-    t("feedback.matchScore", { score: Math.round(match.matchScore) });
+    t("feedback.matchScore", { level: t(`resultsExplain.matchLevels.${matchLevel(match.matchScore)}`) });
 
   // Empirical rank against collected participants, never a modelled percentile.
   const renderComparison = (dimension: DimensionKey, score: number | null) => {

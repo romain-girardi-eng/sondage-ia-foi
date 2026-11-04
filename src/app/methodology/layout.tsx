@@ -26,7 +26,7 @@ const datasetSchema = {
     "Centrality of Religiosity Scale",
     "spiritualité numérique",
     "éthique de l'IA",
-    "sondage académique",
+    "enquête indépendante",
   ],
   measurementTechnique: "Questionnaire en ligne, auto-déclaratif",
   variableMeasured: [

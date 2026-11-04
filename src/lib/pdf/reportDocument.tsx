@@ -19,8 +19,9 @@ import {
   PROFILE_DEFINITIONS,
   SUB_PROFILE_DEFINITIONS,
 } from '@/lib/scoring/constants';
-import type { DimensionKey, ProfileSpectrum, UsageGap } from '@/lib/scoring/types';
+import type { DimensionKey, PrimaryProfile, ProfileMatch, ProfileSpectrum, UsageGap } from '@/lib/scoring/types';
 import { translations as uiStrings } from '@/lib/i18n/translations';
+import { matchLevel } from '@/lib/scoring/profiles';
 
 // Fonts and logos ship with the app (next.config.ts traces them into the route).
 const ROOT = process.cwd();
@@ -101,8 +102,7 @@ const COPY = {
     closeProfiles: 'Deux profils proches',
     closeProfilesNote: 'Vos réponses se situent à distance comparable de ces deux profils. Aucun des deux ne l\'emporte.',
     inBrief: 'Ce profil, en bref :',
-    match: (score: number) => `correspondance ${score} / 100`,
-    matchNote: 'La correspondance mesure la proximité de vos scores avec les plages du profil. Ce n\'est pas un degré de certitude.',
+    match: (level: string) => `proximité avec ce profil : ${level}`,
     heuristic: 'Attribution heuristique, non validée : ce profil est une lecture indicative de vos réponses, pas un diagnostic.',
     noProfileTitle: 'Profil non attribuable',
     noProfileNote: (n: number) => `Il faut au moins quatre dimensions mesurées pour rapprocher vos réponses d'un profil. ${n} sur 7 l'ont été. Vos scores sont détaillés plus loin.`,
@@ -110,11 +110,11 @@ const COPY = {
     outOf: '/ 5',
     notMeasured: 'Non mesuré',
     generatedOn: 'Rapport établi le',
-    identifier: 'Identifiant anonyme',
+    identifier: 'Identifiant personnel',
     pageOf: (page: number, total: number) => `Page ${page} sur ${total}`,
     signature: `Enquête conçue et analysée par ${AUTHOR}`,
     runningTitle: 'Rapport personnel',
-    readingTitle: 'Ce que vos réponses dessinent',
+    readingTitle: 'Ce que décrit ce profil',
     subProfile: 'Sous-profil',
     standsOut: 'Ce qui ressort',
     distinguishes: 'Ce qui distingue vos réponses',
@@ -157,8 +157,7 @@ const COPY = {
     closeProfiles: 'Two close profiles',
     closeProfilesNote: 'Your answers sit at a comparable distance from these two profiles. Neither one wins.',
     inBrief: 'This profile, in brief:',
-    match: (score: number) => `match ${score} / 100`,
-    matchNote: 'The match measures how close your scores are to the profile\'s ranges. It is not a degree of certainty.',
+    match: (level: string) => `closeness to this profile: ${level}`,
     heuristic: 'Heuristic attribution, not validated: this profile is an indicative reading of your answers, not a diagnosis.',
     noProfileTitle: 'No profile can be attributed',
     noProfileNote: (n: number) => `At least four measured dimensions are needed to match your answers to a profile. ${n} of 7 were measured. Your scores are detailed further on.`,
@@ -166,11 +165,11 @@ const COPY = {
     outOf: '/ 5',
     notMeasured: 'Not measured',
     generatedOn: 'Report issued on',
-    identifier: 'Anonymous ID',
+    identifier: 'Personal ID',
     pageOf: (page: number, total: number) => `Page ${page} of ${total}`,
     signature: `Survey designed and analysed by ${AUTHOR}`,
     runningTitle: 'Personal report',
-    readingTitle: 'What your answers outline',
+    readingTitle: 'What this profile describes',
     subProfile: 'Sub-profile',
     standsOut: 'What stands out',
     distinguishes: 'What sets your answers apart',
@@ -298,14 +297,33 @@ export function ReportDocument({ data, spectrum }: { data: ReportData; spectrum:
 
   const surveyTitle = isCnef ? ui.cnef.title : ui.intro.title;
   const primary = spectrum.primary;
+  const isFrench = lang === 'fr';
+  // PROFILE_DEFINITIONS and the interpretation are written in French only.
+  const profileTexts = (id: PrimaryProfile) => {
+    const translated = ui.profilesModal[id];
+    const def = PROFILE_DEFINITIONS[id];
+    return {
+      title: isFrench ? def.title : translated.title,
+      short: isFrench ? def.shortDescription : translated.short,
+      motivation: isFrench ? def.coreMotivation : null,
+    };
+  };
+  const levelOf = (match: ProfileMatch) => c.match(ui.resultsExplain.matchLevels[matchLevel(match.matchScore)]);
   const primaryDef = primary ? PROFILE_DEFINITIONS[primary.profile] : null;
+  const primaryTexts = primary ? profileTexts(primary.profile) : null;
   const runnerUp = spectrum.allMatches[1] ?? null;
   const isCloseCall = primary !== null && runnerUp !== null && spectrum.profileConfidence === 'low';
-  const subDef = spectrum.subProfile ? SUB_PROFILE_DEFINITIONS[spectrum.subProfile.subProfile] : null;
+  const subDef = isFrench && spectrum.subProfile ? SUB_PROFILE_DEFINITIONS[spectrum.subProfile.subProfile] : null;
   const interpretation = spectrum.interpretation;
-  const narrative = interpretation ? interpretation.narrative.replace(subDef?.description ?? '', '').trim() : '';
-  const uniqueAspects = informative(interpretation?.uniqueAspects ?? []);
-  const blindSpots = informative(interpretation?.blindSpots ?? []);
+  const narrative = !primary || !interpretation
+    ? ''
+    : isFrench
+      ? interpretation.narrative.replace(subDef?.description ?? '', '').trim()
+      : ui.profilesModal[primary.profile].description;
+  const strengths = isFrench ? (interpretation?.strengths ?? []) : [];
+  const uniqueAspects = isFrench ? informative(interpretation?.uniqueAspects ?? []) : [];
+  const blindSpots = isFrench ? informative(interpretation?.blindSpots ?? []) : [];
+  const insights = isFrench ? spectrum.insights : [];
   const measured = DIMENSION_KEYS.filter((key) => spectrum.dimensions[key].value !== null).length;
 
   const number = (value: number) => (lang === 'fr' ? value.toFixed(1).replace('.', ',') : value.toFixed(1));
@@ -398,9 +416,9 @@ export function ReportDocument({ data, spectrum }: { data: ReportData; spectrum:
                 <View style={{ flexDirection: 'row', marginBottom: 12 }}>
                   {[primary, runnerUp].map((match) => (
                     <View key={match.profile} style={{ flex: 1, paddingRight: 18 }}>
-                      <Text style={[styles.profileName, { fontSize: 29, marginBottom: 8 }]}>{tx(PROFILE_DEFINITIONS[match.profile].title)}</Text>
-                      <Text style={{ fontSize: 9.5, color: BODY, marginBottom: 4 }}>{inBrief(PROFILE_DEFINITIONS[match.profile].shortDescription)}</Text>
-                      <Text style={styles.small}>{c.match(Math.round(match.matchScore))}</Text>
+                      <Text style={[styles.profileName, { fontSize: 29, marginBottom: 8 }]}>{tx(profileTexts(match.profile).title)}</Text>
+                      <Text style={{ fontSize: 9.5, color: BODY, marginBottom: 4 }}>{inBrief(profileTexts(match.profile).short)}</Text>
+                      <Text style={styles.small}>{tx(levelOf(match))}</Text>
                     </View>
                   ))}
                 </View>
@@ -408,10 +426,12 @@ export function ReportDocument({ data, spectrum }: { data: ReportData; spectrum:
               </>
             ) : (
               <>
-                <Text style={[styles.profileName, { fontSize: 44, marginBottom: 12 }]}>{tx(primaryDef.title)}</Text>
-                <Text style={[styles.motivation, { marginBottom: 8 }]}>{tx(primaryDef.coreMotivation)}</Text>
-                <Text style={{ fontSize: 9.5, marginBottom: 4 }}>{inBrief(primaryDef.shortDescription)}</Text>
-                <Text style={styles.small}>{c.match(Math.round(primary.matchScore))}</Text>
+                <Text style={[styles.profileName, { fontSize: 44, marginBottom: 12 }]}>{tx(primaryTexts!.title)}</Text>
+                {primaryTexts!.motivation && (
+                  <Text style={[styles.motivation, { marginBottom: 8 }]}>{tx(primaryTexts!.motivation)}</Text>
+                )}
+                <Text style={{ fontSize: 9.5, marginBottom: 4 }}>{inBrief(primaryTexts!.short)}</Text>
+                <Text style={styles.small}>{tx(levelOf(primary))}</Text>
               </>
             )
           ) : (
@@ -462,10 +482,10 @@ export function ReportDocument({ data, spectrum }: { data: ReportData; spectrum:
               </View>
             )}
             <View style={{ flexDirection: 'row' }}>
-              <View style={{ flex: 1, paddingRight: 14 }} wrap={false}>
+              {strengths.length > 0 && <View style={{ flex: 1, paddingRight: 14 }} wrap={false}>
                 <Text style={styles.subTitle}>{c.standsOut}</Text>
-                {bullets(interpretation.strengths.slice(0, 3))}
-              </View>
+                {bullets(strengths.slice(0, 3))}
+              </View>}
               {uniqueAspects.length > 0 && (
                 <View style={{ flex: 1, paddingLeft: 14 }} wrap={false}>
                   <Text style={styles.subTitle}>{c.distinguishes}</Text>
@@ -490,10 +510,10 @@ export function ReportDocument({ data, spectrum }: { data: ReportData; spectrum:
             </View>
           )}
 
-          {spectrum.insights.length > 0 && (
+          {insights.length > 0 && (
             <View style={{ marginBottom: 6 }}>
               <Text style={styles.subTitle} minPresenceAhead={40}>{c.insights}</Text>
-              {spectrum.insights.slice(0, 4).map((insight, i) => (
+              {insights.slice(0, 4).map((insight, i) => (
                 <View key={i} style={[styles.card, { borderLeftColor: theme.accent }]} wrap={false}>
                   <Text style={styles.cardTitle}>{tx(insight.title)}</Text>
                   <Text>{tx(insight.message)}</Text>
@@ -507,7 +527,7 @@ export function ReportDocument({ data, spectrum }: { data: ReportData; spectrum:
         {/* Seven dimensions: position on the scale against the profile's range */}
         <View break>
           <Text style={styles.sectionTitle}>{c.dimensionsTitle}</Text>
-          <Text style={{ marginBottom: 8 }}>{tx(c.dimensionsIntro(primaryDef ? primaryDef.title : null))}</Text>
+          <Text style={{ marginBottom: 8 }}>{tx(c.dimensionsIntro(primaryTexts ? primaryTexts.title : null))}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2, height: 12 }}>
             <View style={{ position: 'absolute', left: 182, width: AXIS_WIDTH, height: 12 }}>
               {[1, 2, 3, 4, 5].map((tick) => (
@@ -593,7 +613,7 @@ export function ReportDocument({ data, spectrum }: { data: ReportData; spectrum:
             ui.scientificDisclaimer.exploratoryNote,
             ui.scientificDisclaimer.scaleNote,
             ui.scientificDisclaimer.profileNote,
-            c.matchNote,
+            ui.resultsExplain.matchExplain,
             ui.scientificDisclaimer.footerNote,
           ])}
           <View style={{ backgroundColor: theme.tint, padding: 12, borderRadius: 3, marginTop: 10 }}>

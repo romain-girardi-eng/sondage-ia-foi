@@ -1,3 +1,4 @@
+import { translations } from '@/lib/i18n/translations';
 import { describe, it, expect } from 'vitest';
 import { calculateProfileSpectrum, getSimpleProfile, getEnhancedProfileData } from '../profiles';
 import { PROFILE_DEFINITIONS, SUB_PROFILE_DEFINITIONS } from '../constants';
@@ -144,6 +145,19 @@ describe('descriptions carry no Barnum phrasing', () => {
     for (const text of texts) {
       for (const phrase of banned) {
         expect(text.toLowerCase()).not.toContain(phrase.toLowerCase());
+      }
+    }
+  });
+
+  it('avoids banned phrasing in the public profile texts of both languages', () => {
+    const publicBanned = [...banned, 'profil rare', 'rare profile', 'not a weakness', 'vous êtes', 'you are', 'convaincu'];
+    for (const language of ['fr', 'en'] as const) {
+      const modal = translations[language].profilesModal as unknown as Record<string, unknown>;
+      for (const id of Object.keys(PROFILE_DEFINITIONS)) {
+        const { short, description } = modal[id] as { short: string; description: string };
+        for (const phrase of publicBanned) {
+          expect(`${short} ${description}`.toLowerCase()).not.toContain(phrase.toLowerCase());
+        }
       }
     }
   });

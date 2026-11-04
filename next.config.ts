@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/api/email/send-pdf': ['./src/lib/pdf/assets/**', './public/cnef-logo.png', './public/logo.png'],
   },
+  async redirects() {
+    return [{ source: '/cnef/eng', destination: '/eng/cnef', permanent: true }];
+  },
   async rewrites() {
     return [
       {

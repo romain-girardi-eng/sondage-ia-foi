@@ -50,8 +50,8 @@ const content = {
     subtitle: "Gérez vos données personnelles conformément au RGPD",
     search: {
       title: "Retrouver vos données",
-      description: "Entrez l'identifiant anonyme qui vous a été communiqué à la fin du sondage pour accéder à vos données ou les supprimer.",
-      placeholder: "Votre identifiant anonyme (UUID)",
+      description: "Entrez l'identifiant personnel qui vous a été communiqué à la fin du sondage pour accéder à vos données ou les supprimer.",
+      placeholder: "Votre identifiant personnel (UUID)",
       button: "Rechercher",
     },
     results: {
@@ -69,7 +69,7 @@ const content = {
     },
     info: {
       title: "Où trouver mon identifiant ?",
-      text: "Votre identifiant anonyme vous est communiqué à la fin du sondage. Si vous ne l'avez pas noté, nous ne pouvons malheureusement pas vous le retrouver car nous n'avons aucune information permettant de vous identifier.",
+      text: "Votre identifiant personnel vous est communiqué à la fin du sondage. Si vous ne l'avez pas noté, nous ne pouvons malheureusement pas vous le retrouver car nous n'avons aucune information permettant de vous identifier.",
     },
     errors: {
       required: "Veuillez entrer votre identifiant anonyme.",

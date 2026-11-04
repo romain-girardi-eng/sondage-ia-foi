@@ -120,7 +120,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
       title: "Purpose of Processing",
       items: [
         {
-          purpose: "Academic research",
+          purpose: "Independent research",
           detail: "Understanding the use of AI in Christian religious practices. Results published only in aggregate form."
         },
         {
@@ -286,7 +286,7 @@ export function PrivacyContent({ lang }: { lang: SupportedLang }) {
       title: "Finalités du traitement",
       items: [
         {
-          purpose: "Recherche académique",
+          purpose: "Recherche indépendante",
           detail: "Comprendre l'utilisation de l'IA dans les pratiques religieuses chrétiennes. Résultats publiés uniquement sous forme agrégée."
         },
         {

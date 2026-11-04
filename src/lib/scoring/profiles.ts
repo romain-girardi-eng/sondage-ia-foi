@@ -248,27 +248,40 @@ function calculateAllProfileMatches(
 ): ProfileMatch[] {
   const profiles = Object.keys(PROFILE_DEFINITIONS) as PrimaryProfile[];
 
-  const matches: ProfileMatch[] = profiles.map((profileId) => {
+  const scored = profiles.map((profileId) => {
     const { distance } = calculateProfileDistance(dimensions, profileId);
     const bonusUnits =
       getTheologicalOrientationBonus(profileId, answers) * THEO_ORIENTATION_WEIGHT +
       getSpecialProfileBonus(profileId, dimensions, answers);
-    const matchScore = Math.max(
-      0,
-      Math.min(100, distanceToScore(distance) + bonusUnits * BONUS_POINTS_PER_UNIT),
-    );
-    return { profile: profileId, matchScore, distance };
+    const uncapped = distanceToScore(distance) + bonusUnits * BONUS_POINTS_PER_UNIT;
+    const match: ProfileMatch = {
+      profile: profileId,
+      matchScore: Math.max(0, Math.min(100, uncapped)),
+      distance,
+    };
+    return { match, uncapped };
   });
 
-  matches.sort((a, b) => {
-    if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
+  // Sorted before the cap: two profiles at 100 still differ, and the alphabet
+  // must not decide between them.
+  scored.sort((a, b) => {
+    if (b.uncapped !== a.uncapped) return b.uncapped - a.uncapped;
     const confidenceDelta =
-      tieBreakConfidence(dimensions, b.profile) - tieBreakConfidence(dimensions, a.profile);
+      tieBreakConfidence(dimensions, b.match.profile) - tieBreakConfidence(dimensions, a.match.profile);
     if (confidenceDelta !== 0) return confidenceDelta;
-    return a.profile.localeCompare(b.profile);
+    return a.match.profile.localeCompare(b.match.profile);
   });
 
-  return matches;
+  return scored.map(({ match }) => match);
+}
+
+/**
+ * What the respondent is shown instead of a number: the score has no metric
+ * meaning (ranges set by judgement, capped at 100), so it is read in three steps.
+ */
+export function matchLevel(matchScore: number): 'high' | 'medium' | 'low' {
+  if (matchScore >= 80) return 'high';
+  return matchScore >= 50 ? 'medium' : 'low';
 }
 
 export const CONFIDENCE_GAP_HIGH = 15;
@@ -517,17 +530,17 @@ function generateAdvancedInsights(dimensions: SevenDimensions): AdvancedInsight[
     insights.push({
       category: 'technological',
       icon: '⚡',
-      title: "Usage de l'IA fréquent",
+      title: "Ouverture à l'IA haute",
       message:
-        "Vous déclarez un usage fréquent de l'IA et plusieurs contextes d'utilisation différents.",
+        "Votre score se situe dans le haut de l'échelle : usage, aisance avec ces outils et attitude envers le numérique.",
       priority: 4,
     });
   } else if (aiOpenness !== null && aiOpenness <= 1.8) {
     insights.push({
       category: 'technological',
       icon: '🛡️',
-      title: "Usage de l'IA rare",
-      message: "Vous déclarez peu ou pas d'usage de l'IA, dans un ou aucun contexte.",
+      title: "Ouverture à l'IA basse",
+      message: "Votre score se situe dans le bas de l'échelle : usage, aisance avec ces outils et attitude envers le numérique.",
       priority: 3,
     });
   }

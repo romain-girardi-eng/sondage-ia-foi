@@ -77,6 +77,8 @@ export const INSTRUMENT_VERSION = '2.0.0';
 
 /** Consent wording version, stamped on every response. */
 export const CONSENT_VERSION = '2.0';
+/** The CNEF consent also names its Tech & Foi movement, which publishes conclusions. */
+export const CONSENT_VERSION_CNEF = '2.1';
 
 // --- HELPERS ---
 // Displayed text always comes from src/lib/i18n/questions.ts (the canonical

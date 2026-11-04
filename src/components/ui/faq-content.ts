@@ -7,7 +7,7 @@ export const FAQ_CONTENT: Record<'fr' | 'en', FAQItem[]> = {
   fr: [
     {
       q: "Pourquoi cette étude ?",
-      a: "L'intelligence artificielle transforme silencieusement les pratiques religieuses, de la rédaction de sermons à la prière assistée. Cette grande enquête vise à cartographier ces usages et comprendre les enjeux éthiques qu'ils soulèvent pour les communautés chrétiennes.",
+      a: "L'intelligence artificielle arrive dans certaines pratiques religieuses, de la préparation de sermons à la prière assistée. Cette enquête décrit les usages déclarés par ses participants et les questions éthiques qu'ils soulèvent. Elle ne mesure pas leur fréquence dans une population.",
     },
     {
       q: "Mes réponses sont-elles anonymes ?",
@@ -23,7 +23,7 @@ export const FAQ_CONTENT: Record<'fr' | 'en', FAQItem[]> = {
     },
     {
       q: "Comment mes données seront-elles utilisées ?",
-      a: "Les résultats seront publiés sous forme agrégée dans des rapports publics et présentés lors de conférences. Aucune réponse individuelle ne sera jamais divulguée.",
+      a: "Les résultats seront publiés sous forme agrégée dans des rapports publics et présentés lors de conférences. Un jeu de données anonymisé sera aussi publié pour la recherche et la réplication : sans identifiant ni commentaire libre, avec des catégories regroupées pour qu'aucune personne ne puisse être reconnue.",
     },
     {
       q: "Qu'est-ce que le score CRS-5 ?",
@@ -41,7 +41,7 @@ export const FAQ_CONTENT: Record<'fr' | 'en', FAQItem[]> = {
   en: [
     {
       q: "Why this study?",
-      a: "Artificial intelligence is silently transforming religious practices, from sermon writing to AI-assisted prayer. This major survey aims to map these uses and understand the ethical issues they raise for Christian communities.",
+      a: "Artificial intelligence is reaching some religious practices, from sermon preparation to AI-assisted prayer. This survey describes the uses reported by its participants and the ethical questions they raise. It does not measure how frequent they are in a population.",
     },
     {
       q: "Are my responses anonymous?",
@@ -57,7 +57,7 @@ export const FAQ_CONTENT: Record<'fr' | 'en', FAQItem[]> = {
     },
     {
       q: "How will my data be used?",
-      a: "Results will be published in aggregated form in public reports and presented at conferences. No individual responses will ever be disclosed.",
+      a: "Results will be published in aggregated form in public reports and presented at conferences. An anonymised dataset will also be published for research and replication: with no identifier or free comment, and with categories grouped so that no person can be recognised.",
     },
     {
       q: "What is the CRS-5 score?",
