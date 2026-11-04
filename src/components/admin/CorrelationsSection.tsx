@@ -238,6 +238,11 @@ export function CorrelationsSection({
         <p className="text-sm text-muted-foreground leading-relaxed">
           {`Statistiques bivariées verrouillées jusqu’à ${lock.required} réponses exploitables v2 (préenregistrement, section 4.3). Actuellement${NBSP}: ${lock.exploitable}.`}
         </p>
+        {lock.exploitable >= lock.required && (
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {`Cohorte atteinte. Lancer analysis/confirmatory.py, puis poser CONFIRMATORY_ANALYSIS_DONE=true pour lever le verrou.`}
+          </p>
+        )}
         <p className="text-sm text-muted-foreground leading-relaxed">
           {`Les statistiques descriptives (moyennes, distributions) restent disponibles dans les autres onglets, sous les mêmes règles de k-anonymat.`}
         </p>

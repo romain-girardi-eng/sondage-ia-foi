@@ -23,6 +23,13 @@ describe('computeEmpiricalRank', () => {
     expect(computeEmpiricalRank(5, quantiles)).toBe(99);
   });
 
+  it('moves in steps of ten on the deciles served by the endpoint', () => {
+    const deciles = [1.4, 1.8, 2.2, 2.6, 3, 3.4, 3.8, 4.2, 4.6];
+    expect(computeEmpiricalRank(1, deciles)).toBe(0);
+    expect(computeEmpiricalRank(3, deciles)).toBe(40);
+    expect(computeEmpiricalRank(5, deciles)).toBe(90);
+  });
+
   it('returns null without quantiles', () => {
     expect(computeEmpiricalRank(3, [])).toBeNull();
   });

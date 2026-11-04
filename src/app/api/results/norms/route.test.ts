@@ -67,7 +67,7 @@ describe('GET /api/results/norms', () => {
     expect(body).toEqual({ n: 12, mode: 'insufficient' });
   });
 
-  it('returns 99 monotonic quantiles per dimension', async () => {
+  it('returns nine monotonic deciles per dimension', async () => {
     orMock.mockResolvedValue({ data: syntheticRows(60), error: null });
 
     const response = await GET(makeRequest());
@@ -87,12 +87,13 @@ describe('GET /api/results/norms', () => {
 
     for (const key of Object.keys(body.dimensions)) {
       const { quantiles } = body.dimensions[key];
-      expect(quantiles).toHaveLength(99);
+      expect(quantiles).toHaveLength(9);
       for (let i = 1; i < quantiles.length; i++) {
         expect(quantiles[i]).toBeGreaterThanOrEqual(quantiles[i - 1]);
       }
       expect(quantiles[0]).toBeGreaterThanOrEqual(1);
-      expect(quantiles[98]).toBeLessThanOrEqual(5);
+      expect(quantiles[8]).toBeLessThanOrEqual(5);
+      for (const q of quantiles) expect(Number.isInteger(q * 10 + 1e-9) || Math.abs(q * 10 - Math.round(q * 10)) < 1e-9).toBe(true);
     }
   });
 
@@ -120,6 +121,25 @@ describe('GET /api/results/norms', () => {
       0
     );
     expect(pooled).toBe(body.n);
+  });
+
+  it('compares a CNEF respondent only with the CNEF version, and the others without it', async () => {
+    const cnef = syntheticRows(40).map((row) => ({ ...row, metadata: { wordingVariant: 'cnef-2026-10' } }));
+    orMock.mockResolvedValue({ data: [...syntheticRows(35), ...cnef], error: null });
+
+    const general = await (await GET(makeRequest())).json();
+    const entry = await (await GET(new NextRequest('http://localhost/api/results/norms?entry=cnef'))).json();
+
+    expect(general.n).toBe(35);
+    expect(entry.n).toBe(40);
+  });
+
+  it('publishes no cut-point for a dimension measured on fewer than 30 people', async () => {
+    orMock.mockResolvedValue({ data: syntheticRows(40), error: null });
+    const body = await (await GET(makeRequest())).json();
+    for (const key of Object.keys(body.dimensions)) {
+      if (body.dimensions[key].n < 30) expect(body.dimensions[key].quantiles).toEqual([]);
+    }
   });
 
   it('sets the 10-minute cache header', async () => {

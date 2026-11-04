@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
+import {
+  createServerSupabaseClient,
+  createServiceRoleClient,
+  isServiceRoleConfigured,
+  isSupabaseConfigured,
+} from '@/lib/supabase';
+import { roundCount, roundDistribution } from '@/lib/results/disclosure';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rateLimit';
 import { SURVEY_QUESTIONS } from '@/data';
 
@@ -93,7 +99,9 @@ export async function GET(request: NextRequest) {
       return insufficient(0, headers);
     }
 
-    const supabase = await createServerSupabaseClient();
+    // Migration 014 takes the aggregate function away from the public key.
+    const supabase =
+      (isServiceRoleConfigured ? createServiceRoleClient() : null) ?? (await createServerSupabaseClient());
     if (!supabase) {
       return insufficient(0, headers);
     }
@@ -123,9 +131,9 @@ export async function GET(request: NextRequest) {
       const respondents = raw === null || raw === undefined ? Number.NaN : Number(raw);
       return {
         questionId: row.question_id,
-        distribution: row.distribution,
-        totalResponses: Number(row.total_responses),
-        respondents: Number.isFinite(respondents) ? respondents : null,
+        distribution: roundDistribution(row.distribution),
+        totalResponses: roundCount(Number(row.total_responses)),
+        respondents: Number.isFinite(respondents) ? roundCount(respondents) : null,
       };
     });
 

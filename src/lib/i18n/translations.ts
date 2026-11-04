@@ -104,7 +104,8 @@ export const translations = {
       closeProfilesTitle: "Deux profils proches",
       closeProfilesDescription:
         "Vos réponses se situent à distance comparable de deux profils. Aucun des deux ne l'emporte ; ils sont présentés ensemble.",
-      normsComparison: "Votre score est supérieur à {percent} % des {count} participants",
+      normsComparison: "Votre score est supérieur à environ {percent} % des {count} participants",
+      normsComparisonLowest: "Votre score se situe dans les 10 % les plus bas des {count} participants",
       normsUnavailable: "Comparaison disponible à partir de 30 participants",
       usageGap: "Écart d'usage",
       usageGapNote:
@@ -885,7 +886,8 @@ export const translations = {
       closeProfilesTitle: "Two close profiles",
       closeProfilesDescription:
         "Your answers sit at a comparable distance from two profiles. Neither one wins; both are shown together.",
-      normsComparison: "Your score is higher than {percent}% of the {count} participants",
+      normsComparison: "Your score is higher than about {percent}% of the {count} participants",
+      normsComparisonLowest: "Your score is in the lowest 10% of the {count} participants",
       normsUnavailable: "Comparison available from 30 participants onwards",
       usageGap: "Usage gap",
       usageGapNote:

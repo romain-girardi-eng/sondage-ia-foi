@@ -15,7 +15,7 @@ export const MIN_PARTICIPANTS_FOR_COMPARISON = 30;
 
 export interface DimensionNorm {
   n: number;
-  /** Percentiles 1 to 99, ascending. */
+  /** Cut-points, ascending, evenly spaced in rank: deciles from the endpoint. */
   quantiles: number[];
 }
 
@@ -85,16 +85,15 @@ export function parseNormsResponse(payload: unknown): NormsResponse | null {
 }
 
 /**
- * Empirical rank: the smallest index i such that `score <= quantiles[i]`.
- * With the 99 ascending quantiles served by the endpoint, that index is the
- * number of percentile cut-points the score sits above, i.e. the share of
- * participants the respondent scores above. A score above every cut-point
- * returns `quantiles.length`.
+ * Empirical rank, in percent: the share of participants the respondent scores
+ * above, read off the cut-points the score sits above. With deciles it moves in
+ * steps of ten, which is all the precision the endpoint publishes.
  */
 export function computeEmpiricalRank(score: number, quantiles: number[]): number | null {
   if (quantiles.length === 0 || !Number.isFinite(score)) return null;
   const index = quantiles.findIndex((q) => score <= q);
-  return index === -1 ? quantiles.length : index;
+  const above = index === -1 ? quantiles.length : index;
+  return Math.round((above * 100) / (quantiles.length + 1));
 }
 
 export interface DimensionComparison {

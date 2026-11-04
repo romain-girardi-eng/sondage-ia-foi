@@ -53,7 +53,7 @@ const USAGE_GAP_KEYS: Record<UsageGap, string> = {
  * every failure is silent: the screen simply falls back to "comparison
  * available from 30 participants".
  */
-function useNorms(): NormsResponse | null {
+function useNorms(entryVariant: "general" | "cnef"): NormsResponse | null {
   const [norms, setNorms] = useState<NormsResponse | null>(null);
 
   useEffect(() => {
@@ -61,7 +61,8 @@ function useNorms(): NormsResponse | null {
 
     async function load() {
       try {
-        const response = await fetch("/api/results/norms", { signal: controller.signal });
+        const url = entryVariant === "cnef" ? "/api/results/norms?entry=cnef" : "/api/results/norms";
+        const response = await fetch(url, { signal: controller.signal });
         if (!response.ok) return;
         const payload: unknown = await response.json();
         if (controller.signal.aborted) return;
@@ -73,7 +74,7 @@ function useNorms(): NormsResponse | null {
 
     void load();
     return () => controller.abort();
-  }, []);
+  }, [entryVariant]);
 
   return norms;
 }
@@ -128,7 +129,7 @@ export function FeedbackScreen({ answers, onContinue, entryVariant = "general" }
 
   // Scores - memoized to prevent expensive recalculations
   const spectrum = useMemoizedProfileSpectrum(answers);
-  const norms = useNorms();
+  const norms = useNorms(entryVariant);
 
   const dimensions = spectrum.dimensions;
   const crsScore = dimensions.religiosity.value;
@@ -158,7 +159,7 @@ export function FeedbackScreen({ answers, onContinue, entryVariant = "general" }
     return (
       <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
         {comparison
-          ? t("feedback.normsComparison", { percent: comparison.rank, count: comparison.n })
+          ? t(comparison.rank === 0 ? "feedback.normsComparisonLowest" : "feedback.normsComparison", { percent: comparison.rank, count: comparison.n })
           : t("feedback.normsUnavailable")}
       </p>
     );

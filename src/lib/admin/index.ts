@@ -26,6 +26,7 @@ export {
   computeCorrelations,
   buildCorrelationMatrix,
   buildCorrelationsLock,
+  maskSegmentStats,
   isExploitableV2Response,
   suppressBivariateFindings,
   generateKeyFindings,

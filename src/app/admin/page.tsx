@@ -653,6 +653,27 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
     setStats(null);
   };
 
+  const handlePartnerExport = async () => {
+    const token = sessionStorage.getItem("admin_token");
+    if (!token) return;
+    const response = await fetch("/api/results/partner?entry=cnef", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      setExportSuccess("Résultats CNEF indisponibles : migration 014 à appliquer");
+      return;
+    }
+    const url = window.URL.createObjectURL(await response.blob());
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `resultats-cnef-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setExportSuccess("Résultats CNEF téléchargés");
+  };
+
   const handleExport = async (format: "json" | "csv") => {
     setExportLoading(format);
     setExportSuccess(null);
@@ -695,14 +716,14 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        setExportSuccess(`Export ${format.toUpperCase()} downloaded successfully`);
+        setExportSuccess(`Export ${format.toUpperCase()} téléchargé`);
       } else if (response.status === 404) {
-        setExportSuccess("No data to export");
+        setExportSuccess("Aucune donnée à exporter");
       } else {
-        setExportSuccess("Export failed");
+        setExportSuccess("Échec de l'export");
       }
     } catch {
-      setExportSuccess("Export failed");
+      setExportSuccess("Échec de l'export");
     } finally {
       setExportLoading(null);
       setTimeout(() => setExportSuccess(null), 3000);
@@ -2313,7 +2334,7 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       ) : (
                         <FileJson className="w-5 h-5" />
                       )}
-                      Export as JSON
+                      Exporter en JSON
                     </button>
 
                     <button
@@ -2330,9 +2351,17 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                       ) : (
                         <FileSpreadsheet className="w-5 h-5" />
                       )}
-                      Export as CSV
+                      Exporter en CSV
                     </button>
                   </div>
+
+                  <button
+                    onClick={handlePartnerExport}
+                    className="mt-3 w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl font-medium bg-muted text-foreground hover:bg-accent transition-colors"
+                  >
+                    <FileText className="w-5 h-5" />
+                    Résultats pour le CNEF (agrégats de sa page, sans comparaison)
+                  </button>
 
                   <AnimatePresence>
                     {exportSuccess && (
@@ -2978,7 +3007,9 @@ const [comparisonData, setComparisonData] = useState<ResponseDetail[]>([]);
                                     ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
                                     : "bg-muted text-muted-foreground border-border"
                                 )}>
-                                  {responseDetail.socialDesirability.flag ? 'levé' : 'non levé'}
+                                  {responseDetail.socialDesirability.score === null
+                                    ? 'non évalué'
+                                    : responseDetail.socialDesirability.flag ? 'levé' : 'non levé'}
                                 </span>
                               </div>
                               <p className="text-xs text-muted-foreground/70">

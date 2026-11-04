@@ -81,8 +81,34 @@ export interface CorrelationsLock {
   required: number;
 }
 
-export function buildCorrelationsLock(exploitable: number): CorrelationsLock {
-  return { locked: exploitable < CONFIRMATORY_N, exploitable, required: CONFIRMATORY_N };
+/**
+ * The gate stays closed once the cohort is complete, until the confirmatory
+ * script has run: lifting it at the 200th response would show the bivariate
+ * results just before the tests they must not influence.
+ */
+export function buildCorrelationsLock(exploitable: number, analysisDone = false): CorrelationsLock {
+  return {
+    locked: exploitable < CONFIRMATORY_N || !analysisDone,
+    exploitable,
+    required: CONFIRMATORY_N,
+  };
+}
+
+/** Group means are the descriptive form of H3, H4 and H5: only the counts stay while the gate is closed. */
+export function maskSegmentStats(stats: SegmentStats): SegmentStats {
+  const blank = (values: Record<string, number | null>) =>
+    Object.fromEntries(Object.keys(values).map((key) => [key, null]));
+  return {
+    ...stats,
+    avgReligiosity: null,
+    avgAiAdoption: null,
+    sdReligiosity: null,
+    sdAiAdoption: null,
+    profileDistribution: {},
+    usageGapDistribution: {},
+    dimensionAverages: blank(stats.dimensionAverages),
+    dimensionSds: blank(stats.dimensionSds),
+  };
 }
 
 /**

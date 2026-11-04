@@ -8,6 +8,8 @@ const rpcMock = vi.fn();
 
 vi.mock('@/lib/supabase', () => ({
   isSupabaseConfigured: true,
+  isServiceRoleConfigured: false,
+  createServiceRoleClient: vi.fn(() => null),
   createServerSupabaseClient: vi.fn(async () => ({ rpc: rpcMock })),
 }));
 
@@ -83,14 +85,14 @@ describe('GET /api/results/aggregated', () => {
     expect(ids).toContain('ctrl_ia_contextes');
   });
 
-  it('passes the expanded multi-select cells through untouched', async () => {
+  it('rounds the expanded multi-select cells to base 5', async () => {
     const response = await GET(makeRequest());
     const body = await response.json();
 
     const contexts = body.results.find(
       (r: { questionId: string }) => r.questionId === 'ctrl_ia_contextes'
     );
-    expect(contexts.distribution).toEqual({ professionnel: 28, spirituel: 9, _autres: 5 });
+    expect(contexts.distribution).toEqual({ professionnel: 30, spirituel: 10, _autres: 5 });
   });
 
   it('exposes the distinct respondent count next to the cell total', async () => {
@@ -101,9 +103,10 @@ describe('GET /api/results/aggregated', () => {
       (r: { questionId: string }) => r.questionId === 'ctrl_ia_contextes'
     );
     // A multi-select totals selections (42) over fewer people (34): only the
-    // respondent count is a sound percentage denominator.
-    expect(contexts.totalResponses).toBe(42);
-    expect(contexts.respondents).toBe(34);
+    // respondent count is a sound percentage denominator. Both are rounded, so
+    // their difference does not reveal a suppressed cell.
+    expect(contexts.totalResponses).toBe(40);
+    expect(contexts.respondents).toBe(35);
   });
 
   it('reports respondents as null when the database predates migration 011', async () => {

@@ -8,6 +8,7 @@ import type { Answers } from '@/data';
 // rank is read against the distribution actually observed, never against a
 // hypothetical normal population.
 const MIN_N_FOR_NORMS = 30;
+const CNEF_WORDING_VERSION = 'cnef-2026-10';
 
 // Responses collected under v1.x and v2.0.0 are pooled: the item score maps in
 // `@/lib/scoring/score-maps` resolve both vocabularies onto the same 1-5 scale,
@@ -57,14 +58,16 @@ function quantile(sorted: number[], p: number): number {
   return sorted[lower] + (sorted[upper] - sorted[lower]) * (position - lower);
 }
 
-function quantiles99(values: number[]): number[] {
+// Nine rounded cut-points: enough to place a respondent, too few to rebuild the
+// individual scores (99 exact quantiles give them all back at n = 30).
+function deciles(values: number[]): number[] {
   const sorted = [...values].sort((a, b) => a - b);
-  return Array.from({ length: 99 }, (_, i) => quantile(sorted, (i + 1) / 100));
+  return Array.from({ length: 9 }, (_, i) => Math.round(quantile(sorted, (i + 1) / 10) * 10) / 10);
 }
 
 interface NormsRow {
   answers: Record<string, unknown> | null;
-  metadata: { instrumentVersion?: string | null } | null;
+  metadata: { instrumentVersion?: string | null; wordingVariant?: string | null } | null;
 }
 
 export async function GET(request: NextRequest) {
@@ -106,7 +109,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ n: 0, mode: 'insufficient' as const }, { status: 200, headers });
     }
 
-    const rows = (data as NormsRow[] | null) ?? [];
+    // A respondent is compared with people who read the same questions.
+    const cnef = request.nextUrl.searchParams.get('entry') === 'cnef';
+    const rows = ((data as NormsRow[] | null) ?? []).filter(
+      (row) => (row.metadata?.wordingVariant === CNEF_WORDING_VERSION) === cnef,
+    );
 
     const perDimension: Record<DimensionKey, number[]> = {
       religiosity: [],
@@ -160,7 +167,7 @@ export async function GET(request: NextRequest) {
       const values = perDimension[key];
       dimensions[key] = {
         n: values.length,
-        quantiles: values.length > 0 ? quantiles99(values) : [],
+        quantiles: values.length >= MIN_N_FOR_NORMS ? deciles(values) : [],
       };
     }
 

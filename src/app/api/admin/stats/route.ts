@@ -19,6 +19,7 @@ import {
   buildCorrelationsLock,
   isExploitableV2Response,
   suppressBivariateFindings,
+  maskSegmentStats,
   generateKeyFindings,
   getCompletionMinutes,
   calculateScoreDistributions,
@@ -486,14 +487,19 @@ export async function GET(request: NextRequest) {
     // CONFIRMATORY_N exploitable v2 responses. The count is the analytic
     // sample, not the raw total, so the lock cannot be lifted by screen-outs or
     // by v1 rows.
+    // The CNEF version does not count: the frozen-instrument cohort is the one
+    // that closes last (addendum 1).
     const exploitableV2Count = ((allResponsesData as AllResponseItem[] | null) ?? []).filter((r) =>
       isExploitableV2Response({
         consent_given: r.consent_given,
         metadata: r.metadata,
         answers: r.answers,
-      })
+      }) && (r.metadata as { wordingVariant?: string } | null)?.wordingVariant !== 'cnef-2026-10'
     ).length;
-    const correlationsLocked = buildCorrelationsLock(exploitableV2Count);
+    const correlationsLocked = buildCorrelationsLock(
+      exploitableV2Count,
+      process.env.CONFIRMATORY_ANALYSIS_DONE === 'true'
+    );
 
     // Correlations: pairwise-complete, n >= 20, Fisher CI, BH over this family
     const correlations = correlationsLocked.locked
@@ -518,6 +524,12 @@ export async function GET(request: NextRequest) {
     }
     for (const [key, data] of Object.entries(segmentData.byAge)) {
       segmentedAnalysis.byAge[key] = buildSegmentStats(data);
+    }
+
+    if (correlationsLocked.locked) {
+      for (const group of Object.values(segmentedAnalysis)) {
+        for (const key of Object.keys(group)) group[key] = maskSegmentStats(group[key]);
+      }
     }
 
     // Build profile clusters for bubble chart. Clusters below MIN_SEGMENT_N

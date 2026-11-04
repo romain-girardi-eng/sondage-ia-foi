@@ -275,7 +275,9 @@ describe('buildCorrelationsLock', () => {
   });
 
   it('opens exactly at the threshold', () => {
-    expect(buildCorrelationsLock(CONFIRMATORY_N).locked).toBe(false);
+    expect(buildCorrelationsLock(CONFIRMATORY_N).locked).toBe(true);
+    expect(buildCorrelationsLock(CONFIRMATORY_N, true).locked).toBe(false);
+    expect(buildCorrelationsLock(CONFIRMATORY_N - 1, true).locked).toBe(true);
   });
 });
 
