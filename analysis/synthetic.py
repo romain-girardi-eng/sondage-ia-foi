@@ -71,8 +71,8 @@ def _matrix_value(rng: np.random.Generator, latent: float) -> dict[str, int]:
     return {task: int(min(3, max(0, round(base + rng.normal(0, 0.8))))) for task in tasks}
 
 
-def generate(n: int = DEFAULT_N, seed: int = 20260907) -> pd.DataFrame:
-    """One synthetic export, one row per response."""
+def generate(n: int = DEFAULT_N, seed: int = 20260907, cnef_share: float = 0.0) -> pd.DataFrame:
+    """One synthetic export, one row per response; ``cnef_share`` of them on the CNEF version."""
     rng = np.random.default_rng(seed)
     rows: list[dict[str, object]] = []
     submitted_at = COLLECTION_START
@@ -80,6 +80,7 @@ def generate(n: int = DEFAULT_N, seed: int = 20260907) -> pd.DataFrame:
     for _ in range(n):
         submitted_at = submitted_at + timedelta(minutes=float(rng.exponential(90.0)) + 1.0)
         variant = "cnef" if rng.random() < 0.4 else "general"
+        is_cnef = cnef_share > 0 and rng.random() < cnef_share
         age_code = int(rng.integers(1, 5))
         age = {1: "18-35", 2: "36-50", 3: "51-65", 4: "66+"}[age_code]
 
@@ -132,7 +133,10 @@ def generate(n: int = DEFAULT_N, seed: int = 20260907) -> pd.DataFrame:
         row: dict[str, object] = {
             "submittedAt": submitted_at.isoformat(timespec="seconds").replace("+00:00", "Z"),
             "instrumentVersion": "2.0.0",
-            "entryVariant": variant,
+            "entryVariant": "cnef" if is_cnef else variant,
+            "wordingVariant": "cnef-2026-10" if is_cnef else "",
+            "consentGiven": "true",
+            "screenedOut": "",
             "profil_age": age,
             "profil_statut": statut,
             "profil_confession": "protestant" if evangelical else "catholique",
@@ -252,7 +256,8 @@ def generate(n: int = DEFAULT_N, seed: int = 20260907) -> pd.DataFrame:
 
         # A share of unanswered items, so the missing-data paths are exercised.
         for key in list(row.keys()):
-            if key in ("submittedAt", "instrumentVersion", "entryVariant", "profil_statut"):
+            if key in ("submittedAt", "instrumentVersion", "entryVariant", "wordingVariant",
+                       "consentGiven", "screenedOut", "profil_statut"):
                 continue
             if rng.random() < 0.03:
                 row[key] = "sans_reponse"

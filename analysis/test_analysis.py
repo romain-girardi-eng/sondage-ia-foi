@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -22,11 +23,16 @@ from confirmatory import (
     STATUS_CONFIRMATORY,
     STATUS_EXPLORATORY,
     CohortError,
+    apply_fidelity_rule,
+    apply_holm,
     build_dataset,
     cohort_report_lines,
+    decision,
+    reliability,
     run,
     run_hypotheses,
     select_cohort,
+    sensitivity_comparison,
 )
 from scoring import (
     calculate_dimension,
@@ -430,3 +436,153 @@ def test_full_run_archives_the_cohort_with_its_hash(tmp_path):
     report = (out / "confirmatory_report.md").read_text(encoding="utf-8")
     assert payload["cohortSha256"] in report
     assert results["cohort"]["firstSubmittedAt"] in report
+
+
+# ---------------------------------------------------------------------------
+# Export guards, cohorts, plan commitments
+# ---------------------------------------------------------------------------
+
+
+def _dated_export(n: int, cnef_share: float = 0.0):
+    return generate(n=n, seed=5, cnef_share=cnef_share)
+
+
+def test_export_without_the_cnef_column_is_refused(tmp_path):
+    input_path = tmp_path / "export.csv"
+    _dated_export(40).drop(columns=["wordingVariant"]).to_csv(input_path, index=False)
+    with pytest.raises(CohortError, match="wordingVariant"):
+        run(input_path, tmp_path / "out", permutations=10, cohort_size=30)
+
+
+def test_unknown_wording_variant_is_refused(tmp_path):
+    export = _dated_export(40)
+    export.loc[0, "wordingVariant"] = "partenaire-2027"
+    input_path = tmp_path / "export.csv"
+    export.to_csv(input_path, index=False)
+    with pytest.raises(CohortError, match="addendum"):
+        run(input_path, tmp_path / "out", permutations=10, cohort_size=30)
+
+
+def test_only_exploitable_rows_reach_the_cohort(tmp_path):
+    export = _dated_export(60)
+    export = export.sort_values("submittedAt").reset_index(drop=True)
+    export["instrumentVersion"] = export["instrumentVersion"].astype(object)
+    export.loc[0:4, "instrumentVersion"] = "1.4.0"
+    export.loc[5:6, "screenedOut"] = "true"
+    export.loc[7, "consentGiven"] = "false"
+    input_path = tmp_path / "export.csv"
+    export.to_csv(input_path, index=False)
+
+    payload = run(input_path, tmp_path / "out", permutations=10, cohort_size=30)
+
+    assert payload["excluded"] == {"sansConsentement": 1, "ecartees": 2, "horsV2": 5}
+    assert payload["cohort"]["firstSubmittedAt"].startswith(export.loc[8, "submittedAt"][:19])
+    report = (tmp_path / "out" / "confirmatory_report.md").read_text(encoding="utf-8")
+    assert "hors v2 5" in report
+
+
+def test_a_cnef_surge_does_not_use_up_the_frozen_cohort(tmp_path):
+    input_path = tmp_path / "export.csv"
+    _dated_export(160, cnef_share=0.5).to_csv(input_path, index=False)
+
+    payload = run(input_path, tmp_path / "out", permutations=10, cohort_size=50)
+
+    tests = {t["hypothesis"]: t for t in payload["main"]["tests"]}
+    assert payload["cohort"]["size"] == 50
+    assert payload["cohortCommon"]["size"] == 50
+    # The cohort of the frozen instrument runs later in time than the common one.
+    assert payload["cohort"]["lastSubmittedAt"] > payload["cohortCommon"]["lastSubmittedAt"]
+    assert tests["H1"]["n"] > 30
+    extract = pd.read_csv(tmp_path / "out" / "cohort_extract.csv", dtype=str, keep_default_na=False)
+    frozen = extract[extract["inFrozenCohort"] == "True"]
+    assert (frozen["wordingVariant"] == "").all() and frozen.shape[0] == 50
+    assert (extract["inCommonCohort"] == "True").sum() == 50
+
+
+def test_partial_frozen_cohort_is_exploratory(tmp_path):
+    input_path = tmp_path / "export.csv"
+    _dated_export(120, cnef_share=0.7).to_csv(input_path, index=False)
+    with pytest.raises(CohortError):
+        run(input_path, tmp_path / "out", permutations=10, cohort_size=60)
+    payload = run(input_path, tmp_path / "out", permutations=10, cohort_size=60, allow_partial=True)
+    assert payload["status"] == STATUS_EXPLORATORY
+
+
+def test_without_cnef_rows_the_two_cohorts_are_the_same(tmp_path):
+    input_path = tmp_path / "export.csv"
+    _dated_export(40).to_csv(input_path, index=False)
+    payload = run(input_path, tmp_path / "out", permutations=10, cohort_size=30)
+    assert payload["cohort"]["lastSubmittedAt"] == payload["cohortCommon"]["lastSubmittedAt"]
+
+
+def test_constant_variable_leaves_the_family_instead_of_entering_holm():
+    h1 = st.TestResult("H1", "", "", "primaire", "bilatéral", 50, 0.1, 0.245, "rho", 0.1)
+    h8 = st.TestResult("H8", "", "", "primaire", "bilatéral", 50, 0.0, float("nan"), "rho", None)
+    apply_holm([h1, h8])
+    assert h8.p_value is None and h8.p_holm is None
+    assert h1.p_holm == pytest.approx(0.245)
+    assert decision(h8) == "non testable"
+
+
+def test_decision_follows_the_announced_direction():
+    def result(hypothesis, effect, p):
+        r = st.TestResult(hypothesis, "", "", "primaire", "bilatéral", 50, 0.0, p, "x", effect)
+        r.p_holm = p
+        return r
+
+    assert decision(result("H1", 0.3, 0.01)) == "soutenue"
+    assert decision(result("H1", -0.3, 0.01)) == "infirmée"
+    assert decision(result("H8", -0.3, 0.01)) == "soutenue"
+    assert decision(result("H4", -0.2, 0.01)) == "soutenue"
+    assert decision(result("H7", 0.7, 0.01)) == "soutenue"
+    assert decision(result("H1", 0.3, 0.2)) == "non significatif"
+
+
+def test_low_omega_marks_the_test_and_adds_item_correlations():
+    frame = build_dataset([
+        {key: parse_cell(value) for key, value in row.items()}
+        for row in generate(n=80, seed=1).to_dict(orient="records")
+    ])
+    results = run_hypotheses(frame, permutations=20)
+    apply_holm(results)
+    relia = reliability(frame)
+    relia = {key: dict(value) for key, value in relia.items()}
+    relia["sacredBoundaryCore"]["omegaOrdinalApprox"] = 0.4
+    tables = apply_fidelity_rule(results, {"frozen": frame, "common": frame}, {"frozen": relia, "common": relia})
+
+    h1 = next(r for r in results if r.hypothesis == "H1")
+    assert any("fidélité insuffisante" in note for note in h1.notes)
+    assert {t["hypothesis"] for t in tables} >= {"H1", "H4", "H5", "H8"}
+    first = next(t for t in tables if t["hypothesis"] == "H5")
+    assert all(row["n"] > 0 for row in first["items"])
+
+
+def test_desirability_table_applies_the_substantial_gap_rule():
+    def result(effect, p, ci):
+        r = st.TestResult("H1", "", "", "primaire", "bilatéral", 50, 0.0, p, "rho", effect, ci)
+        r.p_holm = p
+        return r
+
+    same = sensitivity_comparison([result(0.3, 0.01, (0.2, 0.4))], [result(0.32, 0.01, (0.2, 0.4))], 3)
+    moved = sensitivity_comparison([result(0.3, 0.01, (0.2, 0.4))], [result(0.5, 0.01, (0.4, 0.6))], 3)
+    flipped = sensitivity_comparison([result(0.3, 0.01, (0.2, 0.4))], [result(0.3, 0.2, (0.0, 0.5))], 3)
+    assert same["rows"][0]["substantial"] is False
+    assert moved["rows"][0]["substantial"] is True
+    assert flipped["rows"][0]["substantial"] is True
+    assert same["excluded"] == 3
+
+
+def test_comparability_note_reads_the_changes_table_and_hides_small_cells():
+    from comparability_v1_v2 import CHANGES_FILE, conserved_star_items, distributions, report
+
+    items = conserved_star_items(CHANGES_FILE.read_text(encoding="utf-8"))
+    assert items == ["theo_inspiration", "theo_activites_sacrees"]
+
+    frame = pd.DataFrame({
+        "instrumentVersion": ["1.4.0"] * 6 + ["2.0.0"] * 7,
+        "crs_public_practice": ["hebdo"] * 5 + ["jamais"] + ["hebdo"] * 6 + [""],
+    })
+    data = distributions(frame, ["crs_public_practice", "absent"])
+    assert data == {"crs_public_practice": {"v1": {"hebdo": 5, "jamais": 1}, "v2": {"hebdo": 6}}}
+    text = report(data)
+    assert "< 5" in text and "5 (83" in text
