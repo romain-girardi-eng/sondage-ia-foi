@@ -40,67 +40,45 @@ Sorties, dans `--out` (`analysis/out` par défaut) :
 - `confirmatory_results.json` : tous les nombres, y compris le SHA-256 de
   l'export lu et celui de la cohorte.
 
-## Règle de cohorte
+## Règles de cohorte
 
-La collecte n'a pas de date de fin. L'échantillon confirmatoire est la cohorte
-des 200 premières réponses exploitables par ordre de soumission
-(préenregistrement, §4.3). Le script applique cette règle lui-même :
+La collecte n'a pas de date de fin. Deux cohortes sont formées (préenregistrement, §4.3, et addendum 1) :
 
-1. il exige une colonne `submittedAt` (ISO 8601 ; `created_at` de la table
-   `responses`), trie l'export sur cette colonne en ordre croissant, les ex æquo
-   restant dans l'ordre du fichier, et retient les `--cohort-size` premières
-   lignes (200 par défaut) ;
-2. il écrit la cohorte dans `cohort_extract.csv`, calcule son SHA-256 et
-   reporte, dans le rapport et dans le JSON, cette empreinte ainsi que le
-   `submittedAt` de la première et de la dernière ligne retenue ;
-3. si l'export compte moins de lignes que la taille de cohorte, il s'arrête en
-   erreur avant tout calcul. Avec `--allow-partial`, il s'exécute quand même et
-   le rapport porte le statut « exploratoire » dans son titre et son en-tête :
-   ce rapport n'est pas le test préenregistré.
+- la cohorte de l'instrument gelé, pour H1, H3, H4, H5 et H7 : les 200 premières réponses exploitables sans le marqueur `cnef-2026-10` ;
+- la cohorte commune, pour H2, H6 et H8 : les 200 premières réponses exploitables, toutes portes confondues.
 
-Les tests, les analyses de sensibilité et la fidélité portent sur la cohorte
-seule. Les réponses postérieures à la 200e sont exploratoires et ne passent
-pas par ce script sans addendum préenregistré.
+Sans réponse marquée, ce sont les mêmes lignes. Le script :
+
+1. refuse l'export s'il manque une colonne requise ou si `wordingVariant` porte une valeur inconnue ;
+2. écarte lui-même les réponses non exploitables (`consentGiven` différent de `true`, `screenedOut`, `profil_confession = sans_religion`, `instrumentVersion` hors `2.`) et rapporte leur nombre par motif ;
+3. trie sur `submittedAt` en ordre croissant, les ex æquo restant dans l'ordre du fichier, et retient les `--cohort-size` premières lignes de chaque cohorte (200 par défaut) ;
+4. écrit les deux cohortes dans `cohort_extract.csv`, avec les colonnes `inFrozenCohort` et `inCommonCohort`, calcule son SHA-256 et le reporte, avec les dates de première et de dernière ligne, dans le rapport et le JSON ;
+5. s'arrête en erreur avant tout calcul si une cohorte est incomplète. Avec `--allow-partial`, il s'exécute quand même et le rapport porte le statut « exploratoire » dans son titre et son en-tête : ce rapport n'est pas le test préenregistré.
+
+Les tests, les analyses de sensibilité et la fidélité portent sur les cohortes seules. Les réponses postérieures sont exploratoires et ne passent pas par ce script sans addendum préenregistré.
 
 ## Format de l'export attendu
 
-Un CSV, **une ligne par réponse exploitable v2**, en-tête sur la première ligne.
-Une réponse exploitable est définie par le préenregistrement (§4.3) :
-`consent_given = true`, `metadata.screenedOut` absent ou faux,
-`profil_confession ≠ sans_religion`, `metadata.instrumentVersion` commençant par
-`2.`. Le filtrage se fait à l'extraction ; le script ne le refait pas, il compte
-seulement les lignes non v2 qu'il rencontre et le signale dans le rapport.
-
-Colonnes :
+L'export s'obtient dans l'administration (onglet Exporter, CSV) ou par `/api/results/export?format=csv`. Il compte une ligne par réponse avec consentement, une colonne par question sur l'ensemble des lignes, et les colonnes suivantes. Il s'archive avec son SHA-256, et la cohorte extraite à son tour.
 
 | Colonne | Contenu |
 | --- | --- |
-| `submittedAt` | `created_at` de la réponse, ISO 8601 (`2026-09-07T10:15:00Z`) ; obligatoire, sert à la cohorte |
+| `submittedAt` | `created_at` de la réponse, ISO 8601 ; sert aux cohortes |
 | `instrumentVersion` | `metadata.instrumentVersion`, par exemple `2.0.0` |
 | `entryVariant` | `metadata.entryVariant` : `general`, `cnef`, … |
-| `wordingVariant` | `metadata.wordingVariant` : vide, ou `cnef-2026-10` pour la version CNEF du questionnaire (addendum 1 : ces réponses n'entrent que dans H2, H6 et H8) |
+| `wordingVariant` | `metadata.wordingVariant` : vide, ou `cnef-2026-10` pour la version CNEF |
+| `consentGiven`, `screenedOut` | `true` ou `false` |
 | un identifiant de question par colonne | la réponse brute, telle que stockée dans `answers` |
 
 Typage des cellules, puisqu'un CSV n'en a pas :
 
 - **choix simple** : la valeur d'option telle quelle (`souvent`, `oui_prudent`) ;
 - **échelle 1-5** : le nombre (`4`) ;
-- **choix multiple** : un tableau JSON (`["general","etudes"]`) ou une liste
-  séparée par des barres verticales (`general|etudes`) ;
+- **choix multiple** : un tableau JSON (`["general","etudes"]`) ;
 - **matrice** : un objet JSON (`{"plan":2,"exegese":1}`) ;
-- **non répondu** : cellule vide, ou l'un des codes manquants de l'instrument
-  (`ne_sait_pas`, `sans_reponse`, `prefere_ne_pas_repondre`, `ne_souhaite_pas`).
+- **non répondu** : cellule vide, ou l'un des codes manquants de l'instrument (`ne_sait_pas`, `sans_reponse`, `prefere_ne_pas_repondre`, `ne_souhaite_pas`).
 
-Les items de l'échelle de désirabilité sociale (`ctrl_mc_1` à `ctrl_mc_5`)
-doivent être exportés : ils servent à l'analyse de sensibilité, jamais à
-corriger un score.
-
-L'export CSV actuel de l'administration (`/api/results/export?format=csv`) ne
-produit pas ce format : ses colonnes sont déduites de la première ligne, donc
-les items conditionnels manquent, les valeurs multi-choix contiennent des
-virgules non échappées, et `submittedAt`, `instrumentVersion`, `entryVariant` et
-`wordingVariant` n'y figurent pas. L'export soumis au script doit être produit par un export
-dédié, puis archivé avec son SHA-256 ; la cohorte extraite l'est à son tour.
+Les items de l'échelle de désirabilité sociale (`ctrl_mc_1` à `ctrl_mc_5`) servent à l'analyse de sensibilité, jamais à corriger un score. La note de comparabilité v1 et v2 se produit sur le même export : `analysis/.venv/bin/python analysis/comparability_v1_v2.py --input export.csv`.
 
 ## Ce que fait le script
 

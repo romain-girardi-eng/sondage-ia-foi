@@ -1,8 +1,8 @@
 # Méthodologie de l'enquête « IA et foi chrétienne »
 
 **Version de l'instrument :** 2.0.0
-**Version du consentement :** 2.0
-**Dernière révision :** 12 septembre 2026
+**Version du consentement :** 2.0 (2.1 sur la porte CNEF)
+**Dernière révision :** 4 novembre 2026
 **Responsable de l'étude :** Romain Girardi
 
 Cette étude est un projet indépendant. Elle n'est adossée à aucune institution universitaire ni à aucun laboratoire, et aucune institution ne cautionne ses résultats. Le plan d'analyse confirmatoire est fixé par le préenregistrement (`docs/PREREGISTRATION.md`), à déposer sur OSF ; ce document décrit l'instrument, le scoring, les profils, le module d'interprétation et les limites, et renvoie au préenregistrement pour les hypothèses, les tests, les effectifs, la règle d'arrêt et les exclusions.
@@ -83,7 +83,7 @@ La réponse `sans_religion` à la première question termine le questionnaire im
 
 ### 2.3 Canal d'entrée
 
-Deux portes d'entrée alimentent le même questionnaire et le même stockage. La porte CNEF préremplit `profil_confession = protestant` et `profil_confession_protestante = evangelique`, puis le répondant choisit lui-même entre `charismatique` et `non_charismatique`. Le clivage charismatique / non charismatique est donc porté par un champ unique, `profil_confession_evangelique`, identique dans les deux portes ; les deux sous-échantillons peuvent être réunis sans recodage. Le champ `metadata.entryVariant` conserve la trace du canal.
+Deux portes d'entrée alimentent le même questionnaire et le même stockage. La porte CNEF préremplit `profil_confession = protestant` et `profil_confession_protestante = evangelique`, puis le répondant choisit lui-même entre `charismatique` et `non_charismatique`. Le clivage charismatique / non charismatique est donc porté par un champ unique, `profil_confession_evangelique`, avec les mêmes valeurs dans les deux portes, mais les exemples d'Églises affichés diffèrent depuis le 29 octobre 2026 : la réunion des deux sous-échantillons se lit avec cette réserve (addendum 1). Le champ `metadata.entryVariant` conserve la trace du canal.
 
 ### 2.4 Structure confessionnelle
 
@@ -636,6 +636,9 @@ Six dimensions sur sept reposent sur des construits ad hoc, sans analyse factori
 
 - **Portée linguistique et culturelle.** Francophonie européenne majoritairement, avec un français métropolitain. Aucune généralisation à d'autres aires culturelles.
 - **Biais numérique.** L'enquête est en ligne ; les chrétiens peu connectés sont exclus de fait, et cette exclusion est associée à l'âge, au milieu et vraisemblablement aux attitudes mesurées.
+- **Deux portes, deux instruments.** Depuis le 29 octobre 2026, la porte CNEF pose une version adaptée, sous un cadrage propre (déclaration du CNEF, publication par Tech & Foi). Ses profils ne sont pas comparables à ceux de la porte générale, faute de `theo_orientation`, et son recrutement passe par un réseau de fédérations : les observations ne sont pas indépendantes.
+- **Construits composites.** `aiOpennessCore` réunit la fréquence d'usage, l'aisance et l'attitude envers le numérique ; `ethicalConcern` réunit l'utilité perçue, l'inquiétude sur l'opacité et la question de la spécificité humaine. Ces composites ne sont pas validés, et H8 peut en partie refléter l'utilité perçue.
+- **Intervalles non ajustés.** Les décisions reposent sur le p ajusté par Holm, les intervalles de confiance non : un intervalle peut exclure zéro sans que l'hypothèse soit soutenue.
 - **Filtres de recrutement.** Le plafond de 5 soumissions par adresse IP sur 30 jours tronque les groupes situés derrière un même réseau, ce qui pèse sur le recrutement du clergé (préenregistrement, section 4.1).
 - **Ordre des modalités du CRS-5.** Les deux items de pratique et les trois autres items ne sont pas présentés dans le même sens (section 3.1).
 - **Statut `responsable_non_ordonne`.** Cette modalité n'existait pas en v1 : les répondants concernés s'étaient répartis entre `clerge` et `laic_engagé`, ce qui rend la description clergé et laïcs partiellement instable entre les deux versions.
@@ -703,6 +706,18 @@ Wang, Y. Y., et Wang, Y. S. (2022). Development and validation of an artificial 
 
 Les dates ci-dessous ont été rétablies dans un ordre chronologique cohérent. Les versions antérieures de ce document mêlaient des dates de 2025 et de 2026 de façon contradictoire, dont une révision « v1.2.0 (2026-01-25) » antérieure à une révision « v1.1.0 (2025-01-25) ». La chronologie retenue est celle de l'historique du dépôt.
 
+### 4 novembre 2026, corrections de l'audit méthodologique
+
+L'audit du 3 novembre 2026 a porté sur le plan, le script, les textes publics et la confidentialité. Le détail des règles est dans `docs/PREREGISTRATION_ADDENDUM_1.md`.
+
+**Analyse.** Deux cohortes remplacent la cohorte unique ; le script refuse un export incomplet, retient lui-même les réponses exploitables, applique la règle de l'omega, rapporte les décisions et la comparaison avec et sans drapeau, et retire de Holm une valeur p indéfinie. `analysis/comparability_v1_v2.py` produit la note v1 et v2. L'export de l'administration fournit désormais les colonnes du script, pour toutes les questions et toutes les lignes.
+
+**Confidentialité.** Effectifs publics arrondis à 5, rang empirique en déciles par version de l'instrument, seuil de 30 participants dans la fonction SQL et retrait de la clé publique (migration 014, à appliquer après le déploiement), résultats par porte pour le partenaire (`/api/results/partner`).
+
+**Administration.** Filtre par porte d'entrée, moyennes de groupes masquées et verrou maintenu jusqu'à l'exécution du script.
+
+**Textes publics.** Les profils décrivent désormais ce que le calcul retient (« Ce profil regroupe des réponses où… ») et non le répondant. L'Explorateur ne promet plus de réponses « je ne sais pas », qui ne sont pas requises. Le score sur 100, plafonné et sans unité, est remplacé par une proximité forte, moyenne ou faible ; l'ordre des profils se décide avant le plafond. Les descriptions de dimensions suivent leurs items. La FAQ annonce le jeu de données ouvert, l'étude n'est plus dite « académique », et les textes ne parlent plus de transformation des pratiques. Le rapport PDF anglais ne contient plus de texte français. Le consentement de la porte CNEF nomme Tech & Foi (version 2.1).
+
 ### 29 octobre 2026, version CNEF du questionnaire
 
 **Textes publics.** À la demande du CNEF (relecture du 28 octobre 2026), la porte `/cnef` s'ouvre sur fond blanc, avec un nouveau titre, « Usage de l'IA par les protestants évangéliques », et un nouveau texte d'accueil. La ligne de partenariat devient « Enquête proposée en partenariat avec le CNEF » ; le nom du chercheur reste en bas de l'accueil, dans la politique de confidentialité et dans les mentions légales. Le texte annonce que le mouvement Tech & Foi, dont le nom renvoie à sa page sur lecnef.org, publiera les conclusions de l'enquête début 2027 et ne dit plus « sans prétention de représentativité ». Les réponses y restent « pseudonymisées ». L'image de partage, qui affichait encore « 100% anonyme » et « 5 min », est remplacée. Le consentement et la porte générale ne changent pas.
@@ -718,9 +733,9 @@ Les dates ci-dessous ont été rétablies dans un ordre chronologique cohérent.
 
 Les clés `_cnef_` sont exclues des agrégats publics, comme toute clé préfixée par `_`. Chaque réponse donnée par cette porte porte `metadata.wordingVariant = "cnef-2026-10"`.
 
-**Écart au préenregistrement.** C'est un écart au gel de l'instrument au tag `v2.0.1` (section 6.1) et à la description de la porte CNEF (section 4.1). Il touche H4 (pas de `theo_orientation` sur cette porte), H5 (statut dérivé), H7 (formulation de `profil_formation_theologique`), H8 (niveau ajouté puis recodé), le sous-score `sacredBoundaryCore` (`theo_inspiration`), le score de religiosité (CRS-5 reformulé) et la première analyse de sensibilité (pas de drapeau de désirabilité sociale). Les réponses marquées `wordingVariant = "cnef-2026-10"` restent dans la cohorte confirmatoire, mais n'entrent que dans les tests dont les variables sont restées identiques sur la porte CNEF ou s'y ramènent sans perte : H2, H6 et H8. Elles sont exclues de H1, H3, H4, H5, H7 et de la première analyse de sensibilité (`docs/PREREGISTRATION_ADDENDUM_1.md`, à déposer avant l'extraction de la cohorte). Le CNEF reçoit les résultats agrégés de sa seule porte, sans comparaison avec les autres répondants.
+**Écart au préenregistrement.** C'est un écart au gel de l'instrument au tag `v2.0.1` (section 6.1) et à la description de la porte CNEF (section 4.1). Il touche H4 (pas de `theo_orientation` sur cette porte), H5 (statut dérivé), H7 (formulation de `profil_formation_theologique`), H8 (niveau ajouté puis recodé), le sous-score `sacredBoundaryCore` (`theo_inspiration`), le score de religiosité (CRS-5 reformulé) et la première analyse de sensibilité (pas de drapeau de désirabilité sociale). La règle d'analyse est dans `docs/PREREGISTRATION_ADDENDUM_1.md` : deux cohortes, l'une pour les tests de l'instrument gelé, l'autre pour H2, H6 et H8. Le CNEF reçoit les résultats agrégés de sa seule porte, sans comparaison avec les autres répondants.
 
-**Versions partenaires.** Toute autre version du questionnaire adaptée pour un partenaire de diffusion suit la même règle : ses réponses entrent dans la cohorte commune pour les seuls tests dont toutes les variables sont restées identiques, ou s'y ramènent sans perte ; le partenaire reçoit les résultats agrégés de sa seule porte, sans comparaison avec les autres répondants ; un addendum au préenregistrement, qui donne pour cette version la liste des tests où ses réponses entrent, précède chaque extraction.
+**Versions partenaires.** Toute autre version du questionnaire adaptée pour un partenaire de diffusion suit la même règle : ses réponses entrent dans la cohorte commune pour les seuls tests dont toutes les variables sont restées identiques, ou s'y ramènent sur l'échelle préenregistrée ; le partenaire reçoit les résultats agrégés de sa seule porte, sans comparaison avec les autres répondants ; un addendum au préenregistrement, qui donne pour cette version la liste des tests où ses réponses entrent, précède chaque extraction.
 
 **Hébergement.** L'application quitte Vercel pour un serveur Hetzner Online à Helsinki, exploité par PRAGMA (Monaco) ; mentions légales et politique de confidentialité à jour, image et composition dans `deploy/pragma/`.
 
@@ -794,7 +809,7 @@ Les livrables vérifiables sont les suivants :
 | Codebook lisible par machine | présent, régénéré en v2.0.0 | `docs/codebook.json` |
 | Dictionnaire des variables | présent, régénéré en v2.0.0 | `docs/data-dictionary.csv` |
 | Codebook source, avec la logique de scoring | présent | `src/lib/scoring/codebook.ts` |
-| Préenregistrement | révisé le 12 septembre 2026, dépôt OSF en cours | `docs/PREREGISTRATION.md` |
+| Préenregistrement | texte révisé le 12 septembre 2026, addendum 1 du 4 novembre 2026, dépôt OSF à faire avant toute extraction | `docs/PREREGISTRATION.md` |
 | Script d'analyse confirmatoire | en cours de dépôt avec le préenregistrement | `analysis/confirmatory.py` |
 | Identifiant pérenne (DOI) | absent | à obtenir au dépôt |
 | Jeu de données ouvert anonymisé | absent | prévu après l'extraction confirmatoire et le rapport de fidélité |
@@ -804,4 +819,4 @@ Aucun score global n'est revendiqué tant qu'une évaluation externe n'a pas ét
 
 ---
 
-*Document révisé le 12 septembre 2026. Instrument v2.0.0. Étude indépendante conduite par Romain Girardi.*
+*Document révisé le 4 novembre 2026. Instrument v2.0.0. Étude indépendante conduite par Romain Girardi.*

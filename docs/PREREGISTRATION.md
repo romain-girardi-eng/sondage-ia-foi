@@ -17,7 +17,7 @@ Convention de notation : les lettres statistiques (p, r, ρ, d, f, n, N) sont �
 | **Affiliation** | Aucune. Étude indépendante, non adossée à une institution universitaire ou à un laboratoire |
 | **Responsable de traitement** | Romain Girardi |
 | **Contact** | contact@ia-foi.fr |
-| **Date de dépôt** | 12 septembre 2026 |
+| **Date de dépôt** | à compléter au dépôt sur OSF ; texte révisé le 12 septembre 2026, complété par l'addendum 1 |
 | **Date de début de la collecte v2.0.0** | 7 septembre 2026 (mise en production de l'instrument v2.0.0) ; textes d'accueil, de consentement et de la porte CNEF dans leur état du 12 septembre 2026 (commit ec6b234) |
 | **Règle d'arrêt** | Effectif fixe, 200 premières réponses exploitables ; collecte sans date de fin |
 | **Version de l'instrument** | 2.0.0, code figé au tag `v2.0.1` (commit ec6b234) |
